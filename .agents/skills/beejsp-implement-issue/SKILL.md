@@ -174,7 +174,14 @@ Requirements:
 - keep `pyproject.toml.version` unchanged for ordinary feature, fix, docs and
   chore work.
 
-Apply the managed-vendor, formalization, submission, security, dependency and lockfile rules from `AGENTS.md` rather than duplicating them locally.
+Apply the managed-vendor, formalization, submission and security rules from
+`AGENTS.md` rather than duplicating them locally.
+
+When the approved Issue has no dependency change, do not inspect, regenerate,
+modify or separately validate `uv.lock`. When it explicitly requires a
+dependency change, allow only the necessary minimal registry lock update and
+inspect only that relevant diff. Never run or require `uv lock --check`, and do
+not treat unrelated lock noise as an independent finding.
 
 Do not introduce a separate agent workflow for formalization, vendor sync or submission.
 
@@ -213,12 +220,6 @@ As applicable this may include:
 - SCA where justified.
 
 Use `uv run` for Python commands when applicable.
-
-Do not run or require:
-
-```text
-uv lock --check
-```
 
 Do not treat successful `lake build` alone as proof of statement fidelity.
 

@@ -1,0 +1,601 @@
+{
+  "acquisition": {
+    "complete": true,
+    "method": "gh api --paginate",
+    "observed_at": "2026-09-22T08:03:27Z",
+    "repository": "TheJustinSunPrize/awards",
+    "search_scope": "Public read-only GitHub REST API capture completed across all repository pull requests (2765) and issues (3262); retained observations are exact-ID matches for the bounded 12-candidate deep-review scope. Raw GitHub bodies were used only transiently to extract jsp_ids and are not persisted."
+  },
+  "observations": {
+    "issues": [
+      {
+        "jsp_ids": [
+          "JSP-000163"
+        ],
+        "number": 1979,
+        "state": "open",
+        "title": "[Award claim] JSP-000163: Ramsey R(4,4) — Greenwood-Gleason K_17 coloring",
+        "url": "https://github.com/TheJustinSunPrize/awards/issues/1979"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000089"
+        ],
+        "number": 998,
+        "state": "open",
+        "title": "[Award claim] JSP-000089 — Lean density-zero cycle bridge",
+        "url": "https://github.com/TheJustinSunPrize/awards/issues/998"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000007"
+        ],
+        "number": 988,
+        "state": "open",
+        "title": "[Award claim] JSP-000007 · Poincaré conjecture",
+        "url": "https://github.com/TheJustinSunPrize/awards/issues/988"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000108"
+        ],
+        "number": 819,
+        "state": "open",
+        "title": "[Award claim] JSP-000108 — Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/issues/819"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000060"
+        ],
+        "number": 22,
+        "state": "open",
+        "title": "[Correction] Batch 1: register existing public Lean proof evidence",
+        "url": "https://github.com/TheJustinSunPrize/awards/issues/22"
+      }
+    ],
+    "pull_requests": [
+      {
+        "jsp_ids": [
+          "JSP-000007"
+        ],
+        "number": 2923,
+        "state": "open",
+        "title": "catalog: record Lean formalization for JSP-000007 (Poincare Conjecture)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2923"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000085"
+        ],
+        "number": 2793,
+        "state": "open",
+        "title": "JSP-000085: Lean formalization — Erdős discrepancy problem",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2793"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000479"
+        ],
+        "number": 2776,
+        "state": "open",
+        "title": "JSP-000479: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2776"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000195"
+        ],
+        "number": 2672,
+        "state": "open",
+        "title": "JSP-000195: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2672"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000163"
+        ],
+        "number": 2660,
+        "state": "open",
+        "title": "JSP-000163: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2660"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000108"
+        ],
+        "number": 2653,
+        "state": "open",
+        "title": "JSP-000108: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2653"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000104"
+        ],
+        "number": 2652,
+        "state": "open",
+        "title": "JSP-000104: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2652"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000089"
+        ],
+        "number": 2648,
+        "state": "open",
+        "title": "JSP-000089: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2648"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000085"
+        ],
+        "number": 2645,
+        "state": "open",
+        "title": "JSP-000085: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2645"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000077"
+        ],
+        "number": 2642,
+        "state": "open",
+        "title": "JSP-000077: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2642"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000076"
+        ],
+        "number": 2641,
+        "state": "open",
+        "title": "JSP-000076: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2641"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000060"
+        ],
+        "number": 2640,
+        "state": "open",
+        "title": "JSP-000060: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2640"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000045"
+        ],
+        "number": 2639,
+        "state": "open",
+        "title": "JSP-000045: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2639"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000007"
+        ],
+        "number": 2636,
+        "state": "open",
+        "title": "JSP-000007: register Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2636"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000077"
+        ],
+        "number": 2227,
+        "state": "open",
+        "title": "JSP-000077: submit complete multicolor Ramsey completeness formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2227"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000076"
+        ],
+        "number": 2212,
+        "state": "open",
+        "title": "JSP-000076: submit complete two-color Ramsey completeness formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2212"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000195"
+        ],
+        "number": 2211,
+        "state": "open",
+        "title": "JSP-000195: submit complete Beck–Erdős Lean formalization",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/2211"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000163"
+        ],
+        "number": 1990,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000163",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1990"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000108"
+        ],
+        "number": 1986,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000108",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1986"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000085"
+        ],
+        "number": 1984,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000085",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1984"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000077"
+        ],
+        "number": 1983,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000077",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1983"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000076"
+        ],
+        "number": 1982,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000076",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1982"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000060"
+        ],
+        "number": 1981,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000060",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1981"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000007"
+        ],
+        "number": 1980,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000007",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1980"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000163"
+        ],
+        "number": 1978,
+        "state": "open",
+        "title": "JSP-000163: add Lean proof (Ramsey R(4,4)=18, Greenwood-Gleason K_17 coloring)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1978"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000479"
+        ],
+        "number": 1806,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000479",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1806"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000104"
+        ],
+        "number": 1734,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000104",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1734"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000089"
+        ],
+        "number": 1730,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000089",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1730"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000195"
+        ],
+        "number": 1716,
+        "state": "closed-unmerged",
+        "title": "catalog: record Lean formalization for JSP-000195",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1716"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000085"
+        ],
+        "number": 1667,
+        "state": "open",
+        "title": "feat(catalog): record Lean formalization for JSP-000085 (Erdos #67)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1667"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000060"
+        ],
+        "number": 1666,
+        "state": "open",
+        "title": "feat(catalog): record Lean formalization for JSP-000060 (Erdos #27)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1666"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000045"
+        ],
+        "number": 1665,
+        "state": "open",
+        "title": "feat(catalog): record Lean formalization for JSP-000045 (Erdos #4)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1665"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000163"
+        ],
+        "number": 1656,
+        "state": "open",
+        "title": "feat(catalog): record Lean formalization for JSP-000163 (Erdos #166)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1656"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000085"
+        ],
+        "number": 1599,
+        "state": "closed-unmerged",
+        "title": "Add verified Lean proof reference for JSP-000506 (random graph coloring)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1599"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000007"
+        ],
+        "number": 1598,
+        "state": "closed-unmerged",
+        "title": "JSP-000007: add verified Lean proof reference (Poincaré conjecture)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1598"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000108"
+        ],
+        "number": 1492,
+        "state": "open",
+        "title": "JSP-000108: record existing Lean formalization (c0ldzy17/jsp-000108-lean)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1492"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000104"
+        ],
+        "number": 1417,
+        "state": "open",
+        "title": "JSP-000104: record existing Lean formalization (plby/lean-proofs)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1417"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000089"
+        ],
+        "number": 1414,
+        "state": "open",
+        "title": "JSP-000089: record existing Lean formalization (plby/lean-proofs)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1414"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000077"
+        ],
+        "number": 1358,
+        "state": "open",
+        "title": "JSP-000077: record existing Lean formalization (plby/lean-proofs)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1358"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000076"
+        ],
+        "number": 1357,
+        "state": "open",
+        "title": "JSP-000076: record existing Lean formalization (plby/lean-proofs)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1357"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000479"
+        ],
+        "number": 1258,
+        "state": "open",
+        "title": "JSP-000479: record existing Lean formalization (plby/lean-proofs)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1258"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000195"
+        ],
+        "number": 1250,
+        "state": "open",
+        "title": "JSP-000195: record existing Lean formalization (plby/lean-proofs)",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1250"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000163"
+        ],
+        "number": 1211,
+        "state": "open",
+        "title": "JSP-000163: add source-locked formal candidate",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1211"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000085"
+        ],
+        "number": 1145,
+        "state": "open",
+        "title": "JSP-000085: register complete existing Lean proof evidence",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1145"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000045"
+        ],
+        "number": 1025,
+        "state": "closed-unmerged",
+        "title": "JSP-000045: Bertrand postulate verification n=2..50",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/1025"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000089"
+        ],
+        "number": 996,
+        "state": "open",
+        "title": "JSP-000089: complete Lean density-zero cycle bridge with attributed graph proof",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/996"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000108"
+        ],
+        "number": 994,
+        "state": "closed-unmerged",
+        "title": "feat(catalog): record Lean formalization for JSP-000108",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/994"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000479"
+        ],
+        "number": 965,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000479",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/965"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000077"
+        ],
+        "number": 960,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000077",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/960"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000076"
+        ],
+        "number": 959,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000076",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/959"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000089"
+        ],
+        "number": 958,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000089",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/958"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000163"
+        ],
+        "number": 954,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000163",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/954"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000104"
+        ],
+        "number": 949,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000104",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/949"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000060"
+        ],
+        "number": 947,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000060",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/947"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000195"
+        ],
+        "number": 945,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000195",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/945"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000085"
+        ],
+        "number": 934,
+        "state": "closed-unmerged",
+        "title": "feat: record formal Lean 4 verification for JSP-000085",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/934"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000108"
+        ],
+        "number": 814,
+        "state": "open",
+        "title": "JSP-000108: link complete E90-based Lean refutation",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/814"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000108"
+        ],
+        "number": 665,
+        "state": "open",
+        "title": "JSP-000108: full negative answer to the subpolynomial equidistance question",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/665"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000007"
+        ],
+        "number": 438,
+        "state": "open",
+        "title": "Draft: JSP-000007 — incomplete work archived; no complete-proof submission",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/438"
+      },
+      {
+        "jsp_ids": [
+          "JSP-000108"
+        ],
+        "number": 256,
+        "state": "open",
+        "title": "JSP-000108: fixed-constant negative theorem observation",
+        "url": "https://github.com/TheJustinSunPrize/awards/pull/256"
+      }
+    ]
+  },
+  "schema_version": 1
+}
