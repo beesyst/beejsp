@@ -1,0 +1,6 @@
+name = "beejsp-proof-template"
+defaultTargets = ["BeeJSPTemplate"]
+
+[[lean_lib]]
+name = "BeeJSPTemplate"
+roots = ["Main"]

@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run tests
+        run: uv run pytest -q
+
+      - name: Run Ruff
+        run: uv run ruff check .
+
+      - name: Check Ruff formatting
+        run: uv run ruff format --check .
+
+  vendor-sanity:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Verify managed JSP metadata and required files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -s docs/vendor/jsp/UPSTREAM_REF
+          grep -Eq '^[0-9a-f]{40}$' docs/vendor/jsp/UPSTREAM_COMMIT
+
+          test -f docs/vendor/jsp/README.md
+          test -f docs/vendor/jsp/UPSTREAM_README.md
+          test -f docs/vendor/jsp/CONTRIBUTING.md
+          test -f docs/vendor/jsp/LICENSE
+          test -f docs/vendor/jsp/LICENSE-CONTENT
+
+          test -f docs/vendor/jsp/docs/award-process.md
+          test -f docs/vendor/jsp/docs/attribution.md
+          test -f docs/vendor/jsp/docs/grading.md
+          test -f docs/vendor/jsp/docs/records.md
+          test -f docs/vendor/jsp/docs/verification.md
+
+          test -f docs/vendor/jsp/problems/README.md
+          test -f docs/vendor/jsp/skills/lean-verify/SKILL.md
+          test -f docs/vendor/jsp/.github/ISSUE_TEMPLATE/claim-award.yml
+
+          compgen -G 'docs/vendor/jsp/problems/catalog-*.md' > /dev/null
+
+  lean-template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build Lean template
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: proofs/_template
+          build: true
+          test: false

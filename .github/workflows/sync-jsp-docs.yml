@@ -1,0 +1,127 @@
+name: Sync JSP documentation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 3 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-jsp-documentation
+  cancel-in-progress: false
+
+env:
+  SYNC_BRANCH: chore/sync-jsp-docs
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout BeeJSP
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare synchronization branch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch \
+            origin \
+            main:refs/remotes/origin/main
+
+          git fetch \
+            origin \
+            "${SYNC_BRANCH}:refs/remotes/origin/${SYNC_BRANCH}" \
+            || true
+
+          git switch \
+            --force-create \
+            "${SYNC_BRANCH}" \
+            origin/main
+
+      - name: Synchronize JSP documentation
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ./scripts/sync_jsp_docs.sh
+
+      - name: Detect changes
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -n "$(git status --porcelain -- docs/vendor/jsp)" ]]; then
+            echo "changed=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Commit synchronized documentation
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/vendor/jsp
+
+          git commit \
+            -m "docs(jsp): sync upstream documentation"
+
+          git push \
+            --force-with-lease \
+            origin \
+            "HEAD:${SYNC_BRANCH}"
+
+      - name: Create pull request
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          open_pull_requests="$(
+            gh pr list \
+              --head "${SYNC_BRANCH}" \
+              --base main \
+              --state open \
+              --json number \
+              --jq "length"
+          )"
+
+          if [[ "${open_pull_requests}" == "0" ]]; then
+            gh pr create \
+              --head "${SYNC_BRANCH}" \
+              --base main \
+              --title "docs(jsp): sync upstream documentation" \
+              --body-file - <<'EOF'
+          ### Summary
+
+          Synchronizes the vendored Justin Sun Prize reference snapshot.
+
+          ### Source
+
+          - Repository: `TheJustinSunPrize/awards`
+          - Source ref: `main`
+
+          ### Scope
+
+          - Updates `docs/vendor/jsp`.
+          - Preserves upstream license and attribution files.
+          - Updates `UPSTREAM_REF` and `UPSTREAM_COMMIT`.
+          - Updates the vendored problem-bank and verification/submission reference material.
+          - Does not change BeeJSP runtime, Python tooling, or Lean proofs.
+          EOF
+          fi
