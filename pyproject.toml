@@ -1,6 +1,6 @@
 [project]
 name = "beejsp"
-version = "0.2.0"
+version = "0.3.0"
 description = "Reproducible Lean formalization for mathematical problems"
 readme = "README.md"
 requires-python = ">=3.14"
