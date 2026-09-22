@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.3.0...beejsp-v0.4.0) (2026-09-22)
+
+
+### Features
+
+* **assessment:** add evidence-backed candidate TOP-5 workflow ([#6](https://github.com/beesyst/beejsp/issues/6)) ([8ecfce7](https://github.com/beesyst/beejsp/commit/8ecfce7e9ccde886c7104590c349d8ca80e113c2))
+
 ## [0.3.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.2.0...beejsp-v0.3.0) (2026-09-22)
 
 
