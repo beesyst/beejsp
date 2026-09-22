@@ -364,6 +364,27 @@ When a value is:
 
 represent that explicitly rather than inventing a value.
 
+### Iteration 2 scanner
+
+The first scanner consumes only the managed, pinned JSP snapshot. Run it from
+the repository root with:
+
+```bash
+uv run python -m beejsp.scanner --output problem-bank.json --summary problem-bank.txt
+```
+
+It dynamically discovers `problems/catalog-*.md` under
+`docs/vendor/jsp/`; it does not query the network or use the vendor snapshot as
+live competition evidence. The canonical JSON contains the catalog paths,
+vendor provenance, one normalized record per detailed catalog entry, diagnostics
+and the derived `candidate_ids` set. Each record keeps raw official fields next
+to normalized status values. `candidate_ids` is the unranked deterministic
+filter for `Current status == Solved` and `Lean proof == No`.
+
+If parsing or identity validation reports an error, `is_complete` is false and
+the scanner withholds `candidate_ids`. Iteration 3 can consume the JSON records
+and candidate IDs directly rather than reparsing JSP Markdown.
+
 ## Candidate analysis
 
 Candidate analysis should separate facts from derived prioritization.

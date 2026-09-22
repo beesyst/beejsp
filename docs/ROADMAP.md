@@ -1003,7 +1003,7 @@ It is not proof.
 
 ### Iteration 2 — Problem-bank ingestion and deterministic candidate scanner
 
-**Status:** PLANNED
+**Status:** DONE
 
 #### Goal
 
