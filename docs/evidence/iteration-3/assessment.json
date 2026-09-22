@@ -1,0 +1,2007 @@
+{
+  "competition_acquisition": {
+    "complete": true,
+    "method": "gh api --paginate",
+    "observed_at": "2026-09-22T08:03:27Z",
+    "repository": "TheJustinSunPrize/awards",
+    "search_scope": "Public read-only GitHub REST API capture completed across all repository pull requests (2765) and issues (3262); retained observations are exact-ID matches for the bounded 12-candidate deep-review scope. Raw GitHub bodies were used only transiently to extract jsp_ids and are not persisted."
+  },
+  "primary_spike_objective": "In a scratch Lean file only, define the finite graph and cycle-length predicate used by the exact source statement, then prove one small equivalence between that predicate and the finite-set formulation. Stop after that boundary and record missing library support.",
+  "rejected": [
+    {
+      "decision": "rejected",
+      "jsp_id": "JSP-000045",
+      "reason": "outside the deterministic TOP-5 selection boundary"
+    },
+    {
+      "decision": "rejected",
+      "jsp_id": "JSP-000060",
+      "reason": "outside the deterministic TOP-5 selection boundary"
+    },
+    {
+      "decision": "rejected",
+      "jsp_id": "JSP-000085",
+      "reason": "outside the deterministic TOP-5 selection boundary"
+    },
+    {
+      "decision": "rejected",
+      "jsp_id": "JSP-000108",
+      "reason": "outside the deterministic TOP-5 selection boundary"
+    },
+    {
+      "decision": "rejected",
+      "jsp_id": "JSP-000163",
+      "reason": "outside the deterministic TOP-5 selection boundary"
+    },
+    {
+      "decision": "rejected",
+      "jsp_id": "JSP-000195",
+      "reason": "outside the deterministic TOP-5 selection boundary"
+    },
+    {
+      "decision": "rejected",
+      "jsp_id": "JSP-000479",
+      "reason": "outside the deterministic TOP-5 selection boundary"
+    }
+  ],
+  "research_search_scope": "The deterministic twelve-item deep-review set was reviewed on 2026-09-22 using scanner-cited publication metadata. Mathematical source entries are research inputs, not independently proof-checked claims. Formalization review used public GitHub code search for each exact JSP ID in leanprover-community/mathlib4 (zero results for all twelve), exact-title public GitHub code searches for the initial five candidates, and the complete official JSP PR/Issue capture recorded in competition.json; no external repository was executed.",
+  "scanner_provenance": {
+    "upstream_commit": "bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2",
+    "upstream_ref": "main"
+  },
+  "schema_version": 1,
+  "selection_formula": "solution evidence quality + complexity signal - known-blocker penalty - active exact-ID competition penalty - reported external formalization penalty; JSP ID breaks ties",
+  "top5": [
+    {
+      "competition": [
+        {
+          "jsp_ids": [
+            "JSP-000089"
+          ],
+          "kind": "issue",
+          "match": "exact_jsp_id",
+          "number": 998,
+          "state": "open",
+          "title": "[Award claim] JSP-000089 — Lean density-zero cycle bridge",
+          "url": "https://github.com/TheJustinSunPrize/awards/issues/998"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000089"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 958,
+          "state": "closed-unmerged",
+          "title": "feat: record formal Lean 4 verification for JSP-000089",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/958"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000089"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 996,
+          "state": "open",
+          "title": "JSP-000089: complete Lean density-zero cycle bridge with attributed graph proof",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/996"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000089"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1414,
+          "state": "open",
+          "title": "JSP-000089: record existing Lean formalization (plby/lean-proofs)",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1414"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000089"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1730,
+          "state": "closed-unmerged",
+          "title": "catalog: record Lean formalization for JSP-000089",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1730"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000089"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 2648,
+          "state": "open",
+          "title": "JSP-000089: register Lean formalization",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/2648"
+        }
+      ],
+      "decision": "primary",
+      "deterministic": {
+        "competition_penalty": 12,
+        "formalization_penalty": 12,
+        "selection_score": 15
+      },
+      "estimate": {
+        "complexity": "low",
+        "hardest_boundary": "Represent the density-zero cycle-length condition and recover the exact source quantifiers.",
+        "mathlib_risk": "Finite graphs and paths have baseline support; the specialized cycle-length lemma may be proof-local.",
+        "process_risk": "A GitHub snapshot is not an official priority, eligibility, or award determination.",
+        "proof_structure": "finite graph extremal/cycle-length argument",
+        "provenance_risk": "The cited publication dates the solution evidence but Iteration 4 must establish exact statement correspondence.",
+        "rationale": [
+          "The scanner cites a focused result paper.",
+          "The problem is finite graph theory with a bounded first representation question."
+        ],
+        "statement_risk": "The exact density and sufficiently-large conventions must be transcribed from the source before proof work."
+      },
+      "formalization": {
+        "observations": [
+          {
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review.",
+            "source": "Official JSP PR #1414 reports an existing Lean formalization (plby/lean-proofs)",
+            "status": "unknown",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1414"
+          }
+        ],
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 44 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work."
+      },
+      "formalization_blocker": false,
+      "go_no_go": "GO: no reviewed evidence establishes an Iteration 4 blocker",
+      "jsp_id": "JSP-000089",
+      "known_blocker": false,
+      "official": {
+        "claim_metadata": {
+          "lean_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          },
+          "solver_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          }
+        },
+        "current_status": {
+          "normalized": "Solved",
+          "raw": "Solved"
+        },
+        "eligibility": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "fields": {
+          "Current status": "Solved",
+          "Date proposed": "No later than 1994 (bibliographic evidence)",
+          "Elapsed years": "About 11 years (since 1994)",
+          "Eligible to claim": "No",
+          "Historical bounty": "&#36;100",
+          "Lean proof": "No",
+          "Mathematical area": "Graph theory/ Cycles",
+          "Problem description": "Is there a density-zero set of positive integers such that every sufficiently dense graph has a cycle with length in that set?",
+          "Publication details": "&#91;Bo77&#93; Cycles modulo $k$ — Bull. London Math. Soc. (1977), 97-98.<br>&#91;Ve05&#93; [Unavoidable cycle lengths in graphs](https://doi.org/10.1002/jgt.20072) — J. Graph Theory (2005), 151-167.<br>&#91;LiMo20&#93; [A solution to Erdős and Hajnal's odd cycle problem](https://arxiv.org/abs/2010.15802) — arXiv:2010.15802 (2020).",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        },
+        "lean_proof": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "reference_fields": {
+          "Attribution basis": null,
+          "Historical bounty": "&#36;100",
+          "Independent verification": null,
+          "Publication details": "&#91;Bo77&#93; Cycles modulo $k$ — Bull. London Math. Soc. (1977), 97-98.<br>&#91;Ve05&#93; [Unavoidable cycle lengths in graphs](https://doi.org/10.1002/jgt.20072) — J. Graph Theory (2005), 151-167.<br>&#91;LiMo20&#93; [A solution to Erdős and Hajnal's odd cycle problem](https://arxiv.org/abs/2010.15802) — arXiv:2010.15802 (2020).",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        }
+      },
+      "reason": "selected by published deterministic score; captured competition and formalization evidence remain explicit risk penalties; primary-vs-reserve: JSP-000089 score 15 > JSP-000076 score 12; JSP-000089 score 15 > JSP-000077 score 12; JSP-000089 score 15 > JSP-000104 score 12; JSP-000089 score 15 > JSP-000007 score 9",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "date": "2005",
+            "title": "Unavoidable cycle lengths in graphs",
+            "url": "https://doi.org/10.1002/jgt.20072"
+          }
+        ]
+      },
+      "source": {
+        "catalog_path": "problems/catalog-0001-0100.md",
+        "upstream_commit": "bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2",
+        "upstream_ref": "main"
+      },
+      "title": "Is there a density-zero set of positive integers such that every sufficiently dense graph has a cycle with length in that set?"
+    },
+    {
+      "competition": [
+        {
+          "jsp_ids": [
+            "JSP-000076"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 959,
+          "state": "closed-unmerged",
+          "title": "feat: record formal Lean 4 verification for JSP-000076",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/959"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000076"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1357,
+          "state": "open",
+          "title": "JSP-000076: record existing Lean formalization (plby/lean-proofs)",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1357"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000076"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1982,
+          "state": "closed-unmerged",
+          "title": "catalog: record Lean formalization for JSP-000076",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1982"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000076"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 2212,
+          "state": "open",
+          "title": "JSP-000076: submit complete two-color Ramsey completeness formalization",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/2212"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000076"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 2641,
+          "state": "open",
+          "title": "JSP-000076: register Lean formalization",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/2641"
+        }
+      ],
+      "decision": "reserve",
+      "deterministic": {
+        "competition_penalty": 12,
+        "formalization_penalty": 12,
+        "selection_score": 12
+      },
+      "estimate": {
+        "complexity": "medium",
+        "hardest_boundary": "Formalize the completeness and coloring predicates with their asymptotic qualification.",
+        "mathlib_risk": "Finite sums are supported, while the additive-combinatorial asymptotic argument is likely proof-local.",
+        "process_risk": "Live competition observations are necessarily time-bounded.",
+        "proof_structure": "additive combinatorics and two-color subset-sum argument",
+        "provenance_risk": "The cited preprint date is explicit; solver attribution is not asserted beyond the source.",
+        "rationale": [
+          "A directly named source is present.",
+          "The expected abstraction boundary is broader than the primary's graph predicate."
+        ],
+        "statement_risk": "The improvement claim must not be substituted for the exact theorem."
+      },
+      "formalization": {
+        "observations": [
+          {
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review.",
+            "source": "Official JSP PR #1357 reports an existing Lean formalization (plby/lean-proofs)",
+            "status": "unknown",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1357"
+          }
+        ],
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 49 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work."
+      },
+      "formalization_blocker": false,
+      "go_no_go": "GO: no reviewed evidence establishes an Iteration 4 blocker",
+      "jsp_id": "JSP-000076",
+      "known_blocker": false,
+      "official": {
+        "claim_metadata": {
+          "lean_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          },
+          "solver_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          }
+        },
+        "current_status": {
+          "normalized": "Solved",
+          "raw": "Solved"
+        },
+        "eligibility": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "fields": {
+          "Current status": "Solved",
+          "Date proposed": "No later than 1995 (bibliographic evidence)",
+          "Elapsed years": "About 26 years (since 1995)",
+          "Eligible to claim": "No",
+          "Historical bounty": "&#36;100",
+          "Lean proof": "No",
+          "Mathematical area": "Number theory / Ramsey theory",
+          "Problem description": "How sparse can a set be if every two-coloring represents every sufficiently large integer as a sum of distinct same-colored elements? Improve the growth bounds.",
+          "Publication details": "&#91;BuEr85&#93; A Ramsey-type property in additive number theory — Glasgow Math. J. (1985), 5--10.<br>&#91;CFP21&#93; [Subset sums, completeness and colorings](https://arxiv.org/abs/2104.14766) — arXiv:2104.14766 (2021).",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        },
+        "lean_proof": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "reference_fields": {
+          "Attribution basis": null,
+          "Historical bounty": "&#36;100",
+          "Independent verification": null,
+          "Publication details": "&#91;BuEr85&#93; A Ramsey-type property in additive number theory — Glasgow Math. J. (1985), 5--10.<br>&#91;CFP21&#93; [Subset sums, completeness and colorings](https://arxiv.org/abs/2104.14766) — arXiv:2104.14766 (2021).",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        }
+      },
+      "reason": "selected by published deterministic score; captured competition and formalization evidence remain explicit risk penalties",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "date": "2021",
+            "title": "Subset sums, completeness and colorings",
+            "url": "https://arxiv.org/abs/2104.14766"
+          }
+        ]
+      },
+      "source": {
+        "catalog_path": "problems/catalog-0001-0100.md",
+        "upstream_commit": "bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2",
+        "upstream_ref": "main"
+      },
+      "title": "How sparse can a set be if every two-coloring represents every sufficiently large integer as a sum of distinct same-colored elements? Improve the growth bounds."
+    },
+    {
+      "competition": [
+        {
+          "jsp_ids": [
+            "JSP-000077"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 960,
+          "state": "closed-unmerged",
+          "title": "feat: record formal Lean 4 verification for JSP-000077",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/960"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000077"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1358,
+          "state": "open",
+          "title": "JSP-000077: record existing Lean formalization (plby/lean-proofs)",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1358"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000077"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1983,
+          "state": "closed-unmerged",
+          "title": "catalog: record Lean formalization for JSP-000077",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1983"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000077"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 2227,
+          "state": "open",
+          "title": "JSP-000077: submit complete multicolor Ramsey completeness formalization",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/2227"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000077"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 2642,
+          "state": "open",
+          "title": "JSP-000077: register Lean formalization",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/2642"
+        }
+      ],
+      "decision": "reserve",
+      "deterministic": {
+        "competition_penalty": 12,
+        "formalization_penalty": 12,
+        "selection_score": 12
+      },
+      "estimate": {
+        "complexity": "medium",
+        "hardest_boundary": "State the coloring cardinality and sufficiently-large conclusion faithfully.",
+        "mathlib_risk": "The central finite-sum components are available, but the general coloring theorem may require substantial local infrastructure.",
+        "process_risk": "No absence or priority inference is drawn from the bounded live search.",
+        "proof_structure": "additive combinatorics with multi-color subset sums",
+        "provenance_risk": "The source date is recorded, with exact correspondence deferred to the statement package.",
+        "rationale": [
+          "A named source is present.",
+          "Its parameterized color structure makes it a reserve rather than the primary."
+        ],
+        "statement_risk": "The source's number-of-colors parameter is a material part of the statement."
+      },
+      "formalization": {
+        "observations": [
+          {
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review.",
+            "source": "Official JSP PR #1358 reports an existing Lean formalization (plby/lean-proofs)",
+            "status": "unknown",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1358"
+          }
+        ],
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 49 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work."
+      },
+      "formalization_blocker": false,
+      "go_no_go": "GO: no reviewed evidence establishes an Iteration 4 blocker",
+      "jsp_id": "JSP-000077",
+      "known_blocker": false,
+      "official": {
+        "claim_metadata": {
+          "lean_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          },
+          "solver_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          }
+        },
+        "current_status": {
+          "normalized": "Solved",
+          "raw": "Solved"
+        },
+        "eligibility": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "fields": {
+          "Current status": "Solved",
+          "Date proposed": "No later than 1995 (bibliographic evidence)",
+          "Elapsed years": "About 26 years (since 1995)",
+          "Eligible to claim": "No",
+          "Historical bounty": "&#36;250",
+          "Lean proof": "No",
+          "Mathematical area": "Number theory / Ramsey theory",
+          "Problem description": "How fast must a set grow if every coloring with more than two colors represents all sufficiently large integers as sums of distinct same-colored elements?",
+          "Publication details": "&#91;BuEr85&#93; A Ramsey-type property in additive number theory — Glasgow Math. J. (1985), 5--10.<br>&#91;CFP21&#93; [Subset sums, completeness and colorings](https://arxiv.org/abs/2104.14766) — arXiv:2104.14766 (2021).",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        },
+        "lean_proof": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "reference_fields": {
+          "Attribution basis": null,
+          "Historical bounty": "&#36;250",
+          "Independent verification": null,
+          "Publication details": "&#91;BuEr85&#93; A Ramsey-type property in additive number theory — Glasgow Math. J. (1985), 5--10.<br>&#91;CFP21&#93; [Subset sums, completeness and colorings](https://arxiv.org/abs/2104.14766) — arXiv:2104.14766 (2021).",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        }
+      },
+      "reason": "selected by published deterministic score; captured competition and formalization evidence remain explicit risk penalties",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "date": "2021",
+            "title": "Subset sums, completeness and colorings",
+            "url": "https://arxiv.org/abs/2104.14766"
+          }
+        ]
+      },
+      "source": {
+        "catalog_path": "problems/catalog-0001-0100.md",
+        "upstream_commit": "bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2",
+        "upstream_ref": "main"
+      },
+      "title": "How fast must a set grow if every coloring with more than two colors represents all sufficiently large integers as sums of distinct same-colored elements?"
+    },
+    {
+      "competition": [
+        {
+          "jsp_ids": [
+            "JSP-000104"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 949,
+          "state": "closed-unmerged",
+          "title": "feat: record formal Lean 4 verification for JSP-000104",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/949"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000104"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1417,
+          "state": "open",
+          "title": "JSP-000104: record existing Lean formalization (plby/lean-proofs)",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1417"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000104"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1734,
+          "state": "closed-unmerged",
+          "title": "catalog: record Lean formalization for JSP-000104",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1734"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000104"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 2652,
+          "state": "open",
+          "title": "JSP-000104: register Lean formalization",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/2652"
+        }
+      ],
+      "decision": "reserve",
+      "deterministic": {
+        "competition_penalty": 12,
+        "formalization_penalty": 12,
+        "selection_score": 12
+      },
+      "estimate": {
+        "complexity": "medium",
+        "hardest_boundary": "Formalize the induced-subgraph edge-count distribution without replacing the theorem by a weaker count.",
+        "mathlib_risk": "Finite graph enumeration is available in principle; probabilistic anticoncentration support is a risk.",
+        "process_risk": "Read-only GitHub evidence cannot establish external priority.",
+        "proof_structure": "finite graph anticoncentration/Ramsey argument",
+        "provenance_risk": "The arXiv record provides a dated source, not a completed provenance package.",
+        "rationale": [
+          "The scanner gives a specific recent source.",
+          "The probability-facing boundary makes this less bounded than the primary."
+        ],
+        "statement_risk": "Clique and independence thresholds need exact source recovery."
+      },
+      "formalization": {
+        "observations": [
+          {
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review.",
+            "source": "Official JSP PR #1417 reports an existing Lean formalization (plby/lean-proofs)",
+            "status": "unknown",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1417"
+          }
+        ],
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 19 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work."
+      },
+      "formalization_blocker": false,
+      "go_no_go": "GO: no reviewed evidence establishes an Iteration 4 blocker",
+      "jsp_id": "JSP-000104",
+      "known_blocker": false,
+      "official": {
+        "claim_metadata": {
+          "lean_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          },
+          "solver_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          }
+        },
+        "current_status": {
+          "normalized": "Solved",
+          "raw": "Solved"
+        },
+        "eligibility": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "fields": {
+          "Current status": "Solved",
+          "Date proposed": "No later than 1992 (bibliographic evidence)",
+          "Elapsed years": "About 30 years (since 1992)",
+          "Eligible to claim": "No",
+          "Historical bounty": "&#36;100",
+          "Lean proof": "No",
+          "Mathematical area": "Graph theory / Ramsey theory",
+          "Problem description": "If a graph has neither a large clique nor a large independent set, how many distinct edge counts do its induced subgraphs attain?",
+          "Publication details": "&#91;KSSS22&#93; [Anticoncentration in Ramsey graphs and a proof of the Erdős-McKay conjecture](https://arxiv.org/abs/2208.02874) — arXiv:2208.02874 (2022).",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        },
+        "lean_proof": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "reference_fields": {
+          "Attribution basis": null,
+          "Historical bounty": "&#36;100",
+          "Independent verification": null,
+          "Publication details": "&#91;KSSS22&#93; [Anticoncentration in Ramsey graphs and a proof of the Erdős-McKay conjecture](https://arxiv.org/abs/2208.02874) — arXiv:2208.02874 (2022).",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        }
+      },
+      "reason": "selected by published deterministic score; captured competition and formalization evidence remain explicit risk penalties",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "date": "2022",
+            "title": "Anticoncentration in Ramsey graphs and a proof of the Erdős-McKay conjecture",
+            "url": "https://arxiv.org/abs/2208.02874"
+          }
+        ]
+      },
+      "source": {
+        "catalog_path": "problems/catalog-0101-0200.md",
+        "upstream_commit": "bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2",
+        "upstream_ref": "main"
+      },
+      "title": "If a graph has neither a large clique nor a large independent set, how many distinct edge counts do its induced subgraphs attain?"
+    },
+    {
+      "competition": [
+        {
+          "jsp_ids": [
+            "JSP-000007"
+          ],
+          "kind": "issue",
+          "match": "exact_jsp_id",
+          "number": 988,
+          "state": "open",
+          "title": "[Award claim] JSP-000007 · Poincaré conjecture",
+          "url": "https://github.com/TheJustinSunPrize/awards/issues/988"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000007"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 438,
+          "state": "open",
+          "title": "Draft: JSP-000007 — incomplete work archived; no complete-proof submission",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/438"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000007"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1598,
+          "state": "closed-unmerged",
+          "title": "JSP-000007: add verified Lean proof reference (Poincaré conjecture)",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1598"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000007"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 1980,
+          "state": "closed-unmerged",
+          "title": "catalog: record Lean formalization for JSP-000007",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/1980"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000007"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 2636,
+          "state": "open",
+          "title": "JSP-000007: register Lean formalization",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/2636"
+        },
+        {
+          "jsp_ids": [
+            "JSP-000007"
+          ],
+          "kind": "pull_request",
+          "match": "exact_jsp_id",
+          "number": 2923,
+          "state": "open",
+          "title": "catalog: record Lean formalization for JSP-000007 (Poincare Conjecture)",
+          "url": "https://github.com/TheJustinSunPrize/awards/pull/2923"
+        }
+      ],
+      "decision": "reserve",
+      "deterministic": {
+        "competition_penalty": 12,
+        "formalization_penalty": 12,
+        "selection_score": 9
+      },
+      "estimate": {
+        "complexity": "high",
+        "hardest_boundary": "Model the geometric-analysis infrastructure required by the source statement.",
+        "mathlib_risk": "Geometric-analysis and surgery infrastructure are high risk.",
+        "process_risk": "Current official-repository evidence requires review before any spike.",
+        "proof_structure": "Ricci-flow and three-manifold topology proof",
+        "provenance_risk": "The source dates the mathematical evidence; no priority inference follows from the capture.",
+        "rationale": [
+          "The managed catalog records a complete source proof.",
+          "Current competition/formalization evidence is material."
+        ],
+        "statement_risk": "Closedness, simple connectivity, and homeomorphism must retain their source meanings."
+      },
+      "formalization": {
+        "observations": [
+          {
+            "blocking": false,
+            "rationale": "The captured PR title records formalization activity only and does not establish completion of the exact theorem.",
+            "source": "Official JSP PR #2923 records Lean formalization activity",
+            "status": "activity",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/2923"
+          }
+        ],
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; official JSP capture contains an exact-ID current PR reporting Lean formalization activity; no external repository was executed."
+      },
+      "formalization_blocker": false,
+      "go_no_go": "GO: no reviewed evidence establishes an Iteration 4 blocker",
+      "jsp_id": "JSP-000007",
+      "known_blocker": false,
+      "official": {
+        "claim_metadata": {
+          "lean_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          },
+          "solver_claim_status": {
+            "normalized": "Unavailable",
+            "raw": "Unavailable"
+          }
+        },
+        "current_status": {
+          "normalized": "Solved",
+          "raw": "Solved<br>Proof contributors: Grigori (Grisha) Perelman (solution; papers [P1–P3])."
+        },
+        "eligibility": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "fields": {
+          "Current status": "Solved<br>Proof contributors: Grigori (Grisha) Perelman (solution; papers [P1–P3]).",
+          "Date proposed": "1904",
+          "Elapsed years": "About 98 years (since 1904)",
+          "Eligible to claim": "No",
+          "Historical bounty": "USD 1,000,000 (awarded in 2010; declined by Perelman)<br> Source: <https://www.claymath.org/millennium/poincare-conjecture/>",
+          "Independent verification": "Independent mathematical expositions: Bruce Kleiner and John Lott, [Notes on Perelman's papers](https://arxiv.org/abs/math/0605667); John Morgan and Gang Tian, [Ricci Flow and the Poincare Conjecture](https://arxiv.org/abs/math/0607607). These are mathematical verification accounts, not Lean formalizations.",
+          "Lean proof": "No",
+          "Mathematical area": "Geometric topology / Geometric analysis",
+          "Problem description": "Is every closed simply connected three-manifold homeomorphic to the three-sphere?",
+          "Publication details": "[P1] [The entropy formula for the Ricci flow and its geometric applications](https://arxiv.org/abs/math/0211159) (2002); [P2] [Ricci flow with surgery on three-manifolds](https://arxiv.org/abs/math/0303109) (2003); [P3] [Finite extinction time for the solutions to the Ricci flow on certain three-manifolds](https://arxiv.org/abs/math/0307245) (2003). All three were released as preprints.",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        },
+        "lean_proof": {
+          "normalized": "No",
+          "raw": "No"
+        },
+        "reference_fields": {
+          "Attribution basis": null,
+          "Historical bounty": "USD 1,000,000 (awarded in 2010; declined by Perelman)<br> Source: <https://www.claymath.org/millennium/poincare-conjecture/>",
+          "Independent verification": "Independent mathematical expositions: Bruce Kleiner and John Lott, [Notes on Perelman's papers](https://arxiv.org/abs/math/0605667); John Morgan and Gang Tian, [Ricci Flow and the Poincare Conjecture](https://arxiv.org/abs/math/0607607). These are mathematical verification accounts, not Lean formalizations.",
+          "Publication details": "[P1] [The entropy formula for the Ricci flow and its geometric applications](https://arxiv.org/abs/math/0211159) (2002); [P2] [Ricci flow with surgery on three-manifolds](https://arxiv.org/abs/math/0303109) (2003); [P3] [Finite extinction time for the solutions to the Ricci flow on certain three-manifolds](https://arxiv.org/abs/math/0307245) (2003). All three were released as preprints.",
+          "Scholarly recognition": "Unverified: no public recognition specifically identifying this result was found (such as an award citation or authoritative public confirmation)."
+        }
+      },
+      "reason": "selected by published deterministic score; captured competition and formalization evidence remain explicit risk penalties",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "date": "2003",
+            "title": "Ricci flow with surgery on three-manifolds",
+            "url": "https://arxiv.org/abs/math/0303109"
+          }
+        ]
+      },
+      "source": {
+        "catalog_path": "problems/catalog-0001-0100.md",
+        "upstream_commit": "bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2",
+        "upstream_ref": "main"
+      },
+      "title": "Poincaré conjecture"
+    }
+  ],
+  "triage": {
+    "formula": "one point for each non-empty scanner reference field; JSP ID breaks ties",
+    "initial_review_limit": 12,
+    "reviewed_ids": [
+      "JSP-000007",
+      "JSP-000045",
+      "JSP-000060",
+      "JSP-000076",
+      "JSP-000077",
+      "JSP-000085",
+      "JSP-000089",
+      "JSP-000104",
+      "JSP-000108",
+      "JSP-000163",
+      "JSP-000195",
+      "JSP-000479"
+    ],
+    "reviewed_prefix_count": 12,
+    "rows": [
+      {
+        "jsp_id": "JSP-000007",
+        "score": 4
+      },
+      {
+        "jsp_id": "JSP-000045",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000060",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000076",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000077",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000085",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000089",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000104",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000108",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000163",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000195",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000479",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000494",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000506",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000514",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000573",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000588",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000933",
+        "score": 3
+      },
+      {
+        "jsp_id": "JSP-000018",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000035",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000036",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000078",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000087",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000090",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000093",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000096",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000121",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000126",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000139",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000140",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000155",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000161",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000173",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000176",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000179",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000182",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000183",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000192",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000194",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000198",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000202",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000203",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000204",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000205",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000208",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000211",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000216",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000242",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000243",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000248",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000250",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000252",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000256",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000259",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000264",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000266",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000267",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000281",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000285",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000286",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000288",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000298",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000301",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000307",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000313",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000314",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000315",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000320",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000331",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000334",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000346",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000356",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000357",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000358",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000359",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000360",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000361",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000363",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000364",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000377",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000378",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000383",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000385",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000388",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000391",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000393",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000397",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000398",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000399",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000400",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000402",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000404",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000410",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000413",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000415",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000419",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000421",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000422",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000423",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000428",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000433",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000434",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000437",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000440",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000444",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000450",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000455",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000460",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000464",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000465",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000467",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000468",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000471",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000475",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000476",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000486",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000490",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000492",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000493",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000503",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000511",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000512",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000513",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000517",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000518",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000521",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000527",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000528",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000532",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000539",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000547",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000554",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000562",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000568",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000572",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000575",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000584",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000585",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000586",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000589",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000590",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000598",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000600",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000601",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000603",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000605",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000612",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000613",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000614",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000615",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000616",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000619",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000620",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000622",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000623",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000625",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000626",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000628",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000632",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000633",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000637",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000640",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000641",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000643",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000644",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000653",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000655",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000656",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000657",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000658",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000660",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000661",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000663",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000664",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000665",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000671",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000672",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000673",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000678",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000679",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000688",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000689",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000690",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000697",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000698",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000699",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000704",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000711",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000714",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000715",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000720",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000725",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000728",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000731",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000733",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000745",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000746",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000747",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000748",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000751",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000753",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000754",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000755",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000759",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000760",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000764",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000765",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000766",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000767",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000768",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000769",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000782",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000787",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000788",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000797",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000799",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000810",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000813",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000814",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000817",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000819",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000821",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000822",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000824",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000825",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000827",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000831",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000832",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000833",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000837",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000838",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000839",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000840",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000842",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000845",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000848",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000849",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000851",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000852",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000853",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000854",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000857",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000865",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000868",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000870",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000878",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000884",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000888",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000895",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000896",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000897",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000898",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000906",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000907",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000912",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000916",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000925",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000926",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000927",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000929",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000930",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000934",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000935",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000936",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000937",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000945",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000952",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000954",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000958",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000966",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000969",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000970",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000971",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000984",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000985",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000990",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-000992",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001000",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001003",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001007",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001010",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001016",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001018",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001019",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001020",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001021",
+        "score": 2
+      },
+      {
+        "jsp_id": "JSP-001022",
+        "score": 2
+      }
+    ]
+  }
+}

@@ -226,6 +226,12 @@ Successful proof compilation is necessary when required but does not by itself e
 
 Managed upstream material does not establish live external-process state.
 
+When the approved Issue has no dependency change, do not inspect, regenerate,
+modify or separately validate `uv.lock`. When it explicitly requires a
+dependency change, allow only the necessary minimal registry lock update and
+inspect only that relevant diff. Never run or require `uv lock --check`, and do
+not treat unrelated lock noise as an independent finding.
+
 ## Corrections
 
 Apply corrections only when required by:
@@ -301,12 +307,6 @@ As applicable include:
 - secret-leak checks;
 - SAST;
 - SCA where justified.
-
-Do not run or require:
-
-```text
-uv lock --check
-```
 
 Record exact:
 

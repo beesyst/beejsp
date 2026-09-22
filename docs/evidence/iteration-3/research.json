@@ -1,0 +1,476 @@
+{
+  "schema_version": 1,
+  "search_scope": "The deterministic twelve-item deep-review set was reviewed on 2026-09-22 using scanner-cited publication metadata. Mathematical source entries are research inputs, not independently proof-checked claims. Formalization review used public GitHub code search for each exact JSP ID in leanprover-community/mathlib4 (zero results for all twelve), exact-title public GitHub code searches for the initial five candidates, and the complete official JSP PR/Issue capture recorded in competition.json; no external repository was executed.",
+  "candidates": [
+    {
+      "jsp_id": "JSP-000007",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Ricci flow with surgery on three-manifolds",
+            "url": "https://arxiv.org/abs/math/0303109",
+            "date": "2003"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; official JSP capture contains an exact-ID current PR reporting Lean formalization activity; no external repository was executed.",
+        "observations": [
+          {
+            "source": "Official JSP PR #2923 records Lean formalization activity",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/2923",
+            "status": "activity",
+            "blocking": false,
+            "rationale": "The captured PR title records formalization activity only and does not establish completion of the exact theorem."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "high",
+        "proof_structure": "Ricci-flow and three-manifold topology proof",
+        "hardest_boundary": "Model the geometric-analysis infrastructure required by the source statement.",
+        "mathlib_risk": "Geometric-analysis and surgery infrastructure are high risk.",
+        "statement_risk": "Closedness, simple connectivity, and homeomorphism must retain their source meanings.",
+        "provenance_risk": "The source dates the mathematical evidence; no priority inference follows from the capture.",
+        "process_risk": "Current official-repository evidence requires review before any spike.",
+        "rationale": [
+          "The managed catalog records a complete source proof.",
+          "Current competition/formalization evidence is material."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000045",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Large gaps between primes",
+            "url": "https://doi.org/10.4007/annals.2016.183.3.3",
+            "date": "2016"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; official JSP capture contains an exact-ID current PR reporting Lean formalization activity; no external repository was executed.",
+        "observations": [
+          {
+            "source": "Official JSP PR #2639 records Lean formalization activity",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/2639",
+            "status": "activity",
+            "blocking": false,
+            "rationale": "The captured PR title records formalization activity only and does not establish completion of the exact theorem."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "high",
+        "proof_structure": "analytic number-theory prime-gap argument",
+        "hardest_boundary": "Recover the exact asymptotic lower-bound quantifiers.",
+        "mathlib_risk": "Analytic number theory and asymptotic prime estimates are high risk.",
+        "statement_risk": "The proposed lower bound must not be weakened during transcription.",
+        "provenance_risk": "The source date is recorded without asserting priority.",
+        "process_risk": "Current official-repository evidence requires review before any spike.",
+        "rationale": [
+          "The managed catalog identifies a complete source result.",
+          "Current competition/formalization evidence is material."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000060",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Official JSP catalog source record: Solution of the minimum modulus problem for covering systems",
+            "url": "https://github.com/TheJustinSunPrize/awards/blob/bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2/problems/catalog-0001-0100.md#JSP-000060",
+            "date": "2015"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; official JSP capture contains an exact-ID current PR reporting Lean formalization activity; no external repository was executed.",
+        "observations": [
+          {
+            "source": "Official JSP PR #2640 records Lean formalization activity",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/2640",
+            "status": "activity",
+            "blocking": false,
+            "rationale": "The captured PR title records formalization activity only and does not establish completion of the exact theorem."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "high",
+        "proof_structure": "covering-system and density argument",
+        "hardest_boundary": "Preserve the prescribed modulus range and density conclusion.",
+        "mathlib_risk": "Number-theory density and sieve infrastructure are high risk.",
+        "statement_risk": "The coverage qualification must be recovered exactly.",
+        "provenance_risk": "The source date is recorded without asserting priority.",
+        "process_risk": "Current official-repository evidence requires review before any spike.",
+        "rationale": [
+          "The managed catalog identifies a complete source result.",
+          "Current competition/formalization evidence is material."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000076",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Subset sums, completeness and colorings",
+            "url": "https://arxiv.org/abs/2104.14766",
+            "date": "2021"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 49 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work.",
+        "observations": [
+          {
+            "source": "Official JSP PR #1357 reports an existing Lean formalization (plby/lean-proofs)",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1357",
+            "status": "unknown",
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "medium",
+        "proof_structure": "additive combinatorics and two-color subset-sum argument",
+        "hardest_boundary": "Formalize the completeness and coloring predicates with their asymptotic qualification.",
+        "mathlib_risk": "Finite sums are supported, while the additive-combinatorial asymptotic argument is likely proof-local.",
+        "statement_risk": "The improvement claim must not be substituted for the exact theorem.",
+        "provenance_risk": "The cited preprint date is explicit; solver attribution is not asserted beyond the source.",
+        "process_risk": "Live competition observations are necessarily time-bounded.",
+        "rationale": [
+          "A directly named source is present.",
+          "The expected abstraction boundary is broader than the primary's graph predicate."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000077",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Subset sums, completeness and colorings",
+            "url": "https://arxiv.org/abs/2104.14766",
+            "date": "2021"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 49 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work.",
+        "observations": [
+          {
+            "source": "Official JSP PR #1358 reports an existing Lean formalization (plby/lean-proofs)",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1358",
+            "status": "unknown",
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "medium",
+        "proof_structure": "additive combinatorics with multi-color subset sums",
+        "hardest_boundary": "State the coloring cardinality and sufficiently-large conclusion faithfully.",
+        "mathlib_risk": "The central finite-sum components are available, but the general coloring theorem may require substantial local infrastructure.",
+        "statement_risk": "The source's number-of-colors parameter is a material part of the statement.",
+        "provenance_risk": "The source date is recorded, with exact correspondence deferred to the statement package.",
+        "process_risk": "No absence or priority inference is drawn from the bounded live search.",
+        "rationale": [
+          "A named source is present.",
+          "Its parameterized color structure makes it a reserve rather than the primary."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000085",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "The Erdős discrepancy problem",
+            "url": "https://www.erdosproblems.com/bibs/Ta16",
+            "date": "2016"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; official JSP capture contains an exact-ID current PR reporting Lean formalization activity; no external repository was executed.",
+        "observations": [
+          {
+            "source": "Official JSP PR #2793 records Lean formalization activity",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/2793",
+            "status": "activity",
+            "blocking": false,
+            "rationale": "The captured PR title records formalization activity only and does not establish completion of the exact theorem."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "high",
+        "proof_structure": "discrepancy-theory argument over homogeneous progressions",
+        "hardest_boundary": "Formalize unboundedness over the exact quantifier structure.",
+        "mathlib_risk": "The specialized discrepancy result has high library risk.",
+        "statement_risk": "The sign assignment and progression quantifiers are material.",
+        "provenance_risk": "The source date is recorded without asserting priority.",
+        "process_risk": "Current official-repository evidence requires review before any spike.",
+        "rationale": [
+          "The managed catalog identifies a complete source result.",
+          "Current competition/formalization evidence is material."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000089",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Unavoidable cycle lengths in graphs",
+            "url": "https://doi.org/10.1002/jgt.20072",
+            "date": "2005"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 44 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work.",
+        "observations": [
+          {
+            "source": "Official JSP PR #1414 reports an existing Lean formalization (plby/lean-proofs)",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1414",
+            "status": "unknown",
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "low",
+        "proof_structure": "finite graph extremal/cycle-length argument",
+        "hardest_boundary": "Represent the density-zero cycle-length condition and recover the exact source quantifiers.",
+        "mathlib_risk": "Finite graphs and paths have baseline support; the specialized cycle-length lemma may be proof-local.",
+        "statement_risk": "The exact density and sufficiently-large conventions must be transcribed from the source before proof work.",
+        "provenance_risk": "The cited publication dates the solution evidence but Iteration 4 must establish exact statement correspondence.",
+        "process_risk": "A GitHub snapshot is not an official priority, eligibility, or award determination.",
+        "rationale": [
+          "The scanner cites a focused result paper.",
+          "The problem is finite graph theory with a bounded first representation question."
+        ]
+      },
+      "known_blocker": false,
+      "spike_objective": "In a scratch Lean file only, define the finite graph and cycle-length predicate used by the exact source statement, then prove one small equivalence between that predicate and the finite-set formulation. Stop after that boundary and record missing library support."
+    },
+    {
+      "jsp_id": "JSP-000104",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Anticoncentration in Ramsey graphs and a proof of the Erdős-McKay conjecture",
+            "url": "https://arxiv.org/abs/2208.02874",
+            "date": "2022"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 19 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work.",
+        "observations": [
+          {
+            "source": "Official JSP PR #1417 reports an existing Lean formalization (plby/lean-proofs)",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1417",
+            "status": "unknown",
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "medium",
+        "proof_structure": "finite graph anticoncentration/Ramsey argument",
+        "hardest_boundary": "Formalize the induced-subgraph edge-count distribution without replacing the theorem by a weaker count.",
+        "mathlib_risk": "Finite graph enumeration is available in principle; probabilistic anticoncentration support is a risk.",
+        "statement_risk": "Clique and independence thresholds need exact source recovery.",
+        "provenance_risk": "The arXiv record provides a dated source, not a completed provenance package.",
+        "process_risk": "Read-only GitHub evidence cannot establish external priority.",
+        "rationale": [
+          "The scanner gives a specific recent source.",
+          "The probability-facing boundary makes this less bounded than the primary."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000108",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Minimum planar sets with maximum equidistance counts",
+            "url": "https://doi.org/10.1016/0925-7721%2895%2900050-x",
+            "date": "1997"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; official JSP capture contains an exact-ID current PR reporting Lean formalization activity; no external repository was executed.",
+        "observations": [
+          {
+            "source": "Official JSP PR #2653 records Lean formalization activity",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/2653",
+            "status": "activity",
+            "blocking": false,
+            "rationale": "The captured PR title records formalization activity only and does not establish completion of the exact theorem."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "high",
+        "proof_structure": "planar distance-geometry extremal argument",
+        "hardest_boundary": "Formalize the common-distance and subpolynomial conclusions faithfully.",
+        "mathlib_risk": "Euclidean geometry and extremal asymptotics are high risk.",
+        "statement_risk": "The per-point guarantee and asymptotic conclusion are material.",
+        "provenance_risk": "The source date is recorded without asserting priority.",
+        "process_risk": "Current official-repository evidence requires review before any spike.",
+        "rationale": [
+          "The managed catalog identifies a complete source result.",
+          "Current competition/formalization evidence is material."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000163",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "The asymptotics of r(4,t)",
+            "url": "https://arxiv.org/abs/2306.04007",
+            "date": "2023"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; official JSP capture contains an exact-ID current PR reporting Lean formalization activity; no external repository was executed.",
+        "observations": [
+          {
+            "source": "Official JSP PR #2660 records Lean formalization activity",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/2660",
+            "status": "activity",
+            "blocking": false,
+            "rationale": "The captured PR title records formalization activity only and does not establish completion of the exact theorem."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "high",
+        "proof_structure": "Ramsey-theory asymptotic graph argument",
+        "hardest_boundary": "Recover the prescribed clique parameter and asymptotic conclusion.",
+        "mathlib_risk": "Ramsey asymptotics require substantial proof-local infrastructure.",
+        "statement_risk": "The two clique-avoidance conditions are material.",
+        "provenance_risk": "The source date is recorded without asserting priority.",
+        "process_risk": "Current official-repository evidence requires review before any spike.",
+        "rationale": [
+          "The managed catalog identifies a complete source result.",
+          "Current competition/formalization evidence is material."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000195",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Extremal problems in discrete geometry",
+            "url": "https://doi.org/10.1007/BF02579194",
+            "date": "1983"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; exact source-title public GitHub code search returned 106 results, none inspected as proof execution; official JSP capture contained an exact-ID PR reporting external Lean work.",
+        "observations": [
+          {
+            "source": "Official JSP PR #1250 reports an existing Lean formalization (plby/lean-proofs)",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/1250",
+            "status": "unknown",
+            "blocking": false,
+            "rationale": "The captured PR title reports an existing formalization, but no external repository or proof was executed or verified in this review."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "high",
+        "proof_structure": "incidence geometry extremal argument",
+        "hardest_boundary": "Choose an affine-plane and collinearity model matching the source's point-line hypothesis.",
+        "mathlib_risk": "Finite sets exist, but incidence geometry and the required extremal result have high library risk.",
+        "statement_risk": "The bounded-collinearity threshold is central and cannot be inferred from the scanner synopsis.",
+        "provenance_risk": "The source is dated but no solver attribution is inferred here.",
+        "process_risk": "Competition evidence remains a limited current snapshot.",
+        "rationale": [
+          "A specific source is cited.",
+          "The geometry model is a larger feasibility risk than each other selected reserve."
+        ]
+      },
+      "known_blocker": false
+    },
+    {
+      "jsp_id": "JSP-000479",
+      "solution": {
+        "kind": "complete",
+        "sources": [
+          {
+            "title": "Official JSP catalog source record: Countable partition ordinals",
+            "url": "https://github.com/TheJustinSunPrize/awards/blob/bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2/problems/catalog-0401-0500.md#JSP-000479",
+            "date": "2010"
+          }
+        ]
+      },
+      "formalization": {
+        "search_scope": "2026-09-22: exact JSP-ID search in Mathlib returned zero results; official JSP capture contains an exact-ID current PR reporting Lean formalization activity; no external repository was executed.",
+        "observations": [
+          {
+            "source": "Official JSP PR #2776 records Lean formalization activity",
+            "url": "https://github.com/TheJustinSunPrize/awards/pull/2776",
+            "status": "activity",
+            "blocking": false,
+            "rationale": "The captured PR title records formalization activity only and does not establish completion of the exact theorem."
+          }
+        ]
+      },
+      "estimate": {
+        "complexity": "high",
+        "proof_structure": "countable-ordinal partition relation argument",
+        "hardest_boundary": "Formalize the prescribed ordinal and its order-type partition relation.",
+        "mathlib_risk": "Ordinal Ramsey theory has high domain and library risk.",
+        "statement_risk": "The exact ordinal and clique order type are material.",
+        "provenance_risk": "The source date is recorded without asserting priority.",
+        "process_risk": "Current official-repository evidence requires review before any spike.",
+        "rationale": [
+          "The managed catalog identifies a complete source result.",
+          "Current competition/formalization evidence is material."
+        ]
+      },
+      "known_blocker": false
+    }
+  ],
+  "reviewed_prefix_count": 12
+}

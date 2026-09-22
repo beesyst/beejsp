@@ -357,13 +357,12 @@ Check as applicable:
 
 `not verifiable` is blocking only when required evidence is necessary for readiness under the Issue or repository contracts.
 
-Do not require dedicated lockfile validation.
-
-Never require:
-
-```text
-uv lock --check
-```
+When the approved Issue has no dependency change, do not inspect, regenerate,
+modify or separately validate `uv.lock`. When it explicitly requires a
+dependency change, inspect only the necessary minimal registry lock diff. Never
+request, evaluate or treat `uv lock --check` or any dedicated lockfile
+validation as merge evidence, and do not treat unrelated lock noise as an
+independent finding.
 
 ## Phase 8 — Blocking findings
 

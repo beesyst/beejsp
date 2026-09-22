@@ -385,6 +385,51 @@ If parsing or identity validation reports an error, `is_complete` is false and
 the scanner withholds `candidate_ids`. Iteration 3 can consume the JSON records
 and candidate IDs directly rather than reparsing JSP Markdown.
 
+### Iteration 3 evidence-backed TOP-5
+
+Iteration 3 consumes the saved scanner JSON, a deliberately reviewed research
+JSON file, and a separately captured GitHub JSON file. It never reparses the
+managed catalog Markdown. Capture current public competition data explicitly:
+
+```bash
+uv run python -m beejsp.assessment capture-github --output competition.json
+```
+
+This is a bounded read-only traversal of all PR and Issue pages in
+`TheJustinSunPrize/awards`. A failed, rate-limited, malformed, or incomplete
+capture is written as incomplete evidence and cannot produce a TOP-5.
+
+Create research JSON with `schema_version: 1`, `reviewed_prefix_count`, and one
+item per deeply reviewed candidate. Candidates must be in exact deterministic
+triage-prefix order: the bounded prefix may continue beyond the initial review
+limit when necessary, but must never cherry-pick outside that prefix. Record
+explicit solution evidence (`complete`, `answer`, `sketch`, `partial`,
+`unsupported`, or `unknown`), formalization search scope, and a separate
+qualitative estimate with rationale. Each formalization observation requires a
+source, URL, `status`, `blocking`, and rationale; supported statuses are
+`complete`, `partial`, `scoped`, `activity`, and `unknown`. A `blocking: true`
+observation additionally requires an explicit blocker rationale. Do not present
+estimates as official facts or turn a scoped empty search into a global absence
+claim.
+
+Then render the deterministic assessment offline:
+
+```bash
+uv run python -m beejsp.assessment assess \
+  --scanner problem-bank.json \
+  --research research.json \
+  --competition competition.json \
+  --output assessment.json \
+  --report top5.md
+```
+
+The assessment validates scanner provenance and identities, triages the whole
+candidate set with its recorded formula and stable JSP-ID tie-breaker, and emits
+exactly one GO primary plus four reserves only when a viable primary exists.
+Otherwise it fails closed without a TOP-5. Its saved inputs, not a later network
+request, are the reproducibility boundary. The primary's bounded spike
+objective is an Iteration 4 input, not Lean code produced by this command.
+
 ## Candidate analysis
 
 Candidate analysis should separate facts from derived prioritization.
