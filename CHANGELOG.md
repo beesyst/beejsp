@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.4.0...beejsp-v0.5.0) (2026-09-22)
+
+
+### Features
+
+* **proof:** add JSP-000089 bounded Lean spike ([#9](https://github.com/beesyst/beejsp/issues/9)) ([449fab4](https://github.com/beesyst/beejsp/commit/449fab462f71c69f3ef6d1ccffe92921fe6d16f1))
+
 ## [0.4.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.3.0...beejsp-v0.4.0) (2026-09-22)
 
 
