@@ -1213,7 +1213,7 @@ so difficult mathematics or missing library support can produce an early NO-GO i
 
 ### Iteration 4 — Selected candidate statement package and bounded Lean spike
 
-**Status:** PLANNED
+**Status:** DONE
 
 #### Goal
 
