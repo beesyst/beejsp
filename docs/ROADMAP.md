@@ -1093,7 +1093,7 @@ BeeJSP can inspect the current JSP problem bank programmatically and produce a d
 
 ### Iteration 3 — Evidence-backed TOP-5 and live competition analysis
 
-**Status:** PLANNED
+**Status:** DONE
 
 #### Goal
 
