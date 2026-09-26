@@ -11,7 +11,12 @@ Some dates are explicitly marked as assumptions or pending confirmation. Formal 
 **Submission requirements:** only complete solutions to the original problem are
 accepted. Partial mathematical progress and incomplete Lean formalizations are not
 eligible for submission. The catalog records complete solutions only, without
-intermediate results. See the [contribution guidelines](../CONTRIBUTING.md#external-solver-and-lean-submissions).
+intermediate results. The complete mathematical solution and its proof or publication
+evidence may be provided before the Lean formalization or together with it in the
+same PR. The mathematical solver and Lean formalization author may be different
+people. **A Lean submission without the mathematical solution and its supporting
+evidence is invalid and will not be accepted.** See the
+[contribution guidelines](../CONTRIBUTING.md#external-solver-and-lean-submissions).
 
 For submission, claims, public review and challenges, follow the
 [award process](../docs/award-process.md). Current candidates and review dates
