@@ -11,7 +11,12 @@ Some dates are explicitly marked as assumptions or pending confirmation. Formal 
 **Submission requirements:** only complete solutions to the original problem are
 accepted. Partial mathematical progress and incomplete Lean formalizations are not
 eligible for submission. The catalog records complete solutions only, without
-intermediate results. See the [contribution guidelines](../CONTRIBUTING.md#external-solver-and-lean-submissions).
+intermediate results. The complete mathematical solution and its proof or publication
+evidence may be provided before the Lean formalization or together with it in the
+same PR. The mathematical solver and Lean formalization author may be different
+people. **A Lean submission without the mathematical solution and its supporting
+evidence is invalid and will not be accepted.** See the
+[contribution guidelines](../CONTRIBUTING.md#external-solver-and-lean-submissions).
 
 For submission, claims, public review and challenges, follow the
 [award process](../docs/award-process.md). Current candidates and review dates
@@ -336,7 +341,7 @@ The **No.** column runs consecutively from **JSP-000001** to **JSP-001022** in d
 | JSP-000236 | [Is there a Lucas sequence consisting entirely of composite terms but with no fixed nontrivial divisor common to all terms?](catalog-0201-0300.md#JSP-000236) | Open | No | No | Unavailable | Unavailable |
 | JSP-000237 | [For prescribed moduli, what are the largest and smallest proportions of integers covered by a choice of corresponding residue classes?](catalog-0201-0300.md#JSP-000237) | Open | No | No | Unavailable | Unavailable |
 | JSP-000238 | [Can residue classes with prime moduli cover every sufficiently large integer?](catalog-0201-0300.md#JSP-000238) | Open | No | No | Unavailable | Unavailable |
-| JSP-000239 | [Can an infinite covering by residue classes be uniformly approximated in density by finite subfamilies?](catalog-0201-0300.md#JSP-000239) | Solved | Yes | Yes | Unclaimed | Unclaimed |
+| JSP-000239 | [Can an infinite covering by residue classes be uniformly approximated in density by finite subfamilies?](catalog-0201-0300.md#JSP-000239) | Solved | Yes | Yes | Claimed | Unclaimed |
 | JSP-000240 | [Does the greedy Egyptian-fraction algorithm restricted to odd denominators always terminate for rational inputs?](catalog-0201-0300.md#JSP-000240) | Open | No | No | Unavailable | Unavailable |
 | JSP-000241 | [Can the denominators in Egyptian-fraction representations be used to combine the specified polynomial values into every sufficiently large integer?](catalog-0201-0300.md#JSP-000241) | Solved | Yes | Yes | Unclaimed | Unclaimed |
 | JSP-000242 | [In a representation of one as a prescribed number of positive unit fractions, how large can the smallest denominator be?](catalog-0201-0300.md#JSP-000242) | Solved | No | No | Unavailable | Unavailable |
@@ -429,7 +434,7 @@ The **No.** column runs consecutively from **JSP-000001** to **JSP-001022** in d
 | JSP-000324 | [How narrow an interval can contain all the distinct factors in a factorization of a factorial?](catalog-0301-0400.md#JSP-000324) | Open | No | No | Unavailable | Unavailable |
 | JSP-000325 | [What conditions on an interval's starting point make its consecutive-integer product divisible by a prescribed integer?](catalog-0301-0400.md#JSP-000325) | Open | No | No | Unavailable | Unavailable |
 | JSP-000326 | [Can a central binomial coefficient be divisible by the specified descending product of arbitrarily many consecutive integers?](catalog-0301-0400.md#JSP-000326) | Open | No | No | Unavailable | Unavailable |
-| JSP-000327 | [Under the stated restrictions, are there only finitely many equalities between products of distinct central binomial coefficients?](catalog-0301-0400.md#JSP-000327) | Solved | Yes | Yes | Unclaimed | Unclaimed |
+| JSP-000327 | [Under the stated restrictions, are there only finitely many equalities between products of distinct central binomial coefficients?](catalog-0301-0400.md#JSP-000327) | Solved | Yes | Yes | Claimed | Unclaimed |
 | JSP-000328 | [Brocard-Ramanujan conjecture](catalog-0301-0400.md#JSP-000328) | Open | No | No | Unavailable | Unavailable |
 | JSP-000329 | [If a product of factorials divides another factorial, by how much can the sum of its indices exceed the latter index?](catalog-0301-0400.md#JSP-000329) | Open | No | No | Unavailable | Unavailable |
 | JSP-000330 | [Which otherwise invalid divisibility relations between factorial products can be obtained by inserting powers of specified small primes?](catalog-0301-0400.md#JSP-000330) | Solved | Yes | Yes | Unclaimed | Unclaimed |
