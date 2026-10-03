@@ -2,9 +2,15 @@
 
 Public verification records connect the original mathematical problem, formal statement, pinned proof source, reproduction evidence, and review conclusions. A formal statement alone is not a verified proof, and proof checking must also address whether the statement represents the intended problem.
 
+The complete mathematical solution to the original problem and its proof or
+publication evidence may be provided before the Lean formalization or together
+with it in the same PR. The mathematical solver and Lean formalization author
+may be different people. **A Lean submission without the mathematical solution
+and its supporting evidence is invalid and will not be accepted.**
+
 Review the mathematical solution before accepting its Lean formalization.
-A Lean submission identifies the mathematical solution and review evidence, or
-supplies the solution evidence for review in the same PR. Lean verification and
+A Lean submission links an earlier mathematical solution and any review evidence,
+or supplies the solution evidence for review in the same PR. Lean verification and
 candidate registration do not require a prior solver candidate or award record.
 The solver need not have registered or submitted a claim. Review combined
 submissions by contribution type without imposing a contributor-registration order.
