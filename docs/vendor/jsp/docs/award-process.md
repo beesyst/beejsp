@@ -32,10 +32,16 @@ the relevant catalog entry in your fork, and open a PR. Complete the automatical
 provided [PR template](../.github/PULL_REQUEST_TEMPLATE.md).
 Only complete solutions and complete Lean proofs of the original problem are accepted.
 
+The complete mathematical solution to the original problem and its proof or
+publication evidence may be provided before the Lean formalization or together
+with it in the same PR. The mathematical solver and Lean formalization author
+may be different people. **A Lean submission without the mathematical solution
+and its supporting evidence is invalid and will not be accepted.**
+
 **The mathematical solution must pass review, but Lean verification and candidate
 registration do not require the solver to have registered or claimed an award.**
-A Lean submission identifies the mathematical solution and review evidence, or
-supplies the solution evidence for review in the same PR. A proof build cannot
+A Lean submission links an earlier mathematical solution and any review evidence,
+or supplies the solution evidence for review in the same PR. A proof build cannot
 replace mathematical review. Review both contribution types independently when
 submitted together; neither contributor must register before the other.
 An accepted solver application may be retained while formalization is missing.

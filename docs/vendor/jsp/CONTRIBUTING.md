@@ -63,6 +63,13 @@ conditional arguments relying on additional unproved assumptions do not qualify.
 A Lean statement alone or a proof depending on `sorry`, `admit` or assumptions
 standing in for missing proof steps is incomplete.
 
+The complete mathematical solution to the original problem and its proof or
+publication evidence may be provided before the Lean formalization or together
+with it in the same PR. The mathematical solver and Lean formalization author
+may be different people. **A Lean submission without the mathematical solution
+and its supporting evidence is invalid and will not be accepted.** Link the
+earlier solution or provide it and its evidence in the Lean PR.
+
 Fork this repository and update the relevant existing
 `problems/catalog-XXXX-XXXX.md` file using the PR template. External submissions
 may change **Current status** (including **Proof contributors:**), **Lean proof**,
@@ -79,7 +86,8 @@ Provide evidence for the contribution you are submitting:
 - **Both:** provide both sets of evidence and distinguish the contributions.
 
 Mathematical review must pass before Lean acceptance. Identify the mathematical
-solution and review evidence, or supply that evidence in the same PR for review.
+solution and any review evidence, or supply the solution evidence in the same PR
+for review.
 The solver need not have registered or claimed an award. Solver-only submissions
 need no Lean repository or self-check.
 
