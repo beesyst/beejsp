@@ -51,26 +51,18 @@ The proof is not complete merely because:
 ## Terms
 
 - **Problem** — the original mathematical question or theorem being targeted.
-- **Problem source** — authoritative or relevant publication/source describing
-  the problem.
-- **Mathematical solution** — mathematical reasoning claimed to solve the
-  problem.
+- **Problem source** — authoritative or relevant publication/source describing the problem.
+- **Mathematical solution** — mathematical reasoning claimed to solve the problem.
 - **Solver** — person or team credited with the mathematical solution.
-- **Formal statement** — Lean theorem statement intended to represent the
-  mathematical problem.
-- **Formalization** — Lean representation of the statement and its complete
-  proof.
+- **Formal statement** — Lean theorem statement intended to represent the mathematical problem.
+- **Formalization** — Lean representation of the statement and its complete proof.
 - **Formalizer** — contributor responsible for the Lean formalization.
 - **Verifier** — reviewer or process independently checking the formalization.
-- **Statement fidelity** — correspondence between the original mathematical
-  problem and the Lean statement.
-- **Proof completeness** — absence of missing proof steps for the claimed
-  theorem.
-- **Proof provenance** — evidence connecting a formalization to repository,
-  authorship, source and exact commit.
+- **Statement fidelity** — correspondence between the original mathematical problem and the Lean statement.
+- **Proof completeness** — absence of missing proof steps for the claimed theorem.
+- **Proof provenance** — evidence connecting a formalization to repository, authorship, source and exact commit.
 - **Axiom audit** — inspection of axioms required by the final theorem.
-- **Reproduction** — rebuilding/checking the proof from committed sources and
-  pinned environment.
+- **Reproduction** — rebuilding/checking the proof from committed sources and pinned environment.
 
 ## Formalization-sensitive change
 

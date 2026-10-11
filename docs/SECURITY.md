@@ -205,8 +205,7 @@ Do not:
 - invent a commit;
 - store only a human label when exact commit is required;
 - claim a snapshot is fresh without checking;
-- preserve stale upstream files that are no longer part of the managed
-  selection.
+- preserve stale upstream files that are no longer part of the managed selection.
 
 ## Vendor licensing
 

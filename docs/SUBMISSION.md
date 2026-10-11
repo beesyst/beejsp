@@ -300,8 +300,7 @@ The submitted proof evidence must point to an immutable reviewed source state.
 
 Before selecting the commit:
 
-1. ensure the BeeJSP proof branch/repository state is public as required by the
-   current official process;
+1. ensure the BeeJSP proof branch/repository state is public as required by the current official process;
 2. verify the selected commit contains the complete reviewed proof;
 3. verify the committed toolchain/dependencies;
 4. rerun required proof checks against that state;

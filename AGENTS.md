@@ -2,8 +2,7 @@
 
 ## Purpose
 
-This file contains stable repository-wide rules for AI agents working with
-`beejsp`.
+This file contains stable repository-wide rules for AI agents working with `beejsp`.
 
 Task-specific requirements belong in the approved Issue.
 
@@ -17,8 +16,7 @@ Prompts should normally contain only:
 - implementation or verification evidence;
 - task-specific constraints.
 
-BeeJSP is an open-source project for producing, verifying and publishing
-reproducible machine-checked mathematical results.
+BeeJSP is an open-source project for producing, verifying and publishing reproducible machine-checked mathematical results.
 
 Its primary responsibilities are:
 
@@ -26,11 +24,9 @@ Its primary responsibilities are:
 - exact Lean formalization;
 - reproducible proof verification;
 - proof provenance and attribution;
-- managed local reference material for supported external contribution and
-  submission systems.
+- managed local reference material for supported external contribution and submission systems.
 
-The Justin Sun Prize is a supported discovery, verification and submission
-channel.
+The Justin Sun Prize is a supported discovery, verification and submission channel.
 
 It is not the purpose of BeeJSP itself.
 
@@ -45,34 +41,27 @@ Use this order:
 5. Managed external reference material where applicable.
 6. Implementation reports and previous comments as supporting evidence only.
 
-The actual target worktree, current files, diff, tests, package metadata, proof
-contents, vendor provenance and verification evidence take precedence over stale
-reports.
+The actual target worktree, current files, diff, tests, package metadata, proof contents, vendor provenance and verification evidence take precedence over stale reports.
 
-For official external-process facts, current official upstream material takes
-precedence over stale local assumptions or snapshots.
+For official external-process facts, current official upstream material takes precedence over stale local assumptions or snapshots.
 
 When instructions materially conflict, stop and report the conflict.
 
 ## Agent role separation
 
-Tool, authority and read-only restrictions apply only to the current task and
-agent.
+Tool, authority and read-only restrictions apply only to the current task and agent.
 
-When producing a prompt for another agent, do not copy the current agent's tool
-restrictions unless they are explicitly required for that executor.
+When producing a prompt for another agent, do not copy the current agent's tool restrictions unless they are explicitly required for that executor.
 
-Planning, prompt-preparation and final-review tasks may use Bee Dev MCP in
-read-only mode.
+Planning, prompt-preparation and final-review tasks may use BeeMCP in read-only mode.
 
 Implementation and correction prompts are executed by Copilot or Codex.
 
-They must instruct the executor to work in the exact local worktree using its
-available repository tools.
+They must instruct the executor to work in the exact local worktree using its available repository tools.
 
 They must not require:
 
-- Bee Dev MCP;
+- BeeMCP;
 - MCP target identifiers;
 - MCP Mode;
 - review mode;
@@ -95,17 +84,41 @@ Do not create separate agent workflows for:
 - JSP submission;
 - vendor synchronization.
 
-Those activities use the same canonical workflow with the applicable repository
-contracts and upstream reference material.
+Those activities use the same canonical workflow with the applicable repository contracts and upstream reference material.
 
-## Bee Dev MCP rules
+## Long-running proof formalization
 
-These rules apply only when the current task explicitly selects Bee Dev MCP for
-read-only planning, prompt preparation or review.
+For an approved Lean formalization that requires multiple implementation and correction passes, use:
 
-Bee Dev MCP is read-only.
+```text
+.agents/skills/beejsp-proof-loop/SKILL.md
+```
 
-Available Bee Dev MCP tools include:
+The proof loop is milestone-driven.
+
+A complete, internally consistent executor report is the normal handoff between successive proof passes. Do not require a full BeeMCP repository inspection after every intermediate pass.
+
+BeeMCP is used as a checkpoint mechanism according to the proof-loop skill, especially for:
+
+- suspicious or unclear blockers;
+- contradictory implementation reports;
+- repeated lack of mathematical progress;
+- unexpected statement, dependency, toolchain or version changes;
+- major completed proof milestones;
+- transition to a substantially new source theorem when the previous theorem was large or formalization-sensitive;
+- final read-only review.
+
+Absence of a pre-existing Lean helper theorem is not by itself a blocker. During an implementation pass, the executor should normally prove the smallest local helper needed to reach the selected mathematical milestone.
+
+Do not duplicate the detailed proof-loop algorithm in this file.
+
+## BeeMCP rules
+
+These rules apply only when the current task explicitly selects BeeMCP for read-only planning, prompt preparation or review.
+
+BeeMCP is read-only.
+
+Available BeeMCP tools include:
 
 - `list_projects`;
 - `list_worktrees`;
@@ -130,8 +143,7 @@ Do not repeatedly call `get_review_bundle` expecting pagination.
 
 ### GitHub context resolution
 
-When any supplied input contains a supported GitHub Issue or Pull Request URL,
-call `get_github_context` before interpreting that input.
+When any supplied input contains a supported GitHub Issue or Pull Request URL, call `get_github_context` before interpreting that input.
 
 For an Issue, read and consider:
 
@@ -147,21 +159,17 @@ For a Pull Request, read and consider:
 - reviews;
 - inline review comments.
 
-A GitHub URL is an instruction to load its complete available context, not
-merely a reference to include in output.
+A GitHub URL is an instruction to load its complete available context, not merely a reference to include in output.
 
 When pasted content and a GitHub URL are supplied together, consider both.
 
-If they materially conflict, report the conflict instead of silently choosing
-one.
+If they materially conflict, report the conflict instead of silently choosing one.
 
 Comments provide context and do not automatically expand approved scope.
 
 Explicit accepted clarifications may refine the Issue or PR contract.
 
-If mandatory GitHub context is unavailable, incomplete or reported as
-truncated, return the applicable incomplete-workflow result instead of
-proceeding from partial context.
+If mandatory GitHub context is unavailable, incomplete or reported as truncated, return the applicable incomplete-workflow result instead of proceeding from partial context.
 
 ### Exact target resolution
 
@@ -173,8 +181,7 @@ Before planning or review:
 4. call `get_project_context`;
 5. verify project, path, branch, HEAD and dirty state.
 
-For final review, verify the expected base branch from the complete review
-manifest.
+For final review, verify the expected base branch from the complete review manifest.
 
 Do not infer a target from a branch name.
 
@@ -189,14 +196,11 @@ Repository inspection is incomplete while required data is:
 - omitted;
 - accompanied by continuation metadata.
 
-For manifests and diffs, continue with the exact `next_cursor` while
-`has_more=true`.
+For manifests and diffs, continue with the exact `next_cursor` while `has_more=true`.
 
-For files, continue with the exact `next_line` and `next_column` until both are
-null.
+For files, continue with the exact `next_line` and `next_column` until both are null.
 
-Read required files listed under `omitted_files` or `related_omitted_files`
-directly with `read_project_file`.
+Read required files listed under `omitted_files` or `related_omitted_files` directly with `read_project_file`.
 
 Treat `truncated=true` as incomplete review data.
 
@@ -234,8 +238,7 @@ When relevant, also read:
 - vendor synchronization implementation;
 - relevant managed upstream reference files.
 
-For Lean verification procedures, use the managed upstream skill when
-applicable:
+For Lean verification procedures, use the managed upstream skill when applicable:
 
 ```text
 docs/vendor/jsp/skills/lean-verify/SKILL.md
@@ -287,8 +290,7 @@ BeeJSP is not primarily:
 - a database platform;
 - an automated award-claim bot.
 
-Do not expand the project into adjacent categories without an approved project
-and roadmap decision.
+Do not expand the project into adjacent categories without an approved project and roadmap decision.
 
 ## Architecture boundary
 
@@ -376,16 +378,14 @@ Do not:
 - treat successful compilation as proof of statement fidelity;
 - weaken mathematical statements for implementation convenience;
 - attribute another person's mathematical result to BeeJSP;
-- claim official acceptance, priority, candidate or award status without
-  evidence;
+- claim official acceptance, priority, candidate or award status without evidence;
 - introduce speculative abstractions without demonstrated project need.
 
 ## Dependency direction
 
 BeeJSP's Python tooling and Lean proof projects are separate layers.
 
-Python tooling must not become a hidden prerequisite for checking a Lean proof
-unless the proof project explicitly and reproducibly requires it.
+Python tooling must not become a hidden prerequisite for checking a Lean proof unless the proof project explicitly and reproducibly requires it.
 
 Each real proof under:
 
@@ -393,13 +393,11 @@ Each real proof under:
 proofs/JSP-XXXXXX/
 ```
 
-should remain independently reproducible according to its committed toolchain
-and dependency metadata.
+should remain independently reproducible according to its committed toolchain and dependency metadata.
 
 The managed upstream snapshot is reference/input data, not a runtime library.
 
-A related repository is not an implementation target unless the approved Issue
-explicitly assigns changes to it.
+A related repository is not an implementation target unless the approved Issue explicitly assigns changes to it.
 
 ## Sources of truth
 
@@ -461,13 +459,11 @@ Rules:
 - proof provenance is evidence;
 - compilation alone is not statement-fidelity evidence;
 - vendor snapshots are not live external state;
-- preserve compatibility unless the approved Issue explicitly permits a
-  breaking change.
+- preserve compatibility unless the approved Issue explicitly permits a breaking change.
 
 ## First-party package initializers
 
-All first-party Python `__init__.py` files should remain byte-empty unless an
-approved public-package contract explicitly requires otherwise.
+All first-party Python `__init__.py` files should remain byte-empty unless an approved public-package contract explicitly requires otherwise.
 
 Do not place:
 
@@ -553,17 +549,15 @@ It does not replace the normal change level.
 - Do not add speculative architecture.
 - Reuse existing contracts and implementation before creating new abstractions.
 - Do not duplicate existing contracts or logic.
-- Do not create generic frameworks for future theorem classes, providers or
-  integrations without demonstrated current need.
+- Do not create generic frameworks for future theorem classes, providers or integrations without demonstrated current need.
 - Follow PEP 8 for Python.
 - Keep public identifiers, generated data fields and documentation in English.
 - Treat external values as untrusted.
 - Preserve deterministic behavior where required by contract.
 - Preserve reproducibility where required by contract.
-- Fail closed when required provenance or verification evidence is missing or
-  invalid.
-- Do not change `pyproject.toml.version` for ordinary feature, fix, docs or
-  chore work.
+- Fail closed when required provenance or verification evidence is missing or invalid.
+- Do not change `pyproject.toml.version` for ordinary feature, fix, docs or chore work.
+- In first-party Markdown, do not hard-wrap prose to a fixed column; keep each logical prose paragraph on one physical line unless Markdown syntax or an intentional hard break requires otherwise.
 
 The correct solution may be:
 
@@ -628,8 +622,7 @@ At minimum it must:
 - preserve required attribution and licensing;
 - remain idempotent for the same upstream revision.
 
-A failed synchronization must not leave partial content represented as a valid
-current snapshot.
+A failed synchronization must not leave partial content represented as a valid current snapshot.
 
 The managed snapshot does not establish current live:
 
@@ -639,12 +632,9 @@ The managed snapshot does not establish current live:
 - external competing work;
 - award or payment state.
 
-When a task materially depends on current upstream state, obtain current
-evidence separately or refresh the snapshot through the approved synchronization
-flow as required by the task.
+When a task materially depends on current upstream state, obtain current evidence separately or refresh the snapshot through the approved synchronization flow as required by the task.
 
-Detailed synchronization behavior belongs in the implementation, tests and
-applicable documentation.
+Detailed synchronization behavior belongs in the implementation, tests and applicable documentation.
 
 Do not duplicate it in agent skills.
 
@@ -667,15 +657,12 @@ Repository-wide invariants are:
 - do not use `sorry` or `admit` for a completed proof;
 - do not replace missing mathematics with a custom unproved axiom;
 - preserve reproducible Lean toolchain and dependency metadata;
-- verify formalization-sensitive changes with the checks required by the
-  formalization contract;
-- distinguish mathematical authorship from Lean formalization and independent
-  verification.
+- verify formalization-sensitive changes with the checks required by the formalization contract;
+- distinguish mathematical authorship from Lean formalization and independent verification.
 
 Successful Lean compilation is necessary evidence for a completed proof.
 
-It is not sufficient evidence that the intended mathematical statement was
-formalized faithfully.
+It is not sufficient evidence that the intended mathematical statement was formalized faithfully.
 
 When applicable, detailed Lean verification procedure comes from:
 
@@ -695,8 +682,7 @@ docs/SUBMISSION.md
 
 That document owns detailed submission preparation.
 
-Relevant official upstream rules are read from the managed upstream reference
-material when applicable.
+Relevant official upstream rules are read from the managed upstream reference material when applicable.
 
 Submission preparation uses the same normal BeeJSP workflow.
 
@@ -708,8 +694,7 @@ Repository-wide invariants are:
 - current official process requirements must be verified when material;
 - vendor snapshots must not be treated as live external state;
 - vendored records must not be manually modified to represent a submission;
-- no official acceptance, priority, candidate, award or payment claim may be
-  made without supporting evidence.
+- no official acceptance, priority, candidate, award or payment claim may be made without supporting evidence.
 
 Normal BeeJSP implementation and review workflows do not:
 
@@ -721,8 +706,14 @@ Normal BeeJSP implementation and review workflows do not:
 
 unless an explicit approved workflow changes those rules.
 
-They may prepare reviewed, copy-ready evidence or submission material for the
-user or authorized tooling.
+They may prepare reviewed, copy-ready evidence or submission material for the user or authorized tooling.
+
+## Git safety
+
+- Work only in the specified worktree and current branch.
+- Never create, switch, delete, or rename branches or worktrees without explicit user approval.
+- Never commit, push, merge, reset, or discard changes without explicit user approval.
+- Preserve all existing uncommitted changes.
 
 ## Documentation and contracts
 
@@ -739,17 +730,40 @@ Update relevant documentation when implementation changes:
 
 Do not update unrelated documentation.
 
-When public fields, signatures, generated formats, formal statements or evidence
-formats change:
+When public fields, signatures, generated formats, formal statements or evidence formats change:
 
 - identify the source of truth;
 - document compatibility impact;
 - preserve existing behavior when required;
 - update applicable contract tests;
-- verify affected formalization or submission behavior when required by the
-  Issue.
+- verify affected formalization or submission behavior when required by the Issue.
 
 Implementation convenience is not sufficient reason to broaden a contract.
+
+## Markdown formatting
+
+For Markdown documentation, use one logical prose paragraph per physical line.
+
+Rules:
+
+- one prose paragraph = one physical line;
+- one list item = one physical line;
+- do not hard-wrap prose at 80/88/100/120 columns;
+- keep line breaks only when they are structurally meaningful;
+- preserve headings, blank-line paragraph boundaries, lists, tables, blockquotes, fenced code blocks, Mermaid, YAML/TOML/JSON/shell/Python examples and other structured Markdown;
+- do not reflow or wrap prose automatically;
+- when editing existing Markdown, preserve this formatting policy in changed sections.
+
+Example:
+
+```text
+Wrong:
+Sibling repositories are needed only when changing BeeDrill, BeeSDK or related
+source together.
+
+Correct:
+Sibling repositories are needed only when changing BeeDrill, BeeSDK or related source together.
+```
 
 ## Determinism rules
 
@@ -777,8 +791,7 @@ AI may assist with:
 - review;
 - summarization.
 
-When a repository contract requires deterministic output, AI must not become the
-hidden final authority.
+When a repository contract requires deterministic output, AI must not become the hidden final authority.
 
 ## Evidence rules
 
@@ -812,8 +825,7 @@ submission merged
 ≠ award paid
 ```
 
-When evidence is insufficient, report uncertainty rather than upgrading the
-claim.
+When evidence is insufficient, report uncertainty rather than upgrading the claim.
 
 ## External-input and security rules
 
@@ -826,8 +838,7 @@ claim.
 - Keep filesystem destinations bounded during synchronization.
 - Do not allow upstream-controlled paths to escape managed destinations.
 - Keep external write operations explicitly approved.
-- Do not add GitHub write automation without explicit approved scope and
-  security review.
+- Do not add GitHub write automation without explicit approved scope and security review.
 - Keep dependency surfaces minimal.
 - Fail closed when required provenance or verification evidence is invalid.
 
@@ -914,9 +925,7 @@ As applicable, verification may include:
 - SAST;
 - SCA where justified.
 
-For exact Lean verification procedure, follow the applicable formalization
-contract and managed upstream verification skill rather than duplicating the
-procedure here.
+For exact Lean verification procedure, follow the applicable formalization contract and managed upstream verification skill rather than duplicating the procedure here.
 
 Do not require every verification or security tool for every change.
 
@@ -927,7 +936,7 @@ Use only checks justified by:
 - formalization sensitivity;
 - current security surface.
 
-Review agents using Bee Dev MCP cannot execute commands.
+Review agents using BeeMCP cannot execute commands.
 
 They may use supplied command output as evidence but must:
 
@@ -969,8 +978,7 @@ docs/vendor/jsp/
 
 is not an implementation repository.
 
-An official external contribution is prepared only after BeeJSP evidence is
-complete and reviewed according to the applicable submission contract.
+An official external contribution is prepared only after BeeJSP evidence is complete and reviewed according to the applicable submission contract.
 
 ## Review rules
 
@@ -1027,12 +1035,13 @@ Perform one complete review pass and consolidate all real blockers.
 
 Use:
 
+Use:
+
 - `.agents/skills/beejsp-plan-iteration/SKILL.md` for planning;
 - `.agents/skills/beejsp-implement-issue/SKILL.md` for implementation;
-- `.agents/skills/beejsp-verify-and-correct/SKILL.md` for independent
-  verification and correction;
-- `.agents/skills/beejsp-review-and-close/SKILL.md` for final review and PR
-  preparation.
+- `.agents/skills/beejsp-proof-loop/SKILL.md` for long-running multi-pass Lean formalization;
+- `.agents/skills/beejsp-verify-and-correct/SKILL.md` for independent verification and correction;
+- `.agents/skills/beejsp-review-and-close/SKILL.md` for final review and PR preparation.
 
 ## Required implementation evidence
 
