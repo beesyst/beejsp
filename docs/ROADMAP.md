@@ -4,232 +4,144 @@
 
 This document defines the development path for `beejsp` through explicit project stages and substantial implementation iterations.
 
-BeeJSP uses the ROADMAP as a lightweight delivery artifact to:
+BeeJSP uses the ROADMAP to:
 
-- define project direction;
-- keep work focused on useful mathematical output;
-- define the acceptance boundary of each substantial iteration;
+- define project direction and meaningful delivery boundaries;
 - connect Issue → Code / Proof → Verification → PR → Merge;
-- separate discovery tooling from mathematical proof;
-- preserve exact mathematical statement fidelity;
-- preserve reproducible Lean verification;
-- preserve solver, formalizer and verifier attribution;
-- keep official JSP reference material reproducible without turning it into a second source of truth;
-- prevent speculative platform development before the first useful proof is delivered.
+- keep discovery tooling separate from mathematical proof;
+- preserve exact statement fidelity, reproducibility and correct attribution;
+- distinguish catalog metadata, submitted claims, independently verified proofs and official award decisions;
+- keep the official JSP reference reproducible without treating a vendored snapshot as live competition evidence;
+- prioritize useful mathematical work without speculative platform development.
 
 The ROADMAP does not replace Issues or Pull Requests:
 
 - **Issue** defines the exact approved implementation task;
-- **PR** records what was actually implemented and verified;
-- **ROADMAP** defines the iteration-level project contract and delivery direction.
+- **PR** records the actual implementation and verification evidence;
+- **ROADMAP** defines the iteration-level contract and delivery direction.
 
-A significant roadmap iteration is normally delivered through a BeeJSP PR.
+A substantial roadmap iteration is normally delivered through a BeeJSP PR. Small low-risk maintenance does not become a numbered iteration solely to create another roadmap item.
 
-Small low-risk maintenance that does not change project behavior, formalization semantics, managed vendor behavior, dependencies, security boundaries or public contracts does not become a roadmap iteration merely to create another numbered item.
-
-The ROADMAP does not duplicate full repository rules:
-
-- project architecture and ownership belong in `docs/ARCHITECTURE.md`;
-- development instructions belong in `docs/DEV_GUIDE.md`;
-- mathematical and Lean formalization rules belong in `docs/FORMALIZATION.md`;
-- security and trust boundaries belong in `docs/SECURITY.md`;
-- official JSP submission workflow belongs in `docs/SUBMISSION.md`;
-- repository-level AI/development instructions belong in `AGENTS.md`.
+Detailed ownership and rules belong in `docs/ARCHITECTURE.md`, `docs/DEV_GUIDE.md`, `docs/FORMALIZATION.md`, `docs/SECURITY.md`, `docs/SUBMISSION.md` and `AGENTS.md`.
 
 ## Vision
 
-| Block                         | Statement                                                                                                                                                                                           |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Project identity**          | BeeJSP is an open-source project for helping the mathematical community discover suitable problems, formalize valid mathematical results in Lean and publish reproducible machine-checked evidence. |
-| **Primary objective**         | Produce useful, independently reproducible formal mathematics rather than merely generate candidate proofs.                                                                                         |
-| **Core question**             | Can this mathematical result be represented faithfully, proved completely in Lean and independently reproduced from public evidence?                                                                |
-| **Community principle**       | Mathematical usefulness and correct attribution come before prize optimization.                                                                                                                     |
-| **Formalization principle**   | A Lean proof is useful only when the formal statement faithfully represents the intended mathematical result.                                                                                       |
-| **Proof principle**           | Successful compilation is necessary evidence, not sufficient evidence of statement fidelity.                                                                                                        |
-| **Reproducibility principle** | A selected public source revision should contain everything required to reproduce the claimed proof using its pinned environment.                                                                   |
-| **Attribution principle**     | Problem author, mathematical solver, Lean formalizer and independent verifier are distinct roles and must not be conflated.                                                                         |
-| **AI principle**              | AI may assist research, implementation and review, but mathematical claims remain grounded in source evidence and machine-checked proof.                                                            |
-| **Discovery principle**       | Candidate ranking helps choose work; it does not establish mathematical truth or official prize status.                                                                                             |
-| **Vendor principle**          | `docs/vendor/jsp/` is a pinned generated reference snapshot, not a manually maintained authority.                                                                                                   |
-| **Competition principle**     | Current PR/Issue/formalization competition is live external state and must be checked separately from the vendor snapshot.                                                                          |
-| **Submission principle**      | BeeJSP remains the original proof repository; the official JSP repository is an external contribution target.                                                                                       |
-| **KISS principle**            | Build only the tooling required to select, formalize, verify and submit real mathematical work.                                                                                                     |
-| **Project principle**         | BeeJSP is not primarily a generic theorem generator, SaaS platform, research-agent framework or prize-farming bot.                                                                                  |
+| Block                         | Statement                                                                                                                                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Project identity**          | BeeJSP is an open-source Python and Lean project for discovering suitable mathematical problems, proving faithful formal statements and publishing reproducible machine-checked evidence. |
+| **Primary objective**         | Produce useful, independently reproducible formal mathematics rather than merely generate candidate proofs.                                                                               |
+| **Core question**             | Can the exact intended mathematical result be represented faithfully, proved completely in Lean and independently reproduced?                                                             |
+| **Community principle**       | Mathematical usefulness, correctness and attribution come before prize optimization.                                                                                                      |
+| **Formalization principle**   | A compiling Lean theorem is not sufficient unless it faithfully represents the intended problem.                                                                                          |
+| **Reproducibility principle** | The selected public source revision must support reconstruction using pinned dependencies and toolchain.                                                                                  |
+| **Attribution principle**     | Problem author, mathematical solver, Lean formalizer and independent verifier are distinct roles.                                                                                         |
+| **AI principle**              | AI may assist research, implementation and review, but its claims are not proof evidence.                                                                                                 |
+| **Discovery principle**       | Candidate assessment supports research decisions; it does not establish mathematical truth.                                                                                               |
+| **Competition principle**     | Submitted work, source-linked work, reproduced work, verified work and officially accepted work must be distinguished.                                                                    |
+| **Award principle**           | Historical bounties, published JSP award information and qualitative future potential are separate evidence classes.                                                                      |
+| **Vendor principle**          | `docs/vendor/jsp/` is a pinned generated reference, not live official authority.                                                                                                          |
+| **Submission principle**      | BeeJSP owns its proof repository; official JSP contributions are external submissions.                                                                                                    |
+| **KISS principle**            | Build only what real mathematical work and verification need.                                                                                                                             |
 
 ## Project thesis
 
 BeeJSP does not primarily answer:
 
-> Can an AI produce Lean code for this problem?
-
-That is too weak.
+> Can AI produce Lean code for this problem?
 
 BeeJSP answers:
 
-> Can we identify a worthwhile mathematical result, represent the exact result
-> faithfully in Lean, prove it completely, independently reproduce it and make
-> the evidence useful to the mathematical community?
+> Can we identify a worthwhile mathematical result, formalize the exact statement, prove it completely in Lean, reproduce the result independently and publish trustworthy evidence?
 
 Target flow:
 
 ```text
 mathematical problem bank
-→ source/status research
-→ evidence-based candidate screening
-→ TOP candidate selection
-→ exact mathematical statement
+→ authoritative problem and mathematical-solution sources
+→ validated normalized records
+→ live competition and external proof evidence
+→ configurable evidence-aware candidate selection
 → bounded Lean feasibility spike
-→ complete Lean formalization
-→ independent verification
-→ public immutable proof evidence
+→ exact complete Lean formalization
+→ independent statement and proof verification
+→ immutable public proof evidence
 → optional official JSP submission
 ```
 
-Core project principle:
-
-> Formalization is not code generation.
-> It is preservation of mathematical meaning under machine verification.
-
-The Justin Sun Prize is an important initial problem source and supported submission path.
-
-BeeJSP must remain useful even when:
-
-- a selected problem has no prize;
-- another formalizer submits first;
-- an official claim is unsuccessful;
-- a useful proof is produced outside the JSP program.
+The Justin Sun Prize is a supported source and submission route, not BeeJSP's entire purpose. BeeJSP remains useful if a problem has no prize, a competitor submits first or an award claim fails.
 
 ## Architecture boundary
 
-The intended ownership model is:
-
 ```text
 Official mathematical sources
-→ problem and solution evidence
+→ original problems and mathematical solutions
 
 TheJustinSunPrize/awards
-→ official JSP records and process
+→ official problem, submission, candidate and award records
 
 docs/vendor/jsp/
-→ pinned read-only local JSP reference
+→ pinned read-only JSP reference
 
 BeeJSP Python tooling
-→ ingestion
-→ normalization
-→ discovery
-→ candidate analysis
-→ competition analysis
+→ ingestion and normalization
+→ evidence acquisition and candidate selection
 → deterministic reports
 
 BeeJSP Lean projects
-→ exact statements
-→ complete proofs
+→ exact statements and complete proofs
 → reproducible verification
 
 BeeJSP public Git history
-→ immutable proof provenance
+→ immutable source provenance
 
 Official JSP contribution
-→ external submission / verification / claim process
+→ external review, priority, claim and award process
 ```
 
 Architecture invariants:
 
 ```text
-vendor snapshot
-!=
-official authority
-```
-
-```text
-candidate score
-!=
-mathematical truth
-```
-
-```text
-lake build success
-!=
-statement fidelity
-```
-
-```text
-formalization
-!=
-mathematical discovery authorship
-```
-
-```text
-official PR opened
-!=
-official verification or award
+vendor snapshot != live official authority
+candidate score != mathematical truth
+PR opened != proof completed
+PR merged != independently verified theorem
+Lean build success != statement fidelity
+external proof claim != verified external proof
+historical bounty != official JSP payout
+qualitative prize potential != monetary forecast
+formalization != mathematical discovery authorship
+official submission != official acceptance or award
 ```
 
 ## Repository ownership
 
 BeeJSP owns:
 
-```text
-Python discovery/scanning tooling
-problem-bank normalization
-candidate prioritization
-read-only competition analysis
-managed JSP reference synchronization
-Lean proof projects
-proof reproducibility metadata
-formalization verification evidence
-project documentation
-submission preparation
-```
+- Python problem-bank scanning, normalization and candidate prioritization;
+- read-only competition and award-evidence collection;
+- managed JSP reference synchronization;
+- explicit assessment, provenance and reproducible reports;
+- Lean proof projects and verification evidence;
+- project documentation and submission preparation.
 
-BeeJSP does not own official JSP:
+BeeJSP does not own official JSP problem status, eligibility, candidate registration, formal verification decisions, priority decisions, award decisions, claims or payments.
 
-```text
-problem status
-award eligibility
-candidate status
-formal verification status
-priority decision
-award decision
-claim approval
-payment status
-```
-
-Those remain external official state.
+Public official observations may be collected and analyzed, but BeeJSP's derived assessments must not overwrite or impersonate the official source of truth.
 
 ## Managed JSP reference rule
 
-Canonical managed reference:
+Canonical managed reference: `docs/vendor/jsp/`.
 
-```text
-docs/vendor/jsp/
-```
+Canonical update command: `scripts/sync_jsp_docs.sh`.
 
-Canonical update command:
+Remote source: `https://github.com/TheJustinSunPrize/awards`.
 
-```text
-scripts/sync_jsp_docs.sh
-```
-
-Remote source:
-
-```text
-https://github.com/TheJustinSunPrize/awards
-```
-
-Every accepted snapshot records:
-
-```text
-UPSTREAM_REF
-UPSTREAM_COMMIT
-```
-
-Correct flow:
+Every accepted snapshot records `UPSTREAM_REF` and the full `UPSTREAM_COMMIT`.
 
 ```text
 official upstream
 → exact upstream revision
-→ temporary staging
+→ bounded temporary staging
 → validation
 → managed snapshot replacement
 → recorded provenance
@@ -237,610 +149,278 @@ official upstream
 
 Do not manually maintain vendored JSP files.
 
-The snapshot is used for:
+The snapshot supports planning, local catalog scanning, formalization and submission guidance, but it does not establish the current state of open or merged PRs, Issues, external Lean repositories, candidate registrations, announced awards or payments.
 
-- planning;
-- scanner input;
-- local problem-bank inspection;
-- formalization guidance;
-- submission guidance.
-
-It is not sufficient evidence of current:
-
-- open PRs;
-- merged PRs;
-- active Issues;
-- competing external formalizations.
+Live evidence requires separate read-only capture with timestamps, source URLs, completeness status and provenance.
 
 ## Formalization invariants
 
-The following rules apply to all real BeeJSP proof work.
-
 ### Exact problem identity
 
-Every formalization must identify the exact mathematical problem being claimed.
+Each proof must identify the exact mathematical problem, authoritative source, selected formulation and expected conclusion.
 
 ### Statement fidelity
 
-The Lean statement must preserve the required:
-
-- domain;
-- quantifiers;
-- hypotheses;
-- conclusion;
-- cases;
-- boundary assumptions;
-- mathematical meaning.
-
-A materially weaker theorem is not completion evidence for the original problem.
-
-### No hidden stronger assumptions
-
-Implementation convenience must not silently introduce assumptions absent from the original mathematics.
+The Lean statement must preserve domains, quantifiers, hypotheses, conclusions, cases, boundary conditions and mathematical meaning. A weaker theorem or silently stronger assumptions cannot count as completion.
 
 ### Complete proof
 
-Completed proof evidence must not depend on:
-
-```text
-sorry
-admit
-```
-
-or a custom unproved axiom inserted to replace missing mathematics.
+A completed proof must not depend on `sorry`, `admit` or custom unproved axioms substituting for missing mathematics.
 
 ### Reproducible environment
 
-The proof must pin the Lean environment and dependencies necessary to reproduce the result.
+The proof must pin the Lean toolchain and dependencies and reproduce from committed source files.
 
 ### Axiom review
 
-The principal theorem must receive the applicable axiom audit.
+The principal theorem and required dependencies must receive the applicable axiom audit.
 
 ### Attribution
 
-Keep distinct:
-
-```text
-problem source / author
-mathematical solver
-Lean formalizer
-independent verifier
-```
+Problem author, mathematical solver, Lean formalizer and independent verifier must be recorded separately.
 
 ### Conservative claims
 
-Do not upgrade:
+A successful Lean build does not establish statement fidelity or independent verification. A source link, PR description or third-party claim does not establish that the original problem was fully formalized.
 
-```text
-build succeeded
-```
+### External proof evidence
 
-to:
-
-```text
-original mathematical problem fully formalized
-```
-
-until statement fidelity and complete scope are independently reviewed.
+Do not discard a candidate solely because a competing PR exists, and do not ignore a source-linked earlier proof solely because its PR remains unmerged. Classification must reflect the available evidence and retain unresolved priority risk.
 
 ## Security invariants
 
 ### External data is untrusted
 
-Treat:
-
-- upstream repositories;
-- GitHub responses;
-- mathematical documents;
-- third-party Lean code;
-- external dependencies;
-
-as external input.
+Treat upstream repositories, API responses, external Lean projects, mathematical documents, award records and downloaded dependencies as untrusted data.
 
 ### No hidden execution
 
-External source material must not silently become arbitrary local execution.
+External code and setup scripts must not execute merely because a repository was referenced in a PR. Any targeted external proof check requires a reviewed, isolated and authorized workflow.
 
 ### Managed path safety
 
-Vendor synchronization must remain bounded to its approved staging and destination paths.
+Vendor synchronization and any bounded evidence capture must not allow upstream-controlled paths to escape approved destinations.
 
 ### Minimal GitHub authority
 
-Read-only research does not justify write permissions.
-
-GitHub write automation requires explicit approved scope.
+Read-only research does not justify write permissions. GitHub writes require explicit approved scope.
 
 ### Private data
 
-Do not commit:
-
-- credentials;
-- access tokens;
-- private keys;
-- seed phrases;
-- KYC documents;
-- private payment information;
-- unnecessary private identity data.
+Do not commit tokens, credentials, private keys, seed phrases, private identity documents, KYC data or private payment information.
 
 ### Provenance integrity
 
-Do not claim a repository revision contains proof evidence without verifying that exact source state.
+Do not claim a proof exists at a repository revision without checking its exact source state. Preserve source URL, branch and pinned full commit SHA when available.
 
 ## Development principles
 
-BeeJSP uses small but substantial project iterations.
-
-Every significant roadmap iteration must:
+Every significant BeeJSP iteration must:
 
 - have a concrete mathematical, tooling or verification goal;
 - produce a meaningful code, proof or evidence increment;
-- remain inside declared scope;
-- avoid speculative infrastructure;
-- preserve source-of-truth boundaries;
-- preserve formalization fidelity;
-- preserve reproducibility;
-- preserve attribution;
-- use verification proportional to actual risk;
+- remain within approved scope;
+- avoid speculative abstractions;
+- preserve source-of-truth and formalization boundaries;
+- preserve reproducibility and attribution;
+- use verification proportional to change risk;
 - keep external writes separate from local evidence production.
 
-For BeeJSP:
-
 ```text
-candidate
-!=
-proof
-```
-
-```text
-proof text
-!=
-verified proof
-```
-
-```text
-compiled theorem
-!=
-verified source equivalence
-```
-
-```text
-official catalog metadata
-!=
-current mathematical consensus
-```
-
-```text
-vendor snapshot
-!=
-live competition state
+candidate != proof
+proof text != verified proof
+compiled theorem != verified source equivalence
+catalog Lean proof: No != no external Lean work
+vendor snapshot != live competition state
+competing PR != verified competing proof
+historical bounty != available JSP award
 ```
 
 ## Iteration significance rule
 
-A numbered iteration must produce at least one substantial increment such as:
+A numbered iteration must deliver a substantive capability such as validated catalog ingestion, evidence-backed selection, meaningful competition analysis, a bounded Lean feasibility result, a complete real formalization, independent proof verification, an official submission artifact or a material correction revealed by actual use.
 
-- a stable problem-bank ingestion contract;
-- a useful candidate-screening capability;
-- a live competition-analysis capability;
-- an evidence-backed TOP candidate decision;
-- a bounded Lean feasibility result;
-- a complete real formalization;
-- independent proof-verification evidence;
-- a public immutable proof package;
-- an official external submission artifact;
-- a material formalization/security hardening increment.
+Formatting, README cleanup, one narrow helper, an isolated test or speculative architecture do not justify separate numbered iterations.
 
-The following do **not** justify a standalone roadmap iteration by themselves:
-
-- wording changes;
-- formatting;
-- README cleanup;
-- one small helper;
-- one extra test with no contract increment;
-- speculative abstraction;
-- generic infrastructure for future proofs;
-- another wrapper around existing tooling.
-
-If two planned iterations produce one inseparable project capability, merge them.
+If two planned efforts produce one inseparable capability, consolidate them rather than creating artificial milestones.
 
 ## KISS roadmap rule
 
-Do not add roadmap iterations merely because the following may eventually be useful:
+Do not add a web dashboard, database, SaaS platform, general theorem-prover abstraction, research-agent framework, hosted proof-runner fleet, generic plugin system, knowledge graph, multi-competition abstraction or automatic award-claim system without demonstrated current need.
 
-```text
-web dashboard
-database
-hosted SaaS
-generic theorem-prover abstraction
-generic agent framework
-multi-competition platform
-generic plugin system
-hosted proof runner fleet
-automatic prize claiming
-social/reputation system
-large knowledge graph
-```
+A new scope item is justified only when real proof work exposes a reusable gap, a current iteration cannot complete without it, or verification/submission evidence exposes a concrete deficiency.
 
-A new scope item is justified only when at least one condition holds:
-
-1. it is necessary to complete useful mathematical work;
-2. a current iteration cannot be completed correctly without it;
-3. real proof work exposes a concrete reusable gap;
-4. verification or submission evidence exposes a concrete deficiency;
-5. multiple real proofs demonstrate a stable reusable need.
-
-Insufficient reasons include:
-
-```text
-"might be useful later"
-"makes the architecture cleaner"
-"a mature platform would have it"
-"we should support every proof system now"
-"we may enter other competitions later"
-```
+Insufficient reasons include architectural aesthetics, hypothetical future scale or a desire to support every research workflow.
 
 ## Delivery workflow for roadmap items
 
-A significant BeeJSP iteration follows this flow:
+1. **Planning:** inspect repository state, validate the gap, reject speculative scope and identify sources of truth.
+2. **Requirements:** define Goal, Scope, Excluded, Deliverable, Acceptance criteria, contract/dependency/security impact, Checks and DoD.
+3. **Issue:** create one focused BeeJSP Issue containing the approved task.
+4. **Implementation:** deliver the smallest complete change on an approved dedicated branch.
+5. **Independent verification:** reproduce and review results, correcting only demonstrated in-scope blockers.
+6. **Final read-only review:** compare the actual worktree and evidence with the approved Issue and repository contracts.
+7. **PR / merge:** record verified scope, tests and provenance; merge only after acceptance criteria pass.
+8. **External submission:** only where expressly required and after proof evidence is complete.
 
-1. **Planning**
-   - inspect current repository state;
-   - confirm the actual gap;
-   - confirm iteration necessity;
-   - confirm source of truth;
-   - reject speculative scope.
-
-2. **Requirements**
-   - define Goal;
-   - define Scope;
-   - define Excluded;
-   - define Deliverable;
-   - define Acceptance criteria;
-   - define contract impact;
-   - define dependency impact;
-   - define formalization impact;
-   - define security impact;
-   - define Checks;
-   - define DoD.
-
-3. **Issue**
-   - create one focused BeeJSP Issue.
-
-4. **Implementation**
-   - implement the smallest complete solution on a dedicated branch.
-
-5. **Independent verification**
-   - verify actual implementation or proof independently;
-   - correct only demonstrated in-scope blockers.
-
-6. **Final read-only review**
-   - compare actual target worktree with approved Issue and current contracts.
-
-7. **PR / merge**
-   - record actual implementation and evidence;
-   - merge only after Acceptance Criteria are satisfied.
-
-8. **External submission**
-   - only when the iteration explicitly requires it and local evidence is
-     already complete.
-
-Tiny low-risk repository maintenance may use a shorter path and does not require a roadmap iteration.
+Tiny low-risk maintenance may use a shorter path without a roadmap iteration.
 
 ## Status values
 
-Allowed roadmap iteration statuses:
+Allowed iteration statuses:
 
-- **PLANNED** — scope is approved, implementation has not started;
-- **IN PROGRESS** — active implementation is underway;
-- **DONE** — iteration contract is fully delivered;
-- **DONE (partial)** — intentionally closed with explicit limitations.
+- **PLANNED** — approved scope, implementation not started;
+- **IN PROGRESS** — implementation underway;
+- **DONE** — complete acceptance contract delivered;
+- **DONE (partial)** — intentionally closed with disclosed limitations.
 
-For later directions:
+**FUTURE / orientation** describes an unapproved direction, not authorized implementation scope.
 
-- **FUTURE / orientation** — known direction, not approved implementation scope.
-
-`FUTURE / orientation` does not pre-authorize architecture or implementation.
+External JSP acceptance, priority, award and payment are independent of local engineering status.
 
 ## Roadmap item format
 
-Iterations use:
+Every numbered iteration uses:
 
-- `Goal`
-- `Scope`
-- `Excluded`
-- `Deliverable`
-- `Acceptance criteria`
-- `Checks`
-- `DoD`
+- `Goal`;
+- `Scope`;
+- `Excluded`;
+- `Deliverable`;
+- `Acceptance criteria`;
+- `Checks`;
+- `DoD`.
 
-The ROADMAP defines iteration-level contracts.
-
-Detailed:
-
-- schemas;
-- algorithms;
-- theorem statements;
-- exact file lists;
-- test matrices;
-- command evidence;
-- reviewer findings;
-
-belong in Issues, implementation, tests and PRs.
+Schemas, exact file lists, implementation algorithms, detailed test matrices, theorem statements and reviewer findings belong in Issues, code, tests and PRs rather than the iteration-level ROADMAP.
 
 ## Global Definition of Done
 
-A significant BeeJSP iteration is complete only when:
+A substantial iteration is complete only when:
 
-- declared scope is implemented;
-- excluded scope was not silently introduced;
-- source-of-truth boundaries remain correct;
-- managed vendor content is not manually maintained;
-- Python behavior is deterministic where the contract requires it;
-- formalization-sensitive changes preserve mathematical scope;
-- no completed proof relies on `sorry` or `admit`;
-- no custom placeholder axiom substitutes for missing mathematics;
-- applicable Lean environment is reproducible;
-- applicable axiom audit is complete;
-- provenance and attribution remain accurate;
-- targeted checks pass;
-- full Python checks pass when applicable;
-- package build passes when package behavior changes;
-- Lean build passes when proof code changes;
-- security checks proportional to the change are complete;
-- no secrets or private KYC/payment material enter repository state;
-- documentation matches actual behavior;
-- significant delivery is recorded in PR;
-- no unrelated architecture or cleanup is mixed into the iteration.
+- approved scope is implemented and excluded scope remains excluded;
+- source-of-truth and managed vendor boundaries are preserved;
+- deterministic contracts reproduce identical output from identical validated inputs;
+- formalization-sensitive work preserves exact mathematical scope;
+- completed proofs contain no unresolved placeholders or substituted axioms;
+- applicable builds, axiom audits and independent verification pass;
+- provenance and attribution are accurate;
+- targeted tests and applicable full Python checks pass;
+- package build and import checks pass when package contracts change;
+- applicable security, supply-chain and dependency checks pass;
+- no secrets or private payment/identity information enter repository state;
+- documentation accurately describes actual behavior;
+- meaningful delivery and verification are recorded in the PR;
+- unrelated refactoring and speculative infrastructure remain out of scope.
 
 ## Change levels for verification
 
-BeeJSP uses three ordinary change levels.
-
 ### low-risk
 
-Changes without meaningful executable/security behavior impact.
-
-Examples:
-
-- documentation;
-- agent prompt/skill maintenance;
-- wording;
-- metadata;
-- narrow test-only changes.
-
-Usually required:
-
-- relevant targeted checks;
-- consistency review.
+Documentation, agent guidance, metadata and narrow test-only changes generally require targeted checks and consistency review.
 
 ### runtime-risk
 
-Changes affecting executable project/tooling behavior without introducing a critical trust/write boundary.
-
-Examples:
-
-- catalog parser;
-- normalization;
-- scanner;
-- filtering/scoring;
-- report generation;
-- vendor synchronization;
-- CI behavior;
-- package/public behavior;
-- external read-only API integration.
-
-Usually required:
-
-- targeted tests;
-- `uv run pytest -q`;
-- Ruff checks;
-- package build/import checks when applicable;
-- deterministic-output checks;
-- vendor provenance/idempotence checks where applicable.
+Parser, normalization, scanner, ranking, report, vendor, CI, package and read-only API changes require targeted tests, `uv run pytest -q`, Ruff checks, applicable build/import checks, reproducibility tests and input-safety review.
 
 ### security-sensitive
 
-Changes affecting trust, filesystem, execution, credentials or external write boundaries.
+Changes to execution, credentials, path security, extraction, GitHub write permissions or dependency trust require runtime-risk checks plus explicit security review, negative/adversarial tests, SAST and SCA if the dependency surface changes.
 
-Examples:
-
-- shell construction from external values;
-- path handling;
-- archive extraction;
-- execution of external code;
-- GitHub write automation;
-- credentials;
-- private identity/payment processing;
-- material dependency expansion.
-
-Usually required:
-
-- applicable runtime-risk checks;
-- explicit security review;
-- SAST;
-- SCA when dependency surface changes;
-- relevant negative/adversarial tests.
-
-DAST, IAST and fuzzing are used only when the actual change creates a meaningful corresponding surface.
+DAST, IAST and fuzzing are only required where the change actually creates a corresponding surface.
 
 ## Formalization-sensitive verification
 
-Formalization sensitivity is orthogonal to the normal change level.
+Formalization sensitivity is independent of the ordinary change level and applies to theorem statements, proof terms, assumptions, dependencies, toolchain, provenance, attribution, axiom evidence or submission proof evidence.
 
-A change is formalization-sensitive when it affects:
-
-- Lean statement;
-- proof;
-- theorem scope;
-- mathematical assumptions;
-- proof dependencies;
-- toolchain;
-- proof provenance;
-- formalizer attribution;
-- axiom evidence;
-- submission proof evidence.
-
-Applicable checks include:
+Applicable checks:
 
 ```text
 exact statement review
-full-scope review
+full mathematical scope review
 lake build
 sorry/admit audit
-placeholder-axiom review
-axiom audit
+custom placeholder-axiom review
+principal theorem axiom audit
 dependency/toolchain review
 clean reproduction
 source/provenance review
-attribution review
+solver/formalizer attribution review
 ```
 
-Successful compilation alone does not close a formalization-sensitive iteration.
+Successful compilation alone does not close a formalization-sensitive task.
 
 ## Versioning and release rule
 
-BeeJSP tooling uses SemVer.
+BeeJSP tooling follows SemVer. The version source of truth is `pyproject.toml`.
 
-Version source of truth:
+Roadmap iteration numbers are unrelated to package versions. Routine feature, fix, proof and documentation work must not manually increment the package version unless the approved task explicitly requires release work.
 
-```text
-pyproject.toml
-```
+Release automation owns the release PR, version, CHANGELOG, tags and release lifecycle.
 
-Roadmap iteration and release version are different concepts.
-
-Ordinary feature/fix/proof work must not manually bump the package version unless the task is explicitly release-related.
-
-Release automation owns:
-
-```text
-release PR
-version
-CHANGELOG
-tag/release lifecycle
-```
-
-A specific formalization is identified by its proof provenance, not by the BeeJSP package version.
-
-For submission-sensitive work, relevant immutable evidence may include:
-
-```text
-repository
-branch when required
-full selected commit SHA
-proof project
-principal theorem
-```
+A formalization is identified by its repository, selected branch where required, immutable full commit SHA, Lean proof project and principal theorem.
 
 Conventional Commits should be used.
-
-Recommended release impact:
 
 | Commit          | Release impact                         |
 | --------------- | -------------------------------------- |
 | `feat:`         | MINOR                                  |
 | `fix:`          | PATCH                                  |
-| `docs:`         | normally no release bump by itself     |
-| `test:`         | normally no release bump by itself     |
-| `refactor:`     | normally no release bump by itself     |
-| `chore:`        | normally no release bump by itself     |
-| `ci:`           | normally no release bump by itself     |
-| `build:`        | normally no release bump by itself     |
-| breaking change | MAJOR when SemVer maturity requires it |
+| `docs:`         | Normally no release bump by itself     |
+| `test:`         | Normally no release bump by itself     |
+| `refactor:`     | Normally no release bump by itself     |
+| `chore:`        | Normally no release bump by itself     |
+| `ci:`           | Normally no release bump by itself     |
+| `build:`        | Normally no release bump by itself     |
+| Breaking change | MAJOR when SemVer maturity requires it |
 
-Release mechanics must not become a blocker for mathematical work.
+Release mechanics must not block mathematical work.
 
 ## Project phases
 
-| Phase                                                 | Status      | What it means                                                                                                                                              |
-| ----------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Phase A — Foundation and official reference**       | IN PROGRESS | BeeJSP becomes a governed Python + Lean repository with reproducible managed JSP reference material.                                                       |
-| **Phase B — Discovery and candidate selection**       | PLANNED     | BeeJSP can inspect the current problem bank, identify realistic formalization candidates and produce an evidence-backed TOP shortlist.                     |
-| **Phase C — First real formalization**                | PLANNED     | One selected mathematical problem progresses from exact source statement through bounded feasibility work to a complete Lean proof.                        |
-| **Phase D — Independent verification and submission** | PLANNED     | The completed proof is independently checked, frozen as public immutable evidence and submitted through the current official JSP process when appropriate. |
+| Phase                                              | Status  | Delivery                                                                                 |
+| -------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
+| **Phase A — Foundation and official reference**    | DONE    | Stage 1, Iteration 1.                                                                    |
+| **Phase B — Discovery and candidate selection**    | DONE    | Stage 2, Iterations 2–3.                                                                 |
+| **Phase C — First proof cycle**                    | DONE    | Stage 3, Iterations 4–5, plus recorded independent verification and external submission. |
+| **Phase D — Evidence-aware discovery improvement** | PLANNED | Stage 4, Iteration 6.                                                                    |
 
 ### Stages
 
-- **Stage 1 — Foundation and official reference:** repository architecture, governance, Python/Lean foundations, CI and managed official JSP snapshot.
-- **Stage 2 — Discovery and candidate selection:** deterministic problem-bank ingestion, filtering, live competition analysis and evidence-backed TOP candidates.
-- **Stage 3 — First real formalization:** exact source package, Lean feasibility spike and complete formal proof.
-- **Stage 4 — Independent verification and submission:** independent proof verification, immutable public evidence and external contribution.
+- **Stage 1 — Foundation and official reference:** Iteration 1 establishes repository governance, Python/Lean foundations, CI and managed JSP reference.
+- **Stage 2 — Discovery and candidate selection:** Iterations 2–3 deliver scanner ingestion, live competition capture and an initial evidence-backed TOP-5.
+- **Stage 3 — First real formalization:** Iterations 4–5 establish a bounded Lean spike and complete JSP-000089 proof; the verified submission is recorded as the completion of this first proof cycle rather than as unimplemented future iterations.
+- **Stage 4 — Evidence-aware discovery improvement:** Iteration 6 improves the existing scanner and assessment based on actual competition and prize-data gaps.
+
+Every active stage has at least one numbered iteration, and iteration numbers are unique and monotonically increasing.
 
 ## Project gates
 
-These are decision gates, not additional iterations.
+These are decision gates, not additional numbered iterations.
 
 ### Gate 1 — Foundation integrity
 
-After Iteration 1:
-
-```text
-official JSP upstream
-→ managed reproducible snapshot
-→ BeeJSP local reference
-```
-
-must work without:
-
-- permanent upstream fork dependency;
-- manual vendor editing;
-- speculative runtime architecture;
-- missing provenance.
-
-If this does not work, do not build scanner logic over an unstable source.
+After Iteration 1, pinned upstream material must synchronize reproducibly into `docs/vendor/jsp/` without manual edits, missing provenance or speculative platform dependencies.
 
 ### Gate 2 — Candidate quality
 
-After Iteration 3, BeeJSP must be able to produce a defensible shortlist where each leading candidate has evidence for:
+After Iteration 3, a defensible shortlist must identify the original problem, official catalog record, complete mathematical source where known, recorded Lean status, current scoped competition observations, estimated Lean complexity and major risks.
 
-```text
-exact problem
-current official record
-known mathematical solution/source
-Lean status
-live competition status
-formalization complexity
-main risks
-```
-
-If the shortlist is based only on catalog labels or intuition, do not start a large proof.
+If the shortlist is derived only from catalog labels or intuition, do not start a large proof. Iteration 6 strengthens this gate without rewriting historical Iteration 3 evidence.
 
 ### Gate 3 — Formalization feasibility
 
-After Iteration 4, the selected candidate must have a clear:
-
-```text
-GO
-```
-
-or:
-
-```text
-NO-GO
-```
-
-for full formalization.
-
-If the hardest mathematical/Lean boundary has not been tested, do not expand into a long implementation blindly.
+Before a full proof begins, inspect the hardest material theorem or Mathlib boundary through a bounded Lean feasibility spike. Record GO or NO-GO with concrete evidence and remaining obligations.
 
 ### Gate 4 — Proof truth
 
-After Iteration 6:
+Before external submission, the chain `exact problem → exact Lean statement → complete proof → reproducible build → acceptable axiom audit → independent statement review` must hold.
 
-```text
-exact source problem
-→ exact Lean statement
-→ complete proof
-→ reproducible build
-→ acceptable axiom audit
-→ independent statement review
-```
+This is a reusable verification requirement, not a historical iteration number.
 
-must hold.
+### Gate 5 — Evidence-aware candidate selection
 
-If not, do not submit externally.
+After Iteration 6, a validated pinned catalog, complete scoped live competition capture, external proof observations, official candidate/award evidence and configurable selection profile must produce a reproducible shortlist with source links and explicit uncertainty.
+
+An open PR must not automatically block a proof. A purported source-linked full proof must not be ignored. A missing prize amount must remain unknown. No score may silently turn uncertainty into a confirmed GO.
 
 ---
 
@@ -848,28 +428,7 @@ If not, do not submit externally.
 
 ### Purpose of stage
 
-Stage 1 establishes BeeJSP as a small governed Python + Lean repository before candidate tooling or real mathematical formalization begins.
-
-The stage proves:
-
-```text
-BeeJSP
-→ standalone repository
-→ Python tooling foundation
-→ Lean project foundation
-→ managed official JSP reference
-→ agent/review workflow
-```
-
-without creating:
-
-```text
-web runtime
-database
-permanent JSP fork dependency
-generic theorem framework
-submission bot
-```
+Establish BeeJSP as a governed Python and Lean repository with a reproducible managed official reference before candidate selection or real proof work.
 
 ### Iteration 1 — Repository foundation and managed JSP reference
 
@@ -877,71 +436,46 @@ submission bot
 
 #### Goal
 
-Bootstrap BeeJSP as an independent open-source Python + Lean repository with a safe managed snapshot of the official Justin Sun Prize reference material and the minimum governance required for real formalization work.
+Bootstrap a standalone BeeJSP repository with minimal Python/Lean foundations, governance, CI and safe managed JSP reference synchronization.
 
 #### Scope
 
 Included:
 
-- standalone `beejsp` repository;
-- Python distribution/import package `beejsp`;
-- Python `>=3.14`;
-- `uv`;
-- standard `src` layout;
-- byte-empty first-party package initializer;
-- Lean smoke/template project;
-- `AGENTS.md`;
-- BeeJSP planning, implementation, verification and final-review skills;
-- GitHub Issue/PR templates;
-- CI baseline;
-- SemVer/release-please baseline;
-- architecture/development/formalization/security/submission documentation;
-- `scripts/sync_jsp_docs.sh`;
-- managed `docs/vendor/jsp/`;
-- exact upstream ref and full commit provenance;
-- safe staged vendor replacement;
-- vendor idempotence;
-- scheduled/manual vendor synchronization PR workflow.
+- `beejsp` Python package with `src` layout, Python `>=3.14`, `uv` and byte-empty package initializer;
+- pinned Lean template and minimal smoke build;
+- `AGENTS.md`, required skills/prompts, Issue/PR templates, CI and SemVer/release baseline;
+- architecture, development, formalization, security and submission contracts;
+- `scripts/sync_jsp_docs.sh` and `docs/vendor/jsp/`;
+- exact upstream reference and commit provenance;
+- safe staged validation and atomic managed snapshot replacement;
+- idempotent vendor synchronization;
+- scheduled/manual GitHub update PR workflow.
 
 #### Excluded
 
-- real JSP formalization;
-- candidate scanner;
-- candidate ranking;
+- full mathematical formalization;
+- candidate scanner and ranking;
 - live competition crawler;
-- database;
-- web UI;
-- application runtime;
-- `start.sh`;
-- runtime configuration framework;
-- permanent local dependency on an official JSP fork;
-- external submission PR;
-- claim automation.
+- database, web UI or runtime framework;
+- permanent dependency on an official JSP fork;
+- official contribution PR or award automation.
 
 #### Deliverable
 
-A governed standalone BeeJSP repository that can reproducibly consume selected official JSP reference material and build a minimal Lean project.
+A governed standalone BeeJSP repository that can reproducibly consume the official JSP reference and build a minimal Lean project.
 
 #### Acceptance criteria
 
-- repository identity is `beejsp`;
-- Python package uses the standard `src` layout;
-- `src/beejsp/__init__.py` is byte-empty;
-- Python import has no hidden I/O or network side effects;
-- Lean template builds with its pinned toolchain;
-- canonical agent pipeline is: `planning → implementation → verify/correct → final review`;
-- no separate submission/formalization agent pipeline exists;
-- vendor source is the configured official JSP upstream;
-- vendor snapshot records `UPSTREAM_REF`;
-- vendor snapshot records a full resolved `UPSTREAM_COMMIT`;
-- required official reference files are materialized;
-- vendored files are read-only/generated;
-- incomplete synchronization fails before an invalid snapshot is accepted;
-- synchronization removes stale managed content;
-- repeated synchronization to the same upstream revision is idempotent;
-- scheduled/manual GitHub workflow creates a reviewable sync branch/PR rather than directly modifying `main`;
-- no private credentials or identity/payment data are committed;
-- no speculative runtime/service architecture is introduced.
+- package identity and `src` layout are correct, imports have no hidden I/O and initializer remains byte-empty;
+- Lean template builds with a pinned toolchain;
+- canonical agent workflow is planning → implementation → verify/correct → final review;
+- vendor source and full upstream SHA are recorded;
+- required reference files are materialized, validated and read-only/generated;
+- invalid sync fails without replacing a valid snapshot;
+- repeated sync against the same revision is idempotent;
+- automated vendor updates use reviewable PRs rather than direct modifications to `main`;
+- no speculative runtime or secret handling is introduced.
 
 #### Checks
 
@@ -950,22 +484,19 @@ uv sync
 uv run pytest -q
 uv run ruff check .
 uv run ruff format --check .
-uv build when package verification is required
+uv build where applicable
 package import smoke
 Lean template lake build
-vendor synchronization
-vendor metadata validation
-vendor required-file validation
-second-run vendor idempotence
+vendor sync validation and idempotence
 git diff --check
 security review
 SAST for sync/shell code
-SCA only when dependency surface changes
+SCA only if dependencies change
 ```
 
 #### DoD
 
-BeeJSP has a minimal governed Python + Lean foundation and a reproducible managed JSP reference snapshot suitable for discovery and formalization planning.
+BeeJSP has a reproducible, governed Python/Lean foundation and a managed official JSP reference suitable for real mathematical work.
 
 ---
 
@@ -973,22 +504,7 @@ BeeJSP has a minimal governed Python + Lean foundation and a reproducible manage
 
 ### Purpose of stage
 
-Stage 2 prevents BeeJSP from spending substantial formalization effort on the wrong problem.
-
-It must establish:
-
-```text
-current problem bank
-→ normalized facts
-→ viable formalization candidates
-→ live competition evidence
-→ evidence-backed TOP shortlist
-→ one selected candidate
-```
-
-Candidate analysis is prioritization.
-
-It is not proof.
+Prevent substantial proof effort from being spent on the wrong problem by creating deterministic ingestion and evidence-backed candidate research.
 
 ### Iteration 2 — Problem-bank ingestion and deterministic candidate scanner
 
@@ -996,85 +512,61 @@ It is not proof.
 
 #### Goal
 
-Turn the managed JSP problem bank into a deterministic local representation that can identify formalization candidates without manually scanning every catalog entry.
+Transform the managed JSP catalog into normalized, validated, provenance-preserving records and an initial solved/no-recorded-Lean candidate set.
 
 #### Scope
 
 Included:
 
-- parse the current vendored JSP problem-bank files;
-- discover catalog files from the managed snapshot rather than hardcoding their count;
-- normalize one record per JSP problem;
-- preserve source catalog/provenance information;
-- normalize relevant official fields such as:
-  - JSP ID;
-  - title;
-  - current problem status;
-  - Lean-proof status;
-  - current eligibility/claim metadata when present;
-  - source/reference information when present;
-
-- explicitly represent missing/unknown values;
-- deterministic filtering;
-- initial useful candidate filter such as solved problems lacking a recorded Lean proof;
-- machine-readable scanner output;
-- concise human-readable summary;
-- malformed/duplicate record handling;
-- deterministic tests against pinned vendor fixtures/snapshot content.
+- dynamically discover vendored catalog volumes without hardcoded problem counts;
+- parse and normalize JSP ID, title, mathematical status, Lean status, eligibility/claim fields and source data;
+- preserve raw official values and upstream provenance alongside derived values;
+- distinguish missing and unknown states;
+- deterministic filtering, JSON report and human summary;
+- malformed and duplicate identity detection;
+- deterministic regression tests over pinned fixtures and snapshots.
 
 #### Excluded
 
 - mathematical proof validation;
 - source-paper proof checking;
 - LLM-only ranking;
-- live GitHub PR/Issue scanning;
-- external repository search;
-- database;
-- web UI;
-- automatic formalization;
-- award prediction.
+- live GitHub state or external repository scanning;
+- database, web UI, automatic formalization or prize prediction.
 
 #### Deliverable
 
-A deterministic scanner that transforms the current managed JSP problem bank into validated normalized candidate data and can produce an initial formalization-candidate set.
+A deterministic local scanner that produces validated normalized records and an initial formalization candidate set.
 
 #### Acceptance criteria
 
-- all discovered current catalog records can be parsed or explicitly reported as invalid;
-- JSP IDs are unique;
-- normalized records retain source provenance;
-- missing values are not silently invented;
-- official values and derived values remain distinguishable;
-- scanner does not hardcode the current total problem count;
-- current solved/no-Lean-style candidates can be selected deterministically;
-- identical pinned input produces identical normalized output;
-- malformed records fail or degrade explicitly according to the approved contract;
-- no live GitHub state is inferred from vendor data;
-- no database is required;
-- vendor content remains unmodified.
+- every discovered record is parsed or explicitly reported invalid;
+- JSP identities remain unique, with complete upstream provenance;
+- official fields and derived fields are separated;
+- missing values are never invented;
+- no fixed total catalog count is assumed;
+- identical pinned source produces identical output;
+- incomplete or malformed input fails clearly;
+- no live competition state is inferred from the vendor snapshot.
 
 #### Checks
 
 ```text
 catalog discovery
-complete pinned-snapshot parse
-duplicate-ID test
-malformed-record tests
-missing-field tests
-normalization tests
-deterministic serialization/output
-candidate-filter tests
+full pinned-snapshot parse
+duplicate and malformed-record tests
+missing-value normalization tests
+deterministic JSON and filter tests
 uv run pytest -q
 uv run ruff check .
 uv run ruff format --check .
-uv build when package/public behavior is affected
-package import smoke when applicable
+uv build where applicable
 git diff --check
 ```
 
 #### DoD
 
-BeeJSP can inspect the current JSP problem bank programmatically and produce a deterministic candidate set without manual catalog-by-catalog scanning.
+BeeJSP can inspect the current pinned catalog without manually reading every volume and can produce an initial deterministic candidate set.
 
 ### Iteration 3 — Evidence-backed TOP-5 and live competition analysis
 
@@ -1082,97 +574,60 @@ BeeJSP can inspect the current JSP problem bank programmatically and produce a d
 
 #### Goal
 
-Select five realistic formalization candidates using current mathematical, formalization and competition evidence rather than catalog labels alone.
+Produce a reviewable TOP-5 with one primary candidate using mathematical-source, external formalization and current competition evidence rather than catalog flags alone.
 
 #### Scope
 
 Included:
 
-- consume normalized candidate data from Iteration 2;
-- define a compact explainable candidate-assessment model;
-- evaluate source mathematical solution availability;
-- record solution date/source where material;
-- distinguish complete proof from answer/sketch/claim;
-- evaluate expected Lean/Mathlib difficulty;
-- identify finite/counterexample/constructive structure when relevant;
-- perform read-only current GitHub competition checks;
-- check official PRs/Issues for exact JSP IDs and relevant titles;
-- record current external formalization evidence when found;
-- timestamp live-state observations;
-- separate deterministic facts from qualitative engineering estimates;
-- produce evidence-backed TOP-5;
-- identify primary, reserve and rejected candidates;
-- document explicit GO/NO-GO reasons;
-- recommend exactly one candidate for the first bounded Lean spike.
+- consume Iteration 2 normalized candidate records;
+- distinguish complete mathematical solutions from answers, sketches, partial work and unsupported claims;
+- review source solutions and estimate Lean/Mathlib feasibility;
+- collect read-only public GitHub PR/Issue evidence by JSP ID and supplementary title matching;
+- record scoped external formalization observations and timestamps;
+- keep official facts separate from qualitative estimates;
+- produce deterministic primary/reserve/rejected selection with explanations;
+- specify one bounded Lean spike objective.
 
 #### Excluded
 
 - full Lean proof;
-- mathematical claim that a catalog status equals community consensus;
-- automatic award prediction;
-- write access to official GitHub repositories;
-- opening official PRs;
-- generalized research crawler;
-- broad academic search platform;
-- database.
+- treating `Solved` as mathematical consensus;
+- assuming `Lean proof: No` means competitors do not exist;
+- automatic award predictions or official GitHub writes;
+- general research crawler, database or hosted platform.
 
 #### Deliverable
 
-A reviewable TOP-5 candidate report with current evidence and one selected candidate for the first formalization spike.
+An evidence-backed TOP-5 report and one candidate selected for bounded Lean feasibility research.
 
 #### Acceptance criteria
 
-For every TOP-5 candidate, the report identifies as applicable:
-
-- exact JSP ID;
-- exact current problem record;
-- problem status;
-- recorded Lean status;
-- mathematical solution source;
-- evidence that a complete solution is available or explicit uncertainty;
-- current live official competition evidence;
-- known external formalization evidence;
-- estimated formalization complexity;
-- relevant Mathlib/domain risk;
-- statement ambiguity risk;
-- provenance/date risk;
-- submission/process risk;
-- reason for inclusion.
-
-The selected primary candidate additionally has:
-
-- no known blocker that already makes the work pointless;
-- enough mathematical source material to attempt formalization;
-- an explicit reason it is preferable to the four alternatives;
-- a bounded spike objective for Iteration 4.
-
-The report must not:
-
-- claim absence of competitors beyond searched evidence;
-- equate official catalog `Solved` with universal mathematical consensus;
-- equate `Lean proof: No` with proof that no current formalization exists;
-- invent prize value or award certainty;
-- hide qualitative judgment inside deterministic fields.
+- every reported candidate includes exact JSP ID, official record, solution source and solution-completeness classification;
+- competition and formalization evidence is timestamped and scoped;
+- difficulty, Mathlib, statement, provenance and process risks are explicit;
+- primary selection includes a real mathematical source and bounded spike objective;
+- reported evidence does not claim global absence of competition;
+- no unverified award value is presented as official;
+- deterministic selection is reproducible from pinned inputs.
 
 #### Checks
 
 ```text
-normalized-input validation
-live GitHub query tests/mocks where implemented
-read-only permission review
-exact JSP-ID matching
-duplicate/collision tests
+normalized input validation
+GitHub API pagination and mock tests
+exact-ID and supplementary-title matching
+duplicate and collision tests
 timestamp/provenance checks
-TOP-5 report reproducibility for pinned inputs
+TOP-5 deterministic reproduction
 manual evidence review
-security review for external reads
-SCA only if dependencies change
+read-only security review
 git diff --check
 ```
 
 #### DoD
 
-BeeJSP has five defensible candidates and one selected first formalization target based on mathematical, Lean and current competition evidence rather than intuition alone.
+BeeJSP can produce a reviewable initial TOP-5 with one bounded-spike target. Iteration 6 may refine selection quality without rewriting this historical result.
 
 ---
 
@@ -1180,21 +635,7 @@ BeeJSP has five defensible candidates and one selected first formalization targe
 
 ### Purpose of stage
 
-Stage 3 converts one selected mathematical result into a real machine-checked formalization.
-
-It deliberately separates:
-
-```text
-feasibility
-```
-
-from:
-
-```text
-complete formalization
-```
-
-so difficult mathematics or missing library support can produce an early NO-GO instead of consuming an open-ended implementation effort.
+Take one selected mathematical problem from exact source review through bounded proof feasibility and complete Lean formalization, then independently verify and submit it as the first finished cycle.
 
 ### Iteration 4 — Selected candidate statement package and bounded Lean spike
 
@@ -1202,93 +643,58 @@ so difficult mathematics or missing library support can produce an early NO-GO i
 
 #### Goal
 
-Establish the exact formalization contract for the selected candidate and test the hardest known Lean feasibility boundary before committing to the full proof.
+Establish the exact selected mathematical statement and test a representative difficult Lean boundary before committing to full proof work.
 
 #### Scope
 
 Included:
 
-- one exact selected JSP candidate from Iteration 3;
-- fresh review of the target JSP record;
-- fresh relevant competition check;
-- authoritative/relevant problem-source collection;
-- complete mathematical solution-source review;
-- solver attribution;
-- exact mathematical statement analysis;
-- explicit Lean representation of the target statement;
-- initial proof project under `proofs/JSP-XXXXXX/`;
-- pinned Lean toolchain;
-- minimum required pinned dependencies;
-- Mathlib theorem/definition discovery;
-- bounded implementation of the hardest representative proof boundary;
-- compile/build evidence for the spike;
-- statement-fidelity review;
-- documented formalization risks;
-- explicit final `GO` or `NO-GO`.
-
-Possible spike forms include:
-
-- exact explicit counterexample/witness verification;
-- hardest central lemma;
-- difficult source-definition encoding;
-- finite-computation boundary;
-- specialized Mathlib dependency proof;
-- theorem statement elaboration with required definitions.
+- selected JSP candidate and current target-record review;
+- original problem and complete solution-source research;
+- solver attribution and mathematical statement decomposition;
+- exact Lean statement and minimal local proof project;
+- pinned Lean/Mathlib dependencies;
+- proof of or bounded investigation into the hardest representative lemma;
+- statement-fidelity inspection, proof feasibility and explicit GO/NO-GO decision.
 
 #### Excluded
 
-- obligation to complete the entire formalization;
-- changing the selected theorem to an easier materially weaker theorem;
+- obligation to complete the entire proof;
+- silent weakening of the target theorem;
 - official external submission;
-- claim of proof completion;
-- broad reusable formalization framework;
-- generic Lean utilities without demonstrated reuse;
-- new candidate scanner architecture.
+- generic theorem framework or new candidate scanner architecture.
 
 #### Deliverable
 
-A bounded, reproducible Lean project that proves the selected problem is either practical enough to continue or has a concrete current blocking reason.
+A reproducible Lean feasibility spike and defensible decision about full formalization.
 
 #### Acceptance criteria
 
-- exact problem source is identified;
-- current relevant JSP record is identified;
-- complete mathematical solution source is identified or the missing source is itself the explicit blocker;
-- mathematical solver attribution is recorded;
-- intended top-level Lean statement is explicit;
-- domains, quantifiers, hypotheses and conclusion are reviewed;
-- no material weakening of the source problem is hidden in the statement;
-- no unapproved stronger assumption is introduced;
-- Lean toolchain is pinned;
-- required dependencies are pinned;
-- the selected hard boundary is attempted directly rather than replaced by unrelated easy scaffolding;
-- spike code builds for the proved portion;
-- temporary incomplete work is clearly distinguished from completed proof;
-- any `sorry`/temporary placeholder used during exploration is not represented as completed proof evidence;
-- final report states exactly `GO` or `NO-GO`;
-- `GO` identifies remaining proof work;
-- `NO-GO` identifies the concrete blocker and whether Iteration 3 should select a reserve candidate.
+- exact source identity, mathematical meaning and solver attribution are documented;
+- quantifiers, hypotheses, domain and conclusion are faithfully represented;
+- dependencies/toolchain are pinned;
+- real hard-boundary mathematics is tested, not bypassed with unrelated scaffolding;
+- proved portion builds;
+- exploratory placeholders are identified and never reported as completed evidence;
+- GO identifies remaining work and NO-GO identifies concrete blockers.
 
 #### Checks
 
 ```text
-source/problem identity review
+source and problem identity review
 statement-fidelity review
-Lean project reproducibility
-lake build
-dependency/toolchain inspection
-hard-boundary proof evidence
+lake build for proved portion
+dependency/toolchain audit
+hard-boundary review
 placeholder inventory
 competition refresh
-provenance/attribution review
+attribution and provenance review
 git diff --check
 ```
 
 #### DoD
 
-BeeJSP has an evidence-based formalization decision for one real candidate.
-
-A `NO-GO` is a valid successful iteration outcome when the blocker is real and well evidenced.
+BeeJSP has a source-grounded GO/NO-GO decision for one real formalization candidate.
 
 ### Iteration 5 — Complete Lean formalization
 
@@ -1296,476 +702,344 @@ A `NO-GO` is a valid successful iteration outcome when the blocker is real and w
 
 #### Goal
 
-Complete the full Lean formalization of the candidate approved by Iteration 4 without weakening the mathematical claim or bypassing missing mathematics.
+Complete the full Lean proof approved after the bounded spike without weakening the mathematical statement or inserting unproved proof assumptions.
 
 #### Scope
 
 Included:
 
-- complete target theorem;
-- required local definitions;
-- required supporting lemmas;
-- Mathlib reuse;
-- full proof implementation;
-- pinned Lean environment;
-- committed dependency state;
-- proof-project README;
-- mathematical source references;
-- source-proof-to-Lean mapping where useful;
-- solver/formalizer attribution;
-- successful complete build;
-- removal of exploratory placeholders;
-- preliminary axiom inspection;
-- targeted proof regression checks.
+- complete principal theorem and required mathematical foundations;
+- local definitions and supporting lemmas with appropriate Mathlib reuse;
+- pinned Lean and dependency environment;
+- explicit proof source/provenance and solver/formalizer attribution;
+- proof README and source-to-Lean mapping where needed;
+- successful full Lean build, placeholder removal and preliminary axiom audit.
 
 #### Excluded
 
-- official JSP PR;
-- official award claim;
-- weakening theorem scope for convenience;
-- unproved custom proof axioms;
-- generic reusable theorem framework unless current proof demonstrates a real need;
-- unrelated scanner improvements;
-- unrelated repository refactors.
+- official JSP PR as an implementation deliverable;
+- official award claim or entitlement;
+- silent theorem weakening or unproved custom axioms;
+- generic theorem infrastructure without demonstrated reuse;
+- unrelated scanner and repository refactors.
 
 #### Deliverable
 
-One complete BeeJSP-owned Lean formalization of the selected mathematical problem.
+One complete BeeJSP-owned Lean formalization of the selected original mathematical problem.
 
 #### Acceptance criteria
 
-- principal theorem is clearly identified;
-- theorem represents the exact approved statement from Iteration 4;
-- all required mathematical cases are covered;
-- no material source assumption is omitted;
-- no unapproved stronger assumption was added;
-- proof contains no `sorry`;
-- proof contains no `admit`;
-- no custom unproved axiom replaces missing mathematics;
-- proof builds from the committed project environment;
-- Lean toolchain is pinned;
-- required dependencies are pinned;
-- mathematical solver attribution is accurate;
-- Lean formalizer attribution is accurate;
-- proof README identifies source and principal theorem;
-- proof source does not depend on undocumented local files;
-- no official-submission status is claimed.
+- principal theorem is clearly identified and matches the approved original statement;
+- all required mathematical cases are proved;
+- no unapproved assumptions, `sorry`, `admit` or placeholder custom axioms remain;
+- complete proof reproduces in the pinned project environment;
+- attribution, source references and theorem location are accurate;
+- proof requires no undocumented local resources;
+- local completion does not claim external acceptance or an award.
 
 #### Checks
 
 ```text
 lake build
-principal-theorem inspection
+principal theorem inspection
 full statement-fidelity comparison
-sorry search/audit
-admit search/audit
-custom-axiom review
-dependency/toolchain inspection
-source/provenance review
-attribution review
+sorry/admit audit
+custom-axiom and dependency review
+source/provenance and attribution review
 clean project-state check
 git diff --check
 ```
 
 #### DoD
 
-BeeJSP contains one complete real formalization suitable for independent verification.
+BeeJSP contains one complete real formalization ready for independent verification and external submission preparation.
 
 ---
 
-## Stage 4 — Independent verification and submission
+## Stage 4 — Evidence-aware discovery improvement
 
 ### Purpose of stage
 
-Stage 4 separates:
+Improve candidate discovery after the completed first proof cycle so BeeJSP can distinguish submitted claims from verified proofs, assess competition without premature rejection and query mathematical problems by difficulty and award evidence.
 
-```text
-proof authored
-```
+Stage 4 contains Iteration 6. No additional stage number is created for historical verification or submission activity already completed.
 
-from:
-
-```text
-proof independently verified and suitable for public external submission
-```
-
-External submission is attempted only after BeeJSP's own evidence is complete.
-
-### Iteration 6 — Independent proof verification and evidence freeze
+### Iteration 6 — Evidence-Aware Candidate Discovery & Prize Screening
 
 **Status:** PLANNED
 
 #### Goal
 
-Independently verify the completed formalization, prove that the claimed theorem matches the source problem, reproduce the proof from committed state and prepare an immutable public evidence package.
+Enhance the existing BeeJSP scanner and assessment with configurable discovery, independently classified competition and proof evidence, current public award records and reproducible selection reports.
+
+The result must help researchers select high-value feasible Lean targets without pretending that submitted PRs prove theorems or that unknown award amounts have predictable dollar values.
 
 #### Scope
 
 Included:
 
-- independent verification by a separate verification pass;
-- exact original problem review;
-- exact source mathematical solution review;
-- principal Lean statement review;
-- statement-fidelity comparison;
-- complete proof review;
-- clean Lean build;
-- `sorry`/`admit` audit;
-- custom-axiom review;
-- formal axiom audit of the principal theorem;
-- toolchain/dependency reproducibility review;
-- clean reproduction from committed source state;
-- provenance review;
-- solver/formalizer attribution review;
-- security/supply-chain review;
-- final BeeJSP PR review;
-- evidence required to identify the eventually selected public proof revision.
+**Existing tooling and compatibility**
+
+- extend `beejsp.scanner` and `beejsp.assessment` instead of building a second platform;
+- preserve the existing solved/no-recorded-Lean scanner workflow;
+- make the full normalized problem bank available to configurable queries;
+- keep managed vendor facts, live observations and qualitative research inputs separate;
+- preserve prior scanner/assessment evidence compatibility or provide an explicitly documented schema migration;
+- keep live capture as bounded read-only I/O and subsequent selection as deterministic offline processing.
+
+**Competition evidence acquisition**
+
+- capture all accessible official PRs and Issues, including open, closed-unmerged and merged states;
+- preserve canonical URLs, exact JSP matches, evidence timestamps and acquisition completeness;
+- associate replacement submissions and older submissions where explicit source links establish their relationship;
+- distinguish mathematical solver submissions, Lean formalization submissions, administrative catalog updates and other issue activity;
+- preserve bounded structured references to external proof source repositories, branches, full commit SHAs and theorem/file paths where supplied;
+- handle missing API pages, rate limits and malformed responses without making false clearance claims;
+- use exact JSP-ID and evidence-backed original Erdős-ID/theorem aliases; mark weak title matches as uncertain rather than authoritative;
+- avoid persisting arbitrary unbounded PR bodies.
+
+**Independent evidence classification**
+
+- model GitHub submission state separately from proof-verification state and official award state;
+- distinguish unverified claims, source-linked claims, partial work, locally reproduced proofs, independently statement-reviewed complete proofs and official acceptance;
+- do not mark a theorem verified solely because an external PR says it is complete or `lake build` passes;
+- retain `CONTESTED` or equivalent state when a competing claim remains unresolved;
+- classify a verified matching external proof as an originality and priority risk, not a self-made official award decision;
+- retain documented evidence for demonstrated incompleteness, materially weaker statements, bad axioms or unproved placeholders;
+- allow a demonstrated invalid or partial external proof to be reconsidered without automatically awarding priority to BeeJSP;
+- never treat a closed-unmerged PR as mathematically refuted solely because it was closed.
+
+**Public candidates and award evidence**
+
+- capture official public candidate and confirmed-award records through a bounded read-only mechanism;
+- do not assume `candidates/` or `awards/` are present in the current vendored subset;
+- distinguish public candidate registration, review, announced award and payment evidence;
+- retain JSP identity, solver/formalizer role, award category, source URL and observation timestamp where published;
+- distinguish historical third-party bounties, officially announced JSP awards and known published monetary amounts;
+- keep unknown amounts null or explicitly unknown, not zero;
+- distinguish published official categories from qualitative, non-official estimates;
+- never infer an available future payout directly from a historical Clay or other external prize.
+
+**Configurable selection**
+
+- implement compact documented selection profiles using existing Python facilities and minimal dependencies;
+- filter by mathematical status, catalog Lean status, evidence-based competition state and mathematical area;
+- filter by estimated Lean formalization difficulty, including low, medium, high, extreme and unknown;
+- filter by availability and completeness of published mathematical solutions;
+- filter by official candidate/award records, known historical bounties, known published amounts and missing monetary information;
+- support researcher preferences for scientific significance and potential prize value with explicit qualitative rationale;
+- provide bounded limits and deterministic tie-breaking;
+- distinguish initial broad screening from deeper manual mathematical and external-proof research;
+- provide at least one general discovery profile and one high-value research profile;
+- allow unresolved competing claims to be displayed instead of silently excluded;
+- reserve unconditional GO for candidates that passed all required applicable evidence gates and bounded mathematical feasibility checks;
+- avoid hidden LLM-generated scores or automatically inferred numerical award probabilities.
+
+**Inspection and reporting**
+
+- provide a documented CLI to select candidates using a named profile;
+- provide a documented CLI to inspect one JSP problem and its linked evidence;
+- support deterministic JSON and CSV outputs and an optional readable report;
+- show source provenance, captured-at times, official fields, derived classifications, complexity rationale, competition and award information;
+- explain inclusion, exclusion, contested status and unresolved information;
+- maintain the historical TOP-5 workflow or document and test a clear migration path.
 
 #### Excluded
 
-- official JSP contribution PR;
-- award claim;
-- payment/KYC;
-- new mathematical scope;
-- opportunistic proof rewrites without a blocker;
-- new candidate tooling.
+- rewriting the scanner or assessment from scratch;
+- database, web UI, hosted SaaS or general research platform;
+- arbitrary open-web scraping or a large external indexer;
+- autonomous downloading, installation and execution of untrusted Lean repositories;
+- automatic proof correctness or universal statement-fidelity certification;
+- permanent rejection of every problem with an open PR;
+- hidden numerical prize prediction, invented award amounts or unsupported probability estimates;
+- official priority adjudication, automatic prize claim or payment processing;
+- GitHub write automation;
+- new general AI-agent framework;
+- unrelated Lean proof modifications, including changes to JSP-000089;
+- speculative dependency growth or broad refactors.
 
 #### Deliverable
 
-A fully independently verified BeeJSP proof with no known blocker to public submission preparation.
+A backward-compatible, evidence-aware Python CLI workflow producing filtered and ranked candidate reports from validated current JSP and competition/award evidence, with explainable uncertainty and no false claims of proof verification or payout certainty.
 
 #### Acceptance criteria
 
-- source problem and source solution are independently reviewed;
-- Lean statement faithfully represents the approved mathematical statement;
-- all required scope/cases remain represented;
-- complete proof builds;
-- no `sorry`;
-- no `admit`;
-- no custom proof-placeholder axiom;
-- principal theorem axiom audit is complete;
-- axiom result is acceptable under current proof contract;
-- proof reproduces from committed sources and pinned environment;
-- no hidden local dependency is required;
-- mathematical solver attribution is correct;
-- formalizer attribution is correct;
-- proof README/evidence matches actual files;
-- supplied verification commands/results are recorded;
-- final read-only BeeJSP review returns no blocking finding;
-- no official acceptance/priority/award claim is made.
+**Data and compatibility**
+
+- the original scanner and existing assessment entry points continue to operate or have an approved and tested compatibility migration;
+- full normalized problem records remain available beyond the original candidate subset;
+- raw official data, live observations and derived assessments are explicitly separated;
+- duplicate and malformed JSP records fail safely;
+- source provenance and deterministic offline output are preserved;
+- identical inputs and configuration produce identical candidate ordering and reports.
+
+**Competition and proof states**
+
+- open, closed-unmerged and merged PRs are captured within a declared complete scope;
+- exact JSP matches and weaker alternate-name matches are distinguishable;
+- missing pages, API errors or rate limits cannot silently establish absence of competition;
+- a source-linked proof claim does not automatically become verified;
+- a successful Lean build alone does not establish exact statement fidelity;
+- a competing open PR does not automatically disqualify a candidate;
+- a competing closed PR does not automatically mean the proof failed;
+- source-linked claimed complete proofs can become contested while verification is pending;
+- verified matching existing proofs can be identified without claiming an official priority or award decision;
+- partial, unsupported or demonstrably invalid external work remains visible with links and reasons;
+- incomplete and unknown evidence is explicit and cannot become unqualified GO.
+
+**Award and prize states**
+
+- public official candidate registrations and confirmed awards are distinguished;
+- solver and formalizer roles remain separate;
+- historical bounty, official award level and published monetary amount are separate fields;
+- unknown amounts remain unknown rather than zero;
+- no historical prize is silently counted as a currently payable JSP prize;
+- qualitative scientific-value or prize-potential estimates are labeled non-official and have source/rationale;
+- no unsupported guarantee or probability of payment is generated.
+
+**Configuration and reporting**
+
+- configurable general and high-value selection profiles are documented and usable;
+- status, area, difficulty, competition and award filters work deterministically;
+- result count limits and stable tie-breaking are tested;
+- selection and single-problem inspection have usable documented CLI commands;
+- JSON and CSV contain source URLs, provenance, classifications and explicit unknowns;
+- empty or incomplete results are reported clearly;
+- saved evidence can be reprocessed offline with identical output.
+
+**Regression cases**
+
+- JSP-000161 with PR #1248 is flagged as having a competing source-linked claim, not automatically accepted as independently verified;
+- JSP-000475 with PR #1269 is flagged as having a competing source-linked claim, not automatically accepted as independently verified;
+- the historical JSP-000089 assessment must not ignore competing claims merely because an aggregate score remains positive;
+- a PR claim with no proof source cannot become verified;
+- an externally claimed proof with `sorry`, unexpected axioms or a weaker theorem cannot become verified complete;
+- a source-linked proof that fails to build solely for environmental reasons remains unresolved rather than proven false;
+- a closed-unmerged PR remains valid historical competition evidence;
+- incomplete GitHub capture blocks unqualified competition-clearance claims;
+- missing monetary values remain unknown;
+- historical bounty values never populate the official JSP payout field.
 
 #### Checks
 
 ```text
-independent statement review
-independent source review
-clean lake build
-sorry/admit audit
-custom-axiom audit
-principal theorem axiom audit
-clean reproduction
-dependency/toolchain verification
-provenance review
-attribution review
-security/supply-chain review
-final BeeJSP read-only review
+scanner and assessment regression tests
+complete-scope GitHub capture and pagination tests
+GitHub rate-limit and malformed-data tests
+JSP identity and alias collision tests
+competition submission and proof-state tests
+candidate and award record normalization tests
+missing and ambiguous award-value tests
+selection profile validation tests
+CSV/JSON deterministic reproduction
+backward compatibility tests
+JSP-000161 / PR #1248 regression
+JSP-000475 / PR #1269 regression
+JSP-000089 historic competition regression
+read-only GitHub authority review
+external input and bounded resource review
+uv run pytest -q
+uv run ruff check .
+uv run ruff format --check .
+uv build where package behavior changes
+package import smoke where applicable
 git diff --check
+security review
+SAST for external-input handling
+SCA only where dependencies change
+independent final read-only review
 ```
 
 #### DoD
 
-BeeJSP has one independently verified proof whose mathematical meaning, machine-checking evidence, provenance and reproducibility are strong enough to freeze for public external submission.
+BeeJSP can list and inspect mathematical formalization opportunities using configurable difficulty, competition and prize-evidence criteria, without equating PR submissions to completed proofs or unknown monetary amounts to zero.
 
-### Iteration 7 — Official JSP submission package and external contribution
+A general profile and a high-value profile must work over validated saved evidence, provide transparent explanations, retain contested/unknown cases and pass all applicable regression, security and reproducibility checks.
 
-**Status:** PLANNED
-
-#### Goal
-
-Submit the independently verified proof through the current official Justin Sun Prize contribution process without weakening BeeJSP provenance or overstating external status.
-
-#### Scope
-
-Included:
-
-- fresh managed JSP reference synchronization;
-- review of current official contribution instructions;
-- review of current official verification instructions;
-- review of current attribution/award process;
-- fresh exact target JSP record;
-- fresh live competition check;
-- selected public BeeJSP proof revision;
-- full immutable commit SHA when required;
-- exact theorem/proof location;
-- exact formalizer attribution;
-- official fork updated from current upstream;
-- minimum official catalog/submission changes required by current process;
-- official contribution PR;
-- public recording of the official PR reference;
-- verifier-feedback handling;
-- correction loop through BeeJSP if proof changes are required;
-- claim-ready evidence preparation only after official prerequisites are met.
-
-#### Excluded
-
-- claiming official verification before it occurs;
-- claiming priority without official evidence;
-- claiming an award before official approval;
-- automatic merge;
-- automatic claim submission;
-- storing KYC material in BeeJSP;
-- storing private payment credentials;
-- modifying managed vendor files as an official contribution;
-- rewriting BeeJSP provenance to manufacture authorship/priority.
-
-#### Deliverable
-
-One current-process-compliant official JSP contribution backed by an independently verified public BeeJSP proof.
-
-#### Acceptance criteria
-
-Before official submission:
-
-- BeeJSP formalization remains complete;
-- Iteration 6 verification remains valid;
-- managed JSP reference is freshly synchronized;
-- current contribution/verification rules are reread;
-- exact current JSP record is confirmed;
-- live official competition state is checked;
-- relevant external competing formalizations are checked where practical;
-- selected public BeeJSP commit contains the reviewed proof;
-- exact full commit SHA is recorded where required;
-- exact principal theorem/proof location is recorded;
-- solver/formalizer attribution is accurate;
-- official fork is current with upstream;
-- only required official contribution scope is modified;
-- no private KYC/payment information enters BeeJSP or the public PR.
-
-After submission:
-
-- official PR URL/reference is recorded;
-- BeeJSP does not describe the PR as verified/awarded unless official evidence exists;
-- proof corrections, when required, are made in BeeJSP first and independently reverified;
-- updated immutable evidence is supplied when the official review requires it;
-- claim workflow is attempted only after current official prerequisites are actually satisfied.
-
-#### Checks
-
-```text
-fresh vendor sync
-vendor provenance review
-current official process review
-exact target-record review
-live competition review
-selected public commit verification
-proof build against selected source state
-statement/provenance/attribution recheck
-official fork freshness
-official contribution diff review
-private-data review
-public-status wording review
-```
-
-#### DoD
-
-A correct, independently verified BeeJSP proof has entered the official JSP contribution process with immutable evidence and accurate public status.
-
-Award approval or payment is **not** required to mark this engineering iteration complete because those decisions are external to BeeJSP.
+The iteration delivers a material enhancement to existing Python tooling without introducing a new platform or weakening the Lean formalization contract.
 
 ---
 
-## First proof-cycle completion gate
+## Post-Iteration 6 candidate-selection gate
 
-Iteration 7 completes the first BeeJSP end-to-end cycle:
+Iteration 6 establishes:
 
 ```text
-official/public problem source
-→ deterministic discovery tooling
-→ evidence-backed candidate selection
-→ bounded Lean feasibility
-→ complete formalization
-→ independent verification
-→ immutable public proof evidence
-→ official external submission
+pinned official catalog
+→ normalized complete problem-bank records
+→ current scoped competition and award evidence
+→ independent classification of external proof claims
+→ configurable selection profiles
+→ reproducible candidate reports
+→ targeted mathematical and Lean feasibility preflight
 ```
 
-At this point, stop and evaluate actual evidence before expanding the architecture.
+Before starting the next full formalization, the selected candidate should have an exact original statement, a reviewed complete mathematical source or explicit research gap, reviewed competition risks, a bounded hardest-lemma spike and an approved GO decision.
 
-Questions:
-
-- Did the scanner materially reduce candidate-selection work?
-- Which candidate-assessment fields were genuinely useful?
-- Which parts still required manual mathematical judgment?
-- What formalization work was reusable?
-- What verification work was repeatedly manual?
-- Did the managed JSP snapshot provide enough local context?
-- Was live competition analysis useful?
-- What caused the most formalization cost?
-- Did the official submission process expose a real tooling gap?
-- Did the mathematical community gain a useful reusable proof regardless of award outcome?
-
-Do not automatically create Iteration 8 solely because Iteration 7 exists.
+A high scientific-value estimate cannot waive source review or Lean feasibility. A score must not hide uncertainty. Not every external proof must be executed during mass screening; targeted isolated verification is a separate authorized research activity.
 
 ## Post-first-submission orientation
 
 **Status:** FUTURE / orientation
 
-Post-first-submission work is not pre-approved implementation scope.
+Possible future work includes selecting a second JSP theorem, checking reusable Lean helpers across real proofs, improving reproduction automation, accepting community formalization contributions, expanding verified problem corpora or supporting additional mathematical sources only when actual repeated work establishes necessity.
 
-Potential directions include:
-
-- select and formalize a second JSP candidate;
-- validate whether proof-project conventions are genuinely reusable;
-- improve candidate scoring using evidence from the first proof;
-- automate additional read-only competition checks;
-- create reusable Lean helpers only when multiple proofs require them;
-- improve proof-reproduction automation;
-- add machine-readable formalization evidence manifests;
-- support non-JSP mathematical problem sources;
-- document community contribution workflow;
-- accept external formalization contributions;
-- build a larger verified problem corpus.
-
-A future item becomes real scope only after:
-
-```text
-first proof-cycle evidence
-→ concrete recurring gap
-→ necessity decision
-→ architecture review
-→ roadmap item
-→ Issue
-```
-
-Do not create:
-
-```text
-generic proof platform
-generic research-agent framework
-hosted SaaS
-database
-web UI
-automatic claim system
-multi-competition abstraction
-```
-
-before real repeated work demonstrates the need.
+No further numbered iteration is approved solely because Iteration 6 exists.
 
 ### Related external boundary — The Justin Sun Prize
 
-The official JSP repository is an external source and contribution target.
-
-BeeJSP uses it for:
-
-```text
-problem discovery
-official reference
-verification requirements
-submission
-claim process
-```
-
-BeeJSP does not own its official state.
-
-Current official facts must be refreshed before submission-sensitive decisions.
+The official JSP repository supplies problem records, submission rules, verification requirements, candidate and award records and the claim process. BeeJSP observes these sources but does not control official status.
 
 ### Related project boundary — BeeMCP
 
-BeeMCP remains a development/planning/review tool.
-
-BeeJSP should be registered as an independent BeeMCP project so planning and final review can inspect the actual repository.
-
-BeeMCP is not a BeeJSP runtime or proof dependency.
+BeeMCP remains a planning, development and read-only review tool. It is not a runtime or proof dependency of BeeJSP.
 
 ### Future roadmap rule
 
-After the first end-to-end proof cycle, new roadmap work follows:
-
 ```text
-real mathematical / tooling gap
+real mathematical or tooling gap
 → evidence
-→ necessity decision
-→ ownership decision
+→ necessity and ownership decision
 → roadmap item
-→ Issue
+→ approved Issue
 → implementation
-→ verification
+→ independent verification
 → PR
 ```
 
-Not:
-
-```text
-Iteration 7
-→ Iteration 8
-→ Iteration 9
-→ Iteration 10
-```
-
-only because more iteration numbers are available.
-
-The correct result may be:
-
-```text
-no architecture change
-```
-
-and simply:
-
-```text
-select next candidate
-→ create next formalization Issue
-→ prove it
-```
-
-using the architecture that already exists.
+The correct next step may require no architectural change at all: select a candidate, create a focused formalization Issue, prove it and publish independently verified evidence.
 
 ### Related process documents
 
-BeeJSP development uses:
-
-- `docs/ARCHITECTURE.md` — project ownership, repository structure and dependency boundaries;
-- `docs/DEV_GUIDE.md` — local Python, vendor and Lean development workflow;
-- `docs/FORMALIZATION.md` — mathematical statement, proof, reproducibility, axioms and attribution contract;
-- `docs/SECURITY.md` — external-input, supply-chain, GitHub authority and private-data rules;
-- `docs/SUBMISSION.md` — official JSP submission and claim preparation;
-- `AGENTS.md` — repository-wide development and AI-agent instructions.
+- `docs/ARCHITECTURE.md` — architecture, ownership and repository boundaries;
+- `docs/DEV_GUIDE.md` — local development and tooling instructions;
+- `docs/FORMALIZATION.md` — exact mathematical statements, proofs, axioms, attribution and evidence;
+- `docs/SECURITY.md` — trust, external input, permissions and privacy;
+- `docs/SUBMISSION.md` — official JSP process and submission gates;
+- `AGENTS.md` — repository-wide development and agent guidance.
 
 ### Summary
 
-BeeJSP develops according to this principle:
-
 ```text
-build only enough infrastructure
-→ select a good real problem
-→ test formalization feasibility
+build only enough tooling
+→ identify a useful mathematical problem
+→ inspect competition and proof evidence
+→ test mathematical and Lean feasibility
 → prove the exact theorem
 → independently verify it
-→ publish reproducible evidence
-→ submit when appropriate
-→ learn from the real cycle
+→ publish immutable evidence
+→ submit where appropriate
+→ improve the process from actual findings
 ```
 
 Not:
 
 ```text
-build a mathematical platform
-→ build agents
-→ build dashboards
-→ build databases
-→ build submission automation
-→ eventually try to prove something
+build a platform
+→ add agents and dashboards
+→ automate awards
+→ eventually attempt real mathematics
 ```
 
-Target first-cycle state:
-
-```text
-small
-useful
-mathematically faithful
-machine-checked
-reproducible
-well-attributed
-public
-submission-ready
-```
+BeeJSP must remain small, mathematically faithful, machine-checked, evidence-aware, reproducible, correctly attributed and honest about uncertainty.
