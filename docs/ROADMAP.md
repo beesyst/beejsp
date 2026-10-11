@@ -1292,7 +1292,7 @@ A `NO-GO` is a valid successful iteration outcome when the blocker is real and w
 
 ### Iteration 5 — Complete Lean formalization
 
-**Status:** PLANNED
+**Status:** DONE
 
 #### Goal
 
