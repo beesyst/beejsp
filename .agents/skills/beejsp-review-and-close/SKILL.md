@@ -3,8 +3,6 @@ name: beejsp-review-and-close
 description: Perform a complete read-only BeeJSP review against an approved Issue, using the exact worktree and base branch, then return one consolidated verdict and PR close package.
 ---
 
----
-
 # BeeJSP review and close workflow
 
 ## Purpose
@@ -201,7 +199,7 @@ Read from the primary target:
 
 If they are absent because the target worktree predates their introduction, use the explicitly supplied `INSTRUCTION_WORKTREE`.
 
-Resolve that instruction worktree through Bee Dev MCP and verify its exact path and expected branch.
+Resolve that instruction worktree through BeeMCP and verify its exact path and expected branch.
 
 Use it only for review instructions.
 
@@ -316,7 +314,7 @@ Verify as applicable:
 
 ## Phase 7 — Evidence and Acceptance Criteria
 
-Bee Dev MCP cannot execute tests or builds.
+BeeMCP cannot execute tests or builds.
 
 Treat supplied command output as reported evidence.
 
@@ -476,7 +474,7 @@ Then provide:
    - wait for CI;
    - squash merge after approval.
 
-Do not claim Bee Dev MCP ran commands.
+Do not claim BeeMCP ran commands.
 
 ### CHANGES REQUIRED
 
@@ -526,7 +524,7 @@ Select:
 
 The correction prompt must authorize local inspection, modification and required checks in the exact target worktree.
 
-Do not copy reviewer-only restrictions such as Bee Dev MCP or read-only mode into the executor prompt.
+Do not copy reviewer-only restrictions such as BeeMCP or read-only mode into the executor prompt.
 
 Use:
 

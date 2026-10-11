@@ -3,8 +3,6 @@ name: beejsp-implement-issue
 description: Implement one approved BeeJSP Issue in the exact target worktree and return complete implementation and verification evidence.
 ---
 
----
-
 # BeeJSP approved Issue implementation workflow
 
 ## Purpose

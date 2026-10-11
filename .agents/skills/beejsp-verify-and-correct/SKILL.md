@@ -3,8 +3,6 @@ name: beejsp-verify-and-correct
 description: Independently verify an implemented BeeJSP Issue, apply only necessary in-scope corrections, and return final evidence for read-only review.
 ---
 
----
-
 # BeeJSP verification and correction workflow
 
 ## Purpose

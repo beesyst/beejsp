@@ -1,10 +1,13 @@
+import Mathlib.Combinatorics.SimpleGraph.Girth
 import Mathlib.Combinatorics.SimpleGraph.Path
 
 /-!
-The bounded Iteration 4 spike for JSP-000089 is kept deliberately below the
-source theorem: it represents the finite graph/cycle-length boundary and proves
-its finite-set witness equivalence. `STATEMENT.md` records the unproved full
-source theorem contract.
+The Iteration 5 formalization retains the Iteration 4 finite cycle-length
+representation. It additionally proves the source proof's short-cycle branch:
+a graph with a positive girth at most `2^120` has a cycle length in the finite
+prefix included in Verstraëte's final set. The high-girth graph theorem
+remains in `STATEMENT.md` as an unproved obligation; the sparse construction
+is formalized in `Construction.lean`.
 -/
 
 namespace JSP000089
@@ -31,6 +34,22 @@ noncomputable def cycleLengths {V : Type*} [Fintype V] (G : SimpleGraph V) : Fin
 def HasCycleLengthIn {V : Type*} [Fintype V] (G : SimpleGraph V)
     (lengths : Set ℕ) : Prop :=
   ∃ length, IsCycleLength G length ∧ length ∈ lengths
+
+/-- The finite prefix `[2^120]` included in Verstraëte's final source set. -/
+def sourceShortCycleLengths : Set ℕ :=
+  {length | 0 < length ∧ length ≤ 2 ^ 120}
+
+/-- Source proof final-case infrastructure: a graph whose positive girth is at
+most `2^120` has a cycle length in the finite prefix `[2^120]`. -/
+theorem hasCycleLengthIn_sourceShortCycleLengths_of_girth_le {V : Type*} [Fintype V]
+    (G : SimpleGraph V) (hPositiveGirth : 0 < G.girth) (hGirth : G.girth ≤ 2 ^ 120) :
+    HasCycleLengthIn G sourceShortCycleLengths := by
+  have hNotAcyclic : ¬ G.IsAcyclic := by
+    intro hAcyclic
+    have hZero : G.girth = 0 := hAcyclic.girth_eq_zero
+    omega
+  obtain ⟨vertex, walk, hCycle, hLength⟩ := (SimpleGraph.exists_girth_eq_length.mpr hNotAcyclic)
+  exact ⟨G.girth, ⟨vertex, walk, hCycle, hLength.symm⟩, hPositiveGirth, hGirth⟩
 
 /-- The finite cycle-length witness set selected by a source set. -/
 noncomputable def permittedCycleLengths {V : Type*} [Fintype V] (G : SimpleGraph V)

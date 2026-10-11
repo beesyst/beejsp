@@ -1,5 +1,96 @@
 # JSP-000089 Iteration 4 evidence
 
+## Iteration 5 source reconciliation
+
+The authoritative source for the current Verstraëte route is the local final
+JGT Version of Record
+`.local-source/verstraete-2005-jgt-version-of-record.pdf` (SHA-256
+`bb7e48cc2cfb0c0c5554bf3fc8b394c17ab6df966b521bb844b7d0584762b2e2`).
+The local `ucycles.pdf` is an earlier manuscript used only for comparison.
+The manuscript's Lemma 3.8 girth/K4 issue and Lemma 4.2 `[n]` range are
+already corrected in the Version of Record and are not current blockers.
+
+The literal VOR Lemma 3.7 sentence that an arbitrary chord crossing `k`
+cycle chords directly yields a `k`-crossladder is false for the Section-2
+definition: the required rungs must be pairwise vertex-disjoint. The local
+`C13` counterexample and its girth/local-invariant audit are recorded in
+`.local-source/lemma37-high-crossing-audit.txt`. The replacement under
+formalization uses only the certified pairwise-disjoint rungs of the residual
+`4k²` ladder: each endpoint escaping `Quᵢ ∪ Qvᵢ` selects an explicit left or
+right `k`-buffer all crossed by the same foreign chord. Endpoint localization
+on that restricted ladder's exceptional arcs remains the next construction.
+
+The remaining Section 3 finding is new: VOR Lemma 3.7 has no hypothesis or
+proved inference that makes the selected crossing chords `fᵢ` incident with
+`Z`. Its asserted rooted truncation/mesh conclusions therefore do not follow
+from the published rootedness definition. The unrooted Section-2 conclusion
+would be sufficient in the first branch of Lemma 3.9, but it is not yet a Lean
+declaration in this checkpoint.
+
+The Lemma 3.9 shadow graph gives one valid local fact: if an off-cycle K4
+contains a ladder edge rooted at `z ∈ Z`, then its designated root is `z`.
+Otherwise the K4 has an off-cycle edge between two distinct vertices of the
+independent set `Z`. This is formalized as
+`sourceLemma38_shadowK4_root_label`.
+
+The outside-region crossladder lift is not obstructed by a repeated label.
+The central ladder edge already occupies the K4 of the cross path. Since `Z`
+is independent, no K4 can contain two vertex-disjoint rooted ladder edges;
+hence none of the `2k - 1` crossed candidates has that K4 label, and their
+labels are pairwise distinct. Choosing any `k` of them gives distinct source
+components for the cross path and all rungs. This label-counting step is
+captured by `sourceLemma38_shadow_labels_injective`.
+
+The green checkpoint also recovers `sourceLemma36_kCrossladder_insideBoundarySubpath_middle_order`: the retained middle first endpoints occur in decreasing selected-index order on the concrete inside boundary arc. This is one prerequisite for reconstructing the residual crossladder geometry; it does not yet assemble the Lemma 3.6 alternatives or assert the unrooted Lemma 3.7 conclusion.
+
+In the inner-region case of VOR Lemma 3.8, a K4 can have the rooted endpoint
+of the central ladder edge in `Qu` and all of its other three vertices in
+`Qv`. The only same-side chords are then non-rooted. That is not a lift
+obstruction: the final Lemma-3.9 target is unrooted, and the K4 label still
+selects the one good path needed for that chord. Different blocks have
+disjoint regions and distinct labels, so their lifted paths are internally
+disjoint.
+
+Here is a countermodel at the **shadow-graph level** to the stronger, labelled
+Branch-II bridge needed by Lemma 3.9 (not a countermodel to the bare
+shadow-graph conclusion of Lemma 3.8, and not a countermodel satisfying all
+global hypotheses of Lemma 3.9). Fix `k ≥ 2`, let `N = c(k)`, and take a cycle
+whose cyclic order is
+
+```text
+u1,a1,u2,a2,...,uN,aN,
+vN,bN,pN,cN,qN,dN,...,v1,b1,p1,c1,q1,d1.
+```
+
+For each `i`, add exactly the six K4 edges on
+`{ui, vi, pi, qi}` and no other non-cycle edges; call that K4 `Ki`, designate
+`ui`, and set `Z = {u1,...,uN}`. The separator vertices ensure that every K4
+edge is off the cycle. The K4s are vertex-disjoint, so `Z` is independent in
+`F - E(C)`, every non-cycle edge is in a K4, and all component labels are
+distinct. The edges `ui vi` for `1 ≤ i ≤ 4k²` form exactly the rooted ladder
+input of Lemma 3.8. For each central edge
+`u(4sk+2k)v(4sk+2k)`, its K4 has the required `1 : 3` distribution between
+`Qu_s` and `Qv_s`.
+
+This is genuinely a shadow graph of good quadruples, not just an abstract
+K4 drawing: for every `i`, attach a separate component `Hi` formed by a hub
+and four internally disjoint arms of a common length `M > |C|` to
+`ui, vi, pi, qi`.  The hub path between every two attachment vertices has
+length `2M`, hence differs from either oriented C-subpath, and has all its
+internal vertices in `Hi`.  Thus each displayed K4 is on a good quadruple and
+the labels/components remain distinct.  (This realization is offered only for
+the specialized shadow/lift assumptions; it does not assert all global
+hypotheses of Lemma 3.9.)
+
+Every root-incident non-cycle edge in this model joins `ui` to one of
+`vi, pi, qi`; these chords are a nested family. Consequently it excludes the
+stronger, unnecessary demand that every extracted attachment be root-incident
+and have a distinct K4 label. It does not exclude the unrooted inside-region
+truncation: choose instead a same-side non-root K4 chord and lift it through
+its one labelled component. Thus this is only a shadow-level warning against
+the earlier over-strong formulation, not evidence of a full Lemma-3.9
+obstruction, a genuine source defect, or falsehood of the top-level statement.
+
 ## Current record and competition/formalization check
 
 The managed catalog at commit `bcf1866ea9a4ae82b32bd95b82ffd812b9ee80d2`

@@ -141,8 +141,7 @@ Rules:
 
 - keep dependencies minimal;
 - add dependencies only for demonstrated implementation need;
-- update `pyproject.toml` and `uv.lock` together when an approved dependency
-  change occurs;
+- update `pyproject.toml` and `uv.lock` together when an approved dependency change occurs;
 - do not run or require `uv lock --check`;
 - do not modify dependency surface during unrelated work.
 
@@ -366,51 +365,27 @@ represent that explicitly rather than inventing a value.
 
 ### Iteration 2 scanner
 
-The first scanner consumes only the managed, pinned JSP snapshot. Run it from
-the repository root with:
+The first scanner consumes only the managed, pinned JSP snapshot. Run it from the repository root with:
 
 ```bash
 uv run python -m beejsp.scanner --output problem-bank.json --summary problem-bank.txt
 ```
 
-It dynamically discovers `problems/catalog-*.md` under
-`docs/vendor/jsp/`; it does not query the network or use the vendor snapshot as
-live competition evidence. The canonical JSON contains the catalog paths,
-vendor provenance, one normalized record per detailed catalog entry, diagnostics
-and the derived `candidate_ids` set. Each record keeps raw official fields next
-to normalized status values. `candidate_ids` is the unranked deterministic
-filter for `Current status == Solved` and `Lean proof == No`.
+It dynamically discovers `problems/catalog-*.md` under `docs/vendor/jsp/`; it does not query the network or use the vendor snapshot as live competition evidence. The canonical JSON contains the catalog paths, vendor provenance, one normalized record per detailed catalog entry, diagnostics and the derived `candidate_ids` set. Each record keeps raw official fields next to normalized status values. `candidate_ids` is the unranked deterministic filter for `Current status == Solved` and `Lean proof == No`.
 
-If parsing or identity validation reports an error, `is_complete` is false and
-the scanner withholds `candidate_ids`. Iteration 3 can consume the JSON records
-and candidate IDs directly rather than reparsing JSP Markdown.
+If parsing or identity validation reports an error, `is_complete` is false and the scanner withholds `candidate_ids`. Iteration 3 can consume the JSON records and candidate IDs directly rather than reparsing JSP Markdown.
 
 ### Iteration 3 evidence-backed TOP-5
 
-Iteration 3 consumes the saved scanner JSON, a deliberately reviewed research
-JSON file, and a separately captured GitHub JSON file. It never reparses the
-managed catalog Markdown. Capture current public competition data explicitly:
+Iteration 3 consumes the saved scanner JSON, a deliberately reviewed research JSON file, and a separately captured GitHub JSON file. It never reparses the managed catalog Markdown. Capture current public competition data explicitly:
 
 ```bash
 uv run python -m beejsp.assessment capture-github --output competition.json
 ```
 
-This is a bounded read-only traversal of all PR and Issue pages in
-`TheJustinSunPrize/awards`. A failed, rate-limited, malformed, or incomplete
-capture is written as incomplete evidence and cannot produce a TOP-5.
+This is a bounded read-only traversal of all PR and Issue pages in `TheJustinSunPrize/awards`. A failed, rate-limited, malformed, or incomplete capture is written as incomplete evidence and cannot produce a TOP-5.
 
-Create research JSON with `schema_version: 1`, `reviewed_prefix_count`, and one
-item per deeply reviewed candidate. Candidates must be in exact deterministic
-triage-prefix order: the bounded prefix may continue beyond the initial review
-limit when necessary, but must never cherry-pick outside that prefix. Record
-explicit solution evidence (`complete`, `answer`, `sketch`, `partial`,
-`unsupported`, or `unknown`), formalization search scope, and a separate
-qualitative estimate with rationale. Each formalization observation requires a
-source, URL, `status`, `blocking`, and rationale; supported statuses are
-`complete`, `partial`, `scoped`, `activity`, and `unknown`. A `blocking: true`
-observation additionally requires an explicit blocker rationale. Do not present
-estimates as official facts or turn a scoped empty search into a global absence
-claim.
+Create research JSON with `schema_version: 1`, `reviewed_prefix_count`, and one item per deeply reviewed candidate. Candidates must be in exact deterministic triage-prefix order: the bounded prefix may continue beyond the initial review limit when necessary, but must never cherry-pick outside that prefix. Record explicit solution evidence (`complete`, `answer`, `sketch`, `partial`, `unsupported`, or `unknown`), formalization search scope, and a separate qualitative estimate with rationale. Each formalization observation requires a source, URL, `status`, `blocking`, and rationale; supported statuses are `complete`, `partial`, `scoped`, `activity`, and `unknown`. A `blocking: true` observation additionally requires an explicit blocker rationale. Do not present estimates as official facts or turn a scoped empty search into a global absence claim.
 
 Then render the deterministic assessment offline:
 
@@ -423,12 +398,7 @@ uv run python -m beejsp.assessment assess \
   --report top5.md
 ```
 
-The assessment validates scanner provenance and identities, triages the whole
-candidate set with its recorded formula and stable JSP-ID tie-breaker, and emits
-exactly one GO primary plus four reserves only when a viable primary exists.
-Otherwise it fails closed without a TOP-5. Its saved inputs, not a later network
-request, are the reproducibility boundary. The primary's bounded spike
-objective is an Iteration 4 input, not Lean code produced by this command.
+The assessment validates scanner provenance and identities, triages the whole candidate set with its recorded formula and stable JSP-ID tie-breaker, and emits exactly one GO primary plus four reserves only when a viable primary exists. Otherwise it fails closed without a TOP-5. Its saved inputs, not a later network request, are the reproducibility boundary. The primary's bounded spike objective is an Iteration 4 input, not Lean code produced by this command.
 
 ## Candidate analysis
 

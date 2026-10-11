@@ -4,5 +4,6 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 .lake/
+proofs/*/.local-source/
 .env
 .env.*

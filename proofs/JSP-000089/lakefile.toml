@@ -8,4 +8,4 @@ rev = "v4.19.0"
 
 [[lean_lib]]
 name = "JSP000089"
-roots = ["Main", "Statement", "Audit"]
+roots = ["Main", "Statement", "Construction", "GraphFoundations", "Principal", "Audit"]

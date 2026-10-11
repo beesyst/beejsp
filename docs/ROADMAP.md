@@ -14,17 +14,14 @@ BeeJSP uses the ROADMAP as a lightweight delivery artifact to:
 - preserve exact mathematical statement fidelity;
 - preserve reproducible Lean verification;
 - preserve solver, formalizer and verifier attribution;
-- keep official JSP reference material reproducible without turning it into a
-  second source of truth;
-- prevent speculative platform development before the first useful proof is
-  delivered.
+- keep official JSP reference material reproducible without turning it into a second source of truth;
+- prevent speculative platform development before the first useful proof is delivered.
 
 The ROADMAP does not replace Issues or Pull Requests:
 
 - **Issue** defines the exact approved implementation task;
 - **PR** records what was actually implemented and verified;
-- **ROADMAP** defines the iteration-level project contract and delivery
-  direction.
+- **ROADMAP** defines the iteration-level project contract and delivery direction.
 
 A significant roadmap iteration is normally delivered through a BeeJSP PR.
 
@@ -34,8 +31,7 @@ The ROADMAP does not duplicate full repository rules:
 
 - project architecture and ownership belong in `docs/ARCHITECTURE.md`;
 - development instructions belong in `docs/DEV_GUIDE.md`;
-- mathematical and Lean formalization rules belong in
-  `docs/FORMALIZATION.md`;
+- mathematical and Lean formalization rules belong in `docs/FORMALIZATION.md`;
 - security and trust boundaries belong in `docs/SECURITY.md`;
 - official JSP submission workflow belongs in `docs/SUBMISSION.md`;
 - repository-level AI/development instructions belong in `AGENTS.md`.
@@ -767,15 +763,10 @@ Release mechanics must not become a blocker for mathematical work.
 
 ### Stages
 
-- **Stage 1 — Foundation and official reference:** repository architecture,
-  governance, Python/Lean foundations, CI and managed official JSP snapshot.
-- **Stage 2 — Discovery and candidate selection:** deterministic problem-bank
-  ingestion, filtering, live competition analysis and evidence-backed TOP
-  candidates.
-- **Stage 3 — First real formalization:** exact source package, Lean feasibility
-  spike and complete formal proof.
-- **Stage 4 — Independent verification and submission:** independent proof
-  verification, immutable public evidence and external contribution.
+- **Stage 1 — Foundation and official reference:** repository architecture, governance, Python/Lean foundations, CI and managed official JSP snapshot.
+- **Stage 2 — Discovery and candidate selection:** deterministic problem-bank ingestion, filtering, live competition analysis and evidence-backed TOP candidates.
+- **Stage 3 — First real formalization:** exact source package, Lean feasibility spike and complete formal proof.
+- **Stage 4 — Independent verification and submission:** independent proof verification, immutable public evidence and external contribution.
 
 ## Project gates
 
@@ -938,8 +929,7 @@ A governed standalone BeeJSP repository that can reproducibly consume selected o
 - `src/beejsp/__init__.py` is byte-empty;
 - Python import has no hidden I/O or network side effects;
 - Lean template builds with its pinned toolchain;
-- canonical agent pipeline is:
-  `planning → implementation → verify/correct → final review`;
+- canonical agent pipeline is: `planning → implementation → verify/correct → final review`;
 - no separate submission/formalization agent pipeline exists;
 - vendor source is the configured official JSP upstream;
 - vendor snapshot records `UPSTREAM_REF`;
@@ -949,8 +939,7 @@ A governed standalone BeeJSP repository that can reproducibly consume selected o
 - incomplete synchronization fails before an invalid snapshot is accepted;
 - synchronization removes stale managed content;
 - repeated synchronization to the same upstream revision is idempotent;
-- scheduled/manual GitHub workflow creates a reviewable sync branch/PR rather
-  than directly modifying `main`;
+- scheduled/manual GitHub workflow creates a reviewable sync branch/PR rather than directly modifying `main`;
 - no private credentials or identity/payment data are committed;
 - no speculative runtime/service architecture is introduced.
 
@@ -1014,8 +1003,7 @@ Turn the managed JSP problem bank into a deterministic local representation that
 Included:
 
 - parse the current vendored JSP problem-bank files;
-- discover catalog files from the managed snapshot rather than hardcoding their
-  count;
+- discover catalog files from the managed snapshot rather than hardcoding their count;
 - normalize one record per JSP problem;
 - preserve source catalog/provenance information;
 - normalize relevant official fields such as:
@@ -1028,8 +1016,7 @@ Included:
 
 - explicitly represent missing/unknown values;
 - deterministic filtering;
-- initial useful candidate filter such as solved problems lacking a recorded
-  Lean proof;
+- initial useful candidate filter such as solved problems lacking a recorded Lean proof;
 - machine-readable scanner output;
 - concise human-readable summary;
 - malformed/duplicate record handling;
@@ -1053,8 +1040,7 @@ A deterministic scanner that transforms the current managed JSP problem bank int
 
 #### Acceptance criteria
 
-- all discovered current catalog records can be parsed or explicitly reported as
-  invalid;
+- all discovered current catalog records can be parsed or explicitly reported as invalid;
 - JSP IDs are unique;
 - normalized records retain source provenance;
 - missing values are not silently invented;
@@ -1062,8 +1048,7 @@ A deterministic scanner that transforms the current managed JSP problem bank int
 - scanner does not hardcode the current total problem count;
 - current solved/no-Lean-style candidates can be selected deterministically;
 - identical pinned input produces identical normalized output;
-- malformed records fail or degrade explicitly according to the approved
-  contract;
+- malformed records fail or degrade explicitly according to the approved contract;
 - no live GitHub state is inferred from vendor data;
 - no database is required;
 - vendor content remains unmodified.
@@ -1268,8 +1253,7 @@ A bounded, reproducible Lean project that proves the selected problem is either 
 
 - exact problem source is identified;
 - current relevant JSP record is identified;
-- complete mathematical solution source is identified or the missing source is
-  itself the explicit blocker;
+- complete mathematical solution source is identified or the missing source is itself the explicit blocker;
 - mathematical solver attribution is recorded;
 - intended top-level Lean statement is explicit;
 - domains, quantifiers, hypotheses and conclusion are reviewed;
@@ -1277,16 +1261,13 @@ A bounded, reproducible Lean project that proves the selected problem is either 
 - no unapproved stronger assumption is introduced;
 - Lean toolchain is pinned;
 - required dependencies are pinned;
-- the selected hard boundary is attempted directly rather than replaced by
-  unrelated easy scaffolding;
+- the selected hard boundary is attempted directly rather than replaced by unrelated easy scaffolding;
 - spike code builds for the proved portion;
 - temporary incomplete work is clearly distinguished from completed proof;
-- any `sorry`/temporary placeholder used during exploration is not represented
-  as completed proof evidence;
+- any `sorry`/temporary placeholder used during exploration is not represented as completed proof evidence;
 - final report states exactly `GO` or `NO-GO`;
 - `GO` identifies remaining proof work;
-- `NO-GO` identifies the concrete blocker and whether Iteration 3 should select
-  a reserve candidate.
+- `NO-GO` identifies the concrete blocker and whether Iteration 3 should select a reserve candidate.
 
 #### Checks
 
@@ -1343,8 +1324,7 @@ Included:
 - official award claim;
 - weakening theorem scope for convenience;
 - unproved custom proof axioms;
-- generic reusable theorem framework unless current proof demonstrates a real
-  need;
+- generic reusable theorem framework unless current proof demonstrates a real need;
 - unrelated scanner improvements;
 - unrelated repository refactors.
 
@@ -1564,13 +1544,10 @@ Before official submission:
 After submission:
 
 - official PR URL/reference is recorded;
-- BeeJSP does not describe the PR as verified/awarded unless official evidence
-  exists;
-- proof corrections, when required, are made in BeeJSP first and independently
-  reverified;
+- BeeJSP does not describe the PR as verified/awarded unless official evidence exists;
+- proof corrections, when required, are made in BeeJSP first and independently reverified;
 - updated immutable evidence is supplied when the official review requires it;
-- claim workflow is attempted only after current official prerequisites are
-  actually satisfied.
+- claim workflow is attempted only after current official prerequisites are actually satisfied.
 
 #### Checks
 
@@ -1625,8 +1602,7 @@ Questions:
 - Was live competition analysis useful?
 - What caused the most formalization cost?
 - Did the official submission process expose a real tooling gap?
-- Did the mathematical community gain a useful reusable proof regardless of
-  award outcome?
+- Did the mathematical community gain a useful reusable proof regardless of award outcome?
 
 Do not automatically create Iteration 8 solely because Iteration 7 exists.
 
@@ -1693,13 +1669,13 @@ BeeJSP does not own its official state.
 
 Current official facts must be refreshed before submission-sensitive decisions.
 
-### Related project boundary — Bee Dev MCP
+### Related project boundary — BeeMCP
 
-Bee Dev MCP remains a development/planning/review tool.
+BeeMCP remains a development/planning/review tool.
 
-BeeJSP should be registered as an independent Bee Dev MCP project so planning and final review can inspect the actual repository.
+BeeJSP should be registered as an independent BeeMCP project so planning and final review can inspect the actual repository.
 
-Bee Dev MCP is not a BeeJSP runtime or proof dependency.
+BeeMCP is not a BeeJSP runtime or proof dependency.
 
 ### Future roadmap rule
 
@@ -1748,13 +1724,10 @@ using the architecture that already exists.
 
 BeeJSP development uses:
 
-- `docs/ARCHITECTURE.md` — project ownership, repository structure and
-  dependency boundaries;
+- `docs/ARCHITECTURE.md` — project ownership, repository structure and dependency boundaries;
 - `docs/DEV_GUIDE.md` — local Python, vendor and Lean development workflow;
-- `docs/FORMALIZATION.md` — mathematical statement, proof, reproducibility,
-  axioms and attribution contract;
-- `docs/SECURITY.md` — external-input, supply-chain, GitHub authority and
-  private-data rules;
+- `docs/FORMALIZATION.md` — mathematical statement, proof, reproducibility, axioms and attribution contract;
+- `docs/SECURITY.md` — external-input, supply-chain, GitHub authority and private-data rules;
 - `docs/SUBMISSION.md` — official JSP submission and claim preparation;
 - `AGENTS.md` — repository-wide development and AI-agent instructions.
 

@@ -1,6 +1,6 @@
 # BeeJSP implementation and test prompt preparation
 
-Use only Bee Dev MCP.
+Use only BeeMCP.
 
 Read:
 
@@ -63,6 +63,6 @@ Both prompts must:
 - include only task-specific constraints;
 - not duplicate stable repository rules;
 - prohibit commit, push, PR, and merge;
-- not require Bee Dev MCP, MCP Mode, or read-only behavior from Copilot or Codex.
+- not require BeeMCP, MCP Mode, or read-only behavior from Copilot or Codex.
 
 Return only the two copy-ready executor prompts with no additional analysis.
