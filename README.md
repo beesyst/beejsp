@@ -520,6 +520,26 @@ formalization feasibility
 
 before committing to substantial proof work.
 
+### Local discovery dashboard
+
+Run the primary research workflow from the repository root:
+
+```bash
+./start.sh update
+./start.sh report
+./start.sh inspect JSP-000161
+```
+
+`update` scans the pinned local catalog, captures complete public PR/Issue and official-register evidence, and publishes general/high-value JSON, CSV and a standalone HTML dashboard under Git-ignored `storage/discovery/`. It opens the report when a graphical browser is available; headless runs print the file path and succeed. An absolute path to `start.sh` works from any working directory. Run `uv sync` once to prepare the environment; the launcher uses `--no-sync`, so offline commands do not resolve dependencies.
+
+`report` opens the last validated snapshot offline. `inspect` prints Discovery v2 JSON for one exact JSP identity using the same saved evidence. Missing evidence, invalid commands and unknown IDs fail with exit code 2. Failed updates retain the prior snapshot and warn when it is inspected. The dashboard includes all normalized records, excluded and contested candidates, four overview metrics (Total problems, Math Open, Lean No, Awards announced), seven columns (Problem, Math status, Lean, Area, PRs, Issues, Award), local search/sorting/paging, and seven Math/Lean/Area/Award/PRs/Issues/PR status filters. Details retain source evidence, readable proof states and canonical official links; both selection profiles remain in JSON/CSV. PR and Issue counts are matched observations per task, counted separately. Their filters offer All, exact counts 0–10 and >10 for eleven or more, combined with every other filter and search using AND; zero matches do not establish absence of external proofs. PR status offers All, Open, Merged, Closed, unmerged and No open PR. Positive states mean at least one matching saved PR; No open PR is unavailable under incomplete capture. GitHub lifecycle is separate from proof verification: merged catalog/administrative work does not verify Lean, and closed-unmerged does not establish mathematical invalidity. Claimed proof evidence differs from official award claim registration; unverified claims/source links are labeled explicitly. Shortlist Math Solved + Lean No, then inspect source fidelity, material PR/Issue evidence and independent review before investing in a proof; missing/open PR observations alone are not mathematical evidence. Source timestamps and revisions remain independent; no saved report guarantees current live state.
+
+The first launcher invocation securely creates `.env` from `.env.example` if missing. Existing values are preserved, and POSIX permissions are set to `0600`. To increase public API capacity, manually set `GITHUB_TOKEN` to your personal GitHub token in `.env`; a nonempty process environment value takes precedence. The bootstrap parses only this setting as data, never executes the file, and rejects unsafe links and token syntax. Tokens remain local and are excluded from generated evidence. Anonymous operation remains available when the setting is empty. See [configuration and renewal](docs/DEV_GUIDE.md#local-github-configuration).
+
+Use `update` for a full GitHub evidence refresh and `report` for the offline view. During active research, refresh manually each day and run a fresh update before an important proof or submission decision; this iteration adds no scheduler.
+
+Discovery refresh does not synchronize vendor files. Use `./scripts/sync_jsp_docs.sh` separately when an approved reference refresh is needed. See [dashboard storage, research inputs and failure behavior](docs/DEV_GUIDE.md#iteration-7-local-discovery-dashboard).
+
 ### Evidence-aware CLI
 
 Use the existing scanner to save the full normalized catalog, then capture public evidence explicitly and screen it offline:
@@ -820,19 +840,16 @@ beejsp/
 └── uv.lock
 ```
 
-BeeJSP currently does not need:
+BeeJSP does not need a persistent application runtime:
 
 ```text
-start.sh
-config/start.py
 config/settings.yml
 database/
 server/
 worker/
-runtime storage/
 ```
 
-There is no application runtime to configure or start.
+`start.sh` launches short-lived Python CLI commands. Local discovery artifacts live under Git-ignored `storage/discovery/`; no application service is started.
 
 ## Python package
 

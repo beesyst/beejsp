@@ -961,7 +961,9 @@ The iteration delivers a material enhancement to existing Python tooling without
 
 ### Iteration 7 — Local Discovery Dashboard & One-Command Refresh
 
-**Status:** PLANNED
+**Status:** DONE
+
+Startup follows `start.sh → config/start.py → beejsp.dashboard`. Optional local read-only GitHub authentication is implemented; authenticated live acquisition and complete snapshot verification passed on 2026-10-12. Final read-only review remains pending. The approved HTML simplification uses seven overview columns and seven filters, with readable award/proof labels and full evidence in details and both JSON/CSV profiles. The final refinement adds a static dark theme, four catalog-derived overview metrics, announced official amounts and keyboard-accessible PR/Issue count navigation; unknown award coverage stays visible without an overview filter option. Offline template upgrades preserve validated immutable snapshots and acquisition timestamps. Implementation entry points are `start.sh`, `config/start.py` and `src/beejsp/dashboard.py`; the standalone presentation is `src/beejsp/_dashboard_view.py`. Generated snapshots live in Git-ignored `storage/discovery/`. Targeted contracts are exercised by `tests/test_dashboard.py` and the optional installed-browser check `tests/dashboard_browser_check.py`. See [local workflow and snapshot behavior](DEV_GUIDE.md#iteration-7-local-discovery-dashboard).
 
 #### Goal
 
@@ -1019,11 +1021,11 @@ Included:
 - Use Python and minimal embedded HTML, CSS and JavaScript without a frontend framework.
 - Do not depend on external CDN assets, remote JavaScript, a web server or network access to render saved evidence.
 - Include all normalized JSP records, not only the shortlisted or originally unformalized candidates.
-- Provide a compact overview of total problems, mathematical status, recorded Lean status, competing formalizations, unknown competition coverage and selected candidate counts.
+- Provide compact catalog/award counts and one snapshot freshness/completeness line; keep mathematical and recorded Lean status in the table and competition/selection evidence in details and JSON/CSV.
 - Clearly distinguish official catalog facts from derived research estimates and current captured public observations.
 - Support client-side searching, sorting and filtering without additional backend calls.
-- Support mathematical status, Lean status, mathematical area, difficulty, competition state, proof state, solution availability and award evidence filters.
-- Provide general and high-value research views based on existing version 2 selection contracts.
+- Support mathematical status, Lean status, mathematical area, award evidence, separate PR/Issue count filters and PR lifecycle filtering in the compact HTML overview; retain additional research/proof/competition evidence in details and machine-readable outputs.
+- Preserve general and high-value research profiles in JSON/CSV and per-problem details using existing version 2 selection contracts, without an HTML profile selector.
 - Keep contested and unknown candidates visible rather than silently excluding them.
 - Display explicit empty-result and incomplete-evidence states.
 - Make the report usable on desktop and reasonably readable on narrower screens.
@@ -1031,19 +1033,14 @@ Included:
 
 **Problem overview table**
 
-- Display exact JSP ID and problem title.
-- Display mathematical area and current official problem status.
-- Display current catalog Lean-proof status independently from external proof observations.
-- Display solution availability and known mathematical source evidence.
-- Display known mathematical solver or source author where supported by official or reviewed evidence.
-- Display qualitative Lean difficulty and scientific significance with unknown values preserved.
-- Display relevant competition classification, including `CONTESTED`, `VERIFIED`, `REVIEWED`, `NONE_IN_SCOPE` and `UNKNOWN`.
-- Display related PR and Issue counts derived from the actual captured evidence.
-- Display public candidate or announced-award status where available.
-- Display historical bounty and published official monetary amounts in separate fields.
-- Display qualitative prize potential only as a non-official estimate with supporting rationale.
-- Provide clickable links to the original JSP catalog entry, supporting sources and competing GitHub records.
-- Preserve stable JSP identity when the table is filtered or sorted.
+- Render seven columns: Problem, Math status, Lean, Area, PRs, Issues and Award; retain four overview metrics: Total problems, Math Open, Lean No and Awards announced.
+- Display exact JSP ID/title and a usable detail action and official catalog link.
+- Keep official mathematical status and catalog Lean status distinct from external proof observations.
+- Display separate clickable captured PR and Issue counts per JSP task in their own columns, with noninteractive zero values. Both count filters offer All, exact 0–10 and >10 for eleven or more, combine with all filters/search using AND, and preserve evidence uncertainty. Both columns sort numerically with JSP ID tie-breaking; changing filters resets pagination and Reset clears all filters/search.
+- Add PR status options All, Open, Merged, Closed, unmerged and No open PR, using saved observations and AND with every other filter/search. Disable No open PR under incomplete capture; lifecycle is separate from mathematical/proof verification. Explain Claimed/Source linked as not independently verified and administrative fallback as Not a proof claim, preserving canonical evidence states.
+- Display readable award states and support direct award filtering/sorting, with officially announced awards first when explicitly sorted.
+- Preserve stable JSP identity while filtering, sorting and paging, including unknown and contested records.
+- Keep attribution, sources, difficulty/significance, competition/proof evidence, historical bounty, published amounts and selection reasons in per-problem details and JSON/CSV.
 
 **Detailed problem inspection**
 
@@ -1153,7 +1150,7 @@ The implementation is a small presentation and orchestration layer over Iteratio
 - Search and filters operate locally in the browser.
 - Candidate table sorting is stable and preserves exact JSP identities.
 - Every row includes a usable path to detailed inspection.
-- General and high-value selection views use existing profile semantics.
+- General and high-value machine-readable selections and per-problem reasons use existing profile semantics; the HTML overview has no profile selector.
 - Unknown research values remain visible rather than silently becoming low difficulty or zero scientific value.
 - Contested candidates remain inspectable regardless of their ranking.
 
@@ -1188,7 +1185,7 @@ The implementation is a small presentation and orchestration layer over Iteratio
 - Equivalent saved inputs produce deterministic report content except for explicitly justified generated-at metadata.
 - Generated artifacts do not create accidental tracked repository changes.
 - Existing version 1 and version 2 Scanner/Assessment tests remain green.
-- No new external-proof execution boundary, credentials or GitHub write permissions are introduced.
+- No new external-proof execution boundary or GitHub write permissions are introduced; the approved clarification permits optional local read-only GitHub authentication, with no credentials in artifacts.
 - The existing JSP vendor synchronization and daily PR workflow remain unchanged.
 
 #### Checks
@@ -1234,7 +1231,7 @@ A single `./start.sh update` command generates an offline HTML dashboard with th
 
 The `report` and `inspect` commands work without a network refresh.
 
-The dashboard remains a small local presentation layer over the existing deterministic Scanner and Assessment.
+The dashboard remains a small local presentation layer over the existing deterministic Scanner and Assessment. Use `update` for a full GitHub refresh and `report` for offline viewing. Refresh manually each day during active research and before important proof/submission decisions; this iteration adds no scheduler.
 
 No server, database, speculative framework, automatic prize claim or external Lean execution is introduced.
 

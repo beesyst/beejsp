@@ -179,36 +179,50 @@ def enrich_observation(
     """Extract references, never infer mathematical verification from prose."""
     content = f"{normalized['title']}\n{raw.get('body') or ''}"
     sources = []
+    source_errors = []
+
+    def add_source(value: Any) -> None:
+        try:
+            sources.append(proof_source(value))
+        except Error as error:
+            source_errors.append(str(error))
+
     file_match = re.search(r"(?im)^-?\s*Theorem/file:\s*`([^`]+)`", content)
     for block in re.findall(r"```json\s*([\s\S]*?)```", content):
         try:
             declared = json.loads(block)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, RecursionError):
+            if '"repository"' in block:
+                source_errors.append("malformed proof-source JSON")
             continue
         if not isinstance(declared, list):
+            if '"repository"' in block:
+                source_errors.append("proof-source JSON must be a list")
             continue
         if len(declared) > 20:
-            raise Error("proof source declaration exceeds record limit")
+            source_errors.append("proof source declaration exceeds record limit")
+            declared = declared[:20]
         for entry in declared:
             if not isinstance(entry, dict) or "repository" not in entry:
                 continue
-            repository_url = url(entry["repository"])
-            parts = urlsplit(repository_url)
-            if parts.netloc != "github.com":
-                raise Error("declared proof repository must be on GitHub")
-            repository = parts.path.strip("/")
-            sources.append(
-                proof_source(
-                    {
-                        "url": repository_url,
-                        "repository": repository,
-                        "branch": entry.get("branch"),
-                        "commit": entry.get("commit"),
-                        "file": entry.get("file")
-                        or (file_match[1] if file_match else None),
-                        "theorem": entry.get("theorem"),
-                    }
-                )
+            try:
+                repository_url = url(entry["repository"])
+                parts = urlsplit(repository_url)
+                if parts.netloc != "github.com":
+                    raise Error("declared proof repository must be on GitHub")
+            except Error as error:
+                source_errors.append(str(error))
+                continue
+            add_source(
+                {
+                    "url": repository_url,
+                    "repository": parts.path.strip("/"),
+                    "branch": entry.get("branch"),
+                    "commit": entry.get("commit"),
+                    "file": entry.get("file")
+                    or (file_match[1] if file_match else None),
+                    "theorem": entry.get("theorem"),
+                }
             )
     for match in _SOURCE.finditer(content):
         repository, revision, file, theorem = match.groups()
@@ -216,29 +230,44 @@ def enrich_observation(
             s["repository"] == repository and not revision for s in sources
         ):
             continue
-        sources.append(
-            proof_source(
-                {
-                    "url": match.group(0),
-                    "repository": repository,
-                    "commit": revision
-                    if revision and legacy._COMMIT.fullmatch(revision)
-                    else None,
-                    "branch": revision
-                    if revision and not legacy._COMMIT.fullmatch(revision)
-                    else None,
-                    "file": unquote(file) if file else None,
-                    "theorem": theorem,
-                }
-            )
+        add_source(
+            {
+                "url": match.group(0),
+                "repository": repository,
+                "commit": revision
+                if revision and legacy._COMMIT.fullmatch(revision)
+                else None,
+                "branch": revision
+                if revision and not legacy._COMMIT.fullmatch(revision)
+                else None,
+                "file": unquote(file) if file else None,
+                "theorem": theorem,
+            }
         )
     if len(sources) > 50:
-        raise Error("proof references exceed record limit")
+        source_errors.append("proof references exceed record limit")
+        sources = sources[:50]
     sources = list({legacy.render_json(s): s for s in sources}.values())
     lowered = content.casefold()
+    substantive = re.sub(
+        r"(?im)^\s*(?:[-*]\s*)?(?:\*\*)?Lean proof(?:\*\*)?:\s*(?:No|Unknown|Missing)\s*$",
+        "",
+        content,
+    )
+    status_only = bool(
+        re.search(
+            r"(?i)^(?:docs|catalog)(?:\([^)]*\))?:.*\b(?:status|metadata|formatting|typo)\b",
+            normalized["title"],
+        )
+        and not sources
+        and not source_errors
+        and not re.search(r"(?i)\blean\b|formaliz|\bproof\b", substantive)
+    )
     submission_kind = (
-        "lean"
-        if sources or re.search(r"\blean\b|formaliz", lowered)
+        "administrative"
+        if status_only
+        else "lean"
+        if sources or source_errors or re.search(r"\blean\b|formaliz", lowered)
         else "administrative"
         if re.search(r"\btypo\b|catalog update|\bformatting\b", lowered)
         else "mathematical"
@@ -264,6 +293,11 @@ def enrich_observation(
         "submission_kind": submission_kind,
         "proof_sources": sorted(sources, key=legacy.render_json),
         "linked_submissions": predecessors,
+        **(
+            {"source_metadata_errors": sorted(set(source_errors))[:50]}
+            if source_errors
+            else {}
+        ),
     }
 
 
@@ -326,6 +360,7 @@ def validate_competition(value: Mapping[str, Any]) -> tuple[dict[str, Any], bool
                 "erdos_ids",
                 "proof_sources",
                 "linked_submissions",
+                "source_metadata_errors",
             }:
                 raise Error("unknown competition observation field")
             text(item["title"], "observation title")
@@ -365,6 +400,15 @@ def validate_competition(value: Mapping[str, Any]) -> tuple[dict[str, Any], bool
                     item.get("proof_sources", []), "proof sources"
                 )
             ]
+            if "source_metadata_errors" in item:
+                errors = legacy._require_list(
+                    item["source_metadata_errors"], "proof source metadata errors"
+                )
+                if not 1 <= len(errors) <= 50:
+                    raise Error("invalid proof source metadata error count")
+                item["source_metadata_errors"] = sorted(
+                    {text(error, "proof source metadata error") for error in errors}
+                )
             links = legacy._require_list(
                 item.get("linked_submissions", []), "linked submissions"
             )
@@ -861,18 +905,27 @@ def select(
         contested = False
         unmatched_reviews = False
         for item in observations:
+            invalid_sources = bool(item.get("source_metadata_errors"))
             review = next(
                 (r for r in reviews if _review_applies(r, item)),
                 None,
             )
-            if review is None and any(
-                r["subject_url"] == item["url"]
-                or any(r["subject_url"] == s["url"] for s in item["proof_sources"])
-                for r in reviews
+            if invalid_sources:
+                review = None
+            if (
+                not invalid_sources
+                and review is None
+                and any(
+                    r["subject_url"] == item["url"]
+                    or any(r["subject_url"] == s["url"] for s in item["proof_sources"])
+                    for r in reviews
+                )
             ):
                 unmatched_reviews = True
             state = (
-                review["state"]
+                "unresolved"
+                if invalid_sources
+                else review["state"]
                 if review
                 else "source_linked"
                 if item["proof_sources"]
@@ -881,7 +934,8 @@ def select(
             item["proof_state"] = state
             item["proof_review"] = review
             if item["match"] != "supplementary_title" and (
-                item["submission_kind"] == "lean"
+                invalid_sources
+                or item["submission_kind"] == "lean"
                 or item["kind"] == "pull_request"
                 and item["submission_kind"] == "unknown"
             ):
@@ -1016,6 +1070,12 @@ def select(
             uncertainty.append(
                 "unresolved competing proof; mathematical review required"
             )
+        uncertainty.extend(
+            f"invalid proof-source metadata in {item['url']}: "
+            + "; ".join(item["source_metadata_errors"])
+            for item in observations
+            if item.get("source_metadata_errors")
+        )
         if unmatched_reviews:
             uncertainty.append(
                 "saved review does not identify the captured proof source pin; claim remains unresolved"
