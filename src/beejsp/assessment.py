@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
+import os
 import re
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
+from http import HTTPStatus
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 SCHEMA_VERSION = 1
@@ -569,26 +572,96 @@ class _NoRedirect(HTTPRedirectHandler):
         raise AssessmentError("GitHub redirects are not allowed")
 
 
+def validate_github_token(value: str | None) -> str | None:
+    if value is None or value == "":
+        return None
+    if not isinstance(value, str) or not re.fullmatch(
+        r"(?:gh[pousr]_[A-Za-z0-9_]{20,255}|github_pat_[A-Za-z0-9_]{20,255}|[0-9a-fA-F]{40})",
+        value,
+    ):
+        raise AssessmentError("invalid GITHUB_TOKEN format")
+    return value
+
+
+def _redact_token(value: Any, token: str | None) -> Any:
+    if token is None:
+        return value
+    if isinstance(value, str):
+        if token not in value and token in unquote(value):
+            raise AssessmentError("credential found in encoded upstream data")
+        return value.replace(token, "[REDACTED]")
+    if isinstance(value, list):
+        return [_redact_token(item, token) for item in value]
+    if isinstance(value, dict):
+        result = {
+            _redact_token(key, token): _redact_token(item, token)
+            for key, item in value.items()
+        }
+        if result.get("encoding") == "base64" and isinstance(
+            result.get("content"), str
+        ):
+            try:
+                content = base64.b64decode(
+                    "".join(result["content"].split()), validate=True
+                ).decode("utf-8")
+            except (ValueError, UnicodeError):
+                pass
+            else:
+                result["content"] = base64.b64encode(
+                    _redact_token(content, token).encode()
+                ).decode()
+        return result
+    return value
+
+
 def _github_payload(url: str) -> tuple[Any, str]:
-    parts = urlsplit(url)
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        raise AssessmentError("invalid GitHub API page URL") from None
     if (
         parts.scheme != "https"
         or parts.netloc != "api.github.com"
-        or not parts.path.startswith(f"/repos/{OFFICIAL_REPOSITORY}/")
+        or not re.fullmatch(
+            rf"/repos/{re.escape(OFFICIAL_REPOSITORY)}/"
+            r"(?:pulls(?:/[1-9]\d*)?|issues(?:/[1-9]\d*)?|commits/main|contents/(?:candidates|awards)/README\.md)",
+            parts.path,
+        )
         or parts.fragment
     ):
         raise AssessmentError("invalid GitHub API page URL")
+    token = validate_github_token(os.environ.get("GITHUB_TOKEN"))
+    headers = {"Accept": "application/vnd.github+json", "User-Agent": "beejsp"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     request = Request(  # noqa: S310 - fixed HTTPS GitHub API origin validated above
         url,
-        headers={"Accept": "application/vnd.github+json", "User-Agent": "beejsp"},
+        headers=headers,
     )
-    with build_opener(_NoRedirect()).open(request, timeout=20) as response:
-        raw = response.read(MAX_RESPONSE_BYTES + 1)
-        if len(raw) > MAX_RESPONSE_BYTES:
-            raise AssessmentError("GitHub response exceeds size limit")
-        payload = json.loads(raw.decode("utf-8"))
-        link = response.headers.get("Link", "")
-    return payload, link
+    try:
+        with build_opener(_NoRedirect()).open(request, timeout=20) as response:
+            raw = response.read(MAX_RESPONSE_BYTES + 1)
+            if len(raw) > MAX_RESPONSE_BYTES:
+                raise AssessmentError("GitHub response exceeds size limit")
+            payload = json.loads(raw.decode("utf-8"))
+            link = response.headers.get("Link", "")
+        return _redact_token(payload, token), _redact_token(link, token)
+    except HTTPError as error:
+        code = error.code if isinstance(error.code, int) else 0
+        try:
+            reason = HTTPStatus(code).phrase
+        except ValueError:
+            reason = "request rejected"
+        if (
+            code == 403
+            and error.headers
+            and error.headers.get("X-RateLimit-Remaining") == "0"
+        ):
+            reason = "rate limit exceeded"
+        message = f"GitHub HTTP {code}: {reason}"
+    except Exception as error:
+        message = str(_redact_token(str(error), token))[:4096]
+    raise AssessmentError(message)
 
 
 def _github_page(url: str) -> tuple[list[dict[str, Any]], str | None]:
@@ -606,10 +679,15 @@ def _github_page(url: str) -> tuple[list[dict[str, Any]], str | None]:
     if next_url:
         next_parts = urlsplit(next_url)
         current_parts = urlsplit(url)
+        endpoint = current_parts.path.rsplit("/", 1)[-1]
+        numeric_path = bool(
+            endpoint in {"pulls", "issues"}
+            and re.fullmatch(rf"/repositories/[1-9]\d*/{endpoint}", next_parts.path)
+        )
         if (
             next_parts.scheme != "https"
             or next_parts.netloc != "api.github.com"
-            or next_parts.path != current_parts.path
+            or (next_parts.path != current_parts.path and not numeric_path)
             or next_parts.fragment
         ):
             raise AssessmentError("malformed GitHub pagination link")
@@ -617,6 +695,15 @@ def _github_page(url: str) -> tuple[list[dict[str, Any]], str | None]:
         next_query = parse_qs(next_parts.query)
         current_page = current_query.pop("page", ["1"])
         page = next_query.pop("page", None)
+        current_cursor = current_query.pop("after", None)
+        cursor = next_query.pop("after", None)
+        if (current_cursor is not None or cursor is not None) and (
+            endpoint != "issues"
+            or cursor is None
+            or len(cursor) != 1
+            or not re.fullmatch(r"[A-Za-z0-9_+/=-]{1,4096}", cursor[0])
+        ):
+            raise AssessmentError("invalid GitHub Issues pagination cursor")
         if current_query != next_query or (
             page is None
             or len(page) != 1
@@ -628,6 +715,7 @@ def _github_page(url: str) -> tuple[list[dict[str, Any]], str | None]:
             raise AssessmentError(
                 "GitHub pagination must preserve capture scope and advance one page"
             )
+        next_url = current_parts._replace(query=next_parts.query).geturl()
     return payload, next_url
 
 
@@ -670,6 +758,7 @@ def capture_github(
     *,
     evidence_version: int = 1,
     kind: str = "all",
+    page_size: int = 100,
 ) -> dict[str, Any]:
     """Capture bounded, public, read-only PR and Issue evidence from GitHub."""
 
@@ -677,6 +766,12 @@ def capture_github(
         raise AssessmentError("only the official JSP repository is supported")
     if evidence_version not in {1, 2} or kind not in {"all", "issues", "pull_requests"}:
         raise AssessmentError("invalid capture version or kind")
+    if (
+        not isinstance(page_size, int)
+        or isinstance(page_size, bool)
+        or not 1 <= page_size <= 100
+    ):
+        raise AssessmentError("GitHub page size must be from 1 to 100")
     if evidence_version == 1 and kind != "all":
         raise AssessmentError("scoped captures require evidence version 2")
     observed_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
@@ -688,7 +783,7 @@ def capture_github(
                 continue
             scopes[destination] = False
             next_url: str | None = (
-                f"https://api.github.com/repos/{repository}/{endpoint}?state=all&per_page=100"
+                f"https://api.github.com/repos/{repository}/{endpoint}?state=all&per_page={page_size}"
             )
             seen_pages = set()
             seen_numbers = {}
@@ -705,7 +800,14 @@ def capture_github(
                     if evidence_version == 2:
                         from beejsp.discovery import enrich_observation
 
-                        normalized = enrich_observation(normalized, item, observed_at)
+                        try:
+                            normalized = enrich_observation(
+                                normalized, item, observed_at
+                            )
+                        except AssessmentError as error:
+                            raise AssessmentError(
+                                f"{normalized['url']}: {error}"
+                            ) from error
                     number = normalized["number"]
                     if number in seen_numbers:
                         if seen_numbers[number] != normalized:

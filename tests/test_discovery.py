@@ -1041,7 +1041,9 @@ def test_module_cli_reports_validation_error_without_traceback(tmp_path):
     assert not output.exists()
 
 
-def test_module_capture_retains_enrichment_failure_as_incomplete_evidence(tmp_path):
+def test_module_capture_retains_invalid_proof_metadata_without_losing_coverage(
+    tmp_path,
+):
     output = tmp_path / "captured.json"
     program = r"""
 import json
@@ -1056,10 +1058,12 @@ class Response:
     def __exit__(self, *args):
         pass
     def read(self, size):
-        return json.dumps(payload).encode()
+        return json.dumps(self.payload).encode()
 class Opener:
     def open(self, *args, **kwargs):
-        return Response()
+        response = Response()
+        response.payload = payload if "/pulls?" in args[0].full_url else []
+        return response
 sys.argv = ["assessment", "capture-github", "--evidence-version", "2", "--output", sys.argv[1]]
 with patch("urllib.request.build_opener", return_value=Opener()):
     runpy.run_module("beejsp.assessment", run_name="__main__")
@@ -1070,8 +1074,189 @@ with patch("urllib.request.build_opener", return_value=Opener()):
         text=True,
         env={**os.environ, "PYTHONPATH": str(Path("src").resolve())},
     )
-    assert result.returncode == 2, result.stderr
+    assert result.returncode == 0, result.stderr
     assert "Traceback" not in result.stderr
     capture = json.loads(output.read_text())
-    assert not capture["acquisition"]["complete"]
-    assert "full SHA" in capture["acquisition"]["error"]
+    assert capture["acquisition"]["complete"]
+    observation = capture["observations"]["pull_requests"][0]
+    assert observation["source_metadata_errors"] == ["proof commit must be a full SHA"]
+    assert observation["jsp_ids"] == ["JSP-000161"]
+    assert observation["url"] == f"{ROOT}/pull/1248"
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        {"commit": "short"},
+        {"commit": 123},
+        {"file": "../Main.lean"},
+        {"repository": "javascript:alert(1)"},
+        {"repository": "https://foreign.test/proofs"},
+    ],
+)
+def test_invalid_submission_sources_do_not_destroy_api_coverage(metadata, monkeypatch):
+    raw = {
+        "number": 4565,
+        "title": "JSP-000161 proof submission",
+        "html_url": f"{ROOT}/pull/4565",
+        "state": "open",
+        "body": "```json\n"
+        + json.dumps(
+            [{"repository": "https://github.com/plby/lean-proofs", **metadata}]
+        )
+        + "\n```",
+    }
+    calls = []
+
+    def page(address):
+        calls.append(address)
+        return ([raw], None) if "/pulls?" in address else ([], None)
+
+    monkeypatch.setattr(old, "_github_page", page)
+    captured = old.capture_github(evidence_version=2)
+    assert len(calls) == 2
+    assert captured["acquisition"]["complete"]
+    assert captured["acquisition"]["scopes"] == {"pull_requests": True, "issues": True}
+    item = row(new.select(scanner(), captured))
+    assert item["competition_state"] == "CONTESTED"
+    assert item["competition"][0]["proof_state"] == "unresolved"
+    assert item["competition"][0]["source_metadata_errors"]
+    assert item["competition"][0]["url"] == f"{ROOT}/pull/4565"
+    assert item["competition"][0]["jsp_ids"] == ["JSP-000161"]
+    assert "invalid proof-source metadata" in " ".join(item["uncertainty"])
+    assert all(s["commit"] is None for s in item["competition"][0]["proof_sources"])
+    assert (
+        row(new.select(scanner(), captured), "JSP-000475")["competition_state"]
+        == "NONE_IN_SCOPE"
+    )
+
+
+def test_invalid_metadata_cannot_inherit_pinned_review():
+    capture = competition()
+    capture["observations"]["pull_requests"] = [
+        observation(
+            proof_sources=[source()],
+            source_metadata_errors=["proof commit must be a full SHA"],
+        )
+    ]
+    result = new.select(scanner(), capture, research=research(verified_review()))
+    item = row(result)
+    assert item["competition_state"] == "CONTESTED"
+    assert item["competition"][0]["proof_state"] == "unresolved"
+    assert item["competition"][0]["proof_review"] is None
+    assert item["proof_reviews"][0]["state"] == "independently_verified"
+    assert not any("does not identify" in message for message in item["uncertainty"])
+    capture["observations"]["pull_requests"][0].pop("source_metadata_errors")
+    verified = row(new.select(scanner(), capture, research=research(verified_review())))
+    assert verified["competition_state"] == "VERIFIED"
+
+
+def test_saved_issue_with_invalid_proof_metadata_remains_contested():
+    capture = competition()
+    capture["observations"]["issues"] = [
+        observation(
+            category="issues",
+            submission_kind="unknown",
+            source_metadata_errors=["invalid source pin"],
+        )
+    ]
+    item = row(new.select(scanner(), capture))
+    assert item["competition_state"] == "CONTESTED"
+    assert item["competition"][0]["proof_state"] == "unresolved"
+
+
+@pytest.mark.parametrize("errors", [[], [123], "invalid", ["x"] * 51])
+def test_saved_source_metadata_diagnostics_are_validated(errors):
+    capture = competition()
+    capture["observations"]["pull_requests"] = [
+        observation(source_metadata_errors=errors)
+    ]
+    with pytest.raises(old.AssessmentError):
+        new.select(scanner(), capture)
+
+
+def test_diagnostics_never_authorize_an_invalid_saved_pin():
+    capture = competition()
+    capture["observations"]["pull_requests"] = [
+        observation(
+            proof_sources=[{**source(), "commit": "short"}],
+            source_metadata_errors=["invalid pin"],
+        )
+    ]
+    with pytest.raises(old.AssessmentError, match="full SHA"):
+        new.select(scanner(), capture)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        '```json\n[{"repository":"https://github.com/plby/lean-proofs",]\n```',
+        '```json\n{"repository":"https://github.com/plby/lean-proofs","commit":"short"}\n```',
+        "```json\n"
+        + json.dumps([{"repository": "https://github.com/plby/lean-proofs"}] * 21)
+        + "\n```",
+    ],
+)
+def test_malformed_proof_declarations_remain_explicit_unresolved_claims(body):
+    item = new.enrich_observation(observation(), {"body": body}, WHEN)
+    assert item["source_metadata_errors"]
+    capture = competition()
+    capture["observations"]["pull_requests"] = [item]
+    assert row(new.select(scanner(), capture))["competition_state"] == "CONTESTED"
+
+
+def test_invalid_claim_survives_later_endpoint_failure(monkeypatch):
+    raw = {
+        "number": 4565,
+        "title": "JSP-000161 Lean proof",
+        "html_url": f"{ROOT}/pull/4565",
+        "state": "open",
+        "body": '```json\n[{"repository":"https://github.com/plby/lean-proofs","commit":"short"}]\n```',
+    }
+
+    def page(address):
+        if "/issues?" in address:
+            raise old.AssessmentError("malformed API response")
+        return [raw], None
+
+    monkeypatch.setattr(old, "_github_page", page)
+    captured = old.capture_github(evidence_version=2)
+    assert not captured["acquisition"]["complete"]
+    result = new.select(scanner(), captured)
+    assert row(result)["competition_state"] == "CONTESTED"
+    assert row(result, "JSP-000475")["competition_state"] == "UNKNOWN"
+
+
+@pytest.mark.parametrize("value", ["No", "Unknown", "Missing"])
+def test_status_only_lean_metadata_is_administrative(value):
+    normalized = observation(title="docs: update JSP-000161 status metadata")
+    item = new.enrich_observation(
+        normalized, {"body": f"Current status: Solved\nLean proof: {value}"}, WHEN
+    )
+    assert item["submission_kind"] == "administrative"
+    saved = competition()
+    saved["observations"]["pull_requests"] = [item]
+    result = row(new.select(scanner(), saved))
+    assert result["competition_state"] == "NONE_IN_SCOPE"
+    assert result["competition"][0]["url"] == normalized["url"]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "Lean proof: Yes",
+        "Lean proof: No\nI claim a complete Lean proof.",
+        "Lean proof: No\nhttps://github.com/plby/lean-proofs",
+        'Lean proof: No\n```json\n[{"repository":"https://github.com/plby/lean-proofs","commit":"short"}]\n```',
+    ],
+)
+def test_status_title_cannot_hide_material_proof_claim(body):
+    item = new.enrich_observation(
+        observation(title="docs: update JSP-000161 status metadata"),
+        {"body": body},
+        WHEN,
+    )
+    assert item["submission_kind"] == "lean"
+    saved = competition()
+    saved["observations"]["pull_requests"] = [item]
+    assert row(new.select(scanner(), saved))["competition_state"] == "CONTESTED"

@@ -551,6 +551,7 @@ It does not replace the normal change level.
 - Do not duplicate existing contracts or logic.
 - Do not create generic frameworks for future theorem classes, providers or integrations without demonstrated current need.
 - Follow PEP 8 for Python.
+- Do not introduce explanatory comments or docstrings in source code or tests; keep explanations in documentation. Preserve required shebangs and justified lint directives.
 - Keep public identifiers, generated data fields and documentation in English.
 - Treat external values as untrusted.
 - Preserve deterministic behavior where required by contract.

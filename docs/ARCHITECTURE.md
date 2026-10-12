@@ -540,34 +540,19 @@ Do not use it for:
 - initialization;
 - side effects.
 
-## No application runtime
+## Local CLI launcher
 
-BeeJSP is currently:
+`start.sh` is a minimal user-facing dispatcher following `start.sh → config/start.py → beejsp.dashboard`: `update`, `report` and `inspect`. The bootstrap initializes a private `.env` from `.env.example` without overwriting existing values, rejects linked/nonregular configuration files, and protects `.env` with POSIX mode `0600`. It parses only `GITHUB_TOKEN`, prefers a nonempty process setting, validates token syntax and dispatches the existing CLI; business logic remains in the package. It resolves the repository root independently of the caller's working directory and uses the prepared Python environment without dependency synchronization.
 
-```text
-Python tooling
-+
-Lean proof projects
-+
-repository automation
-```
+The dashboard layer reuses Scanner and Discovery v2 acquisition, validation, selection and inspection. Existing Discovery JSON is the presentation source; the dashboard does not own another classifier or scoring system. It produces a standalone HTML file with embedded data and local browser interactions. Source links support subsequent manual investigation; clicking a link never launches Codex or executes Lean.
 
-It is not a long-running application.
+Generated artifacts live under Git-ignored `storage/discovery/`. Refresh stages a complete validated snapshot, then atomically replaces a bounded `current.json` pointer. Immutable snapshot directories keep scanner, competition, awards, reviewed research and both selection profiles coherent. Failed refreshes preserve the active snapshot and record a separate warning. Saved reports and inspection require no network access.
 
-Therefore the architecture does not currently require:
+The shared Assessment HTTP client optionally adds a Bearer token to GET requests on exact official GitHub API routes. It preserves HTTPS, no redirects, response/text bounds and pagination validation. API responses and errors are sanitized before entering evidence; snapshot validation/publication rejects any remaining credential value. Configuration is read only by the launcher bootstrap or explicit API calls, never by package import. No token is stored in report artifacts or package metadata, and authentication adds no GitHub write operation.
 
-```text
-start.sh
-config/start.py
-config/settings.yml
-systemd/
-web server
-worker
-database
-runtime storage
-```
+Vendor synchronization remains independent. The pinned catalog revision, live competition capture time and official-register revision/time are separate evidence surfaces. Python presentation neither establishes mathematical truth nor confers official priority, award or payment status.
 
-Add runtime infrastructure only when a real approved requirement proves it is necessary.
+BeeJSP still has no persistent application runtime, HTTP server, worker, database or hosted service.
 
 ## Import safety
 
