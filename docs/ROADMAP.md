@@ -766,7 +766,7 @@ Stage 4 contains Iteration 6. No additional stage number is created for historic
 
 ### Iteration 6 — Evidence-Aware Candidate Discovery & Prize Screening
 
-**Status:** PLANNED
+**Status:** DONE
 
 #### Goal
 
@@ -958,6 +958,287 @@ BeeJSP can list and inspect mathematical formalization opportunities using confi
 A general profile and a high-value profile must work over validated saved evidence, provide transparent explanations, retain contested/unknown cases and pass all applicable regression, security and reproducibility checks.
 
 The iteration delivers a material enhancement to existing Python tooling without introducing a new platform or weakening the Lean formalization contract.
+
+### Iteration 7 — Local Discovery Dashboard & One-Command Refresh
+
+**Status:** PLANNED
+
+#### Goal
+
+Turn the existing BeeJSP evidence-aware discovery tooling into a practical local research workspace with one-command data refresh, a searchable standalone HTML dashboard and detailed per-problem inspection.
+
+A researcher must be able to open one local report, inspect the complete JSP problem bank, identify promising Lean formalization candidates, examine competing PRs and Issues, review mathematical sources and award evidence, and decide which candidate deserves a targeted mathematical and Lean feasibility investigation.
+
+The primary entry point is `./start.sh update`. The dashboard must remain useful without a server, database, JavaScript framework or external hosting.
+
+#### Scope
+
+Included:
+
+**Stable CLI entry point**
+
+- Add a minimal root `start.sh` as a stable user-facing command dispatcher for the existing Python tooling.
+- Support `./start.sh update` to acquire current public evidence, regenerate reports and open the resulting dashboard when a graphical desktop session is available.
+- Support `./start.sh report` to open the most recent saved dashboard without network access or data refresh.
+- Support `./start.sh inspect JSP-XXXXXX` to inspect a particular problem using the latest saved evidence and existing Assessment contracts.
+- Keep the CLI independent of the current working directory after resolving the repository root.
+- Reuse existing Scanner and Assessment commands instead of reimplementing their normalization, matching, evidence classification or selection behavior.
+- Document non-interactive/headless behavior: data refresh and report generation must complete without requiring a browser.
+- Avoid starting a persistent background process, HTTP server or service.
+
+**One-command discovery update**
+
+- Use the current approved local `docs/vendor/jsp/` snapshot as the source for the official problem bank.
+- Run the existing deterministic Scanner over the complete managed problem bank.
+- Refresh public PR and Issue evidence using the existing version 2 `capture-github` workflow with both required endpoint scopes.
+- Refresh official public candidate and award records using the existing `capture-records` workflow.
+- Reuse validated research evidence where available without replacing reviewed findings with speculative automatic estimates.
+- Run evidence-aware selection using the documented general and high-value profiles.
+- Generate reproducible JSON, CSV and standalone HTML outputs.
+- Preserve acquisition timestamps, source URLs, exact source revisions, completeness and uncertainty.
+- Keep the existing managed vendor synchronization workflow independent from discovery refresh.
+- Never silently modify `docs/vendor/jsp/`, switch Git branches, pull upstream source, create commits or merge synchronization PRs.
+- Display the pinned vendor SHA and the current live acquisition revision where available so differing revisions are visible.
+- Fail visibly when GitHub acquisition is incomplete, rate-limited or malformed.
+- Never replace the last known complete competition snapshot with an incomplete snapshot presented as complete.
+- Permit inspection of retained historical evidence with explicit stale or incomplete warnings when a current refresh fails.
+- Never infer absence of competition from a legacy version 1 capture or a partial version 2 capture.
+
+**Generated report storage**
+
+- Use one clearly documented local output directory, such as `storage/discovery/`, for generated discovery data and reports.
+- Keep generated runtime reports out of Git by default.
+- Preserve the latest validated scanner, competition, award and selection artifacts needed for offline inspection.
+- Make report updates deterministic for identical saved inputs, apart from explicitly displayed acquisition timestamps and other genuine source changes.
+- Avoid creating a new persistence framework or duplicating official records in a separate database.
+- Do not modify committed historical Iteration 3 evidence.
+
+**Standalone HTML dashboard**
+
+- Generate one self-contained HTML report that opens locally in a standard browser.
+- Use Python and minimal embedded HTML, CSS and JavaScript without a frontend framework.
+- Do not depend on external CDN assets, remote JavaScript, a web server or network access to render saved evidence.
+- Include all normalized JSP records, not only the shortlisted or originally unformalized candidates.
+- Provide a compact overview of total problems, mathematical status, recorded Lean status, competing formalizations, unknown competition coverage and selected candidate counts.
+- Clearly distinguish official catalog facts from derived research estimates and current captured public observations.
+- Support client-side searching, sorting and filtering without additional backend calls.
+- Support mathematical status, Lean status, mathematical area, difficulty, competition state, proof state, solution availability and award evidence filters.
+- Provide general and high-value research views based on existing version 2 selection contracts.
+- Keep contested and unknown candidates visible rather than silently excluding them.
+- Display explicit empty-result and incomplete-evidence states.
+- Make the report usable on desktop and reasonably readable on narrower screens.
+- Use safe HTML escaping and validated external URLs when rendering untrusted problem descriptions, contributor fields and GitHub evidence.
+
+**Problem overview table**
+
+- Display exact JSP ID and problem title.
+- Display mathematical area and current official problem status.
+- Display current catalog Lean-proof status independently from external proof observations.
+- Display solution availability and known mathematical source evidence.
+- Display known mathematical solver or source author where supported by official or reviewed evidence.
+- Display qualitative Lean difficulty and scientific significance with unknown values preserved.
+- Display relevant competition classification, including `CONTESTED`, `VERIFIED`, `REVIEWED`, `NONE_IN_SCOPE` and `UNKNOWN`.
+- Display related PR and Issue counts derived from the actual captured evidence.
+- Display public candidate or announced-award status where available.
+- Display historical bounty and published official monetary amounts in separate fields.
+- Display qualitative prize potential only as a non-official estimate with supporting rationale.
+- Provide clickable links to the original JSP catalog entry, supporting sources and competing GitHub records.
+- Preserve stable JSP identity when the table is filtered or sorted.
+
+**Detailed problem inspection**
+
+- Allow opening an expanded detail view for an individual JSP problem from the overview table.
+- Display the available original mathematical problem description without inventing or summarizing missing mathematical requirements.
+- Display source publications, reference links, publication details and available solution evidence.
+- Display recorded mathematical solver, formalization authors and other contributors only where grounded in sources.
+- Display the official catalog mathematical status, Lean status, eligibility and claim metadata independently.
+- Display matching official PRs and Issues with canonical links, current captured state, submission type and observation timestamp.
+- Distinguish exact JSP-ID matches from reviewed aliases and supplementary uncertain title matches.
+- Display source-linked external Lean repositories with pinned commit, branch, file and theorem identity where available.
+- Display claimed, partial, reproduced and independently verified proof evidence separately.
+- Show evidence of statement fidelity, build reproduction, axiom audit and placeholders when independently recorded.
+- Allow the user to open external PRs and proof-source links for subsequent targeted Codex investigation.
+- Do not automatically download, execute, install or certify external Lean code from the dashboard.
+- Display captured candidate and announced-award information with source links and review dates.
+- Preserve unknown payment information as unknown.
+- Display the exact reason for candidate inclusion, exclusion, ranking or unresolved evidence.
+
+**Freshness and uncertainty**
+
+- Display the vendor source SHA and the time of the latest successful evidence acquisition.
+- Display independent acquisition freshness for GitHub PR/Issue evidence and official award registers.
+- Make stale, incomplete, unknown and contested evidence visibly distinguishable.
+- Never convert missing data into a positive or negative mathematical conclusion.
+- Do not present an old complete capture as current merely because the HTML page was regenerated today.
+- Never present a blank PR/Issue list as proof of no competitors unless the relevant acquisition scope supports that conclusion.
+- Preserve the version 1 historical Assessment compatibility contract.
+- Treat the complete current version 2 evidence contract as the authoritative source for new negative competition findings.
+
+**Documentation**
+
+- Document the three stable CLI commands and the output directory.
+- Document the boundary between vendor synchronization and live discovery refresh.
+- Explain the generated HTML, JSON and CSV artifacts.
+- Explain how to inspect PR evidence and launch a separate targeted Codex proof investigation.
+- Update the existing architectural description so `start.sh` is recognized as a user-facing CLI launcher rather than a long-running application runtime.
+- Keep the project independent of a web server, database and background service.
+
+#### Excluded
+
+- Rewriting or replacing Scanner and Assessment.
+- A second competition crawler.
+- New database, REST API, web server, hosted application or SaaS runtime.
+- React, Next.js, Vue, Node.js or frontend build tooling.
+- Generic UI component framework or dashboard platform.
+- Automatic execution or downloading of arbitrary third-party Lean proofs.
+- Automatic mathematical proof verification from PR descriptions.
+- Automatic Codex execution when clicking problem links.
+- Automatic official JSP submissions, claim applications or award processing.
+- Automated Git commits, pushes, vendor merges or changes to GitHub permissions.
+- Automatic mutation of managed JSP vendor files during discovery refresh.
+- Historical bounty amounts presented as current payable JSP rewards.
+- Numeric prize predictions without sufficient official evidence.
+- Reimplementing deterministic selection, proof classification or official award normalization.
+- New runtime dependencies without demonstrated necessity.
+- Changes to existing Lean proofs, including JSP-000089.
+- Unrelated repository refactors or speculative runtime architecture.
+
+#### Deliverable
+
+A local, offline-viewable BeeJSP Discovery Dashboard supported by one-command refresh and stable CLI entry points.
+
+The user runs:
+
+```bash
+./start.sh update
+```
+
+BeeJSP then uses the approved local catalog snapshot, refreshes live public evidence, rebuilds the existing selection outputs, generates a standalone HTML dashboard and opens it when the local environment supports browser launching.
+
+The dashboard provides a searchable overview of the complete JSP catalog and detailed per-problem evidence, including mathematical sources, recorded Lean status, competing Issues/PRs, external proof references, candidate and award records, and uncertainty.
+
+The user may also run:
+
+```bash
+./start.sh report
+./start.sh inspect JSP-000161
+```
+
+without refreshing public data.
+
+The implementation is a small presentation and orchestration layer over Iteration 6, not a new application platform.
+
+#### Acceptance criteria
+
+**CLI and update workflow**
+
+- `./start.sh update` is the documented primary command.
+- The command resolves repository paths reliably and does not depend on invocation from the repository root.
+- It invokes existing Scanner, capture and Assessment behavior rather than duplicating their logic.
+- It generates validated JSON, CSV and HTML outputs from the approved data sources.
+- It opens the HTML report in an available graphical desktop environment without making browser availability a requirement for successful data generation.
+- `./start.sh report` opens the last valid HTML report without network access.
+- `./start.sh inspect JSP-XXXXXX` provides offline inspection of an exact JSP ID.
+- Invalid JSP IDs and missing required saved evidence produce clear nonzero failures.
+- Refresh acquisition failures are reported clearly and cannot be misrepresented as successful current acquisition.
+- Incomplete network results never overwrite the last complete competition evidence as if they were complete.
+- The vendor snapshot is not modified by the update command.
+- No Git branches, commits, upstream PRs or GitHub write operations are modified by these commands.
+
+**Dashboard coverage**
+
+- The generated dashboard contains all valid normalized records from the current selected vendor snapshot.
+- The current 1,022-record snapshot is covered by an explicit integration test.
+- Overview counts agree with the corresponding validated JSON inputs.
+- Search and filters operate locally in the browser.
+- Candidate table sorting is stable and preserves exact JSP identities.
+- Every row includes a usable path to detailed inspection.
+- General and high-value selection views use existing profile semantics.
+- Unknown research values remain visible rather than silently becoming low difficulty or zero scientific value.
+- Contested candidates remain inspectable regardless of their ranking.
+
+**Mathematical and competition evidence**
+
+- Problem descriptions and mathematical source references come from the official catalog or explicitly reviewed evidence.
+- Available solver and formalizer attribution is preserved without guessing authorship.
+- Official mathematical status and recorded Lean status remain distinct from current external proof classifications.
+- PRs and Issues remain separate and retain source links, state and observation timestamp.
+- Exact-ID matches, reviewed aliases and uncertain matches remain distinguishable.
+- Source-linked complete-proof claims remain contested unless independently verified.
+- Closed-unmerged PRs remain historical evidence rather than automatic proof failures.
+- A positive competing observation is retained even when capture completeness is insufficient.
+- Missing competition observations under insufficient coverage produce `UNKNOWN`, not `NONE_IN_SCOPE`.
+- JSP-000161, JSP-000475 and JSP-000089 retain the established Iteration 6 regression semantics.
+
+**Awards and value**
+
+- Historical bounties, official announced awards, published monetary amounts and qualitative prize potential remain separate.
+- Public candidate registration is not displayed as confirmed award payment.
+- Solver and Lean formalizer roles remain separate.
+- Unknown official amounts remain unknown.
+- All known award values and levels retain their supporting official evidence URLs.
+- The dashboard does not invent future payout amounts, probabilities or guarantees.
+
+**Security and reproducibility**
+
+- Untrusted titles, descriptions, citations and contributor fields cannot inject active HTML or JavaScript into the report.
+- External links use validated destinations and safe link attributes.
+- Generated HTML contains no external JavaScript or CDN dependency.
+- Saved-input report generation works without network access.
+- Equivalent saved inputs produce deterministic report content except for explicitly justified generated-at metadata.
+- Generated artifacts do not create accidental tracked repository changes.
+- Existing version 1 and version 2 Scanner/Assessment tests remain green.
+- No new external-proof execution boundary, credentials or GitHub write permissions are introduced.
+- The existing JSP vendor synchronization and daily PR workflow remain unchanged.
+
+#### Checks
+
+```text
+start.sh command dispatch tests
+update orchestration tests
+offline report and inspect tests
+repository-root and external-working-directory tests
+headless browser behavior tests
+missing evidence and invalid JSP-ID tests
+complete 1,022-record dashboard fixture
+HTML escaping and script-injection tests
+safe external-link tests
+local search/filter data integrity tests
+JSON/CSV/HTML source consistency tests
+general and high-value profile regression
+competition freshness and failure-path tests
+legacy v1 incomplete-coverage regression
+version 2 complete-scope regression
+JSP-000161 / PR #1248 regression
+JSP-000475 / PR #1269 regression
+JSP-000089 historical competition regression
+generated-output path and overwrite safety
+vendor provenance and unchanged-content check
+uv run pytest -q
+uv run ruff check .
+uv run ruff format --check .
+uv build where package behavior is affected
+package import smoke where applicable
+git diff --check
+security review
+SAST for untrusted data and HTML generation
+SCA only if dependencies actually change
+independent final read-only review
+```
+
+#### DoD
+
+BeeJSP provides one convenient entry point for refreshing and exploring mathematical formalization opportunities.
+
+A single `./start.sh update` command generates an offline HTML dashboard with the complete normalized JSP problem bank, source-linked problem details, current captured PR/Issue and award evidence, clear competition uncertainty, and corresponding reproducible JSON/CSV outputs.
+
+The `report` and `inspect` commands work without a network refresh.
+
+The dashboard remains a small local presentation layer over the existing deterministic Scanner and Assessment.
+
+No server, database, speculative framework, automatic prize claim or external Lean execution is introduced.
+
+The iteration is complete when the CLI, dashboard, error handling, security checks, documentation and full Python regression suite pass independently.
 
 ---
 

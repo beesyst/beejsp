@@ -520,6 +520,22 @@ formalization feasibility
 
 before committing to substantial proof work.
 
+### Evidence-aware CLI
+
+Use the existing scanner to save the full normalized catalog, then capture public evidence explicitly and screen it offline:
+
+```bash
+uv run python -m beejsp.scanner --output problem-bank.json
+uv run python -m beejsp.assessment capture-github --evidence-version 2 --output competition.json
+uv run python -m beejsp.assessment capture-records --output official-records.json
+uv run python -m beejsp.assessment select --scanner problem-bank.json --competition competition.json --awards official-records.json --profile general --output selection.json --csv selection.csv
+uv run python -m beejsp.assessment inspect --scanner problem-bank.json --competition competition.json --jsp JSP-000161 --output inspection.json
+```
+
+`select` supports the entire normalized catalog, the `general` and `high-value` profiles, custom TOML filters, and optional provenance-backed research. `inspect --kind issue --state open` displays matching recorded open Issues separately from PRs. Both commands use saved inputs without network access. Reports retain source URLs, capture timestamps, uncertainty and deterministic ranking explanations. Competing source-linked claims remain `CONTESTED` until reviewed; a submitted or closed PR does not independently verify or invalidate a proof. Unknown difficulty and official monetary amounts remain unknown. Every screening result requires further mathematical review.
+
+Historical scanner and Iteration 3 `assess` contracts remain unchanged. See [Iteration 6 contracts and examples](docs/DEV_GUIDE.md#iteration-6-selection-and-inspection) for profiles, proof-review gates, official records and JSON/CSV formats.
+
 ## Bounded Lean spike
 
 BeeJSP does not immediately spend weeks formalizing a difficult theorem.
