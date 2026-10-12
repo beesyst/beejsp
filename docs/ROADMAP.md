@@ -376,12 +376,12 @@ Release mechanics must not block mathematical work.
 
 ## Project phases
 
-| Phase                                              | Status  | Delivery                                                                                 |
-| -------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| **Phase A — Foundation and official reference**    | DONE    | Stage 1, Iteration 1.                                                                    |
-| **Phase B — Discovery and candidate selection**    | DONE    | Stage 2, Iterations 2–3.                                                                 |
-| **Phase C — First proof cycle**                    | DONE    | Stage 3, Iterations 4–5, plus recorded independent verification and external submission. |
-| **Phase D — Evidence-aware discovery improvement** | PLANNED | Stage 4, Iteration 6.                                                                    |
+| Phase                                              | Status      | Delivery                                                                                 |
+| -------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------- |
+| **Phase A — Foundation and official reference**    | DONE        | Stage 1, Iteration 1.                                                                    |
+| **Phase B — Discovery and candidate selection**    | DONE        | Stage 2, Iterations 2–3.                                                                 |
+| **Phase C — First proof cycle**                    | DONE        | Stage 3, Iterations 4–5, plus recorded independent verification and external submission. |
+| **Phase D — Evidence-aware discovery improvement** | IN PROGRESS | Stage 4, Iterations 6–7.                                                                 |
 
 ### Stages
 
@@ -762,7 +762,7 @@ BeeJSP contains one complete real formalization ready for independent verificati
 
 Improve candidate discovery after the completed first proof cycle so BeeJSP can distinguish submitted claims from verified proofs, assess competition without premature rejection and query mathematical problems by difficulty and award evidence.
 
-Stage 4 contains Iteration 6. No additional stage number is created for historical verification or submission activity already completed.
+Stage 4 contains Iterations 6–7. Iteration 6 establishes evidence-aware candidate selection, and Iteration 7 delivers a local research dashboard with one-command refresh. No additional stage number is created for historical verification or submission activity already completed.
 
 ### Iteration 6 — Evidence-Aware Candidate Discovery & Prize Screening
 
@@ -1242,7 +1242,7 @@ The iteration is complete when the CLI, dashboard, error handling, security chec
 
 ---
 
-## Post-Iteration 6 candidate-selection gate
+## Post-Iteration 7 operational discovery gate
 
 Iteration 6 establishes:
 
@@ -1266,7 +1266,7 @@ A high scientific-value estimate cannot waive source review or Lean feasibility.
 
 Possible future work includes selecting a second JSP theorem, checking reusable Lean helpers across real proofs, improving reproduction automation, accepting community formalization contributions, expanding verified problem corpora or supporting additional mathematical sources only when actual repeated work establishes necessity.
 
-No further numbered iteration is approved solely because Iteration 6 exists.
+Further numbered iterations beyond Iteration 7 require independently justified scope and approval.
 
 ### Related external boundary — The Justin Sun Prize
 
