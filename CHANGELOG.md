@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.7.0...beejsp-v0.8.0) (2026-10-12)
+
+
+### Features
+
+* **discovery:** add local dashboard and one-command refresh ([#19](https://github.com/beesyst/beejsp/issues/19)) ([8f6f359](https://github.com/beesyst/beejsp/commit/8f6f359efc6c45d8af716e27f8dd7e7ef3cd9e11))
+
 ## [0.7.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.6.0...beejsp-v0.7.0) (2026-10-12)
 
 
