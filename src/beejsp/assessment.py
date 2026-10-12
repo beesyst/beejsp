@@ -1,10 +1,3 @@
-"""Evidence-backed, offline-reproducible candidate assessment for Iteration 3.
-
-This module consumes scanner JSON and captured research/competition JSON.  The
-``capture-github`` command is the sole networked operation; assessment and
-rendering are deliberately pure operations over saved inputs.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -15,8 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.parse import parse_qs, urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 SCHEMA_VERSION = 1
 SUPPORTED_SCANNER_SCHEMA_VERSION = 1
@@ -264,17 +257,20 @@ def _validate_competition(competition: Mapping[str, Any]) -> None:
             jsp_ids = _require_list(
                 observation.get("jsp_ids"), f"competition {key} JSP IDs"
             )
-            if len(jsp_ids) != len(set(jsp_ids)):
-                raise AssessmentError(f"duplicate competition {key} JSP ID")
             for jsp_id in jsp_ids:
                 if not isinstance(jsp_id, str) or not _JSP_ID.fullmatch(jsp_id):
                     raise AssessmentError(f"invalid competition {key} JSP ID")
+            if len(jsp_ids) != len(set(jsp_ids)):
+                raise AssessmentError(f"duplicate competition {key} JSP ID")
             valid_states = (
                 {"open", "closed-unmerged", "merged"}
                 if key == "pull_requests"
                 else {"open", "closed"}
             )
-            if observation.get("state") not in valid_states:
+            if (
+                not isinstance(observation.get("state"), str)
+                or observation["state"] not in valid_states
+            ):
                 raise AssessmentError(f"invalid competition {key} state")
 
 
@@ -564,26 +560,41 @@ def render_report(assessment: Mapping[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _github_page(url: str) -> tuple[list[dict[str, Any]], str | None]:
+MAX_RESPONSE_BYTES = 2_000_000
+MAX_GITHUB_PAGES = 200
+
+
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise AssessmentError("GitHub redirects are not allowed")
+
+
+def _github_payload(url: str) -> tuple[Any, str]:
     parts = urlsplit(url)
     if (
         parts.scheme != "https"
         or parts.netloc != "api.github.com"
         or not parts.path.startswith(f"/repos/{OFFICIAL_REPOSITORY}/")
+        or parts.fragment
     ):
         raise AssessmentError("invalid GitHub API page URL")
-    request = Request(  # noqa: S310 - URL is validated against the fixed public API above
+    request = Request(  # noqa: S310 - fixed HTTPS GitHub API origin validated above
         url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "User-Agent": "beejsp-iteration-3",
-        },
+        headers={"Accept": "application/vnd.github+json", "User-Agent": "beejsp"},
     )
-    with urlopen(request, timeout=20) as response:  # noqa: S310 - fixed public GitHub API origin
-        payload = json.loads(response.read().decode("utf-8"))
-        if not isinstance(payload, list):
-            raise AssessmentError("malformed GitHub response: expected list")
+    with build_opener(_NoRedirect()).open(request, timeout=20) as response:
+        raw = response.read(MAX_RESPONSE_BYTES + 1)
+        if len(raw) > MAX_RESPONSE_BYTES:
+            raise AssessmentError("GitHub response exceeds size limit")
+        payload = json.loads(raw.decode("utf-8"))
         link = response.headers.get("Link", "")
+    return payload, link
+
+
+def _github_page(url: str) -> tuple[list[dict[str, Any]], str | None]:
+    payload, link = _github_payload(url)
+    if not isinstance(payload, list) or len(payload) > 100:
+        raise AssessmentError("malformed GitHub response: expected bounded list")
     next_url = next(
         (
             part.split(";")[0].strip()[1:-1]
@@ -599,8 +610,24 @@ def _github_page(url: str) -> tuple[list[dict[str, Any]], str | None]:
             next_parts.scheme != "https"
             or next_parts.netloc != "api.github.com"
             or next_parts.path != current_parts.path
+            or next_parts.fragment
         ):
             raise AssessmentError("malformed GitHub pagination link")
+        current_query = parse_qs(current_parts.query)
+        next_query = parse_qs(next_parts.query)
+        current_page = current_query.pop("page", ["1"])
+        page = next_query.pop("page", None)
+        if current_query != next_query or (
+            page is None
+            or len(page) != 1
+            or len(current_page) != 1
+            or not re.fullmatch(r"[1-9]\d{0,6}", page[0])
+            or not re.fullmatch(r"[1-9]\d{0,6}", current_page[0])
+            or int(page[0]) != int(current_page[0]) + 1
+        ):
+            raise AssessmentError(
+                "GitHub pagination must preserve capture scope and advance one page"
+            )
     return payload, next_url
 
 
@@ -610,9 +637,13 @@ def _normalize_github_observation(item: Any, category: str) -> dict[str, Any]:
     if not isinstance(number, int) or isinstance(number, bool) or number <= 0:
         raise AssessmentError("malformed GitHub response: invalid observation number")
     state = item.get("state")
-    if state not in {"open", "closed"}:
+    if not isinstance(state, str) or state not in {"open", "closed"}:
         raise AssessmentError("malformed GitHub response: invalid observation state")
     title = _require_text(item.get("title"), "GitHub observation title")
+    if item.get("body") is not None and not isinstance(item["body"], str):
+        raise AssessmentError("GitHub observation body must be text or null")
+    if len(title) > 1024 or len(item.get("body") or "") > 100_000:
+        raise AssessmentError("GitHub observation text exceeds size limit")
     body = item.get("body") if isinstance(item.get("body"), str) else ""
     normalized_state = (
         "merged"
@@ -634,37 +665,75 @@ def _normalize_github_observation(item: Any, category: str) -> dict[str, Any]:
     }
 
 
-def capture_github(repository: str = OFFICIAL_REPOSITORY) -> dict[str, Any]:
+def capture_github(
+    repository: str = OFFICIAL_REPOSITORY,
+    *,
+    evidence_version: int = 1,
+    kind: str = "all",
+) -> dict[str, Any]:
     """Capture bounded, public, read-only PR and Issue evidence from GitHub."""
 
     if repository != OFFICIAL_REPOSITORY:
         raise AssessmentError("only the official JSP repository is supported")
+    if evidence_version not in {1, 2} or kind not in {"all", "issues", "pull_requests"}:
+        raise AssessmentError("invalid capture version or kind")
+    if evidence_version == 1 and kind != "all":
+        raise AssessmentError("scoped captures require evidence version 2")
     observed_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
     result: dict[str, list[dict[str, Any]]] = {"pull_requests": [], "issues": []}
+    scopes = {}
     try:
         for endpoint, destination in (("pulls", "pull_requests"), ("issues", "issues")):
+            if kind not in {"all", destination}:
+                continue
+            scopes[destination] = False
             next_url: str | None = (
                 f"https://api.github.com/repos/{repository}/{endpoint}?state=all&per_page=100"
             )
+            seen_pages = set()
+            seen_numbers = {}
             while next_url:
+                if next_url in seen_pages or len(seen_pages) >= MAX_GITHUB_PAGES:
+                    raise AssessmentError("GitHub pagination cycle or page limit")
+                seen_pages.add(next_url)
                 page, next_url = _github_page(next_url)
                 for raw_item in page:
                     item = _require_mapping(raw_item, "GitHub observation")
                     if endpoint == "issues" and "pull_request" in item:
                         continue
-                    result[destination].append(
-                        _normalize_github_observation(item, destination)
-                    )
+                    normalized = _normalize_github_observation(item, destination)
+                    if evidence_version == 2:
+                        from beejsp.discovery import enrich_observation
+
+                        normalized = enrich_observation(normalized, item, observed_at)
+                    number = normalized["number"]
+                    if number in seen_numbers:
+                        if seen_numbers[number] != normalized:
+                            raise AssessmentError(
+                                "conflicting duplicate GitHub observation"
+                            )
+                        continue
+                    seen_numbers[number] = normalized
+                    result[destination].append(normalized)
+            scopes[destination] = True
     except (
-        AssessmentError,
+        ValueError,
         HTTPError,
         URLError,
         TimeoutError,
-        json.JSONDecodeError,
+        OSError,
     ) as error:
         return {
-            "schema_version": SCHEMA_VERSION,
+            "schema_version": evidence_version,
             "acquisition": {
+                **(
+                    {
+                        "scopes": scopes,
+                        "search_scope": "all states in requested repository endpoints",
+                    }
+                    if evidence_version == 2
+                    else {}
+                ),
                 "repository": repository,
                 "observed_at": observed_at,
                 "complete": False,
@@ -673,8 +742,9 @@ def capture_github(repository: str = OFFICIAL_REPOSITORY) -> dict[str, Any]:
             "observations": result,
         }
     return {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": evidence_version,
         "acquisition": {
+            **({"scopes": scopes} if evidence_version == 2 else {}),
             "repository": repository,
             "observed_at": observed_at,
             "complete": True,
@@ -686,8 +756,10 @@ def capture_github(repository: str = OFFICIAL_REPOSITORY) -> dict[str, Any]:
 
 def _load_json(path: Path) -> Mapping[str, Any]:
     try:
+        if path.stat().st_size > 32_000_000:
+            raise AssessmentError("saved JSON exceeds size limit")
         return _require_mapping(json.loads(path.read_text(encoding="utf-8")), str(path))
-    except (OSError, json.JSONDecodeError) as error:
+    except (OSError, ValueError) as error:
         raise AssessmentError(f"cannot load {path}: {error}") from error
 
 
@@ -708,6 +780,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         "capture-github", help="capture public GitHub evidence"
     )
     capture.add_argument("--output", type=Path, required=True)
+    capture.add_argument("--evidence-version", type=int, choices=(1, 2), default=1)
+    capture.add_argument(
+        "--kind", choices=("all", "issues", "pull_requests"), default="all"
+    )
+    from beejsp.discovery import add_commands, run_command
+
+    add_commands(commands)
     assess_parser = commands.add_parser(
         "assess", help="render TOP-5 from captured inputs"
     )
@@ -719,9 +798,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "capture-github":
-            captured = capture_github()
+            captured = capture_github(
+                evidence_version=args.evidence_version, kind=args.kind
+            )
             args.output.write_text(render_json(captured), encoding="utf-8")
             return 0 if captured["acquisition"]["complete"] else 2
+        if args.command != "assess":
+            return run_command(args)
         _validate_assessment_paths(
             args.scanner,
             args.research,
@@ -737,7 +820,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.output.write_text(render_json(result), encoding="utf-8")
         args.report.write_text(render_report(result), encoding="utf-8")
         return 0
-    except AssessmentError as error:
+    except (ValueError, OSError) as error:
         parser.error(str(error))
     return 2
 

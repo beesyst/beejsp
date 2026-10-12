@@ -400,6 +400,104 @@ uv run python -m beejsp.assessment assess \
 
 The assessment validates scanner provenance and identities, triages the whole candidate set with its recorded formula and stable JSP-ID tie-breaker, and emits exactly one GO primary plus four reserves only when a viable primary exists. Otherwise it fails closed without a TOP-5. Its saved inputs, not a later network request, are the reproducibility boundary. The primary's bounded spike objective is an Iteration 4 input, not Lean code produced by this command.
 
+### Iteration 6 selection and inspection
+
+The Iteration 2 scanner still emits `schema_version: 1` with all normalized `records` and its historical `candidate_ids`. Iteration 3 `assess`, its research format, scoring and saved artifacts retain their original semantics. Use the new `select` and `inspect` commands for future discovery: their version 2 reports keep unresolved competing proofs visible and never issue mathematical GO. Selecting a row means it matches a screening profile; exact-source research and a bounded feasibility decision remain separate gates.
+
+Capture enriched public competition and the official registers explicitly:
+
+```bash
+uv run python -m beejsp.assessment capture-github --evidence-version 2 --output competition-v2.json
+uv run python -m beejsp.assessment capture-records --output official-records.json
+```
+
+`capture-github` defaults to version 1 for existing consumers. Version 2 adds per-endpoint completeness, observation timestamps, published creation/update/closure/merge timestamps, submission kind, Erdős IDs, bounded proof references and links to predecessor submissions. PRs and Issues remain separate, deduplicated lists; PR entries returned by the Issues API are skipped. Capture uses all states, up to 200 pages of 100 items per endpoint, 2 MB per response, 1024 characters per title, and 100,000 characters per body. Pagination must retain the original endpoint and query scope and advance exactly one page; cycles, conflicting duplicates, unexpected redirects, malformed responses and rate limits yield incomplete evidence and exit code 2. Raw bodies and authentication metadata are never retained. Source references are extracted from GitHub links and the official submission template's JSON proof-source blocks, with branch, full commit SHA, file and theorem when explicitly supplied. These references are claims, not build or verification evidence. Submission-kind classification is a screening hint derived from the captured text, not an official adjudication.
+
+For an independent Issue capture, add `--kind issues`; for PRs use `--kind pull_requests`. These options require version 2. A successfully completed Issue-only capture does not establish absence of competing PRs. Saved partial captures remain inspectable, with competition uncertainty, instead of being converted to negative findings.
+
+`capture-records` resolves `main` to one full commit and reads `candidates/README.md` and `awards/README.md` at that revision through the same fixed official GitHub API boundary. Its declared scope is those two documented register tables. Candidate solver/formalizer review periods are separate rows; announced awards are separate from submissions. Missing files or unsupported table layouts mark acquisition incomplete. Records retain recipients, role, review dates, canonical immutable source URL and acquisition timestamp. Current register tables do not publish levels or amounts, so those fields remain null. An inspected register is evidence of its own captured revision, not future live state or payment. No private identity or payout records are collected.
+
+Select all valid normalized catalog records offline, including records outside the historical scanner candidate subset:
+
+```bash
+uv run python -m beejsp.assessment select \
+  --scanner problem-bank.json --competition competition-v2.json \
+  --awards official-records.json --profile general \
+  --output selection.json --csv selection.csv
+uv run python -m beejsp.assessment select \
+  --scanner problem-bank.json --competition competition-v2.json \
+  --research discovery-research.json --awards official-records.json \
+  --profile high-value --output high-value.json --csv high-value.csv
+uv run python -m beejsp.assessment inspect \
+  --scanner problem-bank.json --competition competition-v2.json \
+  --jsp JSP-000161 --output inspection.json --csv inspection.csv
+```
+
+Inspection optionally accepts `--research` and `--awards` too. Use `--kind issue --state open` to inspect all matching recorded open Issues independently; `--state closed`, `--kind pull_request`, `--state closed-unmerged` and `--state merged` are also supported. Filters affect displayed observations, while the problem's aggregate competition classification still considers the entire supplied evidence. Exact JSP identities take precedence over aliases and titles. A title match with no explicit identity is supplementary and uncertain; it cannot override a conflicting exact JSP ID. Inspection never initiates a fresh repository capture.
+
+#### Profiles and ranking
+
+The built-in `general` profile has no filters and selects up to 20 rows. `high-value` keeps high or unknown scientific significance and qualitative prize potential, also with a limit of 20. Unknown cases are deliberately retained for research. Both profiles rank by scientific significance (`high=6`, `medium=3`, `low=1`), qualitative prize potential (`high=3`, `medium=2`, `low=1`), and difficulty preference (`low=4`, `medium=3`, `high=2`, `extreme=1`). Unknown contributes no prioritization signal; it remains unknown in the report. The descending sum and ascending JSP ID determine order. Scores do not represent proof feasibility, dollars, payment probabilities or official award grades.
+
+Pass a TOML path to `--profile` for custom filters. Only `schema_version`, `name`, `limit` and the documented filter keys are accepted. `schema_version = 2`, a nonempty name and an integer limit from 1 to 1000 are required. Every supplied filter is a nonempty list; omitted filters are unrestricted. This example selects solved records without recorded Lean proofs while retaining unresolved competition:
+
+```toml
+schema_version = 2
+name = "focused-research"
+limit = 10
+problem_status = ["Solved"]
+lean_status = ["No"]
+area = ["Combinatorics"]
+difficulty = ["low", "medium", "high", "extreme", "unknown"]
+competition_state = ["CONTESTED", "REVIEWED", "NONE_IN_SCOPE", "UNKNOWN"]
+solution_kind = ["complete", "unknown"]
+scientific_significance = ["high", "unknown"]
+prize_potential = ["high", "unknown"]
+award_state = ["candidate", "announced", "none_in_scope", "unknown"]
+published_amount = ["known", "unknown"]
+historical_bounty = ["known", "unknown"]
+award_level = ["unknown"]
+```
+
+`problem_status` supports `Solved`, `Open`, `Unknown`, `Missing`; `lean_status` supports `Yes`, `No`, `Unknown`, `Missing`. `area` matches the exact recorded mathematical-area field, using `unknown` when absent. Difficulty supports `low`, `medium`, `high`, `extreme`, `unknown`. Scientific significance and prize potential support `low`, `medium`, `high`, `unknown`. Solution kinds are `complete`, `answer`, `sketch`, `partial`, `unsupported`, `unknown`. Competition states are `CONTESTED`, `REVIEWED`, `VERIFIED`, `NONE_IN_SCOPE`, `UNKNOWN`. Award-level filters match exact published labels; absent levels use `unknown`. Known/unknown monetary and bounty filters operate separately; a historical bounty never populates an official amount.
+
+#### Research and proof-review contract
+
+Selection research uses `schema_version: 2` and a `candidates` list keyed by exact catalog JSP IDs. It is a separate contract from Iteration 3 research; the two formats are not silently interchangeable. Missing research remains unknown. Each candidate may have `difficulty`, `scientific_significance` and `prize_potential` objects with `value`. Any known value also requires a public HTTPS `url`, timezone-aware ISO `observed_at`, and nonempty `rationale`. These are non-official research estimates. For example:
+
+```json
+{
+  "schema_version": 2,
+  "candidates": [{
+    "jsp_id": "JSP-000161",
+    "difficulty": {"value": "unknown"},
+    "scientific_significance": {"value": "unknown"},
+    "prize_potential": {"value": "unknown"},
+    "solution": {"kind": "unknown", "sources": []},
+    "aliases": [],
+    "proof_reviews": []
+  }]
+}
+```
+
+`solution` contains `kind` and `sources`; every source has `url`, `observed_at` and `rationale`. A known solution kind requires at least one source. `aliases` contains evidence objects with an additional `erdos_id` decimal string. A reviewed alias must explicitly link the original problem to its JSP identity; a filename or guessed title alone is insufficient. Aliases assigned to two JSP IDs are rejected as ambiguous. Captured Erdős references only become authoritative matches through these supplied identity-review records.
+
+`proof_reviews` contains externally supplied reviewed evidence, not automatic certification. Each review requires `subject_url`, `state`, `url`, `observed_at` and `rationale`. The subject is a captured submission URL or proof-source URL. Supported states are `claimed`, `source_linked`, `partial`, `invalid`, `reproduced`, `independently_verified`, `unresolved`. Reviews without a matching submission remain visible as external-source research. Optional `proof_source` contains `url`, `repository` as `owner/repo`, nullable `branch`, full `commit`, relative `file` and `theorem`. Blob URLs must agree with any declared commit, branch and file. No referenced repository is downloaded or executed.
+
+Build findings (`passed`, `failed`, `environmental_failure`, `unknown`), statement fidelity (`exact`, `weaker`, `unknown`), axiom audit (`passed`, `unexpected`, `unknown`) and placeholders (`absent`, `present`, `unknown`) are independent fields named `build`, `statement_fidelity`, `axiom_audit`, `placeholders`. `reproduced` requires a pinned full commit, proof file, a passed build and a `build_evidence` object with URL, observation timestamp and rationale. `independently_verified` additionally requires an independent `reviewer`, exact statement fidelity, a passed axiom audit, absent placeholders, and separate `statement_evidence` and `axiom_evidence` objects. A build result alone cannot satisfy this gate. Partial or invalid reviews require linked review rationale; closure of a PR and environmental build failures do not establish invalidity. An `invalid` review with an environmental build failure must also report a weaker statement, unexpected axioms or present placeholders; otherwise the contradictory classification is rejected. Supplied review records remain attributed evidence claims and require human review of their linked sources.
+
+For source-linked submissions, a partial, invalid, reproduced or independently verified review applies only when the captured and reviewed repository, full commit and file agree, and any captured theorem identity also agrees. Matching a mutable repository or submission URL alone is insufficient. Reviews of different or unpinned sources remain visible separately and do not clear the captured claim.
+
+Unresolved material PR claims, including closed-unmerged submissions and reproduced proofs without independent statement review, yield `CONTESTED`. Explicit Lean claims in Issues also yield `CONTESTED`. Partial and invalid reviewed work remains visible as `REVIEWED`; an independently verified exact proof yields `VERIFIED`, which signals originality risk without deciding official priority. Supplementary title activity and unclassified Issues retain `UNKNOWN`. Only a complete capture with no unresolved relevant activity can produce `NONE_IN_SCOPE`, which is limited to that captured repository scope. Incomplete acquisition is always reported separately, including when a positive competing observation was retained. Every selected row has `decision: REVIEW_REQUIRED`.
+
+Official record evidence uses `schema_version: 2`, an `acquisition` object (`repository`, `observed_at`, `complete`, `search_scope`, `upstream_commit`), and `records`. Records contain `jsp_id`, `state` (`candidate` or `announced`), `role` (`solver` or `formalizer`), `recipients`, `review_start`, `review_end`, `url`, `observed_at`, `upstream_commit`, `official_award_level`, `published_amount` and `currency`. Sources must identify the appropriate official register directory at the captured commit. A researcher may enrich saved records with an explicitly published level or decimal-string amount only when a `publication_evidence` object links official public evidence with timestamp and rationale. Known amounts require a three-letter currency; missing amounts and currencies remain null. This enrichment records observed publications and cannot calculate future awards. Neither registration nor announcement is payment evidence. The report's `official_acceptance: recorded` indicates a formalizer entry in one of these registers, separate from independently verified proof state.
+
+#### Output and security boundary
+
+JSON reports have `schema_version: 2`, the resolved profile, scanner provenance, competition acquisition/completeness, award acquisition, and fully explained `selected` and `excluded` rows. Inspection has a `query` and one `problem` instead. Rows expose raw official fields, source provenance, known/unknown filter values, research rationale, matching submissions, proof reviews, separate bounty/award/amount fields, score components, stable rank, inclusion/exclusion reasons and uncertainty. Result limits produce explicit exclusion reasons. JSON key ordering, row ordering and CSV columns are deterministic for identical saved inputs. CSV includes selected and excluded rows; nested evidence is canonical JSON and unknown values are `null`. Scalar spreadsheet formula prefixes are escaped with an apostrophe.
+
+Offline commands accept existing version 1 competition captures without rewriting their historical assessment semantics. For new selection and inspection, version 1 does not certify per-problem coverage: even `acquisition.complete: true` can describe complete API acquisition followed by retention of only a bounded candidate subset. Positive observations remain visible, including `CONTESTED` claims, but absence of observations yields `UNKNOWN` with explicit coverage uncertainty and `competition_complete: false`. The original acquisition metadata is preserved; arbitrary `search_scope` prose is never parsed as a completeness certificate. Only version 2 evidence with complete acquisition and both structured endpoint scopes complete can support `NONE_IN_SCOPE` when no relevant unresolved activity is recorded. Files larger than 32 MB are rejected; invalid schemas, identities, timestamps, URLs, duplicate conflicting evidence and colliding input/output paths fail before report writes. Empty selections are valid explained results. Capture alone uses public GET requests to the fixed official API; credentials, GitHub writes, external proof execution and dependency additions are absent. Managed vendor files and Lean projects remain unchanged.
+
 ## Candidate analysis
 
 Candidate analysis should separate facts from derived prioritization.
