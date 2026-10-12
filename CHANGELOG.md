@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.6.0...beejsp-v0.7.0) (2026-10-12)
+
+
+### Features
+
+* **discovery:** add evidence-aware candidate selection and inspection ([#16](https://github.com/beesyst/beejsp/issues/16)) ([96609cf](https://github.com/beesyst/beejsp/commit/96609cf8cc3c3dde98a70883c42e547d0f11a2d7))
+
 ## [0.6.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.5.0...beejsp-v0.6.0) (2026-10-11)
 
 
