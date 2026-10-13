@@ -84,7 +84,12 @@ def test_complete_catalog_consistency_determinism_and_counts(monkeypatch):
     reports = dashboard.build_reports(saved)
     assert reports == dashboard.build_reports(copy.deepcopy(saved))
     data = payload(reports["dashboard.html"])
-    assert len(saved["scanner"]["records"]) == len(data["rows"]) == 1022
+    expected_records = saved["scanner"]["records"]
+    expected_ids = {record["jsp_id"] for record in expected_records}
+
+    assert expected_records
+    assert len(expected_ids) == len(expected_records)
+    assert len(data["rows"]) == len(expected_records)
     assert {r["jsp_id"] for r in data["rows"]} == {
         r["jsp_id"] for r in saved["scanner"]["records"]
     }
@@ -93,7 +98,7 @@ def test_complete_catalog_consistency_determinism_and_counts(monkeypatch):
         csv_rows = list(csv.DictReader(io.StringIO(reports[f"{name}.csv"])))
         json_rows = result["selected"] + result["excluded"]
         assert [r["jsp_id"] for r in csv_rows] == [r["jsp_id"] for r in json_rows]
-        assert len(csv_rows) == 1022
+        assert len(csv_rows) == len(expected_records)
         for row in json_rows:
             html_row = next(r for r in data["rows"] if r["jsp_id"] == row["jsp_id"])
             assert html_row["profiles"][name] == {
@@ -622,6 +627,9 @@ def test_full_refresh_with_invalid_claim_manifest_offline_and_rollback(
     tmp_path, monkeypatch, capsys
 ):
     bank = scan_problem_bank(ROOT / "docs/vendor/jsp")
+    expected_ids = {record["jsp_id"] for record in bank["records"]}
+    assert expected_ids
+    assert len(expected_ids) == len(bank["records"])
     monkeypatch.setattr(dashboard.scanner, "scan_problem_bank", lambda _: bank)
     bad_claim = {
         "number": 4565,
@@ -666,17 +674,19 @@ def test_full_refresh_with_invalid_claim_manifest_offline_and_rollback(
         assert hashlib.sha256((snapshot / name).read_bytes()).hexdigest() == checksum
     for name in ("general", "high-value"):
         result = json.loads((snapshot / f"{name}.json").read_text())
-        assert len(result["selected"] + result["excluded"]) == 1022
-        assert (
-            len(
-                list(
-                    csv.DictReader(io.StringIO((snapshot / f"{name}.csv").read_text()))
-                )
-            )
-            == 1022
+        json_rows = result["selected"] + result["excluded"]
+
+        assert len(json_rows) == len(expected_ids)
+        assert {row["jsp_id"] for row in json_rows} == expected_ids
+
+        csv_rows = list(
+            csv.DictReader(io.StringIO((snapshot / f"{name}.csv").read_text()))
         )
+
+        assert len(csv_rows) == len(expected_ids)
+        assert {row["jsp_id"] for row in csv_rows} == expected_ids
     data = payload(html.read_text())
-    assert len(data["rows"]) == 1022
+    assert {row["jsp_id"] for row in data["rows"]} == expected_ids
     invalid = next(r for r in data["rows"] if r["jsp_id"] == "JSP-000008")
     assert invalid["competition_state"] == "CONTESTED"
     assert invalid["competition"][0]["proof_state"] == "unresolved"
@@ -886,7 +896,10 @@ def test_count_fixture_preserves_exact_matches_and_coverage(complete):
     saved["competition"]["observations"] = count_filter_observations()
     rendered = payload(dashboard.build_reports(saved)["dashboard.html"])
     rows = {r["jsp_id"]: r for r in rendered["rows"]}
-    assert len(rows) == 1022
+    expected_ids = {record["jsp_id"] for record in saved["scanner"]["records"]}
+
+    assert len(rows) == len(expected_ids) == len(saved["scanner"]["records"])
+    assert set(rows) == expected_ids
     for count in (0, 1, 9, 10, 11):
         record = rows[f"JSP-{count + 1:06d}"]
         assert sum(o["kind"] == "pull_request" for o in record["competition"]) == count
