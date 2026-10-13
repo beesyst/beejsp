@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/beesyst/beejsp/compare/beejsp-v0.8.0...beejsp-v0.8.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* **discovery:** adapt dashboard tests to catalog growth" ([#23](https://github.com/beesyst/beejsp/issues/23)) ([5c72c06](https://github.com/beesyst/beejsp/commit/5c72c0679c83103ad5e6b7dfb0f39c8b30afba7f))
+
 ## [0.8.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.7.0...beejsp-v0.8.0) (2026-10-12)
 
 
