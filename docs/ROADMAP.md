@@ -1239,6 +1239,245 @@ The iteration is complete when the CLI, dashboard, error handling, security chec
 
 ---
 
+## Stage 5 — Second complete mathematical formalization
+
+### Purpose of stage
+
+Complete a second substantial mathematical formalization by applying the source-audit, proof-dependency, milestone-loop and reproducibility lessons from JSP-000089 to JSP-000334.
+
+This stage prioritizes mathematical correctness and proof progress over additional discovery infrastructure. It reuses the existing BeeJSP Lean project boundary, source-of-truth hierarchy, proof-loop skill and independent verification workflow.
+
+Stage 5 contains Iteration 8. Preparation, mathematical feasibility, proof construction, correction and final independent verification belong to the same iteration.
+
+### Iteration 8 — Complete JSP-000334 Lean Formalization
+
+**Status:** PLANNED
+
+#### Goal
+
+Produce a complete, source-faithful, independently reviewable and reproducible Lean formalization of JSP-000334, corresponding to Erdős Problem #407 and Newman's conjecture on representations of integers as sums of powers of two, powers of three and their products.
+
+The principal theorem must establish the complete mathematical content of the approved original problem. A bounded spike, partial source theorem, numerical experiment or weaker representation-count statement does not constitute completion.
+
+Iteration 8 remains in progress through successive mathematical milestones until the principal Lean proof and required verification gates are complete. A genuine unresolved mathematical or source-level blocker must be recorded explicitly rather than bypassed with a weaker statement or unsupported completion claim.
+
+#### Scope
+
+Included:
+
+**Mathematical sources and problem identity**
+
+- review the exact JSP-000334 record and original Erdős/Newman problem identity;
+- obtain and reconcile the original mathematical formulation, publication history and solution attribution;
+- inspect the complete Tijdeman–Wang 1988 paper and its published correction;
+- obtain and review the Evertse–Győry–Stewart–Tijdeman 1988 source as an original resolution of the boundedness problem;
+- reconcile the Bajpai–Bennett 2023 preprint with the final 2024 Acta Arithmetica publication;
+- identify source corrections, unstated hypotheses, omitted computations and dependencies on external theorems;
+- record authoritative URLs, source editions, theorem numbers, relevant page ranges and source-file hashes;
+- identify supplementary mathematical or computational evidence required by the selected proof route;
+- preserve the distinction between the original boundedness question and stronger later quantitative results.
+
+**Statement fidelity**
+
+- establish the exact representation equation, exponent domains and quantifier structure;
+- distinguish ordered exponent tuples from representations identified by equal multisets of summands;
+- formally establish any conversion between these counting conventions used by the principal theorem;
+- select and document a mathematically justified source-to-Lean proof route;
+- prepare an inspectable Lean principal statement before large proof implementation;
+- preserve the full domain, all boundary cases and the intended universal boundedness conclusion;
+- prohibit silent strengthening of hypotheses, restriction to convenient subclasses or substitution of finite examples for the general theorem.
+
+**Competing formalizations**
+
+- refresh official PR and Issue evidence for JSP-000334 before full proof work and external submission preparation;
+- inspect the relevant claimed Lean sources associated with PRs #720, #1677, #2000 and #2731;
+- distinguish original proof claims, partial formalizations, duplicate repositories, source-linked evidence and independent verification;
+- compare competing Lean statements with the exact JSP-000334 mathematical scope;
+- preserve source authorship, mathematical solver attribution, formalizer attribution and verification provenance;
+- avoid treating open PRs as accepted mathematics or closed-unmerged PRs as proof of mathematical invalidity;
+- execute third-party proof projects only under an explicitly approved isolation and verification boundary.
+
+**Lean proof project and dependencies**
+
+- create one isolated `proofs/JSP-000334/` Lean project;
+- pin Lean, Mathlib and all necessary proof dependencies;
+- document the exact theorem, mathematical sources, provenance and proof architecture;
+- construct a source-to-Lean dependency graph before substantial implementation;
+- identify existing Mathlib definitions and theorems by actual pinned source references;
+- distinguish routine local helper lemmas from missing substantial mathematical prerequisites;
+- perform a bounded feasibility spike on the highest-risk prerequisite;
+- record a source-grounded GO, CONDITIONAL GO or NO-GO for the selected proof route;
+- resolve material route blockers before claiming progress toward the complete principal theorem.
+
+**Complete formalization**
+
+- implement all mathematical definitions, supporting lemmas and source theorem bridges necessary for the approved principal statement;
+- use existing Mathlib definitions and results where mathematically appropriate;
+- formalize required number-theoretic and Diophantine arguments without replacing them with unjustified assumptions;
+- reproduce any finite computation or exhaustive case analysis relied upon by the final proof using independently checkable Lean evidence;
+- distinguish exploratory computation from kernel-checked mathematical proof;
+- develop the proof through substantial mathematical milestones, each with supporting local helpers and verification evidence;
+- maintain a structured proof ledger recording completed declarations, exact unresolved Lean goals, rejected approaches and the next mathematical obligation;
+- reuse prior verified results and avoid repeatedly attempting known-invalid proof approaches;
+- complete every branch required by the original theorem;
+- assemble one clearly identified principal Lean theorem proving the exact approved JSP-000334 statement.
+
+**Proof-loop and verification discipline**
+
+- use the existing `beejsp-proof-loop` skill for successive Codex implementation passes;
+- perform source audit and dependency planning before expensive proof implementation;
+- make one coherent mathematical milestone the unit of an ordinary executor pass;
+- use the previous structured executor report and proof ledger as the normal handoff to the next pass;
+- compile after substantial coherent proof changes and perform required checks at milestone boundaries;
+- use BeeMCP checkpoints for suspicious blockers, contradictory reports, repeated lack of mathematical progress, substantial proof transitions and final review;
+- avoid requiring full independent repository review after every routine helper;
+- record exact source-to-Lean correspondence and explicit verification results;
+- complete a full Lean build, principal theorem audit, forbidden-shortcut scan, axiom review and clean reproduction;
+- complete independent final statement, proof, source and provenance verification.
+
+#### Excluded
+
+- declaring Iteration 8 complete after only mathematical research or a feasibility spike;
+- replacing the exact JSP-000334 theorem with a finite computational sample or weaker special case;
+- treating the stronger quantitative bounds of a later paper as automatically equivalent to the original counting convention;
+- using an incorrect, uncorrected or insufficiently reconciled mathematical source as authoritative proof evidence;
+- treating an unpublished or unverified competing formalization as an accepted complete proof;
+- depending on unreviewed external Lean code, arbitrary remote execution or hidden mathematical assumptions;
+- introducing `sorry`, `admit`, custom unproved axioms or equivalent proof shortcuts into completion evidence;
+- copying unused architecture or unrelated proof code from JSP-000089;
+- changing the already verified JSP-000089 principal statement or proof;
+- modifying managed JSP vendor content by hand;
+- unrelated changes to the Scanner, Discovery Dashboard, GitHub authentication or assessment contracts;
+- creating a new generic AI-agent framework, hosted proof service, database, web interface or generalized theorem-proving platform;
+- official JSP submission, candidate registration, award claims, entitlement assertions or payment processing as implementation deliverables;
+- unapproved package, dependency, version or repository infrastructure changes.
+
+#### Deliverable
+
+One complete BeeJSP-owned Lean formalization of JSP-000334, supported by an auditable mathematical source package, exact formal statement, proof dependency graph, structured milestone ledger, pinned Lean environment and reproducible verification evidence.
+
+The deliverable includes:
+
+- exact original problem and statement-fidelity documentation;
+- authoritative mathematical source and correction inventory;
+- competing formalization and attribution audit;
+- source-to-Lean mathematical dependency map;
+- verified principal Lean theorem and supporting proof modules;
+- reproducible build and principal-theorem axiom audit;
+- independent final source, statement and proof verification report.
+
+The final proof must remain understandable and reproducible independently of the development conversation and executor history.
+
+#### Acceptance criteria
+
+**Source correctness**
+
+- The exact original JSP-000334 mathematical problem and its source identity are recorded.
+- The selected mathematical proof route is supported by complete, appropriately authoritative sources.
+- The Tijdeman–Wang correction is incorporated into every affected mathematical argument.
+- The Bajpai–Bennett preprint and published-version relationship is explicitly reconciled before relying on version-sensitive statements.
+- External source results and computations required by the principal proof are either independently justified, formalized or supported by an approved verified dependency.
+- Missing source details are reported as unresolved obligations, not silently replaced with assumptions.
+- Mathematical authorship and formalization authorship remain distinct.
+
+**Statement fidelity**
+
+- The principal Lean statement faithfully preserves the original representation-counting problem.
+- Exponent domains, quantifiers, arithmetic operations, finiteness conditions and exceptional cases are exact.
+- Ordered exponent tuples and unordered summand-multiset counts are distinguished and related by proved lemmas wherever necessary.
+- The principal result is not restricted to finitely many integers or a convenient subclass unless the original mathematical statement itself requires that restriction.
+- Stronger quantitative bounds may be established, but their relation to the original theorem must be explicitly proved.
+- Principal statement changes after approval require mathematical justification and renewed statement review.
+
+**Dependency and feasibility evidence**
+
+- The mathematical dependency graph covers every substantial source theorem needed by the selected proof route.
+- Existing Mathlib dependencies are identified against the actual pinned version.
+- Major missing mathematical prerequisites are distinguished from routine local helper lemmas.
+- The highest-risk prerequisite is investigated through a meaningful bounded Lean spike.
+- The feasibility decision is supported by mathematical and Lean evidence rather than source metadata or apparent code volume.
+- An unresolved major prerequisite cannot be marked complete merely because surrounding helper files compile.
+
+**Complete proof**
+
+- Every required mathematical case and source dependency of the approved principal theorem is discharged.
+- The principal theorem is identified by its exact Lean declaration and complete statement.
+- All proof modules build successfully in the pinned environment.
+- No `sorry`, `admit`, placeholder axiom or unapproved proof shortcut remains in the principal theorem's dependency closure.
+- The final theorem's axiom dependencies are explicitly audited.
+- External proof computations needed for completeness are represented by checkable certificates, proved finite procedures or another approved sound verification mechanism.
+- Supporting theorems establish the mathematical facts required by the principal theorem rather than easier unrelated statements.
+- Successful Lean compilation is supplemented by independent statement-fidelity and source-mathematics review.
+
+**Milestone continuity**
+
+- Every substantial milestone identifies its completed Lean declarations and remaining mathematical obligations.
+- The proof ledger records failed approaches, exact blockers and subsequent corrections without misrepresenting exploratory results as completed proofs.
+- Executor reports contain concrete build, audit and source-change evidence.
+- Verification checkpoints follow the existing proof-loop skill.
+- Repeated stalled passes trigger mathematical diagnosis rather than uncontrolled helper accumulation.
+- The work remains part of Iteration 8 until the principal proof and required final verification are complete.
+
+**Provenance, competition and reproducibility**
+
+- Current competing claims are inspected with their source links, states and relevant proof scope.
+- Independent verification is not inferred from PR state or submitter claims.
+- The project pins its Lean toolchain and dependency revisions.
+- Clean reproduction succeeds without undocumented local patches or hidden source files.
+- Mathematical solver, Lean formalizer and independent verifier contributions are accurately attributed.
+- Protected vendor content, prior completed proofs and unrelated repository contracts remain unchanged.
+- Local proof completion does not assert official JSP acceptance, priority, candidate status, an award or payment.
+
+#### Checks
+
+```text
+exact JSP-000334 identity and source review
+original Newman/Erdős statement reconciliation
+Tijdeman–Wang original paper and published correction review
+Evertse–Győry–Stewart–Tijdeman source review
+Bajpai–Bennett preprint and published-version comparison
+source URL, version, theorem number and SHA-256 inventory
+competition PR/source audit
+ordered-tuple versus summand-multiset statement audit
+source-to-Lean dependency graph review
+pinned Mathlib API inspection
+highest-risk mathematical prerequisite spike
+milestone-by-milestone lake env lean checks
+lake build
+principal theorem statement inspection
+all mathematical cases and source-lemma coverage
+sorry/admit and unproved-placeholder scan
+principal theorem axiom audit
+dependency and toolchain pin review
+finite computation and certificate soundness review where applicable
+clean Lean project reproduction
+mathematical solver and formalizer attribution review
+source-to-Lean provenance review
+protected-file and unrelated-change inspection
+git diff --check
+applicable Python tests only if Python behavior changes
+applicable security and dependency verification
+independent final read-only review
+```
+
+#### DoD
+
+BeeJSP contains one complete, source-faithful Lean formalization of JSP-000334 establishing the approved original mathematical theorem for all required inputs.
+
+The principal theorem has no unresolved mathematical branches, unproved placeholders, hidden axioms, unjustified external computation or undocumented dependencies.
+
+Its correspondence to the authoritative original problem and selected corrected mathematical sources is independently reviewed.
+
+The complete proof reproduces under the pinned Lean and Mathlib environment, passes principal-theorem axiom inspection and preserves accurate provenance and attribution.
+
+The milestone ledger and source-to-Lean mapping make the proof understandable and reproducible without reconstructing the full AI-assisted development conversation.
+
+Iteration 8 is not DONE merely because its source audit, bounded spike, preliminary lemmas or a weaker quantitative theorem have been completed. Such results are intermediate milestones under the same iteration.
+
+Official JSP acceptance, candidate registration, claim eligibility and award payment remain separate external processes.
+
+The iteration is complete only when the entire approved principal theorem and independent final verification satisfy the acceptance criteria. No additional numbered proof-completion iteration is required.
+
 ## Post-Iteration 7 operational discovery gate
 
 Iteration 6 establishes:
