@@ -2,13 +2,29 @@
 
 [Repository home](../README.md) · [Problem bank sources](../docs/problem-bank-sources.md)
 
-This catalog contains **1,022 mathematical problems**.
+This catalog contains **1,050 mathematical problems**.
 
-Problems are numbered consecutively and grouped into volumes of 100 records (22 in the final volume), with a heading, a field table, and any review notes for each problem. The index shows **Current status**, **Lean proof**, **Eligible to claim**, **Solver claim status**, and **Lean claim status**. The index and detail tables both use **Current status: Open/Solved**; the two claim-status columns appear only in the index.
+**New MathDB cooperation pilot:** [49 selected problems](mathdb-pilot.md) use
+[mathdb-v1](../docs/award-process-mathdb.md), including 28 newly added entries.
+We recommend that process for participating problems and will expand it gradually.
+Each pilot entry records its workflow and either a confirmed/provisional MathDB
+link or a missing matching page. Unresolved mappings or page statements cannot
+authorize automatic claims; related references remain in the pilot scope notes.
+The catalog records no problem levels or estimated rewards.
+
+For pilot rows, [See MathDB pilot](mathdb-pilot.md#pilot-register) routes qualification to the category-specific
+process. **Solver claim status** and **Lean claim status** independently report
+public candidate/award registration, as defined below. The pilot page also tracks
+Exposition independently. Solution public review need not wait for complete Lean payment evidence.
+The shared eligibility and two-role conventions below apply to legacy rows.
+Preserve original dates, attribution and unchanged public-review clocks when
+migrating historical applications under a recorded team decision.
+
+Problems are numbered consecutively and grouped into volumes of 100 records (50 in the final volume), with a heading, a field table, and any review notes for each problem. The index shows **Current status**, **Lean proof**, **Eligible to claim**, **Solver claim status**, and **Lean claim status**. The index and detail tables both use **Current status: Open/Solved**; the two claim-status columns appear only in the index.
 
 Some dates are explicitly marked as assumptions or pending confirmation. Formal nominations and award records remain in [candidates/](../candidates/README.md) and [awards/](../awards/README.md).
 
-**Submission requirements:** only complete solutions to the original problem are
+**Legacy submission requirements:** only complete solutions to the original problem are
 accepted. Partial mathematical progress and incomplete Lean formalizations are not
 eligible for submission. The catalog records complete solutions only, without
 intermediate results. The complete mathematical solution and its proof or publication
@@ -18,8 +34,8 @@ people. **A Lean submission without the mathematical solution and its supporting
 evidence is invalid and will not be accepted.** See the
 [contribution guidelines](../CONTRIBUTING.md#external-solver-and-lean-submissions).
 
-For submission, claims, public review and challenges, follow the
-[award process](../docs/award-process.md). Current candidates and review dates
+For pilot submission, claims and review, follow the [new process](../docs/award-process-mathdb.md).
+For other problems follow the [legacy award process](../docs/award-process.md). Current candidates and review dates
 appear in the [public notice table](../candidates/README.md#candidate-register).
 
 ## Disclaimer and corrections
@@ -55,7 +71,32 @@ These credits do not establish first-discovery priority, sole manual authorship,
 
 The index preserves Lean evidence qualifications: **No — reported; standalone source not located** means a complete Lean proof of that problem has not been confirmed. A linked proof of a related problem is identified as such in the full record.
 
-**Eligible to claim** records the shared prerequisite for both awards. **Yes** requires **Current status** to be **Solved** and **Lean proof** to be **Yes**. **No** means this prerequisite is not met. **Pending verification** means evidence needs further review and eligibility has not been established. These are catalog screening flags; award processing requires mathematical review and verification of the complete Lean proof.
+### MathDB pilot claim-status columns
+
+The index shows Solution (under **Solver claim status**) and Lean registration.
+The [pilot register](mathdb-pilot.md#pilot-register) shows all three categories,
+including Exposition. Each category uses independent public-registration states:
+
+| State | Meaning |
+| --- | --- |
+| Empty cell | No candidate or announced award is published for this problem/category. This does not mean the category is eligible, the material is absent, or no claim issue exists. |
+| Candidate | A record for this category is published in the MathDB candidate register. Consult the claim and notice for review, confirmation and outstanding conditions. |
+| Awarded | At least one announced award record exists for this category. Consult the registers for any other claimant's pending conditions, later corrections/revocation and payment; this is not proof of payment or current eligibility. |
+
+The pilot page and these index cells are generated from the category-specific
+[candidate](../candidates/README.md#mathdb-pilot-candidates) and
+[award](../awards/README.md#mathdb-pilot-awards) tables. A published Exposition
+record changes only Exposition on the pilot page, regardless of whether the original problem is
+solved or has Lean proof. It still requires the committee's selection and all
+applicable personal/team checks. An agent issue alone does not publish a candidate.
+
+For non-pilot problems, the existing Solver and Lean statuses keep the legacy
+meaning below. The retained legacy process has no Exposition category; migration
+to the new process requires an explicit team decision.
+
+### Legacy eligibility and claim-status columns
+
+**Eligible to claim** records the shared prerequisite for both legacy awards. **Yes** requires **Current status** to be **Solved** and **Lean proof** to be **Yes**. **No** means this prerequisite is not met. **Pending verification** means evidence needs further review and eligibility has not been established. These are catalog screening flags; award processing requires mathematical review and verification of the complete Lean proof.
 
 **Solver claim status** and **Lean claim status** appear only in the index. They use that shared eligibility flag, then track each role's candidate registration or confirmed award separately:
 
@@ -83,53 +124,53 @@ If either the mathematical solution or complete Lean proof is missing, both clai
 | 701–800 | [catalog-0701-0800.md](catalog-0701-0800.md) |
 | 801–900 | [catalog-0801-0900.md](catalog-0801-0900.md) |
 | 901–1000 | [catalog-0901-1000.md](catalog-0901-1000.md) |
-| 1001–1022 | [catalog-1001-1022.md](catalog-1001-1022.md) |
+| 1001–1050 | [catalog-1001-1022.md](catalog-1001-1022.md) |
 
 ## Problem index
 
-The **No.** column runs consecutively from **JSP-000001** to **JSP-001022** in display order. The **Problem** column contains only the linked problem title. Catalog headings and anchors use the same number, such as `JSP-000001 · problem title` and `#JSP-000001`. Each volume contains the numbered range shown above. These catalog numbers are separate from the original Erdős problem numbers cited in the sources.
+The **No.** column runs consecutively from **JSP-000001** to **JSP-001050** in display order. The **Problem** column contains only the linked problem title. Catalog headings and anchors use the same number, such as `JSP-000001 · problem title` and `#JSP-000001`. Each volume contains the numbered range shown above. These catalog numbers are separate from the original Erdős problem numbers cited in the sources.
 
 ### Problems 1–100
 
 | No. | Problem | Current status | Lean proof | Eligible to claim | Solver claim status | Lean claim status |
 | --- | --- | --- | --- | --- | --- | --- |
-| JSP-000001 | [Riemann hypothesis](catalog-0001-0100.md#JSP-000001) | Open | No | No | Unavailable | Unavailable |
-| JSP-000002 | [P versus NP problem](catalog-0001-0100.md#JSP-000002) | Open | No | No | Unavailable | Unavailable |
-| JSP-000003 | [Birch–Swinnerton-Dyer conjecture (BSD)](catalog-0001-0100.md#JSP-000003) | Open | No | No | Unavailable | Unavailable |
-| JSP-000004 | [Hodge conjecture](catalog-0001-0100.md#JSP-000004) | Open | No | No | Unavailable | Unavailable |
-| JSP-000005 | [Existence and smoothness of the 3D Navier–Stokes equations](catalog-0001-0100.md#JSP-000005) | Solved | Yes | Yes | Unclaimed | Unclaimed |
-| JSP-000006 | [Yang–Mills existence and mass gap](catalog-0001-0100.md#JSP-000006) | Open | No | No | Unavailable | Unavailable |
+| JSP-000001 | [Riemann hypothesis](catalog-0001-0100.md#JSP-000001) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000002 | [P versus NP problem](catalog-0001-0100.md#JSP-000002) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000003 | [Birch–Swinnerton-Dyer conjecture (BSD)](catalog-0001-0100.md#JSP-000003) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000004 | [Hodge conjecture](catalog-0001-0100.md#JSP-000004) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000005 | [Existence and smoothness of the 3D Navier–Stokes equations](catalog-0001-0100.md#JSP-000005) | Solved | Yes | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000006 | [Yang–Mills existence and mass gap](catalog-0001-0100.md#JSP-000006) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000007 | [Poincaré conjecture](catalog-0001-0100.md#JSP-000007) | Solved | No | No | Unavailable | Unavailable |
-| JSP-000008 | [Goldbach conjecture (strong Goldbach)](catalog-0001-0100.md#JSP-000008) | Open | No | No | Unavailable | Unavailable |
-| JSP-000009 | [Twin prime conjecture](catalog-0001-0100.md#JSP-000009) | Open | No | No | Unavailable | Unavailable |
-| JSP-000010 | [abc conjecture](catalog-0001-0100.md#JSP-000010) | Open | No | No | Unavailable | Unavailable |
+| JSP-000008 | [Goldbach conjecture (strong Goldbach)](catalog-0001-0100.md#JSP-000008) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000009 | [Twin prime conjecture](catalog-0001-0100.md#JSP-000009) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000010 | [abc conjecture](catalog-0001-0100.md#JSP-000010) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000011 | [Beal conjecture](catalog-0001-0100.md#JSP-000011) | Open | No | No | Unavailable | Unavailable |
-| JSP-000012 | [Legendre conjecture](catalog-0001-0100.md#JSP-000012) | Open | No | No | Unavailable | Unavailable |
-| JSP-000013 | [Hadamard matrix conjecture](catalog-0001-0100.md#JSP-000013) | Open | No | No | Unavailable | Unavailable |
-| JSP-000014 | [Inverse Galois problem](catalog-0001-0100.md#JSP-000014) | Open | No | No | Unavailable | Unavailable |
-| JSP-000015 | [Kakeya dimension conjecture (general dimension)](catalog-0001-0100.md#JSP-000015) | Open | No | No | Unavailable | Unavailable |
-| JSP-000016 | [Littlewood conjecture](catalog-0001-0100.md#JSP-000016) | Open | No | No | Unavailable | Unavailable |
+| JSP-000012 | [Legendre conjecture](catalog-0001-0100.md#JSP-000012) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000013 | [Hadamard matrix conjecture](catalog-0001-0100.md#JSP-000013) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000014 | [Inverse Galois problem](catalog-0001-0100.md#JSP-000014) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000015 | [Kakeya dimension conjecture (general dimension)](catalog-0001-0100.md#JSP-000015) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000016 | [Littlewood conjecture](catalog-0001-0100.md#JSP-000016) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000017 | [Lonely runner conjecture](catalog-0001-0100.md#JSP-000017) | Open | No | No | Unavailable | Unavailable |
 | JSP-000018 | [Moving sofa problem (maximum area)](catalog-0001-0100.md#JSP-000018) | Solved | No | No | Unavailable | Unavailable |
 | JSP-000019 | [Existence of odd perfect numbers](catalog-0001-0100.md#JSP-000019) | Open | No | No | Unavailable | Unavailable |
 | JSP-000020 | [Infinitude of Mersenne primes](catalog-0001-0100.md#JSP-000020) | Open | No | No | Unavailable | Unavailable |
-| JSP-000021 | [Schanuel conjecture](catalog-0001-0100.md#JSP-000021) | Open | No | No | Unavailable | Unavailable |
+| JSP-000021 | [Schanuel conjecture](catalog-0001-0100.md#JSP-000021) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000022 | [Černý conjecture](catalog-0001-0100.md#JSP-000022) | Open | No | No | Unavailable | Unavailable |
 | JSP-000023 | [Inscribed square problem (Toeplitz conjecture)](catalog-0001-0100.md#JSP-000023) | Open | No | No | Unavailable | Unavailable |
-| JSP-000024 | [Invariant subspace problem for Hilbert spaces](catalog-0001-0100.md#JSP-000024) | Open | No | No | Unavailable | Unavailable |
-| JSP-000025 | [Lehmer–Mahler measure problem](catalog-0001-0100.md#JSP-000025) | Open | No | No | Unavailable | Unavailable |
+| JSP-000024 | [Invariant subspace problem for Hilbert spaces](catalog-0001-0100.md#JSP-000024) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000025 | [Lehmer–Mahler measure problem](catalog-0001-0100.md#JSP-000025) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000026 | [Decimal normality of pi](catalog-0001-0100.md#JSP-000026) | Open | No | No | Unavailable | Unavailable |
 | JSP-000027 | [Artin primitive root conjecture](catalog-0001-0100.md#JSP-000027) | Solved | No | No | Unavailable | Unavailable |
-| JSP-000028 | [Bateman–Horn conjecture](catalog-0001-0100.md#JSP-000028) | Open | No | No | Unavailable | Unavailable |
-| JSP-000029 | [Dickson conjecture](catalog-0001-0100.md#JSP-000029) | Open | No | No | Unavailable | Unavailable |
-| JSP-000030 | [Elliott–Halberstam conjecture](catalog-0001-0100.md#JSP-000030) | Open | No | No | Unavailable | Unavailable |
+| JSP-000028 | [Bateman–Horn conjecture](catalog-0001-0100.md#JSP-000028) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000029 | [Dickson conjecture](catalog-0001-0100.md#JSP-000029) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000030 | [Elliott–Halberstam conjecture](catalog-0001-0100.md#JSP-000030) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000031 | [Fermat–Catalan conjecture](catalog-0001-0100.md#JSP-000031) | Open | No | No | Unavailable | Unavailable |
 | JSP-000032 | [Fuglede conjecture (dimensions one and two)](catalog-0001-0100.md#JSP-000032) | Open | No | No | Unavailable | Unavailable |
 | JSP-000033 | [Rational distances to the unit square](catalog-0001-0100.md#JSP-000033) | Open | No | No | Unavailable | Unavailable |
 | JSP-000034 | [Sidorenko conjecture](catalog-0001-0100.md#JSP-000034) | Solved | Yes | Yes | Unclaimed | Unclaimed |
 | JSP-000035 | [Catalan conjecture](catalog-0001-0100.md#JSP-000035) | Solved | No | No | Unavailable | Unavailable |
 | JSP-000036 | [Modularity theorem for rational elliptic curves (Taniyama–Shimura–Weil conjecture)](catalog-0001-0100.md#JSP-000036) | Solved | No | No | Unavailable | Unavailable |
-| JSP-000037 | [Jacobian conjecture](catalog-0001-0100.md#JSP-000037) | Open | No | No | Unavailable | Unavailable |
+| JSP-000037 | [Jacobian conjecture](catalog-0001-0100.md#JSP-000037) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000038 | [Sendov conjecture](catalog-0001-0100.md#JSP-000038) | Solved | Yes | Yes | Unclaimed | Unclaimed |
 | JSP-000039 | [DGG cost-preserving conjecture](catalog-0001-0100.md#JSP-000039) | Solved | Yes | Yes | Unclaimed | Unclaimed |
 | JSP-000040 | [Anderson problem on weakly quasi-complete local rings](catalog-0001-0100.md#JSP-000040) | Solved | Yes | Yes | Unclaimed | Unclaimed |
@@ -1139,7 +1180,7 @@ The **No.** column runs consecutively from **JSP-000001** to **JSP-001022** in d
 | JSP-000999 | [How fast must an integer set grow if each positive integer has exactly one representation as a difference of two of its elements?](catalog-0901-1000.md#JSP-000999) | Open | No | No | Unavailable | Unavailable |
 | JSP-001000 | [How fast can the measure of a real set grow if no ratio of distinct elements is an integer?](catalog-0901-1000.md#JSP-001000) | Solved | No | No | Unavailable | Unavailable |
 
-### Problems 1001–1022
+### Problems 1001–1050
 
 | No. | Problem | Current status | Lean proof | Eligible to claim | Solver claim status | Lean claim status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -1165,3 +1206,31 @@ The **No.** column runs consecutively from **JSP-000001** to **JSP-001022** in d
 | JSP-001020 | [For a polynomial whose zeros all lie on the unit circle, is there a uniformly bounded-length path in the specified modulus region?](catalog-1001-1022.md#JSP-001020) | Solved | No | No | Unavailable | Unavailable |
 | JSP-001021 | [How large a transitive subtournament must every tournament of prescribed order contain?](catalog-1001-1022.md#JSP-001021) | Solved | No | No | Unavailable | Unavailable |
 | JSP-001022 | [Must every integer set of positive lower logarithmic density contain an infinite divisibility chain, with controlled growth?](catalog-1001-1022.md#JSP-001022) | Solved | No | No | Unavailable | Unavailable |
+| JSP-001023 | [Global Langlands functoriality conjecture](catalog-1001-1022.md#JSP-001023) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001024 | [Mirror symmetry conjecture](catalog-1001-1022.md#JSP-001024) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001025 | [Existence of one-way functions](catalog-1001-1022.md#JSP-001025) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001026 | [Grothendieck's standard conjectures](catalog-1001-1022.md#JSP-001026) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001027 | [Termination of flips in the minimal model program](catalog-1001-1022.md#JSP-001027) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001028 | [Tate conjecture for algebraic cycles](catalog-1001-1022.md#JSP-001028) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001029 | [Smooth four-dimensional Poincaré conjecture](catalog-1001-1022.md#JSP-001029) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001030 | [Bombieri–Lang conjecture for varieties of general type](catalog-1001-1022.md#JSP-001030) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001031 | [Novikov conjecture on higher signatures](catalog-1001-1022.md#JSP-001031) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001032 | [Farrell–Jones conjecture in algebraic K- and L-theory](catalog-1001-1022.md#JSP-001032) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001033 | [Grothendieck's generalized Hodge conjecture](catalog-1001-1022.md#JSP-001033) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001034 | [Matrix-multiplication exponent equals two](catalog-1001-1022.md#JSP-001034) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001035 | [Generalized Ramanujan conjecture for GL_n](catalog-1001-1022.md#JSP-001035) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001036 | [Extended states in the Anderson model in dimension at least three](catalog-1001-1022.md#JSP-001036) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001037 | [Extension of Kronecker's theorem to arbitrary number fields (Hilbert's twelfth problem)](catalog-1001-1022.md#JSP-001037) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001038 | [Spacetime Penrose inequality](catalog-1001-1022.md#JSP-001038) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001039 | [Modularity of elliptic curves over number fields](catalog-1001-1022.md#JSP-001039) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001040 | [Fontaine–Mazur conjecture on geometric Galois representations](catalog-1001-1022.md#JSP-001040) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001041 | [Fourier restriction conjecture](catalog-1001-1022.md#JSP-001041) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001042 | [Grothendieck period conjecture](catalog-1001-1022.md#JSP-001042) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001043 | [Existence of one-way permutations](catalog-1001-1022.md#JSP-001043) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001044 | [Finiteness of Tate–Shafarevich groups for elliptic curves](catalog-1001-1022.md#JSP-001044) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001045 | [Weight–monodromy conjecture](catalog-1001-1022.md#JSP-001045) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001046 | [Zilber–Pink conjecture on unlikely intersections](catalog-1001-1022.md#JSP-001046) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001047 | [Grothendieck–Teichmüller conjecture](catalog-1001-1022.md#JSP-001047) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001048 | [Deligne's absolute Hodge conjecture](catalog-1001-1022.md#JSP-001048) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001049 | [Mumford–Tate conjecture for abelian varieties over number fields](catalog-1001-1022.md#JSP-001049) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-001050 | [Effective Mordell conjecture for curves of genus at least two](catalog-1001-1022.md#JSP-001050) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |

@@ -1,5 +1,13 @@
 # How to participate and claim an award
 
+**Legacy process.** This guide remains available for unmigrated problems and
+historical applications. For the [49 MathDB pilot problems](../problems/mathdb-pilot.md),
+use the [new process](award-process-mathdb.md). We recommend it for participating
+problems and will expand it gradually. Pilot rules take precedence, including
+no merged-proof-PR prerequisite and independent Solution/Lean/Exposition handling.
+Retain existing application history and record a team transition decision before
+migration.
+
 [Home](../README.md) · [Contribution guidelines](../CONTRIBUTING.md)
 
 Submit contribution evidence → review the mathematical solution and verify any

@@ -9,17 +9,31 @@ A public repository for The Justin Sun Prize: recognizing mathematical breakthro
 | Topic | Source |
 | --- | --- |
 | Purpose, scope, and governance | [About](docs/about.md) |
-| Submission, challenges, claims and 14-day public review | [Award process](docs/award-process.md) |
+| New MathDB pilot: submission, claims and category public review | [MathDB process](docs/award-process-mathdb.md) · [49 pilot problems](problems/mathdb-pilot.md) |
+| Legacy submission, claims and public review | [Legacy award process](docs/award-process.md) |
 | Award assessment | [Grading](docs/grading.md) |
 | Recipients and attribution | [Attribution](docs/attribution.md) |
 | Formal verification and review | [Verification](docs/verification.md) |
-| Problem bank: 1,022 problems | [Problems](problems/README.md) |
+| Problem bank: 1,050 problems | [Problems](problems/README.md) |
 | Confirmed, publicly announced awards | [Awards](awards/README.md) |
 | Public candidates | [Candidates](candidates/README.md) |
 
 Award entries are confirmed and publicly announced decisions; candidates are tracked separately. The repository publishes public records; detailed assessment criteria and deliberations are not included.
 
 ## Participate
+
+**We recommend the [new MathDB process](docs/award-process-mathdb.md) for the
+[49 pilot problems](problems/mathdb-pilot.md).** Submit Solution, Lean or Exposition
+materials through the confirmed MathDB link in the selected entry. After technical
+and reward-condition checks pass, the official agent creates or updates a claim
+and notifies the contributor, copying the prize team. Contributors respond
+personally; no merged proof PR is required. Category public review, identity and
+payment conditions still apply. Activation and unresolved mappings are recorded
+in the pilot register.
+
+The pilot will expand gradually. Problems outside the register follow the legacy
+steps below. Preserve existing claims and review history when migrating them
+under a recorded transition decision.
 
 We recommend [checking existing PRs for the same problem and contribution type](CONTRIBUTING.md#before-opening-a-pr)
 before submitting to help avoid duplicate work.

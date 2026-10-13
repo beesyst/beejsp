@@ -7,8 +7,16 @@ review, challenges and delivery.
 
 ## Choose the right entry point
 
+For a [MathDB pilot problem](problems/mathdb-pilot.md), submit materials on its
+confirmed MathDB page under the [new process](docs/award-process-mathdb.md).
+The official agent hands off the claim after technical and qualification checks;
+applicants respond personally. No proof PR or merge is a pilot claim prerequisite.
+Legacy PR requirements below apply outside the pilot. PRs still maintain public
+catalog records, and historical PRs remain attribution and priority evidence.
+
 | Purpose | Where to start |
 | --- | --- |
+| Submit or claim a MathDB pilot contribution | [Pilot register](problems/mathdb-pilot.md), [new process](docs/award-process-mathdb.md) and the existing agent-created claim; [handoff form](.github/ISSUE_TEMPLATE/claim-reward-mathdb.yml) for the official agent. |
 | Submit a complete solution, Lean proof reference or supported catalog update | [PR template](.github/PULL_REQUEST_TEMPLATE.md) and the submission requirements below. |
 | Recommend a problem | [Recommendation form](.github/ISSUE_TEMPLATE/recommend-problem.yml). |
 | Claim an award for your own contribution | [Claim form](.github/ISSUE_TEMPLATE/claim-award.yml), after the contribution PR merges or under the recorded-solver exception. Follow the [application and identity steps](docs/award-process.md#step-2-apply-and-participate-in-public-review). |

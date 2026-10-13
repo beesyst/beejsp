@@ -1,5 +1,12 @@
 # Formal verification: evidence and review
 
+For [MathDB pilot problems](../problems/mathdb-pilot.md), the
+[new process](award-process-mathdb.md#2-review-and-check-reward-conditions) assigns
+technical review and full-scope verification to MathDB, including explicit adoption
+of fixed external verification records where appropriate. The evidence principles
+below still inform correspondence and completeness; the legacy PR and maintainer-
+reproduction steps are not additional pilot claim prerequisites.
+
 Public verification records connect the original mathematical problem, formal statement, pinned proof source, reproduction evidence, and review conclusions. A formal statement alone is not a verified proof, and proof checking must also address whether the statement represents the intended problem.
 
 The complete mathematical solution to the original problem and its proof or
