@@ -12,9 +12,9 @@ A contribution credit or candidate record does not announce an award. Confirmed 
 
 For a [MathDB pilot problem](../problems/mathdb-pilot.md), follow the
 [new claim and personal-confirmation steps](award-process-mathdb.md#3-agent-claim-and-personal-confirmation).
-The official agent submits materials; the actual contributor remains the claimant.
-A GitHub account is optional for initial handoff. Every recipient needs identity
-verification and personal written confirmation. Legacy account/form requirements
+MathDB submits the materials and public contribution records. The prize team
+reviews attribution and recipient identity separately. Every recipient needs
+identity verification and personal written confirmation. Legacy account/form requirements
 below apply to legacy applications.
 
 Follow the [application steps](award-process.md#open-a-claim-award-issue) for
