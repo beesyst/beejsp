@@ -9,14 +9,14 @@ review, challenges and delivery.
 
 For a [MathDB pilot problem](problems/mathdb-pilot.md), submit materials on its
 confirmed MathDB page under the [new process](docs/award-process-mathdb.md).
-The official agent hands off the claim after technical and qualification checks;
+MathDB submits the materials after technical and qualification checks;
 applicants respond personally. No proof PR or merge is a pilot claim prerequisite.
 Legacy PR requirements below apply outside the pilot. PRs still maintain public
 catalog records, and historical PRs remain attribution and priority evidence.
 
 | Purpose | Where to start |
 | --- | --- |
-| Submit or claim a MathDB pilot contribution | [Pilot register](problems/mathdb-pilot.md), [new process](docs/award-process-mathdb.md) and the existing agent-created claim; [handoff form](.github/ISSUE_TEMPLATE/claim-reward-mathdb.yml) for the official agent. |
+| Submit or claim a MathDB pilot contribution | [Pilot register](problems/mathdb-pilot.md) and [new process](docs/award-process-mathdb.md); MathDB submits the [claim form](.github/ISSUE_TEMPLATE/claim-reward-mathdb.yml) and supporting materials. |
 | Submit a complete solution, Lean proof reference or supported catalog update | [PR template](.github/PULL_REQUEST_TEMPLATE.md) and the submission requirements below. |
 | Recommend a problem | [Recommendation form](.github/ISSUE_TEMPLATE/recommend-problem.yml). |
 | Claim an award for your own contribution | [Claim form](.github/ISSUE_TEMPLATE/claim-award.yml), after the contribution PR merges or under the recorded-solver exception. Follow the [application and identity steps](docs/award-process.md#step-2-apply-and-participate-in-public-review). |
@@ -84,7 +84,9 @@ may change **Current status** (including **Proof contributors:**), **Lean proof*
 **Attribution basis**, and **Publication details**. Use **Open** or **Solved** as
 the status in both the index and detail tables.
 Maintainers reconcile the index and eligibility fields after review, and maintain
-each role's claim status in the index using the candidate and confirmed award records.
+each role's claim status in the index. Eligible roles remain **Unclaimed** during
+candidate public review; change only the awarded role to **Claimed** when its
+contribution moves from `candidates/` to a confirmed award record in `awards/`.
 Use an issue for other corrections or requests.
 
 Provide evidence for the contribution you are submitting:
