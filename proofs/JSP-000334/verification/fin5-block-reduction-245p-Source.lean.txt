@@ -1,0 +1,46 @@
+import SubspaceBridge.SourceProjection245P
+import SubspaceBridge.SourceBlockWeights245P
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M245PChallenges
+open CompoundFeasibility CompoundFeasibility.BlockReduction245P
+
+theorem left_block_entry {R : Type*} [CommRing R] (A : Matrix (Fin 5) (Fin 5) R)
+    (i j : Fin 5) : block245P A (blockIndex245P (Sum.inl i)) (blockIndex245P (Sum.inl j)) = A i j := by
+  simp [block245P,Matrix.reindex_apply]
+
+theorem actual_frame_projection (B2 B3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (B0 : Matrix (Fin 10) (Fin 10) ℝ) (hB0 : IsUnit B0)
+    (p : ℝ) (hp : 1 < p) (d0 d2 d3 : Fin 10 → ℝ) :
+    ∃ w : Fin 10 → originalSourceGroup10 B2 B3 p d2 d3,
+      LinearIndependent ℝ (fun i => integerReal (w i : Fin 10 → ℤ)) ∧
+      (∀ i, coordinateGauge10 (originalCoordinates10 B0 hB0 p hp d0)
+        (integerReal (w i : Fin 10 → ℤ)) = sourceMinima10 B2 B3 B0 hB0 p hp d0 d2 d3 i) ∧
+      ∃ a : Fin 5 → Fin 10, LinearIndependent ℝ
+        (fun i j => integerReal (w (a i) : Fin 10 → ℤ) (blockIndex245P (Sum.inl j))) := by
+  let pr : (Fin 10 → ℝ) →ₗ[ℝ] (Fin 5 → ℝ) :=
+    LinearMap.pi (fun j => LinearMap.proj (blockIndex245P (Sum.inl j)))
+  have hpr : Function.Surjective pr := by
+    intro x
+    refine ⟨fun j => Sum.elim x (fun _ => 0) (blockIndex245P.symm j),?_⟩
+    ext j
+    simp [pr]
+  obtain ⟨w,hw,_,_,hatt,_⟩ := exists_sourceMinima10_attaining B2 B3 B0 hB0 p hp d0 d2 d3
+  obtain ⟨a,ha⟩ := projected_frame245P pr hpr (fun j => integerReal (w j : Fin 10 → ℤ)) hw
+  exact ⟨w,hw,hatt,a,ha⟩
+
+theorem normalized_source_weights (c0 c2 c3 : Fin 5 → ℝ)
+    (h0 : ∀ i, |c0 i| ≤ 1) (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) :
+    (∀ i, |weight0245P c0 i| ≤ 1) ∧
+    (∀ i, -1 ≤ weightp245P c2 i ∧ weightp245P c2 i ≤ 0) ∧
+    (∀ i, -1 ≤ weightp245P c3 i ∧ weightp245P c3 i ≤ 0) ∧
+    (∑ i, (weight0245P c0 i+weightp245P c2 i+weightp245P c3 i)) = 0 := by
+  obtain ⟨h0,h2,h3⟩ := weight_bounds245P c0 c2 c3 h0 h2 h3
+  exact ⟨h0,h2,h3,weight_balance245P c0 c2 c3 hb⟩
+
+end M245PChallenges
+
+#print axioms M245PChallenges.left_block_entry
+#print axioms M245PChallenges.actual_frame_projection
+#print axioms M245PChallenges.normalized_source_weights

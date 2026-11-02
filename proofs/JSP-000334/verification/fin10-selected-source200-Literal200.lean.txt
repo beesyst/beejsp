@@ -1,0 +1,345 @@
+import SubspaceBridge.SourceOriginalAuxiliaryFamily10
+import SubspaceBridge.OriginalDual10
+open CompoundFeasibility.SourceSampling10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M200Literal.SourceSelectedSet10
+
+abbrev MixedIndex10 := Fin 3 → Fin 10
+
+def roundedRadius10 (p : ℕ) (Q c : ℝ) : ℝ :=
+  ((p : ℝ)^Nat.ceil (JSP000334.qThreshold p Q c))⁻¹
+
+def roundedSelector10 (Q delta : ℝ) (A c2 c3 : Fin 10 → ℝ) : Finset MixedIndex10 :=
+  Finset.univ.filter (fun s => 1 ≤ A (s 0)*roundedRadius10 2 Q (c2 (s 1))*
+    roundedRadius10 3 Q (c3 (s 2))*Q^(delta/2))
+
+def roundedWeights10 (Q : ℝ) (A c2 c3 : Fin 10 → ℝ) : Fin 3 → Fin 10 → ℝ :=
+  ![fun i => Real.log (A i)/Real.log Q,
+    fun i => Real.log (roundedRadius10 2 Q (c2 i))/Real.log Q,
+    fun i => Real.log (roundedRadius10 3 Q (c3 i))/Real.log Q]
+
+theorem roundedRadius10_pos (p : ℕ) (hp : 1 < p) (Q c : ℝ) :
+    0 < roundedRadius10 p Q c := by
+  unfold roundedRadius10
+  positivity
+
+theorem roundedRadius10_bounds (p : ℕ) (hp : 1 < p) (Q c : ℝ)
+    (hQ : 1 < Q) (hc : c ≤ 0) :
+    Q^c/(p : ℝ) < roundedRadius10 p Q c ∧ roundedRadius10 p Q c ≤ Q^c := by
+  have hpR : (1 : ℝ) < p := by exact_mod_cast hp
+  have hp0 : (0 : ℝ) < p := zero_lt_one.trans hpR
+  have hQ0 : 0 < Q := zero_lt_one.trans hQ
+  have ht := JSP000334.qThreshold_nonneg p hp Q c hQ hc
+  have hf := JSP000334.ceilingFactor_bounds (p : ℝ) _ hpR ht
+  have he : roundedRadius10 p Q c = Q^c /
+      JSP000334.ceilingFactor p (JSP000334.qThreshold p Q c) := by
+    unfold roundedRadius10
+    rw [JSP000334.pow_ceil_factorization _ _ hp0,JSP000334.qThreshold_rpow p hp Q c hQ]
+    rw [mul_inv,Real.rpow_neg hQ0.le]
+    simp only [inv_inv,div_eq_mul_inv]
+  rw [he]
+  exact ⟨div_lt_div_of_pos_left (Real.rpow_pos_of_pos hQ0 _) (by linarith) hf.2,
+    (div_le_iff₀ (by linarith : 0 < JSP000334.ceilingFactor p (JSP000334.qThreshold p Q c))).mpr
+      (by nlinarith [Real.rpow_pos_of_pos hQ0 c])⟩
+
+theorem roundedSelector10_iff (Q delta : ℝ) (hQ : 1 < Q)
+    (A c2 c3 : Fin 10 → ℝ) (hA : ∀ i, 0 < A i) (s : MixedIndex10) :
+    s ∈ roundedSelector10 Q delta A c2 c3 ↔
+      -delta/2 ≤ ∑ tau, roundedWeights10 Q A c2 c3 tau (s tau) := by
+  have h2 := roundedRadius10_pos 2 (by decide) Q (c2 (s 1))
+  have h3 := roundedRadius10_pos 3 (by decide) Q (c3 (s 2))
+  have hpow := Real.rpow_pos_of_pos (zero_lt_one.trans hQ) (delta/2)
+  have hlog : 1 ≤ A (s 0)*roundedRadius10 2 Q (c2 (s 1))*
+      roundedRadius10 3 Q (c3 (s 2))*Q^(delta/2) ↔
+      0 ≤ Real.log (A (s 0))+Real.log (roundedRadius10 2 Q (c2 (s 1)))+
+        Real.log (roundedRadius10 3 Q (c3 (s 2)))+(delta/2)*Real.log Q := by
+    rw [← Real.log_le_log_iff (by norm_num : (0 : ℝ) < 1)
+      (mul_pos (mul_pos (mul_pos (hA _) h2) h3) hpow),Real.log_one,
+      Real.log_mul (mul_pos (mul_pos (hA _) h2) h3).ne' hpow.ne',
+      Real.log_mul (mul_pos (hA _) h2).ne' h3.ne',Real.log_mul (hA _).ne' h2.ne',
+      Real.log_rpow (zero_lt_one.trans hQ)]
+  simp only [roundedSelector10,Finset.mem_filter,Finset.mem_univ,true_and]
+  rw [hlog]
+  simp only [roundedWeights10,Fin.sum_univ_three,Matrix.cons_val_zero,Matrix.cons_val_one,
+    Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons,Matrix.cons_val_zero,← add_div]
+  rw [le_div_iff₀ (Real.log_pos hQ)]
+  constructor <;> intro h <;> linarith
+
+theorem balanced_mixed_nonnegative10 (c : Fin 3 → Fin 10 → ℝ)
+    (hb : (∑ tau, ∑ i, c tau i) = 0) :
+    ∃ s : MixedIndex10, 0 ≤ ∑ tau, c tau (s tau) := by
+  have hm (tau : Fin 3) : ∃ i : Fin 10, ∀ j, c tau j ≤ c tau i := by
+    obtain ⟨i,_,hi⟩ := Finset.exists_max_image Finset.univ (c tau) Finset.univ_nonempty
+    exact ⟨i,fun j => hi j (Finset.mem_univ j)⟩
+  choose s hs using hm
+  refine ⟨s,?_⟩
+  have hrow (tau : Fin 3) : (∑ i, c tau i) ≤ 10*c tau (s tau) := by
+    calc
+      _ ≤ ∑ _i : Fin 10, c tau (s tau) := Finset.sum_le_sum (fun j _ => hs tau j)
+      _ = _ := by simp
+  have h := Finset.sum_le_sum (fun tau (_ : tau ∈ Finset.univ) => hrow tau)
+  rw [hb,← Finset.mul_sum] at h
+  linarith
+
+theorem roundedSelector10_nonempty (Q delta : ℝ) (hQ : 1 < Q) (hd : 0 < delta)
+    (A c2 c3 : Fin 10 → ℝ) (hA : ∀ i, 0 < A i)
+    (hb : (∏ i, A i)*(∏ i, roundedRadius10 2 Q (c2 i)*roundedRadius10 3 Q (c3 i)) = 1) :
+    (roundedSelector10 Q delta A c2 c3).Nonempty := by
+  have h2 (i) := roundedRadius10_pos 2 (by decide) Q (c2 i)
+  have h3 (i) := roundedRadius10_pos 3 (by decide) Q (c3 i)
+  have hlog := congrArg Real.log hb
+  rw [Real.log_mul (Finset.prod_pos (fun i _ => hA i)).ne'
+    (Finset.prod_pos (fun i _ => mul_pos (h2 i) (h3 i))).ne',
+    Real.log_prod Finset.univ A (fun i _ => (hA i).ne'),
+    Real.log_prod Finset.univ _ (fun i _ => (mul_pos (h2 i) (h3 i)).ne'),Real.log_one] at hlog
+  simp_rw [Real.log_mul (h2 _).ne' (h3 _).ne'] at hlog
+  have hbalance : (∑ tau, ∑ i, roundedWeights10 Q A c2 c3 tau i) = 0 := by
+    simp only [roundedWeights10,Fin.sum_univ_three,Matrix.cons_val_zero,Matrix.cons_val_one,
+      Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons,Matrix.cons_val_zero,← Finset.sum_div,← add_div]
+    apply (div_eq_zero_iff).mpr
+    left
+    simpa only [Finset.sum_add_distrib,add_assoc] using hlog
+  obtain ⟨s,hs⟩ := balanced_mixed_nonnegative10 _ hbalance
+  exact ⟨s,(roundedSelector10_iff Q delta hQ A c2 c3 hA s).mpr (by linarith)⟩
+
+theorem rounded_to_power_margin10 (Q delta : ℝ) (hQ : 1 < Q)
+    (A c2 c3 : Fin 10 → ℝ) (hA : ∀ i, 0 < A i)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (d : Fin 3 → Fin 10 → ℝ)
+    (hd0 : ∀ i, Real.log (A i)/Real.log Q-delta/4 ≤ d 0 i)
+    (hd2 : ∀ i, c2 i ≤ d 1 i) (hd3 : ∀ i, c3 i ≤ d 2 i)
+    (s : MixedIndex10) (hs : s ∈ roundedSelector10 Q delta A c2 c3) :
+    -(3*delta)/4 ≤ ∑ tau, d tau (s tau) := by
+  have hlog2 := Real.log_le_log (roundedRadius10_pos 2 (by decide) Q (c2 (s 1)))
+    (roundedRadius10_bounds 2 (by decide) Q _ hQ (hc2 _)).2
+  have hlog3 := Real.log_le_log (roundedRadius10_pos 3 (by decide) Q (c3 (s 2)))
+    (roundedRadius10_bounds 3 (by decide) Q _ hQ (hc3 _)).2
+  rw [Real.log_rpow (zero_lt_one.trans hQ)] at hlog2 hlog3
+  have h2 : Real.log (roundedRadius10 2 Q (c2 (s 1)))/Real.log Q ≤ c2 (s 1) :=
+    (div_le_iff₀ (Real.log_pos hQ)).mpr (by nlinarith [Real.log_pos hQ])
+  have h3 : Real.log (roundedRadius10 3 Q (c3 (s 2)))/Real.log Q ≤ c3 (s 2) :=
+    (div_le_iff₀ (Real.log_pos hQ)).mpr (by nlinarith [Real.log_pos hQ])
+  have hs' := (roundedSelector10_iff Q delta hQ A c2 c3 hA s).mp hs
+  simp only [roundedWeights10,Fin.sum_univ_three,Matrix.cons_val_zero,Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons,Matrix.cons_val_zero] at hs'
+  rw [Fin.sum_univ_three]
+  linarith [hd0 (s 0),hd2 (s 1),hd3 (s 2)]
+
+
+theorem rounded_power_selector_nonempty10 (Q delta : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 10 → ℝ)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) (hlarge : 6 ≤ Q^(delta/2)) :
+    (roundedSelector10 Q delta (fun i => Q^(c0 i)) c2 c3).Nonempty := by
+  have hbalance : (∑ tau, ∑ i, (![c0,c2,c3] : Fin 3 → Fin 10 → ℝ) tau i) = 0 := by
+    simpa only [Fin.sum_univ_three,Matrix.cons_val_zero,Matrix.cons_val_one,
+      Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons,Finset.sum_add_distrib,add_assoc] using hb
+  obtain ⟨s,hs⟩ := balanced_mixed_nonnegative10 _ hbalance
+  have hs' : 0 ≤ c0 (s 0)+c2 (s 1)+c3 (s 2) := by
+    simpa only [Fin.sum_univ_three,Matrix.cons_val_zero,Matrix.cons_val_one,
+      Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons] using hs
+  have hQ0 : 0 < Q := zero_lt_one.trans hQ
+  have h0 := Real.rpow_pos_of_pos hQ0 (c0 (s 0))
+  have h2 := Real.rpow_pos_of_pos hQ0 (c2 (s 1))
+  have h3 := Real.rpow_pos_of_pos hQ0 (c3 (s 2))
+  have hr2 := roundedRadius10_pos 2 (by decide) Q (c2 (s 1))
+  have hr3 := roundedRadius10_pos 3 (by decide) Q (c3 (s 2))
+  have hb2 := (roundedRadius10_bounds 2 (by decide) Q (c2 (s 1)) hQ (hc2 (s 1))).1
+  have hb3 := (roundedRadius10_bounds 3 (by decide) Q (c3 (s 2)) hQ (hc3 (s 2))).1
+  have hprod : 1 ≤ Q^(c0 (s 0))*Q^(c2 (s 1))*Q^(c3 (s 2)) := by
+    rw [← Real.rpow_add hQ0,← Real.rpow_add hQ0]
+    exact Real.one_le_rpow hQ.le hs'
+  have hl : (1 : ℝ)/6 < Q^(c0 (s 0))*roundedRadius10 2 Q (c2 (s 1))*
+      roundedRadius10 3 Q (c3 (s 2)) := by
+    have hmul := mul_lt_mul hb2 hb3.le (by positivity : 0 < Q^(c3 (s 2))/3) hr2.le
+    have ht := mul_lt_mul_of_pos_left hmul h0
+    nlinarith
+  refine ⟨s,?_⟩
+  simp only [roundedSelector10,Finset.mem_filter,Finset.mem_univ,true_and]
+  have hp : 0 < Q^(c0 (s 0))*roundedRadius10 2 Q (c2 (s 1))*roundedRadius10 3 Q (c3 (s 2)) :=
+    mul_pos (mul_pos h0 hr2) hr3
+  nlinarith
+
+end CompoundFeasibility.M200Literal.SourceSelectedSet10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M200Literal.SourceSampling10
+
+theorem rescaled_original_group10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (q : ℝ) (c2 c3 : Fin 10 → ℝ) :
+    originalSourceGroup10 A2 A3 (q^5) (fun i => c2 i/5) (fun i => c3 i/5) =
+      originalSourceGroup10 A2 A3 q c2 c3 := by
+  have he (p : ℕ) (c : ℝ) : JSP000334.qThreshold p (q^5) (c/5) =
+      JSP000334.qThreshold p q c := by
+    simp only [JSP000334.qThreshold,Real.log_pow]
+    ring
+  simp only [originalSourceGroup10,he]
+
+theorem nine_short_vectors_absolute10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ)
+    (epsilon : ℝ) (he : 0 < epsilon) (w : Fin 10 → Fin 10 → ℤ)
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j)))
+    (hmem : ∀ j, w j ∈ originalSourceGroup10 A2 A3 Q c2 c3)
+    (hbound : ∀ (j : Fin 9) i, ‖(L *ᵥ integerReal (w j.castSucc)) i‖ ≤ Q^(c0 i-epsilon)) :
+    sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 < Q^(-(epsilon/2)) := by
+  have hsmall : sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 ≤ Q^(-epsilon) := by
+    apply (sourceMinima10_radius_set_properties A2 A3 L hL Q hQ c0 c2 c3 8).2.2.2
+    refine ⟨fun j : Fin 9 => integerReal (w j.castSucc),
+      hw.comp Fin.castSucc (Fin.castSucc_injective 9),?_,?_⟩
+    · intro j
+      exact ⟨w j.castSucc,hmem j.castSucc,rfl⟩
+    · intro j
+      apply (originalCoordinates10_bounds L hL Q hQ c0 _ _).mpr
+      intro i
+      rw [← Real.rpow_add (zero_lt_one.trans hQ)]
+      have hh := hbound j i
+      rw [Real.norm_eq_abs] at hh
+      convert hh using 1 <;> congr 1 <;> ring
+  exact hsmall.trans_lt ((Real.rpow_lt_rpow_left_iff hQ).mpr (by linarith))
+
+theorem original_sample_absolute10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    (hL : IsUnit L) {c2 c3 : Fin 10 → ℝ} {V : Set ℝ} {v : V → Fin 10 → Fin 10 → ℤ}
+    {c : Fin 3 → Fin 10 → ℝ} {epsilon eta D E B rho : ℝ} {m : ℕ} {hm : 0 < m}
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+    (he : 0 < epsilon) (hc : ∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5) (h : Fin m) :
+    sourceMinima10 A2 A3 L hL ((S.data.t h).val^5) (S.conditions.large h).2.2.1
+      (c 0) (c 1) (c 2) 8 < ((S.data.t h).val^5)^(-(epsilon/2)) := by
+  apply nine_short_vectors_absolute10 A2 A3 L hL _ (S.conditions.large h).2.2.1
+    (c 0) (c 1) (c 2) epsilon he (S.data.w h) (S.conditions.independent h)
+    _ (S.conditions.real_bound h)
+  intro j
+  have h2 : c 1 = fun i => c2 i/5 := funext (fun i => (hc i).1)
+  have h3 : c 2 = fun i => c3 i/5 := funext (fun i => (hc i).2)
+  rw [h2,h3,rescaled_original_group10]
+  exact S.conditions.member h j
+
+end CompoundFeasibility.M200Literal.SourceSampling10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M200Literal.SourcePrimitiveHeight10
+open SchmidtNormal10 OriginalDual10
+
+theorem primitive_original_cofactor_factor10 (v : Matrix (Fin 10) (Fin 10) ℤ)
+    (hv : LinearIndependent ℚ (fun j i => (v j i : ℚ))) (M a : Fin 10 → ℤ)
+    (hM : M ≠ 0) (ha : (∑ i, a i*M i) = 1)
+    (hann : ∀ j : Fin 9, (∑ i, M i*v j.castSucc i) = 0) :
+    let g : ℤ := ∑ i, a i*integerLastDual10 v i
+    g ≠ 0 ∧ (∀ i, integerLastDual10 v i = g*M i) ∧
+      ∀ d : ℤ, (∀ i, d ∣ integerLastDual10 v i) ↔ d ∣ g := by
+  let u : Fin 10 → Fin 10 → ℚ := fun j i => (v j i : ℚ)
+  let b := basisOfPiSpaceOfLinearIndependent hv
+  have hb (j : Fin 10) : b j = u j := congrFun (coe_basisOfPiSpaceOfLinearIndependent hv) j
+  let Z := integerLastDual10 v
+  have hZ (j : Fin 10) : normalForm10 Z (u j) =
+      if j = 9 then (v.det : ℚ) else 0 := by
+    have hh := integerLastDual10_pairing_fin10 v j
+    have hq : (∑ i, (v j i : ℚ)*(integerLastDual10 v i : ℚ)) =
+        if j = Fin.last 9 then (v.det : ℚ) else 0 := by exact_mod_cast hh
+    simpa only [normalForm10_apply,u,Z,mul_comm] using hq
+  have hMj (j : Fin 9) : normalForm10 M (u j.castSucc) = 0 := by
+    change (∑ i, (M i : ℚ)*(v j.castSucc i : ℚ)) = 0
+    exact_mod_cast hann j
+  have ht : normalForm10 M (u 9) ≠ 0 := by
+    intro hz
+    have hf : normalForm10 M = 0 := by
+      apply b.ext
+      intro j
+      rw [hb]
+      refine Fin.lastCases ?_ (fun i => ?_) j
+      · exact hz
+      · exact hMj i
+    apply hM
+    funext i
+    have hh := congrArg (fun f : Module.Dual ℚ (Fin 10 → ℚ) => f (Pi.single i 1)) hf
+    have hi : (M i : ℚ) = 0 := by simpa [normalForm10,Pi.single_apply] using hh
+    exact_mod_cast hi
+  let t : ℚ := (v.det : ℚ)/normalForm10 M (u 9)
+  have hforms : normalForm10 Z = t • normalForm10 M := by
+    apply b.ext
+    intro j
+    rw [hb,hZ]
+    refine Fin.lastCases ?_ (fun i => ?_) j
+    · simp only [show Fin.last 9 = (9 : Fin 10) from rfl,ite_true,LinearMap.smul_apply,smul_eq_mul]
+      exact (div_mul_cancel₀ _ ht).symm
+    · have hi : i.castSucc ≠ (9 : Fin 10) := by intro h; have := congrArg Fin.val h; change i.val = 9 at this; omega
+      rw [if_neg hi,LinearMap.smul_apply,hMj,smul_zero]
+  have hcoord (i : Fin 10) : (Z i : ℚ) = t*(M i : ℚ) := by
+    have hh := congrArg (fun f : Module.Dual ℚ (Fin 10 → ℚ) => f (Pi.single i 1)) hforms
+    simpa [normalForm10,Pi.single_apply] using hh
+  let g : ℤ := ∑ i, a i*Z i
+  have hgQ : (g : ℚ) = t := by
+    have haQ : (∑ i, (a i : ℚ)*(M i : ℚ)) = 1 := by exact_mod_cast ha
+    calc
+      (g : ℚ) = ∑ i, (a i : ℚ)*(Z i : ℚ) := by simp [g]
+      _ = t*(∑ i, (a i : ℚ)*(M i : ℚ)) := by
+        simp only [hcoord,Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro i _
+        ring
+      _ = t := by rw [haQ,mul_one]
+  have hscale (i : Fin 10) : Z i = g*M i := by
+    have hh : (Z i : ℚ) = (g : ℚ)*(M i : ℚ) := by rw [hgQ]; exact hcoord i
+    exact_mod_cast hh
+  have hg : g ≠ 0 := by
+    intro hz
+    apply integerLastDual10_nonzero v hv
+    funext i
+    change Z i = 0
+    rw [hscale,hz,zero_mul]
+  refine ⟨hg,hscale,?_⟩
+  intro d
+  constructor
+  · intro hd
+    exact Finset.dvd_sum (fun i _ => dvd_mul_of_dvd_right (hd i) (a i))
+  · intro hd i
+    change d ∣ Z i
+    rw [hscale]
+    exact dvd_mul_of_dvd_left hd (M i)
+
+end CompoundFeasibility.M200Literal.SourcePrimitiveHeight10
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.MixedIndex10
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.MixedIndex10
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedRadius10
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedRadius10
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedSelector10
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedSelector10
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedWeights10
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedWeights10
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedRadius10_pos
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedRadius10_pos
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedRadius10_bounds
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedRadius10_bounds
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedSelector10_iff
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedSelector10_iff
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.balanced_mixed_nonnegative10
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.balanced_mixed_nonnegative10
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedSelector10_nonempty
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.roundedSelector10_nonempty
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.rounded_to_power_margin10
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.rounded_to_power_margin10
+
+#check CompoundFeasibility.M200Literal.SourceSelectedSet10.rounded_power_selector_nonempty10
+#print axioms CompoundFeasibility.M200Literal.SourceSelectedSet10.rounded_power_selector_nonempty10
+
+#check CompoundFeasibility.M200Literal.SourceSampling10.rescaled_original_group10
+#print axioms CompoundFeasibility.M200Literal.SourceSampling10.rescaled_original_group10
+
+#check CompoundFeasibility.M200Literal.SourceSampling10.nine_short_vectors_absolute10
+#print axioms CompoundFeasibility.M200Literal.SourceSampling10.nine_short_vectors_absolute10
+
+#check CompoundFeasibility.M200Literal.SourceSampling10.original_sample_absolute10
+#print axioms CompoundFeasibility.M200Literal.SourceSampling10.original_sample_absolute10
+
+#check CompoundFeasibility.M200Literal.SourcePrimitiveHeight10.primitive_original_cofactor_factor10
+#print axioms CompoundFeasibility.M200Literal.SourcePrimitiveHeight10.primitive_original_cofactor_factor10

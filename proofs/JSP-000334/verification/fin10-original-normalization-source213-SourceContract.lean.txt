@@ -1,0 +1,26 @@
+import SubspaceBridge.SourceOriginalNormalization213
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M213SourceContract
+open SourceOriginalVariable10 SourceOriginalSatz212
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+
+theorem source_normalization_contract213 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    let G := sourceLattice10 A2 A3 (fun i => (-D.f2 i).toNat) (fun i => (-D.f3 i).toNat)
+    (∀ x : Fin 10 → ℤ, x ∈ G ↔
+      (∀ i, padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) ≤ (2 : ℚ)^(D.f2 i)) ∧
+      (∀ i, padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) ≤ (3 : ℚ)^(D.f3 i))) ∧
+    ∃ uG : Fin 10 → G, (∀ j, (uG j : Fin 10 → ℤ) = D.u j) ∧
+      let J := (Submodule.span ℤ (Set.range uG)).toAddSubgroup.index
+      let d := ZLattice.covolume (integerRealImage G)
+      0 < J ∧ 0 < d ∧
+      J*G.index = (Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det.natAbs ∧
+      |((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det : ℝ)| = (J : ℝ)*d ∧
+      d = (G.index : ℝ) ∧ ((J*G.index : ℕ) : ℝ) = (J : ℝ)*d := by
+  refine ⟨fun x => original_lattice_mem212 D x,originalFrame212 D,fun _ => rfl,?_⟩
+  exact original_index_normalization212 D
+
+end CompoundFeasibility.M213SourceContract
+#print CompoundFeasibility.M213SourceContract.source_normalization_contract213
+#print axioms CompoundFeasibility.M213SourceContract.source_normalization_contract213

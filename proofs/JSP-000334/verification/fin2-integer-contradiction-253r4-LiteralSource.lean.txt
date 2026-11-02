@@ -1,0 +1,935 @@
+import SubspaceBridge.AuxiliaryProductFormula
+import SubspaceBridge.BinaryLocalMass2
+open scoped BigOperators Classical Matrix
+open JSP000334
+namespace LiteralR4
+
+
+theorem binary_derivative_homogeneous {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (J : RothBlockVars2 m →₀ ℕ) :
+    binaryBlockHomogeneous (fun h => r h - ∑ i : Fin 2, J (h,i)) (binaryDividedDerivative J P) := by
+  intro d hd h
+  change (∑ i : Fin 2, d (h,i)) = r h-∑ i : Fin 2, J (h,i)
+  have hn := MvPolynomial.mem_support_iff.mp hd
+  have hc : P.coeff (d+J) ≠ 0 := by
+    intro hz
+    rw [binary_derivative_coeff,hz,zero_mul] at hn
+    exact hn rfl
+  have hh := hP (d+J) (MvPolynomial.mem_support_iff.mpr hc) h
+  simp only [Finsupp.add_apply,Finset.sum_add_distrib] at hh
+  omega
+
+theorem binary_homogeneous_scale_eval {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (s : Fin m → ℚ) (x : RothBlockVars2 m → ℚ) :
+    MvPolynomial.eval₂ (Int.castRingHom ℚ) (fun u => s u.1*x u) P =
+      (∏ h, s h^r h)*MvPolynomial.eval₂ (Int.castRingHom ℚ) x P := by
+  classical
+  conv_lhs => arg 3; rw [MvPolynomial.as_sum P]
+  conv_rhs => arg 2; arg 3; rw [MvPolynomial.as_sum P]
+  rw [MvPolynomial.eval₂_sum, MvPolynomial.eval₂_sum, Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro b hb
+  rw [MvPolynomial.eval₂_monomial,MvPolynomial.eval₂_monomial]
+  rw [Finsupp.prod_fintype b (fun n e => (s n.1*x n)^e) (fun _ => pow_zero _),
+    Finsupp.prod_fintype b (fun n e => x n^e) (fun _ => pow_zero _)]
+  simp only [mul_pow,Finset.prod_mul_distrib]
+  have hs : (∏ u : RothBlockVars2 m, s u.1^b u) = ∏ h, s h^r h := by
+    rw [Fintype.prod_prod_type]
+    apply Finset.prod_congr rfl
+    intro h _
+    change (∏ i : Fin 2, s h^b (h,i)) = s h^r h
+    rw [Finset.prod_pow_eq_pow_sum,hP b hb h]
+  rw [hs]
+  ring
+
+noncomputable def binaryIntegerVectorRestriction {m : ℕ} (w : Fin m → Fin 2 → ℤ)
+    (J : RothBlockVars2 m →₀ ℕ) (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    MvPolynomial (Fin m) ℤ :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u => MvPolynomial.C (w u.1 u.2)*MvPolynomial.X u.1)
+    (binaryDividedDerivative J P)
+
+theorem binary_monomial_product {σ ι : Type*} (s : Finset ι)
+    (b : ι → σ →₀ ℕ) (c : ι → ℤ) :
+    (∏ i ∈ s, MvPolynomial.monomial (b i) (c i)) =
+      MvPolynomial.monomial (∑ i ∈ s,b i) (∏ i ∈ s,c i) := by
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert i s hi ih => simp [hi,ih,MvPolynomial.monomial_mul]
+
+theorem binary_integer_restriction_coefficient {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (w : Fin m → Fin 2 → ℤ) (J : RothBlockVars2 m →₀ ℕ) :
+    binaryIntegerVectorRestriction w J P =
+      MvPolynomial.monomial (Finsupp.equivFunOnFinite.symm (fun h => r h-∑ i : Fin 2,J (h,i)))
+        (MvPolynomial.eval (fun u => w u.1 u.2) (binaryDividedDerivative J P)) := by
+  classical
+  let Q := binaryDividedDerivative J P
+  have hQ := binary_derivative_homogeneous r P hP J
+  change MvPolynomial.eval₂Hom MvPolynomial.C _ Q =
+    MvPolynomial.monomial _ (MvPolynomial.eval (fun u => w u.1 u.2) Q)
+  conv_lhs => arg 2; rw [MvPolynomial.as_sum Q]
+  rw [map_sum]
+  conv_rhs => arg 2; arg 2; rw [MvPolynomial.as_sum Q]
+  rw [MvPolynomial.eval_sum, map_sum]
+  apply Finset.sum_congr rfl
+  intro b hb
+  rw [MvPolynomial.eval₂Hom_monomial,MvPolynomial.eval_monomial]
+  rw [Finsupp.prod_fintype _ _ (fun _ => by simp)]
+  simp only [mul_pow, ← map_pow,MvPolynomial.X_pow_eq_monomial,Finset.prod_mul_distrib,
+    ← map_prod,MvPolynomial.C_mul_monomial]
+  have he : (∑ u : RothBlockVars2 m, Finsupp.single u.1 (b u)) =
+      Finsupp.equivFunOnFinite.symm (fun h => r h-∑ i : Fin 2,J (h,i)) := by
+    ext h
+    rw [Finsupp.finset_sum_apply,Fintype.sum_prod_type]
+    simp only [Finsupp.single_apply,Finsupp.equivFunOnFinite]
+    calc
+      _ = ∑ i : Fin 2,b (h,i) := by
+        rw [Finset.sum_comm]
+        apply Finset.sum_congr rfl
+        intro i _
+        simp [eq_comm]
+      _ = _ := hQ b hb h
+  rw [binary_monomial_product,he]
+  change MvPolynomial.C (Q.coeff b) * _ = _
+  rw [MvPolynomial.C_mul_monomial]
+  congr 1
+  rw [Finsupp.prod_fintype b (fun u n => w u.1 u.2^n) (fun _ => pow_zero _)]
+  simp only [mul_one]
+
+
+
+def binaryKernelVector (V : Fin 2 → ℤ) : Fin 2 → ℤ := ![V 1,-V 0]
+
+theorem binary_kernel_vector_nonzero (V : Fin 2 → ℤ) (hV : ∃ i,V i ≠ 0) :
+    ∃ i,binaryKernelVector V i ≠ 0 := by
+  by_contra hh
+  push_neg at hh
+  obtain ⟨i,hi⟩ := hV
+  have h0 := hh 0
+  have h1 := hh 1
+  simp only [binaryKernelVector,Matrix.cons_val_zero,Matrix.cons_val_one,Matrix.head_cons,
+    neg_eq_zero] at h0 h1
+  fin_cases i <;> simp_all [binaryKernelVector]
+
+theorem binary_kernel_vector_orthogonal (V : Fin 2 → ℤ) :
+    (∑ i : Fin 2,V i*binaryKernelVector V i) = 0 := by
+  simp [Fin.sum_univ_two,binaryKernelVector]
+  ring
+
+theorem binary_kernel_vector_primitive (V : Fin 2 → ℤ)
+    (hV : Ideal.span (Set.range V)=⊤) :
+    Int.gcd (binaryKernelVector V 0) (binaryKernelVector V 1)=1 := by
+  simpa [binaryKernelVector,Int.gcd_comm] using binary_primitive_gcd V hV
+
+theorem binary_kernel_vector_free (V : Fin 2 → ℤ) (k : Fin 2) (hk : V k ≠ 0) :
+    binaryKernelVector V k.rev ≠ 0 := by
+  fin_cases k <;> simpa [binaryKernelVector] using hk
+
+theorem binary_kernel_vector_normalized (V : Fin 2 → ℤ) (k i : Fin 2) (hk : V k ≠ 0) :
+    (binaryKernelVector V i : ℚ) = (binaryKernelVector V k.rev : ℚ)*
+      (if i=k then -(V k.rev : ℚ)/(V k : ℚ) else 1) := by
+  have hq : (V k : ℚ) ≠ 0 := by exact_mod_cast hk
+  fin_cases k <;> fin_cases i <;> simp_all [binaryKernelVector]
+  all_goals field_simp <;> ring
+
+theorem binary_kernel_vector_spans (V : Fin 2 → ℤ) (hV : ∃ i,V i ≠ 0)
+    (x : Fin 2 → ℚ) (hx : (∑ i : Fin 2,(V i : ℚ)*x i)=0) :
+    ∃ t : ℚ, ∀ i,x i=t*(binaryKernelVector V i : ℚ) := by
+  rw [Fin.sum_univ_two] at hx
+  by_cases h0 : V 0 = 0
+  · have h1 : V 1 ≠ 0 := by
+      obtain ⟨i,hi⟩ := hV
+      fin_cases i <;> simp_all
+    have h1q : (V 1 : ℚ) ≠ 0 := by exact_mod_cast h1
+    have hx1 : x 1=0 := by
+      simp only [h0,Int.cast_zero,zero_mul,zero_add] at hx
+      exact (mul_eq_zero.mp hx).resolve_left h1q
+    refine ⟨x 0/(V 1 : ℚ),?_⟩
+    intro i
+    have hi : i=0 ∨ i=1 := by omega
+    rcases hi with rfl | rfl <;> simp [binaryKernelVector,h0,hx1]
+    field_simp
+  · have h0q : (V 0 : ℚ) ≠ 0 := by exact_mod_cast h0
+    refine ⟨-x 1/(V 0 : ℚ),?_⟩
+    intro i
+    have hi : i=0 ∨ i=1 := by omega
+    rcases hi with rfl | rfl <;> simp [binaryKernelVector]
+    · field_simp
+      nlinarith [hx]
+    · field_simp
+
+
+
+noncomputable def binaryVectorRecovery {m : ℕ} (V : Fin m → Fin 2 → ℤ)
+    (k : Fin m → Fin 2) (h : Fin m) : MvPolynomial (RothBlockVars2 m) ℚ :=
+  MvPolynomial.C ((binaryKernelVector (V h) (k h).rev : ℚ)⁻¹)*MvPolynomial.X (h,(k h).rev)
+
+theorem binary_vector_chart_recovery {m : ℕ} (V : Fin m → Fin 2 → ℤ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0) (u : RothBlockVars2 m) :
+    MvPolynomial.C (binaryKernelVector (V u.1) u.2 : ℚ)*binaryVectorRecovery V k u.1 =
+      binaryKernelChart V k u := by
+  rcases u with ⟨h,i⟩
+  have hf : (binaryKernelVector (V h) (k h).rev : ℚ) ≠ 0 := by
+    exact_mod_cast binary_kernel_vector_free (V h) (k h) (hk h)
+  let a : ℚ := if i=k h then -(V h (k h).rev : ℚ)/(V h (k h) : ℚ) else 1
+  have hs : (binaryKernelVector (V h) i : ℚ)*(binaryKernelVector (V h) (k h).rev : ℚ)⁻¹ = a := by
+    rw [binary_kernel_vector_normalized (V h) (k h) i (hk h)]
+    change ((binaryKernelVector (V h) (k h).rev : ℚ)*a)*_ = a
+    rw [mul_comm _ a,mul_assoc,mul_inv_cancel₀ hf,mul_one]
+  unfold binaryVectorRecovery
+  rw [← mul_assoc,← MvPolynomial.C_mul,hs]
+  dsimp only [a]
+  generalize he : k h = l
+  fin_cases l <;> fin_cases i <;> simp [binaryKernelChart,he,neg_div,map_neg,neg_mul]
+
+theorem binary_kernel_integer_factor {m : ℕ} (V : Fin m → Fin 2 → ℤ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0)
+    (J : RothBlockVars2 m →₀ ℕ) (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    MvPolynomial.eval₂Hom (Int.castRingHom _) (binaryVectorRecovery V k)
+      (binaryIntegerVectorRestriction (fun h => binaryKernelVector (V h)) J P) =
+        binaryKernelRestriction V k (binaryDividedDerivative J P) := by
+  have he : (MvPolynomial.eval₂Hom (Int.castRingHom _) (binaryVectorRecovery V k)).comp
+      (MvPolynomial.eval₂Hom MvPolynomial.C
+        (fun u => MvPolynomial.C (binaryKernelVector (V u.1) u.2)*MvPolynomial.X u.1)) =
+      MvPolynomial.eval₂Hom (Int.castRingHom _) (binaryKernelChart V k) := by
+    apply MvPolynomial.ringHom_ext
+    · intro z
+      simp
+    · intro u
+      simp only [RingHom.comp_apply,MvPolynomial.eval₂Hom_X',map_mul,MvPolynomial.eval₂Hom_C]
+      exact binary_vector_chart_recovery V k hk u
+  exact congrArg (fun f => f (binaryDividedDerivative J P)) he
+
+theorem binary_nonzero_integer_coefficient {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (hP : binaryBlockHomogeneous r P) (J : RothBlockVars2 m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0)
+    (hn : binaryKernelRestriction V k (binaryDividedDerivative J P) ≠ 0) :
+    ∃ (e : Fin m →₀ ℕ) (z : ℤ), z ≠ 0 ∧
+      (binaryIntegerVectorRestriction (fun h => binaryKernelVector (V h)) J P).coeff e = z ∧
+      z = MvPolynomial.eval (fun u => binaryKernelVector (V u.1) u.2) (binaryDividedDerivative J P) := by
+  let z := MvPolynomial.eval (fun u => binaryKernelVector (V u.1) u.2) (binaryDividedDerivative J P)
+  let e : Fin m →₀ ℕ := Finsupp.equivFunOnFinite.symm (fun h => r h-∑ i : Fin 2,J (h,i))
+  have hr := binary_integer_restriction_coefficient r P hP (fun h => binaryKernelVector (V h)) J
+  refine ⟨e,z,?_,?_,rfl⟩
+  · intro hz
+    apply hn
+    rw [← binary_kernel_integer_factor V k hk J P,hr]
+    change MvPolynomial.eval₂Hom (Int.castRingHom _) (binaryVectorRecovery V k)
+      (MvPolynomial.monomial e z) = 0
+    rw [hz,MvPolynomial.monomial_zero,map_zero]
+  · rw [hr]
+    simp [MvPolynomial.coeff_monomial,e,z]
+
+theorem binary_integer_eval_cast {m : ℕ} (w : Fin m → Fin 2 → ℤ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    ((MvPolynomial.eval (fun u : RothBlockVars2 m => w u.1 u.2) P : ℤ) : ℚ) =
+      MvPolynomial.eval₂ (Int.castRingHom ℚ) (fun u : RothBlockVars2 m => (w u.1 u.2 : ℚ)) P := by
+  have he : (Int.castRingHom ℚ).comp (MvPolynomial.eval (fun u : RothBlockVars2 m => w u.1 u.2)) =
+      MvPolynomial.eval₂Hom (Int.castRingHom ℚ) (fun u : RothBlockVars2 m => (w u.1 u.2 : ℚ)) := by
+    apply MvPolynomial.ringHom_ext <;> intro u <;> simp
+  exact congrArg (fun f => f P) he
+
+theorem binary_integer_normalized_scale {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (hP : binaryBlockHomogeneous r P) (J : RothBlockVars2 m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0) :
+    ((MvPolynomial.eval (fun u => binaryKernelVector (V u.1) u.2)
+      (binaryDividedDerivative J P) : ℤ) : ℚ) =
+      (∏ h,(binaryKernelVector (V h) (k h).rev : ℚ)^(r h-∑ i : Fin 2,J (h,i)))*
+        MvPolynomial.eval₂ (RingHom.id ℚ) (fun _ => 1)
+          (binaryKernelRestriction V k (binaryDividedDerivative J P)) := by
+  rw [binary_integer_eval_cast (fun h => binaryKernelVector (V h)),binaryKernelRestriction_eval]
+  rw [← binary_homogeneous_scale_eval _ _ (binary_derivative_homogeneous r P hP J)]
+  congr 1
+  funext u
+  exact binary_kernel_vector_normalized (V u.1) (k u.1) u.2 (hk u.1)
+
+theorem binary_integer_block_scales_nonzero {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (J : RothBlockVars2 m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0) :
+    (∏ h,(binaryKernelVector (V h) (k h).rev : ℚ)^(r h-∑ i : Fin 2,J (h,i))) ≠ 0 := by
+  apply Finset.prod_ne_zero_iff.mpr
+  intro h _
+  apply pow_ne_zero
+  exact_mod_cast binary_kernel_vector_free (V h) (k h) (hk h)
+
+
+theorem binaryNormal_local_order_le {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (J b : RothBlockVars2 m →₀ ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (hb : (binaryLocalExpansion L J P).coeff b ≠ 0) (h : Fin m) :
+    (∑ i : Fin 2, J (h,i)) ≤ r h := by
+  by_contra! hbad
+  have hz := binary_source_derivative_zero_of_block_excess r P hP J h hbad
+  apply hb
+  simp [binaryLocalExpansion, hz]
+
+theorem binaryNormal_local_total_weight {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (J b : RothBlockVars2 m →₀ ℕ) (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (hP : binaryBlockHomogeneous r P)
+    (hb : (binaryLocalExpansion L J P).coeff b ≠ 0) :
+    (∑ i : Fin 2, binaryLocalCoordinateWeight r i b) =
+      (m : ℝ) - binarySourceDerivativeWeight r J := by
+  unfold binaryLocalCoordinateWeight binarySourceDerivativeWeight
+  have hm : (m : ℝ) = ∑ _h : Fin m, (1 : ℝ) := by simp
+  rw [Finset.sum_comm, hm, ← Finset.sum_sub_distrib]
+  apply Finset.sum_congr rfl
+  intro h hh
+  rw [← Finset.sum_div]
+  have hd := binaryLocal_expansion_block_degree r L J P hP b hb h
+  have hle := binaryNormal_local_order_le r L J b P hP hb h
+  have hdR : (∑ i : Fin 2, (b (h,i) : ℝ)) = (r h : ℝ) - ∑ i : Fin 2, (J (h,i) : ℝ) := by
+    have hh : (∑ i : Fin 2, (b (h,i) : ℝ)) + (∑ i : Fin 2, (J (h,i) : ℝ)) = (r h : ℝ) := by
+      exact_mod_cast (show (∑ i : Fin 2, b (h,i)) + (∑ i : Fin 2, J (h,i)) = r h by omega)
+    linarith
+  rw [hdR]
+  have hpos : (0 : ℝ) < r h := by exact_mod_cast hr h
+  field_simp [ne_of_gt hpos]
+
+noncomputable def binaryNormalLogWeight {m : ℕ} (Q : Fin m → ℝ)
+    (b : RothBlockVars2 m →₀ ℕ) (i : Fin 2) : ℝ :=
+  ∑ h : Fin m, (b (h,i) : ℝ) * Real.log (Q h)
+
+theorem binaryNormal_log_weight_transport {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (Q : Fin m → ℝ) (eta A : ℝ)
+    (heta : 0 ≤ eta) (hA : 0 ≤ A)
+    (hlog : ∀ h, A ≤ (r h : ℝ) * Real.log (Q h) ∧
+      (r h : ℝ) * Real.log (Q h) ≤ (1+eta)*A)
+    (b : RothBlockVars2 m →₀ ℕ)
+    (hdegree : ∀ h, (∑ i : Fin 2, b (h,i)) ≤ r h)
+    (hbalance : ∀ i : Fin 2,
+      |binaryLocalCoordinateWeight r i b - (m : ℝ)/2| ≤ 3*m*eta) :
+    ∀ i : Fin 2, |binaryNormalLogWeight Q b i - A*(m : ℝ)/2| ≤ 4*A*m*eta := by
+  intro i
+  have hnorm : 0 ≤ binaryLocalCoordinateWeight r i b ∧
+      binaryLocalCoordinateWeight r i b ≤ (m : ℝ) := by
+    constructor
+    · unfold binaryLocalCoordinateWeight
+      exact Finset.sum_nonneg (fun h _ => div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _))
+    · unfold binaryLocalCoordinateWeight
+      calc
+        _ ≤ ∑ h : Fin m, (1 : ℝ) := by
+          apply Finset.sum_le_sum
+          intro h hh
+          apply (div_le_one (by exact_mod_cast hr h)).mpr
+          exact_mod_cast (Finset.single_le_sum (fun j _ => Nat.zero_le (b (h,j)))
+            (Finset.mem_univ i)).trans (hdegree h)
+        _ = _ := by simp
+  have hterm (h : Fin m) :
+      (b (h,i) : ℝ) * Real.log (Q h) =
+        ((b (h,i) : ℝ) / (r h : ℝ)) * ((r h : ℝ) * Real.log (Q h)) := by
+    have hn : (r h : ℝ) ≠ 0 := ne_of_gt (by exact_mod_cast hr h)
+    field_simp [hn]
+    ring
+  have hlo : A * binaryLocalCoordinateWeight r i b ≤ binaryNormalLogWeight Q b i := by
+    unfold binaryLocalCoordinateWeight binaryNormalLogWeight
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro h hh
+    rw [hterm]
+    calc
+      A * ((b (h,i) : ℝ) / r h) = ((b (h,i) : ℝ) / r h) * A := mul_comm _ _
+      _ ≤ _ := mul_le_mul_of_nonneg_left (hlog h).1
+        (div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _))
+  have hhi : binaryNormalLogWeight Q b i ≤ (1+eta)*A*binaryLocalCoordinateWeight r i b := by
+    unfold binaryLocalCoordinateWeight binaryNormalLogWeight
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro h hh
+    rw [hterm]
+    calc
+      _ ≤ ((b (h,i) : ℝ) / r h) * ((1+eta)*A) := mul_le_mul_of_nonneg_left (hlog h).2
+        (div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _))
+      _ = _ := by ring
+  have hbal := abs_le.mp (hbalance i)
+  have hscale1 := mul_le_mul_of_nonneg_left hbal.1 hA
+  have hscale2 := mul_le_mul_of_nonneg_left hbal.2 hA
+  have herror := mul_le_mul_of_nonneg_left hnorm.2 (mul_nonneg heta hA)
+  apply abs_le.mpr
+  constructor <;> nlinarith
+
+noncomputable def binaryNormalLocalExponent {m : ℕ} (tau : Fin 3)
+    (Q : Fin m → ℝ) (c : Fin 3 → Fin 2 → ℝ) (delta : ℝ)
+    (b : RothBlockVars2 m →₀ ℕ) : ℝ :=
+  ∑ i : Fin 2, (c tau i - if tau = 0 then delta else 0) * binaryNormalLogWeight Q b i
+
+theorem binaryNormal_log_total_lower {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (Q : Fin m → ℝ) (A : ℝ) (hA : 0 ≤ A)
+    (hlog : ∀ h, A ≤ (r h : ℝ) * Real.log (Q h))
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (J b : RothBlockVars2 m →₀ ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (hb : (binaryLocalExpansion L J P).coeff b ≠ 0)
+    (eta : ℝ) (hJ : binarySourceDerivativeWeight r J ≤ 2*eta*m) :
+    A*(m : ℝ)*(1-2*eta) ≤ ∑ i : Fin 2, binaryNormalLogWeight Q b i := by
+  have hw := binaryNormal_local_total_weight r hr L J b P hP hb
+  have hlo : A * (∑ i : Fin 2, binaryLocalCoordinateWeight r i b) ≤
+      ∑ i : Fin 2, binaryNormalLogWeight Q b i := by
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro i hi
+    unfold binaryLocalCoordinateWeight binaryNormalLogWeight
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro h hh
+    have hratio : 0 ≤ (b (h,i) : ℝ) / r h := div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _)
+    have ht := mul_le_mul_of_nonneg_left (hlog h) hratio
+    have hn : (r h : ℝ) ≠ 0 := ne_of_gt (by exact_mod_cast hr h)
+    convert ht using 1 <;> field_simp [hn] <;> ring
+  rw [hw] at hlo
+  have hmul := mul_le_mul_of_nonneg_left hJ hA
+  nlinarith
+
+theorem binaryNormal_source_exponent {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (Q : Fin m → ℝ) (eta delta A : ℝ)
+    (heta : 0 < eta) (hdelta : 40*eta < delta) (hdeltalt : delta < 1)
+    (hA : 0 ≤ A)
+    (hlog : ∀ h, A ≤ (r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*A)
+    (c : Fin 3 → Fin 2 → ℝ) (hc : ∀ tau i, |c tau i| ≤ 1)
+    (tau : Fin 3) (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (J b : RothBlockVars2 m →₀ ℕ) (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (hP : binaryBlockHomogeneous r P)
+    (hb : (binaryLocalExpansion L J P).coeff b ≠ 0)
+    (hJ : binarySourceDerivativeWeight r J ≤ 2*eta*m)
+    (hbalance : ∀ i : Fin 2,
+      |binaryLocalCoordinateWeight r i b - (m : ℝ)/2| ≤ 3*m*eta) :
+    binaryNormalLocalExponent tau Q c delta b ≤
+      A*m*((∑ i : Fin 2, c tau i)/2 + if tau = 0 then -30*eta else 8*eta) := by
+  have hdeg (h : Fin m) : (∑ i : Fin 2, b (h,i)) ≤ r h := by
+    have hd := binaryLocal_expansion_block_degree r L J P hP b hb h
+    omega
+  have ht := binaryNormal_log_weight_transport r hr Q eta A heta.le hA hlog b hdeg hbalance
+  have hnn : 0 ≤ 4*A*m*eta := by positivity
+  have hterm (i : Fin 2) :
+      c tau i * binaryNormalLogWeight Q b i ≤ c tau i * (A*m/2) + 4*A*m*eta := by
+    have hmul : |c tau i * (binaryNormalLogWeight Q b i - A*m/2)| ≤ 4*A*m*eta := by
+      calc
+        _ = |c tau i| * |binaryNormalLogWeight Q b i - A*m/2| := abs_mul _ _
+        _ ≤ 1 * (4*A*m*eta) := mul_le_mul (hc tau i) (ht i) (abs_nonneg _) (by norm_num)
+        _ = _ := one_mul _
+    have ha := (le_abs_self (c tau i * (binaryNormalLogWeight Q b i - A*m/2))).trans hmul
+    nlinarith
+  have hs := Finset.sum_le_sum (fun i (_ : i ∈ (Finset.univ : Finset (Fin 2))) => hterm i)
+  have hsimp : (∑ i : Fin 2, c tau i * binaryNormalLogWeight Q b i) ≤
+      (A*m/2)*(∑ i : Fin 2, c tau i) + 8*A*m*eta := by
+    simp only [Finset.sum_add_distrib, ← Finset.sum_mul, Finset.sum_const,
+      Finset.card_univ, Fintype.card_fin, nsmul_eq_mul] at hs
+    nlinarith [hs]
+  by_cases htau : tau = 0
+  · have hlower := binaryNormal_log_total_lower r hr Q A hA (fun h => (hlog h).1)
+      L J b P hP hb eta hJ
+    have hetaSmall : eta < 1/40 := by linarith
+    have hdeltaPos : 0 < delta := by linarith
+    have hbudget : 38*eta ≤ delta*(1-2*eta) := by nlinarith
+    have hprod := mul_le_mul_of_nonneg_left hbudget (mul_nonneg hA (Nat.cast_nonneg m))
+    have hnegative := mul_le_mul_of_nonneg_left hlower hdeltaPos.le
+    rw [htau] at hsimp
+    simp only [binaryNormalLocalExponent, htau, if_pos rfl, sub_mul,
+      Finset.sum_sub_distrib, ← Finset.mul_sum, ite_true]
+    nlinarith
+  · simp only [binaryNormalLocalExponent, if_neg htau, sub_zero]
+    nlinarith
+
+
+
+noncomputable def binaryLocalVectorValue (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (w : Fin 2 → ℤ) (i : Fin 2) : ℚ := ∑ j : Fin 2,(L i j : ℚ)*(w j : ℚ)
+
+theorem binary_vector_local_evaluation {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (binaryLocalRationalMatrix L).det ≠ 0) (w : Fin m → Fin 2 → ℤ)
+    (J : RothBlockVars2 m →₀ ℕ) (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    ((MvPolynomial.eval (fun u => w u.1 u.2) (binaryDividedDerivative J P) : ℤ) : ℚ) =
+      MvPolynomial.eval₂ (RingHom.id ℚ) (fun u => binaryLocalVectorValue L (w u.1) u.2)
+        (binaryLocalExpansion L J P) := by
+  have he : (MvPolynomial.eval₂Hom (RingHom.id ℚ) (fun u : RothBlockVars2 m => (w u.1 u.2 : ℚ))).comp
+      (binaryLocalSubstitution (binaryLocalRationalMatrix L)) =
+      MvPolynomial.eval₂Hom (RingHom.id ℚ) (fun u => binaryLocalVectorValue L (w u.1) u.2) := by
+    apply MvPolynomial.ringHom_ext
+    · intro q
+      simp [binaryLocalSubstitution]
+    · intro u
+      simp [binaryLocalSubstitution,binaryLocalLinearChart,binaryLocalVectorValue,binaryLocalRationalMatrix]
+  rw [binary_integer_eval_cast]
+  have hh := congrArg (MvPolynomial.eval₂Hom (RingHom.id ℚ) (fun u : RothBlockVars2 m => (w u.1 u.2 : ℚ)))
+    (binaryLocal_expansion_reconstruct L hL J P)
+  rw [← RingHom.comp_apply,he] at hh
+  simpa using hh.symm
+
+theorem binary_expansion_support_card {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (J : RothBlockVars2 m →₀ ℕ) :
+    (binaryLocalExpansion L J P).support.card ≤ 2^(∑ h,r h) := by
+  classical
+  let d : Fin m → ℕ := fun h => r h-∑ i : Fin 2,J (h,i)
+  let S := (binaryLocalExpansion L J P).support
+  have hd (b : RothBlockVars2 m →₀ ℕ) (hb : b ∈ S) (h : Fin m) :
+      b (h,0)+b (h,1)=d h := by
+    simpa only [Fin.sum_univ_two] using binaryLocal_expansion_block_degree r L J P hP b
+      (MvPolynomial.mem_support_iff.mp hb) h
+  let f : {b // b ∈ S} → BinaryAuxCoefficients d := fun b h =>
+    ⟨b.val (h,0),by have hh := hd b.val b.property h; omega⟩
+  have hf : Function.Injective f := by
+    intro b c he
+    apply Subtype.ext
+    ext ⟨h,i⟩
+    have hp : b.val (h,0)=c.val (h,0) := congrArg (fun a : BinaryAuxCoefficients d => (a h).val) he
+    have hb := hd b.val b.property h
+    have hc := hd c.val c.property h
+    have hi : i=0 ∨ i=1 := by omega
+    rcases hi with rfl | rfl <;> omega
+  have hcard := Fintype.card_le_of_injective f hf
+  have hh : S.card ≤ 2^(∑ h,d h) := by
+    simpa only [Fintype.card_coe] using hcard.trans (binary_dimension_pow_bound d)
+  exact hh.trans (Nat.pow_le_pow_right (by omega) (Finset.sum_le_sum (fun h _ => Nat.sub_le _ _)))
+
+
+
+theorem binary_abs_sum {ι : Type*} (tau : Fin 3) (s : Finset ι) (x : ι → ℚ) :
+    rothLocalAbs tau (∑ i ∈ s,x i) ≤ ∑ i ∈ s,rothLocalAbs tau (x i) := by
+  induction s using Finset.induction_on with
+  | empty => simp [rothLocalAbs_zero]
+  | @insert i s hi ih =>
+    rw [Finset.sum_insert hi,Finset.sum_insert hi]
+    exact (rothLocalAbs_add tau _ _).trans (add_le_add_left ih _)
+
+theorem binary_local_value_product_bound {m : ℕ} (tau : Fin 3)
+    (Q : Fin m → ℝ) (hQ : ∀ h,0<Q h) (c : Fin 3 → Fin 2 → ℝ) (delta : ℝ)
+    (y : RothBlockVars2 m → ℚ)
+    (hy : ∀ u,rothLocalAbs tau (y u) ≤ Real.rpow (Q u.1) (c tau u.2-if tau=0 then delta else 0))
+    (b : RothBlockVars2 m →₀ ℕ) :
+    rothLocalAbs tau (∏ u : RothBlockVars2 m,y u^b u) ≤
+      Real.exp (binaryNormalLocalExponent tau Q c delta b) := by
+  rw [rothNormalAbs_prod]
+  simp only [rothNormalAbs_pow]
+  calc
+    _ ≤ ∏ u : RothBlockVars2 m,
+        Real.rpow (Q u.1) (c tau u.2-if tau=0 then delta else 0)^b u := by
+      apply Finset.prod_le_prod
+      · intro u _; exact pow_nonneg (rothLocalAbs_nonneg _ _) _
+      · intro u _
+        exact pow_le_pow_left₀ (rothLocalAbs_nonneg _ _) (hy u) _
+    _ = Real.exp (∑ u : RothBlockVars2 m,
+        (b u : ℝ)*((c tau u.2-if tau=0 then delta else 0)*Real.log (Q u.1))) := by
+      rw [Real.exp_sum]
+      apply Finset.prod_congr rfl
+      intro u _
+      rw [Real.rpow_eq_pow,Real.rpow_def_of_pos (hQ u.1),← Real.exp_nat_mul]
+      congr 1
+      ring
+    _ = _ := by
+      congr 1
+      unfold binaryNormalLocalExponent binaryNormalLogWeight
+      rw [Fintype.sum_prod_type,Finset.sum_comm]
+      apply Finset.sum_congr rfl
+      intro i _
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro h _
+      ring
+
+theorem binary_integer_local_bound {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h,0<r h)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (D : ℝ) (hD : 1≤D) (hH : (binaryPolynomialHeight P : ℝ)≤D^(∑ h,r h))
+    (tau : Fin 3) (L : Matrix (Fin 2) (Fin 2) ℤ) (hL : (binaryLocalRationalMatrix L).det ≠ 0)
+    (G : ℝ) (hG : 1≤G) (hentry : ∀ i j,rothLocalAbs tau ((binaryLocalRationalMatrix L)⁻¹ i j)≤G)
+    (eta delta A : ℝ) (heta : 0<eta) (hdelta : 40*eta<delta) (hdelta1 : delta<1) (hA : 0≤A)
+    (Q : Fin m → ℝ) (hQ : ∀ h,1<Q h)
+    (hlog : ∀ h,A≤(r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h)≤(1+eta)*A)
+    (c : Fin 3 → Fin 2 → ℝ) (hc : ∀ tau i,|c tau i|≤1)
+    (hindex : ∀ i,binarySourceHighIndex r (fun _ => L i) ((1/2-eta)*m) P)
+    (w : Fin m → Fin 2 → ℤ)
+    (hw : ∀ h i,rothLocalAbs tau (binaryLocalVectorValue L (w h) i)≤
+      Real.rpow (Q h) (c tau i-if tau=0 then delta else 0))
+    (J : RothBlockVars2 m →₀ ℕ) (hJ : binarySourceDerivativeWeight r J≤2*eta*m) :
+    rothLocalAbs tau ((MvPolynomial.eval (fun u => w u.1 u.2) (binaryDividedDerivative J P) : ℤ) : ℚ) ≤
+      (2*(8*D*G))^(∑ h,r h)*Real.exp (A*m*((∑ i : Fin 2,c tau i)/2+if tau=0 then -30*eta else 8*eta)) := by
+  let F := binaryLocalExpansion L J P
+  let R := ∑ h,r h
+  let E := 8*D*G
+  let X := A*m*((∑ i : Fin 2,c tau i)/2+if tau=0 then -30*eta else 8*eta)
+  have hterm (b : RothBlockVars2 m →₀ ℕ) (hb : b ∈ F.support) :
+      rothLocalAbs tau (F.coeff b*∏ u : RothBlockVars2 m,binaryLocalVectorValue L (w u.1) u.2^b u) ≤
+        E^R*Real.exp X := by
+    have hn : F.coeff b ≠ 0 := MvPolynomial.mem_support_iff.mp hb
+    have hbal := binaryLocal_coefficient_balance r hr eta heta L hL P hP hindex J b hJ hn
+    have hex := binaryNormal_source_exponent r hr Q eta delta A heta hdelta hdelta1 hA hlog c hc
+      tau L J b P hP hn hJ hbal
+    have hp := binary_local_value_product_bound tau Q (fun h => lt_trans zero_lt_one (hQ h)) c delta
+      (fun u => binaryLocalVectorValue L (w u.1) u.2) (fun u => hw u.1 u.2) b
+    rw [rothLocalAbs_mul]
+    exact mul_le_mul (binaryLocal_expansion_coeff_bound r P hP D hD hH tau L G hG hentry J b)
+      (hp.trans (Real.exp_le_exp.mpr hex)) (rothLocalAbs_nonneg _ _) (by dsimp [E,R]; positivity)
+  rw [binary_vector_local_evaluation L hL w J P,MvPolynomial.eval₂_eq']
+  change rothLocalAbs tau (∑ b ∈ F.support,F.coeff b*∏ u : RothBlockVars2 m,
+    binaryLocalVectorValue L (w u.1) u.2^b u) ≤ _
+  calc
+    _ ≤ ∑ b ∈ F.support,rothLocalAbs tau (F.coeff b*∏ u : RothBlockVars2 m,
+        binaryLocalVectorValue L (w u.1) u.2^b u) := binary_abs_sum _ _ _
+    _ ≤ ∑ _b ∈ F.support,E^R*Real.exp X := Finset.sum_le_sum (fun b hb => hterm b hb)
+    _ = (F.support.card : ℝ)*(E^R*Real.exp X) := by simp
+    _ ≤ (2 : ℝ)^R*(E^R*Real.exp X) := by
+      have hs : (F.support.card : ℝ)≤(2 : ℝ)^R := by exact_mod_cast binary_expansion_support_card r P hP L J
+      exact mul_le_mul_of_nonneg_right hs (by dsimp [E,R]; positivity)
+    _ = _ := by rw [← mul_assoc,← mul_pow]
+
+
+noncomputable def binarySourceBound {m : ℕ} (tau : Fin 3) (E eta A : ℝ)
+    (r : Fin m → ℕ) (c : Fin 3 → Fin 2 → ℝ) : ℝ :=
+  (2*E)^(∑ h,r h)*Real.exp (A*m*((∑ i : Fin 2,c tau i)/2+if tau=0 then -30*eta else 8*eta))
+
+theorem binary_integer_three_place_upper {m : ℕ} (z : ℤ) (E eta A : ℝ) (hE : 0≤E)
+    (r : Fin m → ℕ) (c : Fin 3 → Fin 2 → ℝ)
+    (hcsum : (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0)
+    (hz : ∀ tau,rothLocalAbs tau (z : ℚ)≤binarySourceBound tau E eta A r c) :
+    rothLocalAbs 0 (z : ℚ)*rothLocalAbs 1 (z : ℚ)*rothLocalAbs 2 (z : ℚ) ≤
+      (8*E^3)^(∑ h,r h)*Real.exp (-14*A*m*eta) := by
+  have hn (tau : Fin 3) : 0≤binarySourceBound tau E eta A r c := by
+    unfold binarySourceBound
+    positivity
+  have hs : (∑ i : Fin 2,c 0 i)+(∑ i : Fin 2,c 1 i)+(∑ i : Fin 2,c 2 i)=0 := by
+    simpa only [Fin.sum_univ_three] using hcsum
+  calc
+    _ ≤ binarySourceBound 0 E eta A r c*binarySourceBound 1 E eta A r c*binarySourceBound 2 E eta A r c :=
+      mul_le_mul (mul_le_mul (hz 0) (hz 1) (rothLocalAbs_nonneg 1 _) (hn 0)) (hz 2)
+        (rothLocalAbs_nonneg 2 _) (mul_nonneg (hn 0) (hn 1))
+    _ = _ := by
+      let R := ∑ h,r h
+      let x := fun tau : Fin 3 => A*m*((∑ i : Fin 2,c tau i)/2+if tau=0 then -30*eta else 8*eta)
+      have he : x 0+x 1+x 2 = -14*A*m*eta := by
+        simp only [x,Fin.isValue,Fin.reduceEq,ite_true,ite_false]
+        calc
+          _ = A*m*(((∑ i : Fin 2,c 0 i)+(∑ i : Fin 2,c 1 i)+(∑ i : Fin 2,c 2 i))/2-14*eta) := by ring
+          _ = _ := by rw [hs];ring
+      change ((2*E)^R*Real.exp (x 0))*((2*E)^R*Real.exp (x 1))*((2*E)^R*Real.exp (x 2)) = _
+      calc
+        _ = ((2*E)^R*(2*E)^R*(2*E)^R)*Real.exp (x 0+x 1+x 2) := by
+          rw [Real.exp_add,Real.exp_add]
+          ring
+        _ = _ := by
+          rw [he,← mul_pow,← mul_pow]
+          congr 2
+          ring
+
+theorem binary_product_bound_lt_one {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (Q : Fin m → ℝ) (h0 : Fin m)
+    (E eta delta : ℝ) (hE : 1 ≤ E) (heta : 0 < eta)
+    (hdelta : 40*eta < delta) (hdeltalt : delta < 1)
+    (hQ : ∀ h, 1 < Q h) (hthreshold : ∀ h, 2*E < Real.rpow (Q h) eta)
+    (hlog : ∀ h, (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*(r h0 : ℝ)*Real.log (Q h0)) :
+    (8*E^3)^(∑ h, r h) * Real.exp (-14*((r h0 : ℝ)*Real.log (Q h0))*m*eta) < 1 := by
+  let A := (r h0 : ℝ)*Real.log (Q h0)
+  let R := ∑ h, r h
+  have hm : 0 < m := by have hh := h0.isLt; omega
+  have hmR : (0 : ℝ) < m := by exact_mod_cast hm
+  have hA : 0 < A := mul_pos (by exact_mod_cast hr h0) (Real.log_pos (hQ h0))
+  have hR : 0 < R := Finset.sum_pos (fun h _ => hr h) ⟨h0,Finset.mem_univ _⟩
+  have hEpos : 0 < E := lt_of_lt_of_le zero_lt_one hE
+  have h8E : 0 < 2*E := by positivity
+  have hgrowth (h : Fin m) : Real.log (2*E) < eta*Real.log (Q h) := by
+    have ht := Real.log_lt_log h8E (hthreshold h)
+    simpa only [Real.rpow_eq_pow, Real.log_rpow (lt_trans zero_lt_one (hQ h))] using ht
+  have hterm (h : Fin m) : (r h : ℝ)*Real.log (2*E) < (r h : ℝ)*(eta*Real.log (Q h)) :=
+    mul_lt_mul_of_pos_left (hgrowth h) (by exact_mod_cast hr h)
+  have hsum := Finset.sum_lt_sum_of_nonempty (s := Finset.univ)
+    (⟨h0,Finset.mem_univ _⟩ : (Finset.univ : Finset (Fin m)).Nonempty)
+    (fun h _ => hterm h)
+  have hstrict : (R : ℝ)*Real.log (2*E) < eta*(∑ h : Fin m, (r h : ℝ)*Real.log (Q h)) := by
+    simpa only [← Finset.sum_mul, mul_left_comm, ← Finset.mul_sum, ← Nat.cast_sum, R] using hsum
+  have hsumupper : (∑ h : Fin m, (r h : ℝ)*Real.log (Q h)) ≤ (1+eta)*A*m := by
+    have hs := Finset.sum_le_sum (fun h (_ : h ∈ (Finset.univ : Finset (Fin m))) => hlog h)
+    simpa only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, A, mul_assoc, mul_comm, mul_left_comm] using hs
+  have hlogcube : Real.log (8*E^3) ≤ 3*Real.log (2*E) := by
+    calc
+      _ ≤ Real.log ((2*E)^3) := Real.log_le_log (by positivity) (by nlinarith [pow_nonneg hEpos.le 3])
+      _ = _ := by rw [Real.log_pow]; norm_num
+  have hscaled := mul_le_mul_of_nonneg_left hlogcube (Nat.cast_nonneg R)
+  have hscaledstrict := mul_lt_mul_of_pos_left hstrict (by norm_num : (0:ℝ) < 3)
+  have hscaledupper := mul_le_mul_of_nonneg_left hsumupper (by positivity : 0 ≤ 3*eta)
+  have hsmall : 3*(1+eta) < 14 := by linarith
+  have hpositive : 0 < A*m*eta := mul_pos (mul_pos hA hmR) heta
+  have hgap := mul_lt_mul_of_pos_right hsmall hpositive
+  have hexp : (R : ℝ)*Real.log (8*E^3) - 14*A*m*eta < 0 := by nlinarith
+  have hbase : 0 < 8*E^3 := by positivity
+  calc
+    _ = Real.exp ((R : ℝ)*Real.log (8*E^3) - 14*A*m*eta) := by
+      rw [Real.exp_sub, Real.exp_nat_mul, Real.exp_log hbase]
+      change (8*E^3)^R * Real.exp (-14*A*m*eta) = (8*E^3)^R / Real.exp (14*A*m*eta)
+      rw [div_eq_mul_inv, ← Real.exp_neg]
+      congr 2
+      ring
+    _ < 1 := Real.exp_lt_one_iff.mpr hexp
+
+
+
+theorem binary_auxiliary_integer_analytic_contradiction
+    (L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : ∀ tau,(binaryLocalRationalMatrix (L tau)).det ≠ 0) :
+    ∃ D E : ℝ,1≤D ∧ 1≤E ∧
+    ∀ eta : ℝ,0<eta → eta<1/2 →
+    ∀ m : ℕ,∀ hm : 0<m,4*(eta^2)⁻¹*Real.log 12≤(m : ℝ) →
+    ∀ r : Fin m → ℕ,(∀ h,0<r h) →
+    ∀ theta Gamma : ℝ,0<theta → theta<1/12 → theta≤2*eta*m → 0<Gamma → Gamma≤1 →
+    (∀ (h : Fin m) (hh : h.val+1<m),
+      (r ⟨h.val+1,hh⟩ : ℝ)≤rothInductionOmega m theta*(r h : ℝ)) →
+    ∀ delta : ℝ,40*eta<delta → delta<1 →
+    ∀ c : Fin 3 → Fin 2 → ℝ,(∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0 → (∀ tau i,|c tau i|≤1) →
+    ∀ Q : Fin m → ℝ,(∀ h,1<Q h) → (∀ h,2*E<Real.rpow (Q h) eta) →
+    (∀ h,(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)≤(r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h)≤(1+eta)*(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)) →
+    ∀ V : Fin m → Fin 2 → ℤ,
+    (∀ h,(∃ i,V h i ≠ 0) ∧ Ideal.span (Set.range (V h))=⊤) →
+    (∀ h : Fin m,h.val ≠ 0 →
+      Real.rpow (binaryNormalHeight (V ⟨0,hm⟩) : ℝ) ((r ⟨0,hm⟩ : ℝ)*Gamma)≤
+        (binaryNormalHeight (V h) : ℝ)^r h) →
+    (∀ h,(2 : ℝ)^(3*m)≤Real.rpow (binaryNormalHeight (V h) : ℝ) (rothInductionOmega m theta*Gamma)) →
+    D^(∑ h,r h)≤Real.rpow (binaryNormalHeight (V ⟨0,hm⟩) : ℝ)
+      (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*Gamma) →
+    (∀ tau h i,rothLocalAbs tau (binaryLocalVectorValue (L tau) (binaryKernelVector (V h)) i)≤
+      Real.rpow (Q h) (c tau i-if tau=0 then delta else 0)) → False := by
+  obtain ⟨D,hD,hconstruction⟩ := binary_auxiliary_integer_three_place L hL
+  let G := binaryLocalInverseBound L
+  let E := 8*D*G
+  have hG : 1≤G := binaryLocalInverseBound_one_le L
+  have hE : 1≤E := by dsimp [E];nlinarith
+  refine ⟨D,E,hD,hE,?_⟩
+  intro eta heta heta1 m hm hms r hr theta Gamma ht ht1 htbudget hGamma hGamma1 hsep
+  intro delta hdelta hdelta1 c hcsum hc Q hQ hcutoff hlog V hrow hgrowth hden hheight hlocal
+  obtain ⟨P,hnP,hP,hHP,hindex⟩ := hconstruction eta heta heta1 m hms r hr
+  obtain ⟨J,k,hJ,hk,hn⟩ := binary_kernel_omega65_nonvanishing m hm theta Gamma ht ht1 hGamma hGamma1
+    r V P hr hsep hrow hgrowth hden hnP hP (hHP.trans hheight)
+  obtain ⟨e,z,hnz,hzcoeff,hzeval⟩ := binary_nonzero_integer_coefficient r V P hP J k hk hn
+  let A := (r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)
+  have hA : 0≤A := mul_nonneg (Nat.cast_nonneg _) (Real.log_nonneg (hQ _).le)
+  have hlogA : ∀ h,A≤(r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h)≤(1+eta)*A := by
+    simpa only [A,mul_assoc] using hlog
+  have hbound (tau : Fin 3) : rothLocalAbs tau (z : ℚ)≤binarySourceBound tau E eta A r c := by
+    rw [hzeval]
+    exact binary_integer_local_bound r hr P hP D hD hHP tau (L tau) (hL tau) G hG
+      (binaryLocalInverseBound_entry L tau) eta delta A heta hdelta hdelta1 hA Q hQ hlogA c hc
+      (hindex tau) (fun h => binaryKernelVector (V h)) (hlocal tau) J (hJ.trans htbudget)
+  have hlo := rothInteger_three_place_lower z hnz
+  have hhi := binary_integer_three_place_upper z E eta A (by linarith) r c hcsum hbound
+  have hstrict := binary_product_bound_lt_one r hr Q ⟨0,hm⟩ E eta delta hE heta hdelta hdelta1 hQ
+    hcutoff (fun h => (hlog h).2)
+  exact (not_lt_of_ge hlo) (lt_of_le_of_lt hhi hstrict)
+
+
+end LiteralR4
+open scoped BigOperators Classical Matrix
+namespace RawR4
+open JSP000334
+abbrev Vars (m : ℕ) := Fin m × Fin 2
+
+def Vector (V : Fin 2 → ℤ) : Fin 2 → ℤ := ![V 1,-V 0]
+def Height (V : Fin 2 → ℤ) : ℕ := max (V 0).natAbs (V 1).natAbs
+noncomputable def MatrixCast (L : Matrix (Fin 2) (Fin 2) ℤ) : Matrix (Fin 2) (Fin 2) ℚ := fun i j => (L i j : ℚ)
+noncomputable def FormValue (L : Matrix (Fin 2) (Fin 2) ℤ) (w : Fin 2 → ℤ) (i : Fin 2) : ℚ :=
+  ∑ j : Fin 2,(L i j : ℚ)*(w j : ℚ)
+def Abs (tau : Fin 3) (q : ℚ) : ℝ :=
+  if tau=0 then |(q : ℝ)| else if tau=1 then padicNorm 2 q else padicNorm 3 q
+noncomputable def Derivative {m : ℕ} (J : Vars m →₀ ℕ) (P : MvPolynomial (Vars m) ℤ) : MvPolynomial (Vars m) ℤ :=
+  P.sum (fun b c => MvPolynomial.monomial (b-J) (c*∏ u : Vars m,(Nat.choose (b u) (J u) : ℤ)))
+def Homogeneous {m : ℕ} (r : Fin m → ℕ) (P : MvPolynomial (Vars m) ℤ) : Prop :=
+  ∀ b ∈ P.support,∀ h,∑ i : Fin 2,b (h,i)=r h
+noncomputable def Restriction {m : ℕ} (w : Fin m → Fin 2 → ℤ) (J : Vars m →₀ ℕ)
+    (P : MvPolynomial (Vars m) ℤ) : MvPolynomial (Fin m) ℤ :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u => MvPolynomial.C (w u.1 u.2)*MvPolynomial.X u.1) (Derivative J P)
+
+noncomputable def LocalExponent {m : ℕ} (tau : Fin 3) (Q : Fin m → ℝ) (c : Fin 3 → Fin 2 → ℝ) (delta : ℝ) (b : Vars m →₀ ℕ) : ℝ :=
+  ∑ i : Fin 2,(c tau i-if tau=0 then delta else 0)*(∑ h : Fin m,(b (h,i) : ℝ)*Real.log (Q h))
+noncomputable def SourceBound {m : ℕ} (tau : Fin 3) (E eta A : ℝ) (r : Fin m → ℕ) (c : Fin 3 → Fin 2 → ℝ) : ℝ :=
+  (2*E)^(∑ h,r h)*Real.exp (A*m*((∑ i : Fin 2,c tau i)/2+if tau=0 then -30*eta else 8*eta))
+theorem source_binary_integer_restriction_coefficient : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (Vars m) ℤ) (hP : Homogeneous r P)
+    (w : Fin m → Fin 2 → ℤ) (J : Vars m →₀ ℕ),
+
+    Restriction w J P =
+      MvPolynomial.monomial (Finsupp.equivFunOnFinite.symm (fun h => r h-∑ i : Fin 2,J (h,i)))
+        (MvPolynomial.eval (fun u => w u.1 u.2) (Derivative J P)) :=
+  @LiteralR4.binary_integer_restriction_coefficient
+
+theorem source_binary_kernel_vector_nonzero : ∀ (V : Fin 2 → ℤ) (hV : ∃ i,V i ≠ 0),
+
+    ∃ i,Vector V i ≠ 0 :=
+  @LiteralR4.binary_kernel_vector_nonzero
+
+theorem source_binary_kernel_vector_orthogonal : ∀ (V : Fin 2 → ℤ),
+
+    (∑ i : Fin 2,V i*Vector V i) = 0 :=
+  @LiteralR4.binary_kernel_vector_orthogonal
+
+theorem source_binary_kernel_vector_primitive : ∀ (V : Fin 2 → ℤ)
+    (hV : Ideal.span (Set.range V)=⊤),
+
+    Int.gcd (Vector V 0) (Vector V 1)=1 :=
+  @LiteralR4.binary_kernel_vector_primitive
+
+theorem source_binary_kernel_vector_free : ∀ (V : Fin 2 → ℤ) (k : Fin 2) (hk : V k ≠ 0),
+
+    Vector V k.rev ≠ 0 :=
+  @LiteralR4.binary_kernel_vector_free
+
+theorem source_binary_kernel_vector_spans : ∀ (V : Fin 2 → ℤ) (hV : ∃ i,V i ≠ 0)
+    (x : Fin 2 → ℚ) (hx : (∑ i : Fin 2,(V i : ℚ)*x i)=0),
+
+    ∃ t : ℚ, ∀ i,x i=t*(Vector V i : ℚ) :=
+  @LiteralR4.binary_kernel_vector_spans
+
+theorem source_binary_integer_normalized_scale : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (Vars m) ℤ)
+    (hP : Homogeneous r P) (J : Vars m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0),
+
+    ((MvPolynomial.eval (fun u => Vector (V u.1) u.2)
+      (Derivative J P) : ℤ) : ℚ) =
+      (∏ h,(Vector (V h) (k h).rev : ℚ)^(r h-∑ i : Fin 2,J (h,i)))*
+        MvPolynomial.eval₂ (RingHom.id ℚ) (fun _ => 1)
+          (binaryKernelRestriction V k (Derivative J P)) :=
+  @LiteralR4.binary_integer_normalized_scale
+
+theorem source_binary_integer_block_scales_nonzero : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (J : Vars m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0),
+
+    (∏ h,(Vector (V h) (k h).rev : ℚ)^(r h-∑ i : Fin 2,J (h,i))) ≠ 0 :=
+  @LiteralR4.binary_integer_block_scales_nonzero
+
+theorem source_binary_nonzero_integer_coefficient : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (Vars m) ℤ)
+    (hP : Homogeneous r P) (J : Vars m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0)
+    (hn : binaryKernelRestriction V k (Derivative J P) ≠ 0),
+
+    ∃ (e : Fin m →₀ ℕ) (z : ℤ), z ≠ 0 ∧
+      (Restriction (fun h => Vector (V h)) J P).coeff e = z ∧
+      z = MvPolynomial.eval (fun u => Vector (V u.1) u.2) (Derivative J P) :=
+  @LiteralR4.binary_nonzero_integer_coefficient
+
+theorem source_binary_vector_local_evaluation : ∀ {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (MatrixCast L).det ≠ 0) (w : Fin m → Fin 2 → ℤ)
+    (J : Vars m →₀ ℕ) (P : MvPolynomial (Vars m) ℤ),
+
+    ((MvPolynomial.eval (fun u => w u.1 u.2) (Derivative J P) : ℤ) : ℚ) =
+      MvPolynomial.eval₂ (RingHom.id ℚ) (fun u => FormValue L (w u.1) u.2)
+        (binaryLocalExpansion L J P) :=
+  @LiteralR4.binary_vector_local_evaluation
+
+theorem source_binary_expansion_support_card : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (Vars m) ℤ) (hP : Homogeneous r P)
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (J : Vars m →₀ ℕ),
+
+    (binaryLocalExpansion L J P).support.card ≤ 2^(∑ h,r h) :=
+  @LiteralR4.binary_expansion_support_card
+
+theorem source_binary_local_value_product_bound : ∀ {m : ℕ} (tau : Fin 3)
+    (Q : Fin m → ℝ) (hQ : ∀ h,0<Q h) (c : Fin 3 → Fin 2 → ℝ) (delta : ℝ)
+    (y : Vars m → ℚ)
+    (hy : ∀ u,Abs tau (y u) ≤ Real.rpow (Q u.1) (c tau u.2-if tau=0 then delta else 0))
+    (b : Vars m →₀ ℕ),
+
+    Abs tau (∏ u : Vars m,y u^b u) ≤
+      Real.exp (LocalExponent tau Q c delta b) :=
+  @LiteralR4.binary_local_value_product_bound
+
+theorem source_binary_integer_local_bound : ∀ {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h,0<r h)
+    (P : MvPolynomial (Vars m) ℤ) (hP : Homogeneous r P)
+    (D : ℝ) (hD : 1≤D) (hH : (binaryPolynomialHeight P : ℝ)≤D^(∑ h,r h))
+    (tau : Fin 3) (L : Matrix (Fin 2) (Fin 2) ℤ) (hL : (MatrixCast L).det ≠ 0)
+    (G : ℝ) (hG : 1≤G) (hentry : ∀ i j,Abs tau ((MatrixCast L)⁻¹ i j)≤G)
+    (eta delta A : ℝ) (heta : 0<eta) (hdelta : 40*eta<delta) (hdelta1 : delta<1) (hA : 0≤A)
+    (Q : Fin m → ℝ) (hQ : ∀ h,1<Q h)
+    (hlog : ∀ h,A≤(r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h)≤(1+eta)*A)
+    (c : Fin 3 → Fin 2 → ℝ) (hc : ∀ tau i,|c tau i|≤1)
+    (hindex : ∀ i,binarySourceHighIndex r (fun _ => L i) ((1/2-eta)*m) P)
+    (w : Fin m → Fin 2 → ℤ)
+    (hw : ∀ h i,Abs tau (FormValue L (w h) i)≤
+      Real.rpow (Q h) (c tau i-if tau=0 then delta else 0))
+    (J : Vars m →₀ ℕ) (hJ : binarySourceDerivativeWeight r J≤2*eta*m),
+
+    Abs tau ((MvPolynomial.eval (fun u => w u.1 u.2) (Derivative J P) : ℤ) : ℚ) ≤
+      (2*(8*D*G))^(∑ h,r h)*Real.exp (A*m*((∑ i : Fin 2,c tau i)/2+if tau=0 then -30*eta else 8*eta)) :=
+  @LiteralR4.binary_integer_local_bound
+
+theorem source_binary_integer_three_place_upper : ∀ {m : ℕ} (z : ℤ) (E eta A : ℝ) (hE : 0≤E)
+    (r : Fin m → ℕ) (c : Fin 3 → Fin 2 → ℝ)
+    (hcsum : (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0)
+    (hz : ∀ tau,Abs tau (z : ℚ)≤SourceBound tau E eta A r c),
+
+    Abs 0 (z : ℚ)*Abs 1 (z : ℚ)*Abs 2 (z : ℚ) ≤
+      (8*E^3)^(∑ h,r h)*Real.exp (-14*A*m*eta) :=
+  @LiteralR4.binary_integer_three_place_upper
+
+theorem source_binary_product_bound_lt_one : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (Q : Fin m → ℝ) (h0 : Fin m)
+    (E eta delta : ℝ) (hE : 1 ≤ E) (heta : 0 < eta)
+    (hdelta : 40*eta < delta) (hdeltalt : delta < 1)
+    (hQ : ∀ h, 1 < Q h) (hthreshold : ∀ h, 2*E < Real.rpow (Q h) eta)
+    (hlog : ∀ h, (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*(r h0 : ℝ)*Real.log (Q h0)),
+
+    (8*E^3)^(∑ h, r h) * Real.exp (-14*((r h0 : ℝ)*Real.log (Q h0))*m*eta) < 1 :=
+  @LiteralR4.binary_product_bound_lt_one
+
+theorem source_binary_auxiliary_integer_analytic_contradiction : ∀ (L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : ∀ tau,(MatrixCast (L tau)).det ≠ 0),
+
+    ∃ D E : ℝ,1≤D ∧ 1≤E ∧
+    ∀ eta : ℝ,0<eta → eta<1/2 →
+    ∀ m : ℕ,∀ hm : 0<m,4*(eta^2)⁻¹*Real.log 12≤(m : ℝ) →
+    ∀ r : Fin m → ℕ,(∀ h,0<r h) →
+    ∀ theta Gamma : ℝ,0<theta → theta<1/12 → theta≤2*eta*m → 0<Gamma → Gamma≤1 →
+    (∀ (h : Fin m) (hh : h.val+1<m),
+      (r ⟨h.val+1,hh⟩ : ℝ)≤rothInductionOmega m theta*(r h : ℝ)) →
+    ∀ delta : ℝ,40*eta<delta → delta<1 →
+    ∀ c : Fin 3 → Fin 2 → ℝ,(∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0 → (∀ tau i,|c tau i|≤1) →
+    ∀ Q : Fin m → ℝ,(∀ h,1<Q h) → (∀ h,2*E<Real.rpow (Q h) eta) →
+    (∀ h,(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)≤(r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h)≤(1+eta)*(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)) →
+    ∀ V : Fin m → Fin 2 → ℤ,
+    (∀ h,(∃ i,V h i ≠ 0) ∧ Ideal.span (Set.range (V h))=⊤) →
+    (∀ h : Fin m,h.val ≠ 0 →
+      Real.rpow (Height (V ⟨0,hm⟩) : ℝ) ((r ⟨0,hm⟩ : ℝ)*Gamma)≤
+        (Height (V h) : ℝ)^r h) →
+    (∀ h,(2 : ℝ)^(3*m)≤Real.rpow (Height (V h) : ℝ) (rothInductionOmega m theta*Gamma)) →
+    D^(∑ h,r h)≤Real.rpow (Height (V ⟨0,hm⟩) : ℝ)
+      (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*Gamma) →
+    (∀ tau h i,Abs tau (FormValue (L tau) (Vector (V h)) i)≤
+      Real.rpow (Q h) (c tau i-if tau=0 then delta else 0)) → False :=
+  @LiteralR4.binary_auxiliary_integer_analytic_contradiction
+
+end RawR4
+#check RawR4.source_binary_integer_restriction_coefficient
+#print axioms RawR4.source_binary_integer_restriction_coefficient
+#check RawR4.source_binary_kernel_vector_nonzero
+#print axioms RawR4.source_binary_kernel_vector_nonzero
+#check RawR4.source_binary_kernel_vector_orthogonal
+#print axioms RawR4.source_binary_kernel_vector_orthogonal
+#check RawR4.source_binary_kernel_vector_primitive
+#print axioms RawR4.source_binary_kernel_vector_primitive
+#check RawR4.source_binary_kernel_vector_free
+#print axioms RawR4.source_binary_kernel_vector_free
+#check RawR4.source_binary_kernel_vector_spans
+#print axioms RawR4.source_binary_kernel_vector_spans
+#check RawR4.source_binary_integer_normalized_scale
+#print axioms RawR4.source_binary_integer_normalized_scale
+#check RawR4.source_binary_integer_block_scales_nonzero
+#print axioms RawR4.source_binary_integer_block_scales_nonzero
+#check RawR4.source_binary_nonzero_integer_coefficient
+#print axioms RawR4.source_binary_nonzero_integer_coefficient
+#check RawR4.source_binary_vector_local_evaluation
+#print axioms RawR4.source_binary_vector_local_evaluation
+#check RawR4.source_binary_expansion_support_card
+#print axioms RawR4.source_binary_expansion_support_card
+#check RawR4.source_binary_local_value_product_bound
+#print axioms RawR4.source_binary_local_value_product_bound
+#check RawR4.source_binary_integer_local_bound
+#print axioms RawR4.source_binary_integer_local_bound
+#check RawR4.source_binary_integer_three_place_upper
+#print axioms RawR4.source_binary_integer_three_place_upper
+#check RawR4.source_binary_product_bound_lt_one
+#print axioms RawR4.source_binary_product_bound_lt_one
+#check RawR4.source_binary_auxiliary_integer_analytic_contradiction
+#print axioms RawR4.source_binary_auxiliary_integer_analytic_contradiction

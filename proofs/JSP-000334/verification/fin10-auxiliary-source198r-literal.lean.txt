@@ -1,0 +1,1178 @@
+import SubspaceBridge.SourceBalance10
+import SubspaceBridge.SourceForms10
+import SubspaceBridge.AuxiliaryProductFormula
+import Lean.Util.FoldConsts
+namespace M198RLiteral
+open _root_.CompoundFeasibility _root_.CompoundFeasibility.Auxiliary10
+open _root_.CompoundFeasibility.Auxiliary10.SourceBalance10
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceBalance10
+open SourceMultiblock10 SourceNormalHighIndex10 SourceExpansion10 SourceSupport10
+
+theorem source_real_reconstruction10 {m : ℕ} (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : L.det = 1) (J : Vars10 m →₀ ℕ) (P : MvPolynomial (Vars10 m) ℤ) :
+    substitution L (expansion L J P) = derivative10 J (P.map (Int.castRingHom ℝ)) := by
+  rw [expansion, substitution_comp, OriginalDual10.inverse_adjugate_fin10 L hL,
+    Matrix.adjugate_mul, hL, one_smul, substitution_one]
+
+theorem coefficient_zero_of_unit10 {F : Type*} [Field F] [CharZero F]
+    {m : ℕ} (L : Matrix (Fin 10) (Fin 10) F) (hL : IsUnit L)
+    (r : Fin m → ℕ) (eta : ℝ) (P : MvPolynomial (Vars10 m) ℤ)
+    (hi : matrixIndex10 L r eta P) (i : Fin 10) (J b : Vars10 m →₀ ℕ)
+    (hb : rothSourceDerivativeWeight r J + coordinateWeight r i b < (1/10-eta)*m) :
+    (expansion L J P).coeff b = 0 := by
+  have hd : L.det ≠ 0 := ((Matrix.isUnit_iff_isUnit_det L).mp hL).ne_zero
+  have hn : ∃ p, L i p ≠ 0 := by
+    by_contra! hh
+    exact hd (Matrix.det_eq_zero_of_row_eq_zero i hh)
+  obtain ⟨p,hp⟩ := hn
+  apply coeff_zero_below_index r L hd i p hp ((1/10-eta)*m) P
+  · intro D hD
+    exact hi i D hD (fun _ => p) (fun _ => hp)
+  · exact hb
+
+theorem source_real_coefficient_zero10 {m : ℕ} (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : L.det = 1) (r : Fin m → ℕ) (eta : ℝ)
+    (P : MvPolynomial (Vars10 m) ℤ) (hi : matrixIndex10 L r eta P)
+    (i : Fin 10) (J b : Vars10 m →₀ ℕ)
+    (hb : rothSourceDerivativeWeight r J + coordinateWeight r i b < (1/10-eta)*m) :
+    (expansion L J P).coeff b = 0 := by
+  let u : (Matrix (Fin 10) (Fin 10) ℝ)ˣ :=
+    ⟨L,L.adjugate,by rw [Matrix.mul_adjugate,hL,one_smul],
+      by rw [Matrix.adjugate_mul,hL,one_smul]⟩
+  have hu : IsUnit L := ⟨u,rfl⟩
+  exact coefficient_zero_of_unit10 L hu r eta P hi i J b hb
+
+theorem source_real_block_degree10 {m : ℕ} (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (r : Fin m → ℕ) (P : MvPolynomial (Vars10 m) ℤ) (hhom : homogeneous10 r P)
+    (J b : Vars10 m →₀ ℕ) (hb : (expansion L J P).coeff b ≠ 0) (h : Fin m) :
+    (∑ j : Fin 10, b (h,j)) = r h - ∑ j : Fin 10, J (h,j) := by
+  exact expansion_block_degree r L J P hhom b hb h
+
+theorem source_real_total_weight10 {m : ℕ} (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (P : MvPolynomial (Vars10 m) ℤ) (hhom : homogeneous10 r P)
+    (J b : Vars10 m →₀ ℕ) (hb : (expansion L J P).coeff b ≠ 0) :
+    (∑ i : Fin 10, coordinateWeight r i b) ≤ (m : ℝ) := by
+  exact total_coordinate_weight_le r hr L J P hhom b hb
+
+theorem source_real_balanced_support10 {m : ℕ} (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : L.det = 1) (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (P : MvPolynomial (Vars10 m) ℤ)
+    (hhom : homogeneous10 r P) (hi : matrixIndex10 L r eta P)
+    (J b : Vars10 m →₀ ℕ) (hJ : rothSourceDerivativeWeight r J ≤ 2*eta*m)
+    (hb : (expansion L J P).coeff b ≠ 0) :
+    ∀ i, |coordinateWeight r i b - (m : ℝ)/10| ≤ 54*eta*m := by
+  exact balanced_of_vanishing r hr eta heta L P hhom
+    (source_real_coefficient_zero10 L hL r eta P hi) J b hJ hb
+
+theorem source_real_claim10 {m : ℕ} (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : L.det = 1) (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (P : MvPolynomial (Vars10 m) ℤ)
+    (hhom : homogeneous10 r P) (hi : matrixIndex10 L r eta P) :
+    Claims r eta L P := by
+  exact ⟨fun J => source_real_reconstruction10 L hL J P,
+    source_real_coefficient_zero10 L hL r eta P hi,
+    fun J b hb h => source_real_block_degree10 L r P hhom J b hb h,
+    fun J b hb => source_real_total_weight10 L r hr P hhom J b hb,
+    fun J b hJ hb => source_real_balanced_support10 L hL r hr eta heta P hhom hi J b hJ hb⟩
+
+theorem claims_of_unit10 {F : Type*} [Field F] [CharZero F]
+    {m : ℕ} (B : Matrix (Fin 10) (Fin 10) F) (hB : IsUnit B)
+    (r : Fin m → ℕ) (hr : ∀ h, 0 < r h) (eta : ℝ) (heta : 0 < eta)
+    (P : MvPolynomial (Vars10 m) ℤ) (hhom : homogeneous10 r P)
+    (hi : matrixIndex10 B r eta P) : Claims r eta B P := by
+  have hd : B.det ≠ 0 := ((Matrix.isUnit_iff_isUnit_det B).mp hB).ne_zero
+  apply claims_of_charts r hr eta heta B hd P hhom
+  intro i J hJ k hk
+  exact hi i J hJ (fun _ => k) (fun _ => hk)
+
+end CompoundFeasibility.Auxiliary10.SourceBalance10
+end
+
+open scoped Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceBalance10
+
+theorem source_finite_unit10 {n : ℕ} (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin n) (Fin n) ℚ) (hA : A.det = 1) :
+    IsUnit (SourceForms10.finiteMatrix10 p A) := by
+  apply (Matrix.isUnit_iff_isUnit_det _).mpr
+  rw [SourceForms10.finite_det_one10 p A hA]
+  exact isUnit_one
+
+end CompoundFeasibility.Auxiliary10.SourceBalance10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceBalance10
+open SourceMultiblock10 SourceNormalHighIndex10
+
+theorem source_p2_claim10 {m : ℕ} (A : Matrix (Fin 10) (Fin 10) ℚ)
+    (hA : A.det = 1) (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (P : MvPolynomial (Vars10 m) ℤ)
+    (hhom : homogeneous10 r P) (hi : matrixIndex10 (SourceForms10.finiteMatrix10 2 A) r eta P) :
+    Claims r eta (SourceForms10.finiteMatrix10 2 A) P := by
+  exact claims_of_unit10 (SourceForms10.finiteMatrix10 2 A)
+    (source_finite_unit10 2 A hA) r hr eta heta P hhom hi
+
+end CompoundFeasibility.Auxiliary10.SourceBalance10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceBalance10
+open SourceMultiblock10 SourceNormalHighIndex10
+
+theorem source_p3_claim10 {m : ℕ} (A : Matrix (Fin 10) (Fin 10) ℚ)
+    (hA : A.det = 1) (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (P : MvPolynomial (Vars10 m) ℤ)
+    (hhom : homogeneous10 r P) (hi : matrixIndex10 (SourceForms10.finiteMatrix10 3 A) r eta P) :
+    Claims r eta (SourceForms10.finiteMatrix10 3 A) P := by
+  exact claims_of_unit10 (SourceForms10.finiteMatrix10 3 A)
+    (source_finite_unit10 3 A hA) r hr eta heta P hhom hi
+
+end CompoundFeasibility.Auxiliary10.SourceBalance10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceBalance10
+open SourceMultiblock10 SourceNormalHighIndex10
+
+theorem source_three_claims10 {m : ℕ} (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (hL : L.det = 1) (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (P : MvPolynomial (Vars10 m) ℤ)
+    (hhom : homogeneous10 r P) (hi0 : matrixIndex10 L r eta P)
+    (hi2 : matrixIndex10 (SourceForms10.finiteMatrix10 2 A2) r eta P)
+    (hi3 : matrixIndex10 (SourceForms10.finiteMatrix10 3 A3) r eta P) :
+    Claims r eta L P ∧ Claims r eta (SourceForms10.finiteMatrix10 2 A2) P ∧
+      Claims r eta (SourceForms10.finiteMatrix10 3 A3) P := by
+  exact ⟨source_real_claim10 L hL r hr eta heta P hhom hi0,
+    source_p2_claim10 A2 h2 r hr eta heta P hhom hi2,
+    source_p3_claim10 A3 h3 r hr eta heta P hhom hi3⟩
+
+end CompoundFeasibility.Auxiliary10.SourceBalance10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceBalance10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10 SourceExpansion10
+
+theorem source_auxiliary10_balanced (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (hL : L.det = 1) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ hmem : ∀ tau i j, SourceForms10.forms10 A2 A3 L tau i j ∈ K,
+      ∃ D E : ℝ, 1 ≤ D ∧ 1 ≤ E ∧ ∀ eta : ℝ, 0 < eta →
+      ∀ m : ℕ, 4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars10 m) ℤ, P ≠ 0 ∧ homogeneous10 r P ∧
+      (height10 P : ℝ) ≤ D^(∑ h, r h) ∧
+      (∀ tau, matrixIndex10 (fun i j => (⟨SourceForms10.forms10 A2 A3 L tau i j,hmem tau i j⟩ : K)) r eta P) ∧
+      (∀ tau, matrixIndex10 (SourceForms10.forms10 A2 A3 L tau) r eta P) ∧
+      matrixIndex10 (SourceForms10.finiteMatrix10 2 A2) r eta P ∧
+      matrixIndex10 (SourceForms10.finiteMatrix10 3 A3) r eta P ∧
+      (Claims r eta L P ∧ Claims r eta (SourceForms10.finiteMatrix10 2 A2) P ∧
+        Claims r eta (SourceForms10.finiteMatrix10 3 A3) P) ∧
+      (∀ J b : Vars10 m →₀ ℕ,
+        ‖(expansion L J P).coeff b‖ ≤ E^(∑ h, r h) ∧
+        ‖(expansion (SourceForms10.finiteMatrix10 2 A2) J P).coeff b‖ ≤ E^(∑ h, r h) ∧
+        ‖(expansion (SourceForms10.finiteMatrix10 3 A3) J P).coeff b‖ ≤ E^(∑ h, r h)) := by
+  obtain ⟨K,hK,hmem,D,hD,hconstruction⟩ := source_auxiliary10_all_places A2 A3 L h2 h3 hL ha
+  obtain ⟨E,hE,hbound⟩ := source_coefficient_bounds A2 A3 L D hD
+  refine ⟨K,hK,hmem,D,E,hD,hE,?_⟩
+  intro eta heta m hm r hr
+  obtain ⟨P,hn,hhom,hheight,hfield,hreal,hp2,hp3⟩ := hconstruction eta heta m hm r hr
+  refine ⟨P,hn,hhom,hheight,hfield,hreal,hp2,hp3,?_,hbound m r hr P hhom hheight⟩
+  exact source_three_claims10 A2 A3 L h2 h3 hL r hr eta heta P hhom
+    (hreal 0) hp2 hp3
+
+end CompoundFeasibility.Auxiliary10.SourceBalance10
+end
+
+open scoped BigOperators Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceBalance10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+
+theorem source_polynomial_degrees10 {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) (hhom : homogeneous10 r P) (hn : P ≠ 0) :
+    (∀ h, blockDegree10 P h = r h) ∧ (∀ u, P.degreeOf u ≤ r u.1) := by
+  constructor
+  · exact homogeneous10_blockDegree r P hhom hn
+  · intro u
+    apply MvPolynomial.degreeOf_le_iff.mpr
+    intro b hb
+    have hs := hhom b hb u.1
+    have ht := Finset.single_le_sum (f := fun j : Fin 10 => b (u.1,j))
+      (fun j _ => Nat.zero_le _) (Finset.mem_univ u.2)
+    simpa only [hs] using ht
+
+end CompoundFeasibility.Auxiliary10.SourceBalance10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceEvaluation10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10 SourceExpansion10 SourceBalance10 SourceSupport10
+
+theorem integerValue_lower {m : ℕ} (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) (v : Fin m → Fin 10 → ℤ)
+    (hz : integerValue J P v ≠ 0) :
+    1 ≤ ‖(integerValue J P v : ℝ)‖ * ‖(integerValue J P v : ℚ_[2])‖ *
+      ‖(integerValue J P v : ℚ_[3])‖ := by
+  have hh := JSP000334.rothInteger_three_place_lower (integerValue J P v) hz
+  simpa [JSP000334.rothLocalAbs, Real.norm_eq_abs, ← Auxiliary6.SourceExpansion.finite_norm 2, ← Auxiliary6.SourceExpansion.finite_norm 3] using hh
+
+theorem integerValue_finite_le_one (p : ℕ) [Fact p.Prime] {m : ℕ}
+    (J : Vars10 m →₀ ℕ) (P : MvPolynomial (Vars10 m) ℤ) (v : Fin m → Fin 10 → ℤ) :
+    ‖(integerValue J P v : ℚ_[p])‖ ≤ 1 := by
+  have hh := padicNorm.of_int (p := p) (integerValue J P v)
+  have hhR : (padicNorm p (integerValue J P v : ℚ) : ℝ) ≤ 1 := by exact_mod_cast hh
+  simpa only [← Auxiliary6.SourceExpansion.finite_norm p, map_intCast] using hhR
+
+
+def logWeight {m : ℕ} (Q : Fin m → ℝ) (b : Vars10 m →₀ ℕ) (i : Fin 10) : ℝ :=
+  ∑ h, (b (h,i) : ℝ) * Real.log (Q h)
+
+theorem log_weight_transport {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (Q : Fin m → ℝ) (eta A : ℝ) (heta : 0 ≤ eta) (hA : 0 ≤ A)
+    (hlog : ∀ h, A ≤ (r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*A)
+    (b : Vars10 m →₀ ℕ) (hdegree : ∀ h, (∑ i : Fin 10, b (h,i)) ≤ r h)
+    (hbalance : ∀ i, |coordinateWeight r i b - (m : ℝ)/10| ≤ 54*eta*m) :
+    ∀ i, |logWeight Q b i - A*m/10| ≤ 55*A*m*eta := by
+  intro i
+  have hnorm : coordinateWeight r i b ≤ (m : ℝ) := by
+    unfold coordinateWeight
+    calc
+      _ ≤ ∑ _h : Fin m, (1 : ℝ) := by
+        apply Finset.sum_le_sum
+        intro h hh
+        apply (div_le_one (by exact_mod_cast hr h)).mpr
+        exact_mod_cast (Finset.single_le_sum (fun j _ => Nat.zero_le (b (h,j)))
+          (Finset.mem_univ i)).trans (hdegree h)
+      _ = _ := by simp
+  have hterm (h : Fin m) : (b (h,i) : ℝ)*Real.log (Q h) =
+      ((b (h,i) : ℝ)/r h)*((r h : ℝ)*Real.log (Q h)) := by
+    have hn : (r h : ℝ) ≠ 0 := ne_of_gt (by exact_mod_cast hr h)
+    field_simp [hn]
+    ring
+  have hlo : A*coordinateWeight r i b ≤ logWeight Q b i := by
+    unfold coordinateWeight logWeight
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro h hh
+    rw [hterm]
+    simpa only [mul_comm] using mul_le_mul_of_nonneg_left (hlog h).1
+      (show 0 ≤ (b (h,i) : ℝ)/(r h : ℝ) from div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _))
+  have hhi : logWeight Q b i ≤ (1+eta)*A*coordinateWeight r i b := by
+    unfold coordinateWeight logWeight
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro h hh
+    rw [hterm]
+    simpa only [mul_comm] using mul_le_mul_of_nonneg_left (hlog h).2
+      (show 0 ≤ (b (h,i) : ℝ)/(r h : ℝ) from div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _))
+  have hbal := abs_le.mp (hbalance i)
+  have hs1 := mul_le_mul_of_nonneg_left hbal.1 hA
+  have hs2 := mul_le_mul_of_nonneg_left hbal.2 hA
+  have herr := mul_le_mul_of_nonneg_left hnorm (mul_nonneg heta hA)
+  apply abs_le.mpr
+  constructor <;> nlinarith
+
+theorem monomial_bound {K : Type*} [NormedField K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (v : Fin m → Fin 10 → ℤ)
+    (Q : Fin m → ℝ) (hQ : ∀ h, 0 < Q h) (c : Fin 10 → ℝ)
+    (hv : ∀ h i, ‖(A *ᵥ (fun j => (v h j : K))) i‖ ≤ (Q h)^(c i))
+    (b : Vars10 m →₀ ℕ) :
+    ‖∏ u : Vars10 m, ((A *ᵥ (fun i => (v u.1 i : K))) u.2)^b u‖ ≤
+      Real.exp (∑ i : Fin 10, c i * logWeight Q b i) := by
+  rw [norm_prod]
+  calc
+    _ ≤ ∏ u : Vars10 m, ((Q u.1)^(c u.2))^b u := by
+      apply Finset.prod_le_prod (fun _ _ => norm_nonneg _)
+      intro u hu
+      rw [norm_pow]
+      exact pow_le_pow_left₀ (norm_nonneg _) (hv u.1 u.2) _
+    _ = _ := by
+      have he (u : Vars10 m) : ((Q u.1)^(c u.2))^b u =
+          Real.exp ((b u : ℝ)*(Real.log (Q u.1)*c u.2)) := by
+        rw [Real.rpow_def_of_pos (hQ u.1), ← Real.exp_nat_mul]
+      simp_rw [he]
+      rw [← Real.exp_sum]
+      congr 1
+      unfold logWeight
+      rw [Fintype.sum_prod_type, Finset.sum_comm]
+      apply Finset.sum_congr rfl
+      intro i hi
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro h hh
+      ring
+
+theorem expansion_support_card {K : Type*} [Field K] [CharZero K] {m : ℕ}
+    (r : Fin m → ℕ) (A : Matrix (Fin 10) (Fin 10) K) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P) :
+    (expansion A J P).support.card ≤ 1024^(∑ h, r h) := by
+  let s : Fin m → ℕ := fun h => r h - ∑ i : Fin 10, J (h,i)
+  have hs : (expansion A J P).support ⊆ Finset.univ.image (@exponent10 m s) := by
+    intro b hb
+    have hdeg (h : Fin m) : (∑ i : Fin 10, b (h,i)) = s h :=
+      expansion_block_degree r A J P hP b (MvPolynomial.mem_support_iff.mp hb) h
+    have hle (h : Fin m) (i : Fin 10) : b (h,i) ≤ s h := by
+      rw [← hdeg h]
+      exact Finset.single_le_sum (f := fun j : Fin 10 => b (h,j))
+        (fun _ _ => Nat.zero_le _) (Finset.mem_univ i)
+    refine Finset.mem_image.mpr ⟨fun h => ⟨fun i => ⟨b (h,i), by have := hle h i; omega⟩,hdeg h⟩,
+      Finset.mem_univ _,?_⟩
+    ext u
+    rfl
+  have hc : Fintype.card (RothAuxCoefficients s) ≤ 1024^(∑ h, s h) := by
+    change rothAuxDimension s ≤ _
+    rw [rothAuxDimension_eq]
+    calc
+      _ ≤ ∏ h, 1024^s h := by
+        apply Finset.prod_le_prod (fun _ _ => Nat.zero_le _)
+        intro h hh
+        by_cases hz : s h = 0
+        · simp [hz]
+        · calc
+            (s h+9).choose 9 ≤ 2^(s h+9) := (Nat.choose_le_two_pow _ _ (by omega)).le
+            _ ≤ 2^(10*s h) := Nat.pow_le_pow_right (by decide) (by omega)
+            _ = _ := by rw [pow_mul]; norm_num
+      _ = _ := Finset.prod_pow_eq_pow_sum _ _ _
+  exact (Finset.card_le_card hs).trans (Finset.card_image_le.trans
+    (hc.trans (Nat.pow_le_pow_right (by decide) (Finset.sum_le_sum (fun _ _ => Nat.sub_le _ _)))))
+
+end CompoundFeasibility.Auxiliary10.SourceEvaluation10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceGrid10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10 SourceExpansion10 SourceSupport10 SourceBalance10 SourceEvaluation10
+
+theorem matrix_grid {K : Type*} [CommRing K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (w : Fin m → Fin 9 → Fin 10 → ℤ)
+    (a : Fin m → Fin 9 → ℕ) (h : Fin m) (i : Fin 10) :
+    (A *ᵥ (fun k => (gridPoint w a h k : K))) i =
+      ∑ j : Fin 9, (a h j : K)*(A *ᵥ (fun k => (w h j k : K))) i := by
+  simp only [gridPoint,Int.cast_sum,Int.cast_mul,Int.cast_natCast,
+    Matrix.mulVec,dotProduct,Finset.mul_sum]
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro j hj
+  apply Finset.sum_congr rfl
+  intro k hk
+  ring
+
+theorem grid_form_norm {K : Type*} [NormedField K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (w : Fin m → Fin 9 → Fin 10 → ℤ)
+    (a : Fin m → Fin 9 → ℕ) (h : Fin m) (i : Fin 10) (U B : ℝ)
+    (hU : 0 ≤ U) (ha : ∀ j, ‖(a h j : K)‖ ≤ U)
+    (hw : ∀ j, ‖(A *ᵥ (fun k => (w h j k : K))) i‖ ≤ B) :
+    ‖(A *ᵥ (fun k => (gridPoint w a h k : K))) i‖ ≤ 9*U*B := by
+  rw [matrix_grid]
+  calc
+    _ ≤ ∑ j : Fin 9, ‖(a h j : K)*(A *ᵥ (fun k => (w h j k : K))) i‖ := norm_sum_le _ _
+    _ ≤ ∑ _j : Fin 9, U*B := by
+      apply Finset.sum_le_sum
+      intro j hj
+      rw [norm_mul]
+      exact mul_le_mul (ha j) (hw j) (norm_nonneg _) hU
+    _ = _ := by simp; ring
+
+theorem real_multiplier {m : ℕ} (a : Fin m → Fin 9 → ℕ) (eta : ℝ) (heta : 0 < eta)
+    (ha : ∀ h j, a h j ≤ Nat.floor eta⁻¹+1) (h : Fin m) (j : Fin 9) :
+    ‖(a h j : ℝ)‖ ≤ eta⁻¹+1 := by
+  rw [Real.norm_of_nonneg (Nat.cast_nonneg _)]
+  have hh : (a h j : ℝ) ≤ (Nat.floor eta⁻¹ : ℝ)+1 := by exact_mod_cast ha h j
+  exact hh.trans (add_le_add_right (Nat.floor_le (inv_nonneg.mpr heta.le)) 1)
+
+theorem padic_multiplier (p : ℕ) [Fact p.Prime] (a : ℕ) : ‖(a : ℚ_[p])‖ ≤ 1 := by
+  have hh : (padicNorm p (a : ℚ) : ℝ) ≤ 1 := by
+    exact_mod_cast padicNorm.of_int (p := p) (a : ℤ)
+  simpa only [← Auxiliary6.SourceExpansion.finite_norm p,map_natCast] using hh
+
+theorem grid_form_rpow {K : Type*} [NormedField K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (w : Fin m → Fin 9 → Fin 10 → ℤ)
+    (a : Fin m → Fin 9 → ℕ) (Q : Fin m → ℝ) (hQ : ∀ h, 0 < Q h)
+    (c : Fin 10 → ℝ) (eta U : ℝ) (hU : 0 ≤ U)
+    (ha : ∀ h j, ‖(a h j : K)‖ ≤ U) (hg : ∀ h, 9*U ≤ (Q h)^eta)
+    (hw : ∀ h j i, ‖(A *ᵥ (fun k => (w h j k : K))) i‖ ≤ (Q h)^(c i)) :
+    ∀ h i, ‖(A *ᵥ (fun k => (gridPoint w a h k : K))) i‖ ≤ (Q h)^(c i+eta) := by
+  intro h i
+  calc
+    _ ≤ 9*U*(Q h)^(c i) := grid_form_norm A w a h i U _ hU (ha h) (fun j => hw h j i)
+    _ ≤ (Q h)^eta*(Q h)^(c i) := mul_le_mul_of_nonneg_right (hg h) (Real.rpow_pos_of_pos (hQ h) _).le
+    _ = _ := by rw [← Real.rpow_add (hQ h)]; congr 1; ring
+
+theorem log_total_bounds {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (Q : Fin m → ℝ) (hQ : ∀ h, 1 < Q h) (eta A : ℝ) (heta : 0 ≤ eta) (hA : 0 ≤ A)
+    (hlog : ∀ h, A ≤ (r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*A)
+    (J b : Vars10 m →₀ ℕ)
+    (hdegree : ∀ h, (∑ i : Fin 10, b (h,i)) = r h - ∑ i : Fin 10, J (h,i))
+    (hJ : rothSourceDerivativeWeight r J ≤ 2*eta*m) :
+    A*m*(1-2*eta) ≤ ∑ i : Fin 10, logWeight Q b i ∧
+      (∑ i : Fin 10, logWeight Q b i) ≤ (1+eta)*A*m := by
+  have hdeg (h : Fin m) : (∑ i : Fin 10, b (h,i)) ≤ r h := by rw [hdegree h]; exact Nat.sub_le _ _
+  have hweights : (m : ℝ) ≤ (∑ i : Fin 10, coordinateWeight r i b) + rothSourceDerivativeWeight r J := by
+    unfold coordinateWeight rothSourceDerivativeWeight
+    rw [Finset.sum_comm, ← Finset.sum_add_distrib]
+    calc
+      _ = ∑ _h : Fin m, (1 : ℝ) := by simp
+      _ ≤ _ := by
+        apply Finset.sum_le_sum
+        intro h hh
+        rw [← Finset.sum_div, ← add_div]
+        apply (le_div_iff₀ (by exact_mod_cast hr h)).mpr
+        simp only [one_mul]
+        have hn : r h ≤ (∑ i : Fin 10, b (h,i)) + ∑ i : Fin 10, J (h,i) := by
+          rw [hdegree h]
+          omega
+        exact_mod_cast hn
+  have hlo : A*(∑ i : Fin 10, coordinateWeight r i b) ≤ ∑ i : Fin 10, logWeight Q b i := by
+    unfold coordinateWeight logWeight
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro i hi
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro h hh
+    have ht := mul_le_mul_of_nonneg_left (hlog h).1
+      (show 0 ≤ (b (h,i) : ℝ)/(r h : ℝ) from div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _))
+    have hn : (r h : ℝ) ≠ 0 := ne_of_gt (by exact_mod_cast hr h)
+    convert ht using 1 <;> field_simp [hn] <;> ring
+  constructor
+  · have hs := mul_le_mul_of_nonneg_left (show (m : ℝ)-2*eta*m ≤ ∑ i : Fin 10, coordinateWeight r i b by linarith) hA
+    nlinarith
+  · unfold logWeight
+    rw [Finset.sum_comm]
+    calc
+      _ ≤ ∑ h : Fin m, (1+eta)*A := by
+        apply Finset.sum_le_sum
+        intro h hh
+        rw [← Finset.sum_mul]
+        exact (mul_le_mul_of_nonneg_right (by exact_mod_cast hdeg h) (Real.log_pos (hQ h)).le).trans (hlog h).2
+      _ = _ := by simp; ring
+
+theorem weighted_log_upper {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (Q : Fin m → ℝ) (eta A : ℝ) (heta : 0 ≤ eta) (hA : 0 ≤ A)
+    (hlog : ∀ h, A ≤ (r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*A)
+    (b : Vars10 m →₀ ℕ) (hdegree : ∀ h, (∑ i : Fin 10, b (h,i)) ≤ r h)
+    (hbalance : ∀ i, |coordinateWeight r i b - (m : ℝ)/10| ≤ 54*eta*m)
+    (c : Fin 10 → ℝ) (hc : ∀ i, |c i| ≤ 1) :
+    (∑ i : Fin 10, c i * logWeight Q b i) ≤ A*m/10*(∑ i, c i)+550*A*m*eta := by
+  have ht := log_weight_transport r hr Q eta A heta hA hlog b hdegree hbalance
+  have hterm (i : Fin 10) : c i*logWeight Q b i ≤ c i*(A*m/10)+55*A*m*eta := by
+    have hh : |c i*(logWeight Q b i-A*m/10)| ≤ 55*A*m*eta := by
+      rw [abs_mul]
+      exact (mul_le_mul (hc i) (ht i) (abs_nonneg _) (by norm_num)).trans_eq (one_mul _)
+    have hh' := (le_abs_self _).trans hh
+    nlinarith
+  have hs := Finset.sum_le_sum (fun i (_ : i ∈ (Finset.univ : Finset (Fin 10))) => hterm i)
+  simp only [Finset.sum_add_distrib, ← Finset.sum_mul, Finset.sum_const,
+    Finset.card_univ,Fintype.card_fin,nsmul_eq_mul] at hs
+  nlinarith [mul_nonneg (mul_nonneg hA (Nat.cast_nonneg m)) heta]
+
+theorem source_exponents {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (Q : Fin m → ℝ) (hQ : ∀ h, 1 < Q h) (eta delta A : ℝ)
+    (heta : 0 < eta) (hd : 4000*eta < delta) (hd1 : delta < 1) (hA : 0 ≤ A)
+    (hlog : ∀ h, A ≤ (r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*A)
+    (J b : Vars10 m →₀ ℕ) (hJ : rothSourceDerivativeWeight r J ≤ 2*eta*m)
+    (hdegree : ∀ h, (∑ i : Fin 10, b (h,i)) = r h - ∑ i : Fin 10, J (h,i))
+    (hbalance : ∀ i, |coordinateWeight r i b - (m : ℝ)/10| ≤ 54*eta*m)
+    (c : Fin 10 → ℝ) (hc : ∀ i, |c i| ≤ 1) :
+    (∑ i : Fin 10, (c i-delta+eta)*logWeight Q b i) ≤ A*m*((∑ i,c i)/10-2000*eta) ∧
+    (∑ i : Fin 10, (c i+eta)*logWeight Q b i) ≤ A*m*((∑ i,c i)/10+560*eta) := by
+  have hdeg (h : Fin m) : (∑ i : Fin 10, b (h,i)) ≤ r h := by rw [hdegree h]; exact Nat.sub_le _ _
+  have hw := weighted_log_upper r hr Q eta A heta.le hA hlog b hdeg hbalance c hc
+  have ht := log_total_bounds r hr Q hQ eta A heta.le hA hlog J b hdegree hJ
+  have heta1 : eta < 1 := by linarith
+  have hdeta : 0 ≤ delta-eta := by linarith
+  have he : delta*eta < eta := by nlinarith
+  have hbudget : 2550*eta ≤ (delta-eta)*(1-2*eta) := by nlinarith [sq_nonneg eta]
+  have hs := mul_le_mul_of_nonneg_left hbudget (show 0 ≤ A*(m : ℝ) by positivity)
+  have hn := mul_le_mul_of_nonneg_left ht.1 hdeta
+  have hp := mul_le_mul_of_nonneg_left ht.2 heta.le
+  have he2 : eta*(1+eta) ≤ 2*eta := by nlinarith
+  have hs2 := mul_le_mul_of_nonneg_left he2 (show 0 ≤ A*(m : ℝ) by positivity)
+  constructor
+  · simp only [sub_add,sub_mul,add_mul,Finset.sum_sub_distrib,Finset.sum_add_distrib,
+      ← Finset.mul_sum]
+    nlinarith
+  · simp only [add_mul,Finset.sum_add_distrib,← Finset.mul_sum]
+    nlinarith
+
+theorem strict_product_bound {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (Q : Fin m → ℝ) (hQ : ∀ h, 1 < Q h) (h0 : Fin m) (eta E : ℝ)
+    (heta : 0 < eta) (heta1 : eta < 1) (hE : 1 ≤ E)
+    (hg : ∀ h, 1060*E < (Q h)^eta)
+    (hlog : ∀ h, (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*((r h0 : ℝ)*Real.log (Q h0))) :
+    (1060*E)^(3*(∑ h,r h))*Real.exp (-880*((r h0 : ℝ)*Real.log (Q h0))*m*eta) < 1 := by
+  let A := (r h0 : ℝ)*Real.log (Q h0)
+  let R := ∑ h,r h
+  have hA : 0 < A := mul_pos (by exact_mod_cast hr h0) (Real.log_pos (hQ h0))
+  have hm : (0 : ℝ) < m := by exact_mod_cast (show 0 < m by have := h0.isLt; omega)
+  have hbase : 0 < 1060*E := by positivity
+  have ht (h : Fin m) : (r h : ℝ)*Real.log (1060*E) < (r h : ℝ)*(eta*Real.log (Q h)) := by
+    apply mul_lt_mul_of_pos_left _ (by exact_mod_cast hr h)
+    have hh := Real.log_lt_log hbase (hg h)
+    simpa only [Real.rpow_eq_pow,Real.log_rpow (lt_trans zero_lt_one (hQ h))] using hh
+  have hs := Finset.sum_lt_sum_of_nonempty (s := Finset.univ)
+    (⟨h0,Finset.mem_univ _⟩ : (Finset.univ : Finset (Fin m)).Nonempty) (fun h _ => ht h)
+  have hs' : (R : ℝ)*Real.log (1060*E) < eta*(∑ h : Fin m, (r h : ℝ)*Real.log (Q h)) := by
+    simpa only [← Finset.sum_mul,mul_left_comm,← Finset.mul_sum,← Nat.cast_sum,R] using hs
+  have hb : (∑ h : Fin m, (r h : ℝ)*Real.log (Q h)) ≤ (1+eta)*A*m := by
+    have hh := Finset.sum_le_sum (fun h (_ : h ∈ (Finset.univ : Finset (Fin m))) => hlog h)
+    simpa only [Finset.sum_const,Finset.card_univ,Fintype.card_fin,nsmul_eq_mul,A,
+      mul_assoc,mul_comm,mul_left_comm] using hh
+  have hs3 := mul_lt_mul_of_pos_left hs' (by norm_num : (0 : ℝ) < 3)
+  have hb3 := mul_le_mul_of_nonneg_left hb (show 0 ≤ 3*eta by positivity)
+  have hgap := mul_lt_mul_of_pos_right (show 3*(1+eta) < (880 : ℝ) by linarith)
+    (show 0 < A*m*eta by positivity)
+  have hexp : (3*(R : ℝ))*Real.log (1060*E)-880*A*m*eta < 0 := by nlinarith
+  calc
+    _ = Real.exp ((3*(R : ℝ))*Real.log (1060*E)-880*A*m*eta) := by
+      rw [Real.exp_sub,show 3*(R : ℝ) = (3*R : ℕ) by push_cast; rfl,
+        Real.exp_nat_mul,Real.exp_log hbase]
+      change (1060*E)^(3*R)*Real.exp (-880*A*m*eta) = (1060*E)^(3*R)/Real.exp (880*A*m*eta)
+      rw [div_eq_mul_inv,← Real.exp_neg]
+      congr 2
+      ring
+    _ < 1 := Real.exp_lt_one_iff.mpr hexp
+
+theorem real_grid_bounds {m : ℕ} (B : Matrix (Fin 10) (Fin 10) ℝ)
+    (w : Fin m → Fin 9 → Fin 10 → ℤ) (a : Fin m → Fin 9 → ℕ)
+    (Q : Fin m → ℝ) (hQ : ∀ h, 0 < Q h) (c : Fin 10 → ℝ) (eta delta : ℝ)
+    (heta : 0 < eta) (ha : ∀ h j, a h j ≤ Nat.floor eta⁻¹+1)
+    (hg : ∀ h, 10*(eta⁻¹+1) < (Q h)^eta)
+    (hw : ∀ h j i, ‖(B *ᵥ (fun k => (w h j k : ℝ))) i‖ ≤ (Q h)^(c i-delta)) :
+    ∀ h i, ‖(B *ᵥ (fun k => (gridPoint w a h k : ℝ))) i‖ ≤ (Q h)^(c i-delta+eta) := by
+  apply grid_form_rpow B w a Q hQ (fun i => c i-delta) eta (eta⁻¹+1)
+  · positivity
+  · exact real_multiplier a eta heta ha
+  · intro h
+    exact (by have hh : 0 ≤ eta⁻¹ := inv_nonneg.mpr heta.le; linarith : 9*(eta⁻¹+1) ≤ 10*(eta⁻¹+1)).trans (hg h).le
+  · exact hw
+
+theorem padic_grid_bounds (p : ℕ) [Fact p.Prime] {m : ℕ} (B : Matrix (Fin 10) (Fin 10) ℚ_[p])
+    (w : Fin m → Fin 9 → Fin 10 → ℤ) (a : Fin m → Fin 9 → ℕ)
+    (Q : Fin m → ℝ) (hQ : ∀ h, 0 < Q h) (c : Fin 10 → ℝ) (eta : ℝ) (heta : 0 < eta)
+    (hg : ∀ h, 10*(eta⁻¹+1) < (Q h)^eta)
+    (hw : ∀ h j i, ‖(B *ᵥ (fun k => (w h j k : ℚ_[p]))) i‖ ≤ (Q h)^(c i)) :
+    ∀ h i, ‖(B *ᵥ (fun k => (gridPoint w a h k : ℚ_[p]))) i‖ ≤ (Q h)^(c i+eta) := by
+  apply grid_form_rpow B w a Q hQ c eta 1 (by norm_num)
+  · intro h j; exact padic_multiplier p (a h j)
+  · intro h
+    have hh : 0 ≤ eta⁻¹ := inv_nonneg.mpr heta.le
+    have ht := hg h
+    linarith
+  · exact hw
+
+def sourceBound {m : ℕ} (r : Fin m → ℕ) (E eta : ℝ) (Q : Fin m → ℝ)
+    (h0 : Fin m) (c : Fin 3 → Fin 10 → ℝ) (tau : Fin 3) : ℝ :=
+  (1060*E)^(∑ h,r h)*Real.exp (((r h0 : ℝ)*Real.log (Q h0))*m*
+    ((∑ i,c tau i)/10+(if tau=0 then -2000*eta else 560*eta)))
+
+end CompoundFeasibility.Auxiliary10.SourceGrid10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceVanishing10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10 SourceExpansion10 SourceSupport10 SourceBalance10 SourceEvaluation10 SourceGrid10
+
+theorem evaluation_identity_of_reconstruction {K : Type*} [Field K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K)
+    (J : Vars10 m →₀ ℕ) (P : MvPolynomial (Vars10 m) ℤ) (v : Fin m → Fin 10 → ℤ)
+    (hrec : substitution A (expansion A J P) = derivative10 J (P.map (Int.castRingHom K))) :
+    (integerValue J P v : K) = ∑ b ∈ (expansion A J P).support,
+      (expansion A J P).coeff b * ∏ u : Vars10 m,
+        ((A *ᵥ (fun i => (v u.1 i : K))) u.2) ^ b u := by
+  rw [integerValue_cast, ← hrec]
+  have he : (MvPolynomial.eval (fun u : Vars10 m => (v u.1 u.2 : K))).comp
+      (substitution A) = MvPolynomial.eval (fun u : Vars10 m =>
+        (A *ᵥ (fun i => (v u.1 i : K))) u.2) := by
+    apply MvPolynomial.ringHom_ext
+    · intro c; simp [substitution]
+    · intro u; simp [substitution, linearChart, Matrix.mulVec, dotProduct]
+  rw [← RingHom.comp_apply, he]
+  conv_lhs => arg 2; rw [MvPolynomial.as_sum (expansion A J P)]
+  rw [map_sum]
+  apply Finset.sum_congr rfl
+  intro b hb
+  rw [MvPolynomial.eval_monomial, Finsupp.prod_fintype _ _ (fun _ => by simp)]
+theorem evaluation_upper_of_reconstruction {K : Type*} [NormedField K] [CharZero K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K)
+    (r : Fin m → ℕ) (J : Vars10 m →₀ ℕ) (P : MvPolynomial (Vars10 m) ℤ)
+    (hP : homogeneous10 r P)
+    (hrec : substitution A (expansion A J P) = derivative10 J (P.map (Int.castRingHom K))) (v : Fin m → Fin 10 → ℤ)
+    (E T : ℝ) (hE : 0 ≤ E) (Q : Fin m → ℝ) (hQ : ∀ h, 0 < Q h)
+    (c : Fin 10 → ℝ)
+    (hv : ∀ h i, ‖(A *ᵥ (fun j => (v h j : K))) i‖ ≤ (Q h)^(c i))
+    (hc : ∀ b, ‖(expansion A J P).coeff b‖ ≤ E^(∑ h, r h))
+    (ht : ∀ b ∈ (expansion A J P).support, (∑ i, c i * logWeight Q b i) ≤ T) :
+    ‖(integerValue J P v : K)‖ ≤ (1060*E)^(∑ h, r h)*Real.exp T := by
+  rw [evaluation_identity_of_reconstruction A J P v hrec]
+  calc
+    _ ≤ ∑ b ∈ (expansion A J P).support, ‖(expansion A J P).coeff b *
+        ∏ u : Vars10 m, ((A *ᵥ (fun i => (v u.1 i : K))) u.2)^b u‖ := norm_sum_le _ _
+    _ ≤ ∑ _b ∈ (expansion A J P).support, E^(∑ h, r h)*Real.exp T := by
+      apply Finset.sum_le_sum
+      intro b hb
+      rw [norm_mul]
+      exact (mul_le_mul (hc b) (monomial_bound A v Q hQ c hv b)
+        (norm_nonneg _) (pow_nonneg hE _)).trans
+          (mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr (ht b hb)) (pow_nonneg hE _))
+    _ = ((expansion A J P).support.card : ℝ)*(E^(∑ h, r h)*Real.exp T) := by simp
+    _ ≤ (1060 : ℝ)^(∑ h, r h)*(E^(∑ h, r h)*Real.exp T) := by
+      apply mul_le_mul_of_nonneg_right _ (by positivity)
+      have hs : ((expansion A J P).support.card : ℝ) ≤ (1024 : ℝ)^(∑ h,r h) := by
+        exact_mod_cast expansion_support_card r A J P hP
+      exact hs.trans (pow_le_pow_left₀ (by norm_num) (by norm_num) _)
+    _ = _ := by rw [← mul_assoc, ← mul_pow]
+theorem local_upper_from_claims {K : Type*} [NormedField K] [CharZero K] {m : ℕ}
+    (B : Matrix (Fin 10) (Fin 10) K)
+    (r : Fin m → ℕ) (hr : ∀ h, 0 < r h) (Q : Fin m → ℝ) (hQ : ∀ h, 1 < Q h)
+    (eta delta A E : ℝ) (heta : 0 < eta) (hd : 4000*eta < delta) (hd1 : delta < 1)
+    (hA : 0 ≤ A) (hE : 0 ≤ E)
+    (hlog : ∀ h, A ≤ (r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*A)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P) (hclaims : Claims r eta B P)
+    (hcfs : ∀ J b, ‖(expansion B J P).coeff b‖ ≤ E^(∑ h, r h))
+    (c : Fin 10 → ℝ) (hc : ∀ i, |c i| ≤ 1) (arch : Bool)
+    (v : Fin m → Fin 10 → ℤ)
+    (hv : ∀ h i, ‖(B *ᵥ (fun j => (v h j : K))) i‖ ≤ (Q h)^(c i-(if arch then delta else 0)+eta))
+    (J : Vars10 m →₀ ℕ) (hJ : rothSourceDerivativeWeight r J ≤ 2*eta*m) :
+    ‖(integerValue J P v : K)‖ ≤ (1060*E)^(∑ h, r h)*
+      Real.exp (A*m*((∑ i,c i)/10+(if arch then -2000*eta else 560*eta))) := by
+  apply evaluation_upper_of_reconstruction B r J P hP (hclaims.1 J) v E _ hE Q (fun h => lt_trans zero_lt_one (hQ h))
+    (fun i => c i-(if arch then delta else 0)+eta) hv (hcfs J)
+  intro b hb
+  have hn := MvPolynomial.mem_support_iff.mp hb
+  have he := source_exponents r hr Q hQ eta delta A heta hd hd1 hA hlog J b hJ
+    (hclaims.2.2.1 J b hn) (hclaims.2.2.2.2 J b hJ hn) c hc
+  cases arch
+  · simpa using he.2
+  · simpa using he.1
+
+theorem three_place_upper {m : ℕ} (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det=1) (h3 : A3.det=1) (hL : L.det=1)
+    (r : Fin m → ℕ) (hr : ∀ h,0<r h) (Q : Fin m → ℝ) (hQ : ∀ h,1<Q h) (h0 : Fin m)
+    (eta delta E : ℝ) (heta : 0<eta) (hd : 4000*eta<delta) (hd1 : delta<1) (hE : 1≤E)
+    (hg : ∀ h,10*(eta⁻¹+1)<(Q h)^eta)
+    (hlog : ∀ h,(r h0 : ℝ)*Real.log (Q h0)≤(r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h)≤(1+eta)*((r h0 : ℝ)*Real.log (Q h0)))
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (hclaims : Claims r eta (L) P ∧ Claims r eta (SourceForms10.finiteMatrix10 2 A2) P ∧ Claims r eta (SourceForms10.finiteMatrix10 3 A3) P)
+    (hcfs : ∀ J b, ‖(expansion (L) J P).coeff b‖≤E^(∑ h,r h) ∧
+      ‖(expansion (SourceForms10.finiteMatrix10 2 A2) J P).coeff b‖≤E^(∑ h,r h) ∧
+      ‖(expansion (SourceForms10.finiteMatrix10 3 A3) J P).coeff b‖≤E^(∑ h,r h))
+    (c : Fin 3 → Fin 10 → ℝ) (hc : ∀ tau i,|c tau i|≤1)
+    (w : Fin m → Fin 9 → Fin 10 → ℤ)
+    (hw0 : ∀ h j i,‖(L *ᵥ (fun k => (w h j k : ℝ))) i‖≤(Q h)^(c 0 i-delta))
+    (hw2 : ∀ h j i,‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ (fun k => (w h j k : ℚ_[2]))) i‖≤(Q h)^(c 1 i))
+    (hw3 : ∀ h j i,‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ (fun k => (w h j k : ℚ_[3]))) i‖≤(Q h)^(c 2 i))
+    (a : Fin m → Fin 9 → ℕ) (ha : ∀ h j,a h j≤Nat.floor eta⁻¹+1)
+    (J : Vars10 m →₀ ℕ) (hJ : rothSourceDerivativeWeight r J≤2*eta*m) :
+    ‖(integerValue J P (gridPoint w a) : ℝ)‖≤sourceBound r E eta Q h0 c 0 ∧
+    ‖(integerValue J P (gridPoint w a) : ℚ_[2])‖≤sourceBound r E eta Q h0 c 1 ∧
+    ‖(integerValue J P (gridPoint w a) : ℚ_[3])‖≤sourceBound r E eta Q h0 c 2 := by
+  have hA : 0≤(r h0 : ℝ)*Real.log (Q h0) := mul_nonneg (Nat.cast_nonneg _) (Real.log_pos (hQ h0)).le
+  have hEp : 0≤E := by linarith
+  have hQp : ∀ h,0<Q h := fun h => lt_trans zero_lt_one (hQ h)
+  have hv0 := real_grid_bounds (L) w a Q hQp (c 0) eta delta heta ha hg hw0
+  have hv2 := padic_grid_bounds 2 (SourceForms10.finiteMatrix10 2 A2) w a Q hQp (c 1) eta heta hg hw2
+  have hv3 := padic_grid_bounds 3 (SourceForms10.finiteMatrix10 3 A3) w a Q hQp (c 2) eta heta hg hw3
+  constructor
+  · simpa only [sourceBound,if_pos rfl,Bool.true_eq] using
+      (local_upper_from_claims (L) r hr Q hQ eta delta
+        ((r h0 : ℝ)*Real.log (Q h0)) E heta hd hd1 hA hEp hlog P hP hclaims.1
+        (fun J b => (hcfs J b).1) (c 0) (hc 0) true (gridPoint w a) hv0 J hJ)
+  · constructor
+    · simpa [sourceBound] using
+        (local_upper_from_claims (SourceForms10.finiteMatrix10 2 A2) r hr Q hQ eta delta
+          ((r h0 : ℝ)*Real.log (Q h0)) E heta hd hd1 hA hEp hlog P hP hclaims.2.1
+          (fun J b => (hcfs J b).2.1) (c 1) (hc 1) false (gridPoint w a) (by simpa using hv2) J hJ)
+    · simpa [sourceBound] using
+        (local_upper_from_claims (SourceForms10.finiteMatrix10 3 A3) r hr Q hQ eta delta
+          ((r h0 : ℝ)*Real.log (Q h0)) E heta hd hd1 hA hEp hlog P hP hclaims.2.2
+          (fun J b => (hcfs J b).2.2) (c 2) (hc 2) false (gridPoint w a) (by simpa using hv3) J hJ)
+
+
+theorem sourceBound_product {m : ℕ} (r : Fin m → ℕ) (E eta : ℝ) (Q : Fin m → ℝ)
+    (h0 : Fin m) (c : Fin 3 → Fin 10 → ℝ) (hc : (∑ tau, ∑ i, c tau i) = 0) :
+    sourceBound r E eta Q h0 c 0 * sourceBound r E eta Q h0 c 1 *
+      sourceBound r E eta Q h0 c 2 =
+      (1060*E)^(3*(∑ h,r h))*Real.exp (-880*((r h0 : ℝ)*Real.log (Q h0))*m*eta) := by
+  have hs : (∑ i,c 0 i)+(∑ i,c 1 i)+(∑ i,c 2 i)=0 := by
+    simpa only [Fin.sum_univ_succ,Fin.sum_univ_zero,Fin.val_zero,
+      Fin.val_one,Fin.val_succ,Fin.succ_zero_eq_one,Fin.succ_one_eq_two,add_zero,add_assoc] using hc
+  let F : ℝ := (1060*E)^(∑ h,r h)
+  let T : Fin 3 → ℝ := fun tau => ((r h0 : ℝ)*Real.log (Q h0))*m*
+    ((∑ i,c tau i)/10+(if tau=0 then -2000*eta else 560*eta))
+  have ht : T 0+T 1+T 2 = -880*((r h0 : ℝ)*Real.log (Q h0))*m*eta := by
+    dsimp [T]
+    linear_combination ((r h0 : ℝ)*Real.log (Q h0)*(m : ℝ)/10)*hs
+  have hf : F*F*F = (1060*E)^(3*(∑ h,r h)) := by
+    dsimp [F]
+    rw [← pow_add,← pow_add]
+    congr 1
+    omega
+  change (F*Real.exp (T 0))*(F*Real.exp (T 1))*(F*Real.exp (T 2)) = _
+  calc
+    _ = (F*F*F)*Real.exp (T 0+T 1+T 2) := by rw [Real.exp_add,Real.exp_add]; ring
+    _ = _ := by rw [hf,ht]
+
+theorem three_place_product_lt_one {m : ℕ} (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det=1) (h3 : A3.det=1) (hL : L.det=1)
+    (r : Fin m → ℕ) (hr : ∀ h,0<r h) (Q : Fin m → ℝ) (hQ : ∀ h,1<Q h) (h0 : Fin m)
+    (eta delta E : ℝ) (heta : 0<eta) (hd : 4000*eta<delta) (hd1 : delta<1) (hE : 1≤E)
+    (hg610 : ∀ h,1060*E<(Q h)^eta)
+    (hg : ∀ h,10*(eta⁻¹+1)<(Q h)^eta)
+    (hlog : ∀ h,(r h0 : ℝ)*Real.log (Q h0)≤(r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h)≤(1+eta)*((r h0 : ℝ)*Real.log (Q h0)))
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (hclaims : Claims r eta (L) P ∧ Claims r eta (SourceForms10.finiteMatrix10 2 A2) P ∧ Claims r eta (SourceForms10.finiteMatrix10 3 A3) P)
+    (hcfs : ∀ J b, ‖(expansion (L) J P).coeff b‖≤E^(∑ h,r h) ∧
+      ‖(expansion (SourceForms10.finiteMatrix10 2 A2) J P).coeff b‖≤E^(∑ h,r h) ∧
+      ‖(expansion (SourceForms10.finiteMatrix10 3 A3) J P).coeff b‖≤E^(∑ h,r h))
+    (c : Fin 3 → Fin 10 → ℝ) (hc : ∀ tau i,|c tau i|≤1)
+    (hbalance : (∑ tau,∑ i,c tau i)=0)
+    (w : Fin m → Fin 9 → Fin 10 → ℤ)
+    (hw0 : ∀ h j i,‖(L *ᵥ (fun k => (w h j k : ℝ))) i‖≤(Q h)^(c 0 i-delta))
+    (hw2 : ∀ h j i,‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ (fun k => (w h j k : ℚ_[2]))) i‖≤(Q h)^(c 1 i))
+    (hw3 : ∀ h j i,‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ (fun k => (w h j k : ℚ_[3]))) i‖≤(Q h)^(c 2 i))
+    (a : Fin m → Fin 9 → ℕ) (ha : ∀ h j,a h j≤Nat.floor eta⁻¹+1)
+    (J : Vars10 m →₀ ℕ) (hJ : rothSourceDerivativeWeight r J≤2*eta*m) :
+    ‖(integerValue J P (gridPoint w a) : ℝ)‖ *
+      ‖(integerValue J P (gridPoint w a) : ℚ_[2])‖ *
+      ‖(integerValue J P (gridPoint w a) : ℚ_[3])‖ < 1 := by
+  have hu := three_place_upper A2 A3 L h2 h3 hL r hr Q hQ h0 eta delta E heta hd hd1 hE hg hlog P hP hclaims hcfs c hc w hw0 hw2 hw3 a ha J hJ
+  have hEp : 0≤E := by linarith
+  have hn (tau : Fin 3) : 0≤sourceBound r E eta Q h0 c tau := by
+    unfold sourceBound
+    positivity
+  have hu01 := mul_le_mul hu.1 hu.2.1 (norm_nonneg _) (hn 0)
+  have hu012 := mul_le_mul hu01 hu.2.2 (norm_nonneg _) (mul_nonneg (hn 0) (hn 1))
+  rw [sourceBound_product r E eta Q h0 c hbalance] at hu012
+  exact hu012.trans_lt (strict_product_bound r hr Q hQ h0 eta E heta (by linarith)
+    hE hg610 (fun h => (hlog h).2))
+theorem grid_derivative_vanishes {m : ℕ} (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det=1) (h3 : A3.det=1) (hL : L.det=1)
+    (r : Fin m → ℕ) (hr : ∀ h,0<r h) (Q : Fin m → ℝ) (hQ : ∀ h,1<Q h) (h0 : Fin m)
+    (eta delta E : ℝ) (heta : 0<eta) (hd : 4000*eta<delta) (hd1 : delta<1) (hE : 1≤E)
+    (hg610 : ∀ h,1060*E<(Q h)^eta)
+    (hg : ∀ h,10*(eta⁻¹+1)<(Q h)^eta)
+    (hlog : ∀ h,(r h0 : ℝ)*Real.log (Q h0)≤(r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h)≤(1+eta)*((r h0 : ℝ)*Real.log (Q h0)))
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (hclaims : Claims r eta (L) P ∧ Claims r eta (SourceForms10.finiteMatrix10 2 A2) P ∧ Claims r eta (SourceForms10.finiteMatrix10 3 A3) P)
+    (hcfs : ∀ J b, ‖(expansion (L) J P).coeff b‖≤E^(∑ h,r h) ∧
+      ‖(expansion (SourceForms10.finiteMatrix10 2 A2) J P).coeff b‖≤E^(∑ h,r h) ∧
+      ‖(expansion (SourceForms10.finiteMatrix10 3 A3) J P).coeff b‖≤E^(∑ h,r h))
+    (c : Fin 3 → Fin 10 → ℝ) (hc : ∀ tau i,|c tau i|≤1)
+    (hbalance : (∑ tau,∑ i,c tau i)=0)
+    (w : Fin m → Fin 9 → Fin 10 → ℤ)
+    (hw0 : ∀ h j i,‖(L *ᵥ (fun k => (w h j k : ℝ))) i‖≤(Q h)^(c 0 i-delta))
+    (hw2 : ∀ h j i,‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ (fun k => (w h j k : ℚ_[2]))) i‖≤(Q h)^(c 1 i))
+    (hw3 : ∀ h j i,‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ (fun k => (w h j k : ℚ_[3]))) i‖≤(Q h)^(c 2 i))
+    (a : Fin m → Fin 9 → ℕ) (ha : ∀ h j,a h j≤Nat.floor eta⁻¹+1)
+    (J : Vars10 m →₀ ℕ) (hJ : rothSourceDerivativeWeight r J≤2*eta*m) :
+    integerValue J P (gridPoint w a) = 0 := by
+  by_contra hz
+  have hl := integerValue_lower J P (gridPoint w a) hz
+  have hu := three_place_product_lt_one A2 A3 L h2 h3 hL r hr Q hQ h0 eta delta E heta hd hd1 hE hg610 hg hlog P hP hclaims hcfs c hc hbalance w hw0 hw2 hw3 a ha J hJ
+  linarith
+
+
+theorem source_auxiliary10_grid_vanishing (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (hL : L.det = 1) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ hmem : ∀ tau i j, SourceForms10.forms10 A2 A3 L tau i j ∈ K,
+      ∃ D E : ℝ, 1 ≤ D ∧ 1 ≤ E ∧ ∀ eta : ℝ, 0 < eta →
+      ∀ m : ℕ, 4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars10 m) ℤ, P ≠ 0 ∧ homogeneous10 r P ∧
+      (height10 P : ℝ) ≤ D^(∑ h, r h) ∧
+      (∀ tau, matrixIndex10 (fun i j => (⟨SourceForms10.forms10 A2 A3 L tau i j,hmem tau i j⟩ : K)) r eta P) ∧
+      (∀ tau, matrixIndex10 (SourceForms10.forms10 A2 A3 L tau) r eta P) ∧
+      matrixIndex10 (SourceForms10.finiteMatrix10 2 A2) r eta P ∧
+      matrixIndex10 (SourceForms10.finiteMatrix10 3 A3) r eta P ∧
+      (Claims r eta L P ∧ Claims r eta (SourceForms10.finiteMatrix10 2 A2) P ∧
+        Claims r eta (SourceForms10.finiteMatrix10 3 A3) P) ∧
+      (∀ J b : Vars10 m →₀ ℕ,
+        ‖(expansion L J P).coeff b‖ ≤ E^(∑ h, r h) ∧
+        ‖(expansion (SourceForms10.finiteMatrix10 2 A2) J P).coeff b‖ ≤ E^(∑ h, r h) ∧
+        ‖(expansion (SourceForms10.finiteMatrix10 3 A3) J P).coeff b‖ ≤ E^(∑ h, r h)) ∧
+        (∀ (Q : Fin m → ℝ), (∀ h,1<Q h) → ∀ h0 : Fin m,
+          ∀ delta : ℝ, 4000*eta<delta → delta<1 →
+          (∀ h,1060*E<(Q h)^eta) → (∀ h,10*(eta⁻¹+1)<(Q h)^eta) →
+          (∀ h,(r h0 : ℝ)*Real.log (Q h0)≤(r h : ℝ)*Real.log (Q h) ∧
+            (r h : ℝ)*Real.log (Q h)≤(1+eta)*((r h0 : ℝ)*Real.log (Q h0))) →
+          ∀ c : Fin 3 → Fin 10 → ℝ, (∀ tau i,|c tau i|≤1) → (∑ tau,∑ i,c tau i)=0 →
+          ∀ w : Fin m → Fin 9 → Fin 10 → ℤ,
+          (∀ h j i,‖(L *ᵥ (fun k => (w h j k : ℝ))) i‖≤(Q h)^(c 0 i-delta)) →
+          (∀ h j i,‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ (fun k => (w h j k : ℚ_[2]))) i‖≤(Q h)^(c 1 i)) →
+          (∀ h j i,‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ (fun k => (w h j k : ℚ_[3]))) i‖≤(Q h)^(c 2 i)) →
+          ∀ a : Fin m → Fin 9 → ℕ, (∀ h j,1≤a h j ∧ a h j≤Nat.floor eta⁻¹+1) →
+          ∀ J : Vars10 m →₀ ℕ, rothSourceDerivativeWeight r J<2*eta*m →
+          integerValue J P (gridPoint w a)=0) := by
+  obtain ⟨K,hK,hmem,D,E,hD,hE,hconstruction⟩ := source_auxiliary10_balanced A2 A3 L h2 h3 hL ha
+  refine ⟨K,hK,hmem,D,E,hD,hE,?_⟩
+  intro eta heta m hm r hr
+  obtain ⟨P,hn,hhom,hheight,hfield,hreal,hp2,hp3,hclaims,hcfs⟩ := hconstruction eta heta m hm r hr
+  refine ⟨P,hn,hhom,hheight,hfield,hreal,hp2,hp3,hclaims,hcfs,?_⟩
+  intro Q hQ h0 delta hd hd1 hg16 hg hlog c hc hbalance w hw0 hw2 hw3 a haGrid J hJ
+  exact grid_derivative_vanishes A2 A3 L h2 h3 hL r hr Q hQ h0 eta delta E heta hd hd1 hE
+    hg16 hg hlog P hhom hclaims hcfs c hc hbalance w hw0 hw2 hw3 a
+    (fun h j => (haGrid h j).2) J hJ.le
+
+end CompoundFeasibility.Auxiliary10.SourceVanishing10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10 SourceExpansion10
+open SourceBalance10 SourceVanishing10
+
+theorem source_auxiliary_polynomial10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (hL : L.det = 1) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ hmem : ∀ tau i j, SourceForms10.forms10 A2 A3 L tau i j ∈ K,
+      ∃ D E : ℝ, 1 ≤ D ∧ 1 ≤ E ∧ ∀ eta : ℝ, 0 < eta →
+      ∀ m : ℕ, 4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars10 m) ℤ, P ≠ 0 ∧ homogeneous10 r P ∧
+      (∀ h, blockDegree10 P h = r h) ∧ (∀ u, P.degreeOf u ≤ r u.1) ∧
+      (height10 P : ℝ) ≤ D^(∑ h, r h) ∧
+      (∀ tau, matrixIndex10 (fun i j => (⟨SourceForms10.forms10 A2 A3 L tau i j,hmem tau i j⟩ : K)) r eta P) ∧
+      (∀ tau, matrixIndex10 (SourceForms10.forms10 A2 A3 L tau) r eta P) ∧
+      matrixIndex10 (SourceForms10.finiteMatrix10 2 A2) r eta P ∧
+      matrixIndex10 (SourceForms10.finiteMatrix10 3 A3) r eta P ∧
+      (Claims r eta L P ∧ Claims r eta (SourceForms10.finiteMatrix10 2 A2) P ∧
+        Claims r eta (SourceForms10.finiteMatrix10 3 A3) P) ∧
+      (∀ J b : Vars10 m →₀ ℕ,
+        ‖(expansion L J P).coeff b‖ ≤ E^(∑ h, r h) ∧
+        ‖(expansion (SourceForms10.finiteMatrix10 2 A2) J P).coeff b‖ ≤ E^(∑ h, r h) ∧
+        ‖(expansion (SourceForms10.finiteMatrix10 3 A3) J P).coeff b‖ ≤ E^(∑ h, r h)) ∧
+        (∀ (Q : Fin m → ℝ), (∀ h,1<Q h) → ∀ h0 : Fin m,
+          ∀ delta : ℝ, 4000*eta<delta → delta<1 →
+          (∀ h,1060*E<(Q h)^eta) → (∀ h,10*(eta⁻¹+1)<(Q h)^eta) →
+          (∀ h,(r h0 : ℝ)*Real.log (Q h0)≤(r h : ℝ)*Real.log (Q h) ∧
+            (r h : ℝ)*Real.log (Q h)≤(1+eta)*((r h0 : ℝ)*Real.log (Q h0))) →
+          ∀ c : Fin 3 → Fin 10 → ℝ, (∀ tau i,|c tau i|≤1) → (∑ tau,∑ i,c tau i)=0 →
+          ∀ w : Fin m → Fin 9 → Fin 10 → ℤ,
+          (∀ h j i,‖(L *ᵥ (fun k => (w h j k : ℝ))) i‖≤(Q h)^(c 0 i-delta)) →
+          (∀ h j i,‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ (fun k => (w h j k : ℚ_[2]))) i‖≤(Q h)^(c 1 i)) →
+          (∀ h j i,‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ (fun k => (w h j k : ℚ_[3]))) i‖≤(Q h)^(c 2 i)) →
+          (∀ a : Fin m → Fin 9 → ℕ, (∀ h j,1≤a h j ∧ a h j≤Nat.floor eta⁻¹+1) →
+          ∀ J : Vars10 m →₀ ℕ, rothSourceDerivativeWeight r J<2*eta*m →
+          integerValue J P (gridPoint w a)=0) ∧
+          ∀ M : Fin m → Fin 10 → ℤ, (∀ h, M h ≠ 0) →
+          (∀ h, LinearMap.ker (SchmidtNormal10.normalForm10 (M h)) =
+            Submodule.span ℚ (Set.range (fun j i => (w h j i : ℚ)))) →
+          (∀ h, LinearMap.ker (SchmidtNormal10.realNormalForm10 (M h)) =
+            Submodule.span ℝ (Set.range (fun j i => (w h j i : ℝ)))) →
+          (∀ J : Vars10 m →₀ ℕ, rothSourceDerivativeWeight r J < (m : ℝ)*eta →
+            (∀ y : Fin m → Fin 10 → ℚ, (∀ h, y h ∈ LinearMap.ker (SchmidtNormal10.normalForm10 (M h))) →
+              MvPolynomial.eval (fun u => y u.1 u.2) (derivative10 J (P.map (Int.castRingHom ℚ))) = 0) ∧
+            (∀ y : Fin m → Fin 10 → ℝ, (∀ h, y h ∈ LinearMap.ker (SchmidtNormal10.realNormalForm10 (M h))) →
+              MvPolynomial.eval (fun u => y u.1 u.2) (derivative10 J (P.map (Int.castRingHom ℝ))) = 0)) ∧
+          P.map (Int.castRingHom ℝ) ∈ SchmidtNormal10.sourceNormalIdeal10 M r ((m : ℝ)*eta)) := by
+  obtain ⟨K,hK,hmem,D,E,hD,hE,hconstruction⟩ := source_auxiliary10_grid_vanishing A2 A3 L h2 h3 hL ha
+  refine ⟨K,hK,hmem,D,E,hD,hE,?_⟩
+  intro eta heta m hm r hr
+  obtain ⟨P,hn,hhom,hheight,hfield,hreal,hp2,hp3,hclaims,hcfs,hgrid⟩ := hconstruction eta heta m hm r hr
+  obtain ⟨hblock,hdegree⟩ := source_polynomial_degrees10 r P hhom hn
+  refine ⟨P,hn,hhom,hblock,hdegree,hheight,hfield,hreal,hp2,hp3,hclaims,hcfs,?_⟩
+  intro Q hQ h0 delta hd hd1 hgE hg hlog c hc hbalance w hw0 hw2 hw3
+  have hvan := hgrid Q hQ h0 delta hd hd1 hgE hg hlog c hc hbalance w hw0 hw2 hw3
+  refine ⟨hvan,?_⟩
+  intro M hM hQspan hRspan
+  exact integer_grid_high_normal_index10 r hr P hhom w M hM hQspan hRspan eta heta hvan
+
+end CompoundFeasibility.Auxiliary10
+end
+
+end M198RLiteral
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_reconstruction10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_reconstruction10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.coefficient_zero_of_unit10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.coefficient_zero_of_unit10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_coefficient_zero10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_coefficient_zero10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_block_degree10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_block_degree10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_total_weight10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_total_weight10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_balanced_support10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_balanced_support10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_claim10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_claim10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_unit10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_unit10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_finite_unit10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_finite_unit10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_p2_claim10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_p2_claim10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_p3_claim10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_p3_claim10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_three_claims10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_three_claims10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_auxiliary10_balanced
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_auxiliary10_balanced
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_polynomial_degrees10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_polynomial_degrees10
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.integerValue_lower
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.integerValue_lower
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.integerValue_finite_le_one
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.integerValue_finite_le_one
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.logWeight
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.logWeight
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.log_weight_transport
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.log_weight_transport
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.monomial_bound
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.monomial_bound
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.expansion_support_card
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.expansion_support_card
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.matrix_grid
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.matrix_grid
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.grid_form_norm
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.grid_form_norm
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.real_multiplier
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.real_multiplier
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.padic_multiplier
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.padic_multiplier
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.grid_form_rpow
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.grid_form_rpow
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.log_total_bounds
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.log_total_bounds
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.weighted_log_upper
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.weighted_log_upper
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.source_exponents
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.source_exponents
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.strict_product_bound
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.strict_product_bound
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.real_grid_bounds
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.real_grid_bounds
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.padic_grid_bounds
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.padic_grid_bounds
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.sourceBound
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.sourceBound
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.evaluation_identity_of_reconstruction
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.evaluation_identity_of_reconstruction
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.evaluation_upper_of_reconstruction
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.evaluation_upper_of_reconstruction
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.local_upper_from_claims
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.local_upper_from_claims
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.three_place_upper
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.three_place_upper
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.sourceBound_product
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.sourceBound_product
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.three_place_product_lt_one
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.three_place_product_lt_one
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.grid_derivative_vanishes
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.grid_derivative_vanishes
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.source_auxiliary10_grid_vanishing
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.source_auxiliary10_grid_vanishing
+#check M198RLiteral.CompoundFeasibility.Auxiliary10.source_auxiliary_polynomial10
+#print axioms M198RLiteral.CompoundFeasibility.Auxiliary10.source_auxiliary_polynomial10
+
+open Lean in
+run_cmd do
+  let env ← getEnv
+  let names : Array Name := #[
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_reconstruction10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.coefficient_zero_of_unit10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_coefficient_zero10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_block_degree10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_total_weight10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_balanced_support10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_claim10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_unit10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_finite_unit10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_p2_claim10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_p3_claim10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_three_claims10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_auxiliary10_balanced,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceBalance10.source_polynomial_degrees10,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.integerValue_lower,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.integerValue_finite_le_one,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.logWeight,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.log_weight_transport,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.monomial_bound,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceEvaluation10.expansion_support_card,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.matrix_grid,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.grid_form_norm,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.real_multiplier,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.padic_multiplier,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.grid_form_rpow,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.log_total_bounds,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.weighted_log_upper,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.source_exponents,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.strict_product_bound,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.real_grid_bounds,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.padic_grid_bounds,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceGrid10.sourceBound,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.evaluation_identity_of_reconstruction,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.evaluation_upper_of_reconstruction,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.local_upper_from_claims,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.three_place_upper,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.sourceBound_product,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.three_place_product_lt_one,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.grid_derivative_vanishes,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.SourceVanishing10.source_auxiliary10_grid_vanishing,
+``M198RLiteral.CompoundFeasibility.Auxiliary10.source_auxiliary_polynomial10]
+  let forbidden : Array Name := #[
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_reconstruction10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.coefficient_zero_of_unit10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_coefficient_zero10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_block_degree10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_total_weight10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_balanced_support10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_real_claim10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_unit10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_finite_unit10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_p2_claim10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_p3_claim10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_three_claims10".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_auxiliary10_balanced".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.source_polynomial_degrees10".toName,
+"CompoundFeasibility.Auxiliary10.SourceEvaluation10.integerValue_lower".toName,
+"CompoundFeasibility.Auxiliary10.SourceEvaluation10.integerValue_finite_le_one".toName,
+"CompoundFeasibility.Auxiliary10.SourceEvaluation10.logWeight".toName,
+"CompoundFeasibility.Auxiliary10.SourceEvaluation10.log_weight_transport".toName,
+"CompoundFeasibility.Auxiliary10.SourceEvaluation10.monomial_bound".toName,
+"CompoundFeasibility.Auxiliary10.SourceEvaluation10.expansion_support_card".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.matrix_grid".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.grid_form_norm".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.real_multiplier".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.padic_multiplier".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.grid_form_rpow".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.log_total_bounds".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.weighted_log_upper".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.source_exponents".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.strict_product_bound".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.real_grid_bounds".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.padic_grid_bounds".toName,
+"CompoundFeasibility.Auxiliary10.SourceGrid10.sourceBound".toName,
+"CompoundFeasibility.Auxiliary10.SourceVanishing10.evaluation_identity_of_reconstruction".toName,
+"CompoundFeasibility.Auxiliary10.SourceVanishing10.evaluation_upper_of_reconstruction".toName,
+"CompoundFeasibility.Auxiliary10.SourceVanishing10.local_upper_from_claims".toName,
+"CompoundFeasibility.Auxiliary10.SourceVanishing10.three_place_upper".toName,
+"CompoundFeasibility.Auxiliary10.SourceVanishing10.sourceBound_product".toName,
+"CompoundFeasibility.Auxiliary10.SourceVanishing10.three_place_product_lt_one".toName,
+"CompoundFeasibility.Auxiliary10.SourceVanishing10.grid_derivative_vanishes".toName,
+"CompoundFeasibility.Auxiliary10.SourceVanishing10.source_auxiliary10_grid_vanishing".toName,
+"CompoundFeasibility.Auxiliary10.source_auxiliary_polynomial10".toName]
+  for n in names do
+    let some info := env.find? n | throwError "missing literal {n}"
+    for used in info.getUsedConstantsAsSet.toArray do
+      if forbidden.any (fun bad => bad.isPrefixOf used) then
+        throwError "literal {n} depends on production {used}"
+  logInfo m!"checked {names.size} isolated literal dependency gates"
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace M198Contract
+open CompoundFeasibility.SourceMultiblock10 CompoundFeasibility.SourceNormalHighIndex10
+open CompoundFeasibility.SchmidtPolynomial10
+
+def restriction {K : Type*} [Field K] {m : ℕ} (a : Fin 10 → K)
+    (k : Fin m → Fin 10) (P : MvPolynomial (Vars10 m) K) :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u : Vars10 m =>
+    if u.2 = k u.1 then -(∑ j ∈ Finset.univ.erase (k u.1),
+      MvPolynomial.C (a j / a (k u.1)) * MvPolynomial.X (u.1,j))
+    else MvPolynomial.X u) P
+
+def index {K : Type*} [Field K] {m : ℕ} (A : Matrix (Fin 10) (Fin 10) K)
+    (r : Fin m → ℕ) (eta : ℝ) (P : MvPolynomial (Vars10 m) ℤ) : Prop :=
+  ∀ i J, rothSourceDerivativeWeight r J < (1/10 - eta) * m →
+    ∀ k : Fin m → Fin 10, (∀ h, A i (k h) ≠ 0) →
+      restriction (A i) k (derivative10 J (P.map (Int.castRingHom K))) = 0
+
+def expansion {K : Type*} [Field K] {m : ℕ} (A : Matrix (Fin 10) (Fin 10) K)
+    (J : Vars10 m →₀ ℕ) (P : MvPolynomial (Vars10 m) ℤ) :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u : Vars10 m =>
+    ∑ j : Fin 10, MvPolynomial.C (A⁻¹ u.2 j) * MvPolynomial.X (u.1,j))
+    (derivative10 J (P.map (Int.castRingHom K)))
+
+def IntendedSourceAuxiliaryPolynomial10 : Prop :=
+  ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ),
+  A2.det = 1 → A3.det = 1 → L.det = 1 → (∀ i j, IsAlgebraic ℚ (L i j)) →
+  ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+  (∀ i j, L i j ∈ K) ∧
+  ∃ D E : ℝ, 1 ≤ D ∧ 1 ≤ E ∧
+  ∀ eta : ℝ, 0 < eta → eta < 1/10 → ∀ m : ℕ,
+  4 * eta⁻¹ ^ 2 * Real.log (60 * Module.finrank ℚ K) ≤ m →
+  ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+  ∃ P : MvPolynomial (Vars10 m) ℤ,
+  P ≠ 0 ∧ homogeneous10 r P ∧ (∀ h, blockDegree10 P h ≤ r h) ∧
+  (∀ u, P.degreeOf u ≤ r u.1) ∧ (height10 P : ℝ) ≤ D ^ (∑ h, r h) ∧
+  index L r eta P ∧ index (A2.map (algebraMap ℚ ℚ_[2])) r eta P ∧
+  index (A3.map (algebraMap ℚ ℚ_[3])) r eta P ∧
+  (∀ J b, ‖(expansion L J P).coeff b‖ ≤ E ^ (∑ h, r h)) ∧
+  (∀ J b, ‖(expansion (A2.map (algebraMap ℚ ℚ_[2])) J P).coeff b‖ ≤ E ^ (∑ h, r h)) ∧
+  (∀ J b, ‖(expansion (A3.map (algebraMap ℚ ℚ_[3])) J P).coeff b‖ ≤ E ^ (∑ h, r h))
+
+end M198Contract
+end
+
+namespace M198RChallenge
+open CompoundFeasibility.SourceMultiblock10 CompoundFeasibility.SourceNormalHighIndex10
+open CompoundFeasibility.SchmidtPolynomial10
+
+theorem expansion_agrees {F : Type*} [Field F] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) F) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) :
+    M198Contract.expansion A J P =
+      CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion A J P := rfl
+
+theorem original_contract : M198Contract.IntendedSourceAuxiliaryPolynomial10 := by
+  intro A2 A3 L h2 h3 hL ha
+  obtain ⟨K,hK,hmem,D,E,hD,hE,hconstruct⟩ := M198RLiteral.CompoundFeasibility.Auxiliary10.source_auxiliary_polynomial10 A2 A3 L h2 h3 hL ha
+  refine ⟨K,hK,?_,D,E,hD,hE,?_⟩
+  · intro i j
+    exact hmem 0 i j
+  · intro eta heta hsmall m hm r hr
+    have hm' : 4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) := by
+      simpa only [inv_pow] using hm
+    obtain ⟨P,hn,hhom,hblock,hdegree,hheight,hfield,hreal,hp2,hp3,hclaims,hcfs,hgrid⟩ :=
+      hconstruct eta heta m hm' r hr
+    refine ⟨P,hn,hhom,fun h => (hblock h).le,hdegree,hheight,?_,?_,?_,?_,?_,?_⟩
+    · exact hreal 0
+    · exact hp2
+    · exact hp3
+    · intro J b
+      rw [expansion_agrees]
+      exact (hcfs J b).1
+    · intro J b
+      rw [show A2.map (algebraMap ℚ ℚ_[2]) = CompoundFeasibility.SourceForms10.finiteMatrix10 2 A2 from rfl,
+        expansion_agrees]
+      exact (hcfs J b).2.1
+    · intro J b
+      rw [show A3.map (algebraMap ℚ ℚ_[3]) = CompoundFeasibility.SourceForms10.finiteMatrix10 3 A3 from rfl,
+        expansion_agrees]
+      exact (hcfs J b).2.2
+
+end M198RChallenge
+#check M198Contract.restriction
+#print axioms M198Contract.restriction
+#check M198Contract.index
+#print axioms M198Contract.index
+#check M198Contract.expansion
+#print axioms M198Contract.expansion
+#check M198Contract.IntendedSourceAuxiliaryPolynomial10
+#print axioms M198Contract.IntendedSourceAuxiliaryPolynomial10
+#check M198RChallenge.expansion_agrees
+#print axioms M198RChallenge.expansion_agrees
+#check M198RChallenge.original_contract
+#print axioms M198RChallenge.original_contract

@@ -1,0 +1,202 @@
+import SubspaceBridge.BinaryKernelPrimitive2
+import SubspaceBridge.BinaryKernelDehom2
+import SubspaceBridge.BinaryKernelNonvanishing2
+import SubspaceBridge.BinaryLocalCore2
+import SubspaceBridge.BinaryLocalIndex2
+import SubspaceBridge.BinaryLocalMass2
+import SubspaceBridge.BinaryIntegerBridge2
+#check JSP000334.binaryNormalHeight
+#print JSP000334.binaryNormalHeight
+#print axioms JSP000334.binaryNormalHeight
+#check JSP000334.binary_primitive_gcd
+#print JSP000334.binary_primitive_gcd
+#print axioms JSP000334.binary_primitive_gcd
+#check JSP000334.binary_primitive_parameters
+#print JSP000334.binary_primitive_parameters
+#print axioms JSP000334.binary_primitive_parameters
+#check JSP000334.binaryKernelPivotExponent
+#print JSP000334.binaryKernelPivotExponent
+#print axioms JSP000334.binaryKernelPivotExponent
+#check JSP000334.binaryKernelDehom
+#print JSP000334.binaryKernelDehom
+#print axioms JSP000334.binaryKernelDehom
+#check JSP000334.binaryKernelPivotExponent_injective
+#print JSP000334.binaryKernelPivotExponent_injective
+#print axioms JSP000334.binaryKernelPivotExponent_injective
+#check JSP000334.binaryKernelDehom_coeff_at
+#print JSP000334.binaryKernelDehom_coeff_at
+#print axioms JSP000334.binaryKernelDehom_coeff_at
+#check JSP000334.binaryKernelDehom_nonzero_height_degree
+#print JSP000334.binaryKernelDehom_nonzero_height_degree
+#print axioms JSP000334.binaryKernelDehom_nonzero_height_degree
+#check JSP000334.binaryKernelPivotOrder
+#print JSP000334.binaryKernelPivotOrder
+#print axioms JSP000334.binaryKernelPivotOrder
+#check JSP000334.binaryKernelDehom_monomial
+#print JSP000334.binaryKernelDehom_monomial
+#print axioms JSP000334.binaryKernelDehom_monomial
+#check JSP000334.binaryKernelDehom_add
+#print JSP000334.binaryKernelDehom_add
+#print axioms JSP000334.binaryKernelDehom_add
+#check JSP000334.binaryKernelDehom_derivative
+#print JSP000334.binaryKernelDehom_derivative
+#print axioms JSP000334.binaryKernelDehom_derivative
+#check JSP000334.binaryKernelPivotOrder_budget
+#print JSP000334.binaryKernelPivotOrder_budget
+#print axioms JSP000334.binaryKernelPivotOrder_budget
+#check JSP000334.binaryKernelDehom_eval
+#print JSP000334.binaryKernelDehom_eval
+#print axioms JSP000334.binaryKernelDehom_eval
+#check JSP000334.binaryKernelRestriction_eval
+#print JSP000334.binaryKernelRestriction_eval
+#print axioms JSP000334.binaryKernelRestriction_eval
+#check JSP000334.binary_kernel_omega65_nonvanishing_evaluation
+#print JSP000334.binary_kernel_omega65_nonvanishing_evaluation
+#print axioms JSP000334.binary_kernel_omega65_nonvanishing_evaluation
+#check JSP000334.binary_kernel_omega65_nonvanishing
+#print JSP000334.binary_kernel_omega65_nonvanishing
+#print axioms JSP000334.binary_kernel_omega65_nonvanishing
+#check JSP000334.binaryLocalRationalMatrix
+#print JSP000334.binaryLocalRationalMatrix
+#print axioms JSP000334.binaryLocalRationalMatrix
+#check JSP000334.binaryLocalLinearChart
+#print JSP000334.binaryLocalLinearChart
+#print axioms JSP000334.binaryLocalLinearChart
+#check JSP000334.binaryLocalSubstitution
+#print JSP000334.binaryLocalSubstitution
+#print axioms JSP000334.binaryLocalSubstitution
+#check JSP000334.binaryLocalExpansion
+#print JSP000334.binaryLocalExpansion
+#print axioms JSP000334.binaryLocalExpansion
+#check JSP000334.binaryLocal_chart_one
+#print JSP000334.binaryLocal_chart_one
+#print axioms JSP000334.binaryLocal_chart_one
+#check JSP000334.binaryLocal_chart_comp
+#print JSP000334.binaryLocal_chart_comp
+#print axioms JSP000334.binaryLocal_chart_comp
+#check JSP000334.binaryLocal_expansion_reconstruct
+#print JSP000334.binaryLocal_expansion_reconstruct
+#print axioms JSP000334.binaryLocal_expansion_reconstruct
+#check JSP000334.binaryLocal_chart_pderiv
+#print JSP000334.binaryLocal_chart_pderiv
+#print axioms JSP000334.binaryLocal_chart_pderiv
+#check JSP000334.binaryLocal_substitution_one
+#print JSP000334.binaryLocal_substitution_one
+#print axioms JSP000334.binaryLocal_substitution_one
+#check JSP000334.binaryLocal_substitution_comp
+#print JSP000334.binaryLocal_substitution_comp
+#print axioms JSP000334.binaryLocal_substitution_comp
+#check JSP000334.binaryLocal_substitution_injective
+#print JSP000334.binaryLocal_substitution_injective
+#print axioms JSP000334.binaryLocal_substitution_injective
+#check JSP000334.binaryLocal_expansion_unique
+#print JSP000334.binaryLocal_expansion_unique
+#print axioms JSP000334.binaryLocal_expansion_unique
+#check JSP000334.binaryLocal_substitution_chain
+#print JSP000334.binaryLocal_substitution_chain
+#print axioms JSP000334.binaryLocal_substitution_chain
+#check JSP000334.binaryLocalZeroCoordinate
+#print JSP000334.binaryLocalZeroCoordinate
+#print axioms JSP000334.binaryLocalZeroCoordinate
+#check JSP000334.binaryLocalKernelImage
+#print JSP000334.binaryLocalKernelImage
+#print axioms JSP000334.binaryLocalKernelImage
+#check JSP000334.binaryLocal_kernel_image_form
+#print JSP000334.binaryLocal_kernel_image_form
+#print axioms JSP000334.binaryLocal_kernel_image_form
+#check JSP000334.binaryLocal_kernel_factor_variable
+#print JSP000334.binaryLocal_kernel_factor_variable
+#print axioms JSP000334.binaryLocal_kernel_factor_variable
+#check JSP000334.binaryLocal_kernel_factor
+#print JSP000334.binaryLocal_kernel_factor
+#print axioms JSP000334.binaryLocal_kernel_factor
+#check JSP000334.binaryLocal_index_zero_slice
+#print JSP000334.binaryLocal_index_zero_slice
+#print axioms JSP000334.binaryLocal_index_zero_slice
+#check JSP000334.binaryLocal_zero_monomial
+#print JSP000334.binaryLocal_zero_monomial
+#print axioms JSP000334.binaryLocal_zero_monomial
+#check JSP000334.binaryLocal_zero_coeff
+#print JSP000334.binaryLocal_zero_coeff
+#print axioms JSP000334.binaryLocal_zero_coeff
+#check JSP000334.binaryLocal_pderiv_coeff
+#print JSP000334.binaryLocal_pderiv_coeff
+#print axioms JSP000334.binaryLocal_pderiv_coeff
+#check JSP000334.binaryLocal_substitution_map
+#print JSP000334.binaryLocal_substitution_map
+#print axioms JSP000334.binaryLocal_substitution_map
+#check JSP000334.binaryLocal_expansion_chain
+#print JSP000334.binaryLocal_expansion_chain
+#print axioms JSP000334.binaryLocal_expansion_chain
+#check JSP000334.binaryLocalCoordinateWeight
+#print JSP000334.binaryLocalCoordinateWeight
+#print axioms JSP000334.binaryLocalCoordinateWeight
+#check JSP000334.binaryLocal_coordinate_weight_add
+#print JSP000334.binaryLocal_coordinate_weight_add
+#print axioms JSP000334.binaryLocal_coordinate_weight_add
+#check JSP000334.binaryLocal_coordinate_weight_single
+#print JSP000334.binaryLocal_coordinate_weight_single
+#print axioms JSP000334.binaryLocal_coordinate_weight_single
+#check JSP000334.binaryLocal_coeff_zero_below_index
+#print JSP000334.binaryLocal_coeff_zero_below_index
+#print axioms JSP000334.binaryLocal_coeff_zero_below_index
+#check JSP000334.binaryLocal_chart_block_weight
+#print JSP000334.binaryLocal_chart_block_weight
+#print axioms JSP000334.binaryLocal_chart_block_weight
+#check JSP000334.binaryLocal_expansion_block_weight
+#print JSP000334.binaryLocal_expansion_block_weight
+#print axioms JSP000334.binaryLocal_expansion_block_weight
+#check JSP000334.binaryLocal_expansion_block_degree
+#print JSP000334.binaryLocal_expansion_block_degree
+#print axioms JSP000334.binaryLocal_expansion_block_degree
+#check JSP000334.binaryLocal_total_coordinate_weight_le
+#print JSP000334.binaryLocal_total_coordinate_weight_le
+#print axioms JSP000334.binaryLocal_total_coordinate_weight_le
+#check JSP000334.binaryLocal_nonzero_row
+#print JSP000334.binaryLocal_nonzero_row
+#print axioms JSP000334.binaryLocal_nonzero_row
+#check JSP000334.binaryLocal_coefficient_balance
+#print JSP000334.binaryLocal_coefficient_balance
+#print axioms JSP000334.binaryLocal_coefficient_balance
+#check JSP000334.binaryLocalInverseBound
+#print JSP000334.binaryLocalInverseBound
+#print axioms JSP000334.binaryLocalInverseBound
+#check JSP000334.binaryLocalInverseBound_one_le
+#print JSP000334.binaryLocalInverseBound_one_le
+#print axioms JSP000334.binaryLocalInverseBound_one_le
+#check JSP000334.binaryLocalInverseBound_entry
+#print JSP000334.binaryLocalInverseBound_entry
+#print axioms JSP000334.binaryLocalInverseBound_entry
+#check JSP000334.binaryLocal_chart_mass
+#print JSP000334.binaryLocal_chart_mass
+#print axioms JSP000334.binaryLocal_chart_mass
+#check JSP000334.binaryLocal_support_index
+#print JSP000334.binaryLocal_support_index
+#print axioms JSP000334.binaryLocal_support_index
+#check JSP000334.binaryLocal_support_card
+#print JSP000334.binaryLocal_support_card
+#print axioms JSP000334.binaryLocal_support_card
+#check JSP000334.binaryLocal_transformed_monomial_mass
+#print JSP000334.binaryLocal_transformed_monomial_mass
+#print axioms JSP000334.binaryLocal_transformed_monomial_mass
+#check JSP000334.binaryLocal_expansion_coeff_bound
+#print JSP000334.binaryLocal_expansion_coeff_bound
+#print axioms JSP000334.binaryLocal_expansion_coeff_bound
+#check JSP000334.binary_derivative_homogeneous
+#print JSP000334.binary_derivative_homogeneous
+#print axioms JSP000334.binary_derivative_homogeneous
+#check JSP000334.binary_homogeneous_scale_eval
+#print JSP000334.binary_homogeneous_scale_eval
+#print axioms JSP000334.binary_homogeneous_scale_eval
+#check JSP000334.binaryIntegerVectorRestriction
+#print JSP000334.binaryIntegerVectorRestriction
+#print axioms JSP000334.binaryIntegerVectorRestriction
+#check JSP000334.binary_monomial_product
+#print JSP000334.binary_monomial_product
+#print axioms JSP000334.binary_monomial_product
+#check JSP000334.roth_scalar_omega65_nonvanishing
+#print axioms JSP000334.roth_scalar_omega65_nonvanishing
+#check JSP000334.binary_auxiliary_integer_three_place
+#print axioms JSP000334.binary_auxiliary_integer_three_place
+#check JSP000334.rothInteger_three_place_lower
+#print axioms JSP000334.rothInteger_three_place_lower

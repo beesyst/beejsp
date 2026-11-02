@@ -1,0 +1,764 @@
+import SubspaceBridge.SourceForms4
+import SubspaceBridge.AuxiliaryCount4
+import SubspaceBridge.AuxiliaryPolynomial4
+import SubspaceBridge.SourceAuxiliary4
+import SubspaceBridge.SourceExpansion4
+import SubspaceBridge.SourceSupport4
+import SubspaceBridge.SourceBalance4
+import SubspaceBridge.SourceEvaluation4
+import SubspaceBridge.SourceGrid4
+import SubspaceBridge.SourceVanishing4
+import SubspaceBridge.SourceWeights4
+import SubspaceBridge.SourceBlocks4
+import SubspaceBridge.SourceNormalIndex4
+
+#check CompoundFeasibility.SourceForms4.forms4
+#print CompoundFeasibility.SourceForms4.forms4
+#print axioms CompoundFeasibility.SourceForms4.forms4
+#check CompoundFeasibility.SourceForms4.finiteMatrix4
+#print CompoundFeasibility.SourceForms4.finiteMatrix4
+#print axioms CompoundFeasibility.SourceForms4.finiteMatrix4
+#check CompoundFeasibility.SourceForms4.source_det_one4
+#print CompoundFeasibility.SourceForms4.source_det_one4
+#print axioms CompoundFeasibility.SourceForms4.source_det_one4
+#check CompoundFeasibility.SourceForms4.source_unit4
+#print CompoundFeasibility.SourceForms4.source_unit4
+#print axioms CompoundFeasibility.SourceForms4.source_unit4
+#check CompoundFeasibility.SourceForms4.finite_det_one4
+#print CompoundFeasibility.SourceForms4.finite_det_one4
+#print axioms CompoundFeasibility.SourceForms4.finite_det_one4
+#check CompoundFeasibility.SourceForms4.source_algebraic4
+#print CompoundFeasibility.SourceForms4.source_algebraic4
+#print axioms CompoundFeasibility.SourceForms4.source_algebraic4
+#check CompoundFeasibility.SourceForms4.common_source_field4
+#print CompoundFeasibility.SourceForms4.common_source_field4
+#print axioms CompoundFeasibility.SourceForms4.common_source_field4
+#check CompoundFeasibility.SourceForms4.source_rows_nonzero4
+#print CompoundFeasibility.SourceForms4.source_rows_nonzero4
+#print axioms CompoundFeasibility.SourceForms4.source_rows_nonzero4
+#check CompoundFeasibility.Auxiliary4.Block4
+#print CompoundFeasibility.Auxiliary4.Block4
+#print axioms CompoundFeasibility.Auxiliary4.Block4
+#check CompoundFeasibility.Auxiliary4.blockNatEquiv4
+#print CompoundFeasibility.Auxiliary4.blockNatEquiv4
+#print axioms CompoundFeasibility.Auxiliary4.blockNatEquiv4
+#check CompoundFeasibility.Auxiliary4.block4_card
+#print CompoundFeasibility.Auxiliary4.block4_card
+#print axioms CompoundFeasibility.Auxiliary4.block4_card
+#check CompoundFeasibility.Auxiliary4.rothAuxBlockPerm
+#print CompoundFeasibility.Auxiliary4.rothAuxBlockPerm
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxBlockPerm
+#check CompoundFeasibility.Auxiliary4.rothAuxBlock_coordinate_sum
+#print CompoundFeasibility.Auxiliary4.rothAuxBlock_coordinate_sum
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxBlock_coordinate_sum
+#check CompoundFeasibility.Auxiliary4.rothAuxBlock_center_sum
+#print CompoundFeasibility.Auxiliary4.rothAuxBlock_center_sum
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxBlock_center_sum
+#check CompoundFeasibility.Auxiliary4.rothAuxBlock_center_bound
+#print CompoundFeasibility.Auxiliary4.rothAuxBlock_center_bound
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxBlock_center_bound
+#check CompoundFeasibility.Auxiliary4.rothAuxBlock_exp_sum
+#print CompoundFeasibility.Auxiliary4.rothAuxBlock_exp_sum
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxBlock_exp_sum
+#check CompoundFeasibility.Auxiliary4.RothAuxCoefficients
+#print CompoundFeasibility.Auxiliary4.RothAuxCoefficients
+#print axioms CompoundFeasibility.Auxiliary4.RothAuxCoefficients
+#check CompoundFeasibility.Auxiliary4.RothAuxPivots
+#print CompoundFeasibility.Auxiliary4.RothAuxPivots
+#print axioms CompoundFeasibility.Auxiliary4.RothAuxPivots
+#check CompoundFeasibility.Auxiliary4.rothAuxDimension
+#print CompoundFeasibility.Auxiliary4.rothAuxDimension
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxDimension
+#check CompoundFeasibility.Auxiliary4.rothAuxDimension_eq
+#print CompoundFeasibility.Auxiliary4.rothAuxDimension_eq
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxDimension_eq
+#check CompoundFeasibility.Auxiliary4.rothAuxCentered
+#print CompoundFeasibility.Auxiliary4.rothAuxCentered
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxCentered
+#check CompoundFeasibility.Auxiliary4.RothAuxBad
+#print CompoundFeasibility.Auxiliary4.RothAuxBad
+#print axioms CompoundFeasibility.Auxiliary4.RothAuxBad
+#check CompoundFeasibility.Auxiliary4.rothAuxPivotCondition
+#print CompoundFeasibility.Auxiliary4.rothAuxPivotCondition
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxPivotCondition
+#check CompoundFeasibility.Auxiliary4.rothAux_exp_moment
+#print CompoundFeasibility.Auxiliary4.rothAux_exp_moment
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_exp_moment
+#check CompoundFeasibility.Auxiliary4.rothAux_exp_tail_parameter
+#print CompoundFeasibility.Auxiliary4.rothAux_exp_tail_parameter
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_exp_tail_parameter
+#check CompoundFeasibility.Auxiliary4.rothAuxBad_card_zero
+#print CompoundFeasibility.Auxiliary4.rothAuxBad_card_zero
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxBad_card_zero
+#check CompoundFeasibility.Auxiliary4.rothAuxBad_exp_bound
+#print CompoundFeasibility.Auxiliary4.rothAuxBad_exp_bound
+#print axioms CompoundFeasibility.Auxiliary4.rothAuxBad_exp_bound
+#check CompoundFeasibility.Auxiliary4.Equations4
+#print CompoundFeasibility.Auxiliary4.Equations4
+#print axioms CompoundFeasibility.Auxiliary4.Equations4
+#check CompoundFeasibility.Auxiliary4.dimension4_pos
+#print CompoundFeasibility.Auxiliary4.dimension4_pos
+#print axioms CompoundFeasibility.Auxiliary4.dimension4_pos
+#check CompoundFeasibility.Auxiliary4.coordinate_rows4_le_half
+#print CompoundFeasibility.Auxiliary4.coordinate_rows4_le_half
+#print axioms CompoundFeasibility.Auxiliary4.coordinate_rows4_le_half
+#check CompoundFeasibility.Auxiliary4.coordinate_rows4_lt
+#print CompoundFeasibility.Auxiliary4.coordinate_rows4_lt
+#print axioms CompoundFeasibility.Auxiliary4.coordinate_rows4_lt
+#check CompoundFeasibility.Auxiliary4.Block3
+#print CompoundFeasibility.Auxiliary4.Block3
+#print axioms CompoundFeasibility.Auxiliary4.Block3
+#check CompoundFeasibility.Auxiliary4.blockNatEquiv3
+#print CompoundFeasibility.Auxiliary4.blockNatEquiv3
+#print axioms CompoundFeasibility.Auxiliary4.blockNatEquiv3
+#check CompoundFeasibility.Auxiliary4.block3_card
+#print CompoundFeasibility.Auxiliary4.block3_card
+#print axioms CompoundFeasibility.Auxiliary4.block3_card
+#check CompoundFeasibility.Auxiliary4.blockPivotEquiv4
+#print CompoundFeasibility.Auxiliary4.blockPivotEquiv4
+#print axioms CompoundFeasibility.Auxiliary4.blockPivotEquiv4
+#check CompoundFeasibility.Auxiliary4.bad_iff_pivot6
+#print CompoundFeasibility.Auxiliary4.bad_iff_pivot6
+#print axioms CompoundFeasibility.Auxiliary4.bad_iff_pivot6
+#check CompoundFeasibility.Auxiliary4.badPivotEquiv4
+#print CompoundFeasibility.Auxiliary4.badPivotEquiv4
+#print axioms CompoundFeasibility.Auxiliary4.badPivotEquiv4
+#check CompoundFeasibility.Auxiliary4.bad_count_source4
+#print CompoundFeasibility.Auxiliary4.bad_count_source4
+#print axioms CompoundFeasibility.Auxiliary4.bad_count_source4
+#check CompoundFeasibility.Auxiliary4.constraint_count_source4
+#print CompoundFeasibility.Auxiliary4.constraint_count_source4
+#print axioms CompoundFeasibility.Auxiliary4.constraint_count_source4
+#check CompoundFeasibility.Auxiliary4.rothSourceDerivativeWeight
+#print CompoundFeasibility.Auxiliary4.rothSourceDerivativeWeight
+#print axioms CompoundFeasibility.Auxiliary4.rothSourceDerivativeWeight
+#check CompoundFeasibility.Auxiliary4.exponent4
+#print CompoundFeasibility.Auxiliary4.exponent4
+#print axioms CompoundFeasibility.Auxiliary4.exponent4
+#check CompoundFeasibility.Auxiliary4.exponent4_injective
+#print CompoundFeasibility.Auxiliary4.exponent4_injective
+#print axioms CompoundFeasibility.Auxiliary4.exponent4_injective
+#check CompoundFeasibility.Auxiliary4.polynomial4
+#print CompoundFeasibility.Auxiliary4.polynomial4
+#print axioms CompoundFeasibility.Auxiliary4.polynomial4
+#check CompoundFeasibility.Auxiliary4.polynomial4_coeff
+#print CompoundFeasibility.Auxiliary4.polynomial4_coeff
+#print axioms CompoundFeasibility.Auxiliary4.polynomial4_coeff
+#check CompoundFeasibility.Auxiliary4.homogeneous4
+#print CompoundFeasibility.Auxiliary4.homogeneous4
+#print axioms CompoundFeasibility.Auxiliary4.homogeneous4
+#check CompoundFeasibility.Auxiliary4.polynomial4_homogeneous
+#print CompoundFeasibility.Auxiliary4.polynomial4_homogeneous
+#print axioms CompoundFeasibility.Auxiliary4.polynomial4_homogeneous
+#check CompoundFeasibility.Auxiliary4.chart4
+#print CompoundFeasibility.Auxiliary4.chart4
+#print axioms CompoundFeasibility.Auxiliary4.chart4
+#check CompoundFeasibility.Auxiliary4.substitute4
+#print CompoundFeasibility.Auxiliary4.substitute4
+#print axioms CompoundFeasibility.Auxiliary4.substitute4
+#check CompoundFeasibility.Auxiliary4.pivotDerivative4
+#print CompoundFeasibility.Auxiliary4.pivotDerivative4
+#print axioms CompoundFeasibility.Auxiliary4.pivotDerivative4
+#check CompoundFeasibility.Auxiliary4.transformed_monomial4
+#print CompoundFeasibility.Auxiliary4.transformed_monomial4
+#print axioms CompoundFeasibility.Auxiliary4.transformed_monomial4
+#check CompoundFeasibility.Auxiliary4.exponent4_sum
+#print CompoundFeasibility.Auxiliary4.exponent4_sum
+#print axioms CompoundFeasibility.Auxiliary4.exponent4_sum
+#check CompoundFeasibility.Auxiliary4.transformed_coeff_sum4
+#print CompoundFeasibility.Auxiliary4.transformed_coeff_sum4
+#print axioms CompoundFeasibility.Auxiliary4.transformed_coeff_sum4
+#check CompoundFeasibility.Auxiliary4.rothAux_weight_block
+#print CompoundFeasibility.Auxiliary4.rothAux_weight_block
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_weight_block
+#check CompoundFeasibility.Auxiliary4.rothAux_weight_pivot
+#print CompoundFeasibility.Auxiliary4.rothAux_weight_pivot
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_weight_pivot
+#check CompoundFeasibility.Auxiliary4.rothAux_weighted_neg
+#print CompoundFeasibility.Auxiliary4.rothAux_weighted_neg
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_weighted_neg
+#check CompoundFeasibility.Auxiliary4.chart4_block_weight
+#print CompoundFeasibility.Auxiliary4.chart4_block_weight
+#print axioms CompoundFeasibility.Auxiliary4.chart4_block_weight
+#check CompoundFeasibility.Auxiliary4.chart4_pivot_weight
+#print CompoundFeasibility.Auxiliary4.chart4_pivot_weight
+#print axioms CompoundFeasibility.Auxiliary4.chart4_pivot_weight
+#check CompoundFeasibility.Auxiliary4.rothAux_scaled_monomial_weighted
+#print CompoundFeasibility.Auxiliary4.rothAux_scaled_monomial_weighted
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_scaled_monomial_weighted
+#check CompoundFeasibility.Auxiliary4.rothAux_transformed_polynomial
+#print CompoundFeasibility.Auxiliary4.rothAux_transformed_polynomial
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_transformed_polynomial
+#check CompoundFeasibility.Auxiliary4.rothAux_pivot_monomial_block_weight
+#print CompoundFeasibility.Auxiliary4.rothAux_pivot_monomial_block_weight
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_pivot_monomial_block_weight
+#check CompoundFeasibility.Auxiliary4.rothAux_transformed_block_weight
+#print CompoundFeasibility.Auxiliary4.rothAux_transformed_block_weight
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_transformed_block_weight
+#check CompoundFeasibility.Auxiliary4.rothAux_transformed_block_homogeneous
+#print CompoundFeasibility.Auxiliary4.rothAux_transformed_block_homogeneous
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_transformed_block_homogeneous
+#check CompoundFeasibility.Auxiliary4.rothAux_transformed_pivot_weight
+#print CompoundFeasibility.Auxiliary4.rothAux_transformed_pivot_weight
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_transformed_pivot_weight
+#check CompoundFeasibility.Auxiliary4.rothAux_transformed_pivot_zero
+#print CompoundFeasibility.Auxiliary4.rothAux_transformed_pivot_zero
+#print axioms CompoundFeasibility.Auxiliary4.rothAux_transformed_pivot_zero
+#check CompoundFeasibility.Auxiliary4.freeExponent4
+#print CompoundFeasibility.Auxiliary4.freeExponent4
+#print axioms CompoundFeasibility.Auxiliary4.freeExponent4
+#check CompoundFeasibility.Auxiliary4.freeExponent4_reconstruct
+#print CompoundFeasibility.Auxiliary4.freeExponent4_reconstruct
+#print axioms CompoundFeasibility.Auxiliary4.freeExponent4_reconstruct
+#check Aux4Height.chart_mass4
+#print Aux4Height.chart_mass4
+#print axioms Aux4Height.chart_mass4
+#check Aux4Height.binomial_norm4
+#print Aux4Height.binomial_norm4
+#print axioms Aux4Height.binomial_norm4
+#check Aux4Height.transformed_entry_norm4
+#print Aux4Height.transformed_entry_norm4
+#print axioms Aux4Height.transformed_entry_norm4
+#check CompoundFeasibility.Auxiliary4.formEquiv4
+#print CompoundFeasibility.Auxiliary4.formEquiv4
+#print axioms CompoundFeasibility.Auxiliary4.formEquiv4
+#check CompoundFeasibility.Auxiliary4.equation4
+#print CompoundFeasibility.Auxiliary4.equation4
+#print axioms CompoundFeasibility.Auxiliary4.equation4
+#check CompoundFeasibility.Auxiliary4.matrix4
+#print CompoundFeasibility.Auxiliary4.matrix4
+#print axioms CompoundFeasibility.Auxiliary4.matrix4
+#check CompoundFeasibility.Auxiliary4.matrix4_mulVec
+#print CompoundFeasibility.Auxiliary4.matrix4_mulVec
+#print axioms CompoundFeasibility.Auxiliary4.matrix4_mulVec
+#check CompoundFeasibility.Auxiliary4.matrix4_kernel_iff_coefficients
+#print CompoundFeasibility.Auxiliary4.matrix4_kernel_iff_coefficients
+#print axioms CompoundFeasibility.Auxiliary4.matrix4_kernel_iff_coefficients
+#check CompoundFeasibility.Auxiliary4.restriction4_zero_iff_coefficients
+#print CompoundFeasibility.Auxiliary4.restriction4_zero_iff_coefficients
+#print axioms CompoundFeasibility.Auxiliary4.restriction4_zero_iff_coefficients
+#check CompoundFeasibility.Auxiliary4.matrix4_kernel_iff_restrictions
+#print CompoundFeasibility.Auxiliary4.matrix4_kernel_iff_restrictions
+#print axioms CompoundFeasibility.Auxiliary4.matrix4_kernel_iff_restrictions
+#check CompoundFeasibility.Auxiliary4.rothSource_scaled_chart_pderiv
+#print CompoundFeasibility.Auxiliary4.rothSource_scaled_chart_pderiv
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_scaled_chart_pderiv
+#check CompoundFeasibility.Auxiliary4.rothSource_scaled_chain
+#print CompoundFeasibility.Auxiliary4.rothSource_scaled_chain
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_scaled_chain
+#check CompoundFeasibility.Auxiliary4.rothSource_weight_add
+#print CompoundFeasibility.Auxiliary4.rothSource_weight_add
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_weight_add
+#check CompoundFeasibility.Auxiliary4.rothSource_weight_mono
+#print CompoundFeasibility.Auxiliary4.rothSource_weight_mono
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_weight_mono
+#check CompoundFeasibility.Auxiliary4.rothSource_weight_single
+#print CompoundFeasibility.Auxiliary4.rothSource_weight_single
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_weight_single
+#check CompoundFeasibility.Auxiliary4.rothSource_weight_pivot
+#print CompoundFeasibility.Auxiliary4.rothSource_weight_pivot
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_weight_pivot
+#check CompoundFeasibility.Auxiliary4.rothSourceFreeOrder
+#print CompoundFeasibility.Auxiliary4.rothSourceFreeOrder
+#print axioms CompoundFeasibility.Auxiliary4.rothSourceFreeOrder
+#check CompoundFeasibility.Auxiliary4.rothSource_free_add
+#print CompoundFeasibility.Auxiliary4.rothSource_free_add
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_free_add
+#check CompoundFeasibility.Auxiliary4.rothSource_free_single
+#print CompoundFeasibility.Auxiliary4.rothSource_free_single
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_free_single
+#check CompoundFeasibility.Auxiliary4.rothSource_free_zero_pivot
+#print CompoundFeasibility.Auxiliary4.rothSource_free_zero_pivot
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_free_zero_pivot
+#check CompoundFeasibility.Auxiliary4.rothSource_scaled_mixed_vanishing
+#print CompoundFeasibility.Auxiliary4.rothSource_scaled_mixed_vanishing
+#print axioms CompoundFeasibility.Auxiliary4.rothSource_scaled_mixed_vanishing
+#check CompoundFeasibility.Auxiliary4.kernelChart4
+#print CompoundFeasibility.Auxiliary4.kernelChart4
+#print axioms CompoundFeasibility.Auxiliary4.kernelChart4
+#check CompoundFeasibility.Auxiliary4.kernelRestriction4
+#print CompoundFeasibility.Auxiliary4.kernelRestriction4
+#print axioms CompoundFeasibility.Auxiliary4.kernelRestriction4
+#check CompoundFeasibility.Auxiliary4.kernelChart4_form
+#print CompoundFeasibility.Auxiliary4.kernelChart4_form
+#print axioms CompoundFeasibility.Auxiliary4.kernelChart4_form
+#check CompoundFeasibility.Auxiliary4.chartTransport4
+#print CompoundFeasibility.Auxiliary4.chartTransport4
+#print axioms CompoundFeasibility.Auxiliary4.chartTransport4
+#check CompoundFeasibility.Auxiliary4.chartTransport4_variable
+#print CompoundFeasibility.Auxiliary4.chartTransport4_variable
+#print axioms CompoundFeasibility.Auxiliary4.chartTransport4_variable
+#check CompoundFeasibility.Auxiliary4.chartTransport4_substitute
+#print CompoundFeasibility.Auxiliary4.chartTransport4_substitute
+#print axioms CompoundFeasibility.Auxiliary4.chartTransport4_substitute
+#check CompoundFeasibility.Auxiliary4.derivative4_zero_of_block_excess
+#print CompoundFeasibility.Auxiliary4.derivative4_zero_of_block_excess
+#print axioms CompoundFeasibility.Auxiliary4.derivative4_zero_of_block_excess
+#check CompoundFeasibility.Auxiliary4.matrix4_kernel_all_derivatives
+#print CompoundFeasibility.Auxiliary4.matrix4_kernel_all_derivatives
+#print axioms CompoundFeasibility.Auxiliary4.matrix4_kernel_all_derivatives
+#check CompoundFeasibility.Auxiliary4.derivative4_map
+#print CompoundFeasibility.Auxiliary4.derivative4_map
+#print axioms CompoundFeasibility.Auxiliary4.derivative4_map
+#check CompoundFeasibility.Auxiliary4.chart4_map
+#print CompoundFeasibility.Auxiliary4.chart4_map
+#print axioms CompoundFeasibility.Auxiliary4.chart4_map
+#check CompoundFeasibility.Auxiliary4.substitute4_map
+#print CompoundFeasibility.Auxiliary4.substitute4_map
+#print axioms CompoundFeasibility.Auxiliary4.substitute4_map
+#check CompoundFeasibility.Auxiliary4.polynomial4_map
+#print CompoundFeasibility.Auxiliary4.polynomial4_map
+#print axioms CompoundFeasibility.Auxiliary4.polynomial4_map
+#check CompoundFeasibility.Auxiliary4.matrix4_map
+#print CompoundFeasibility.Auxiliary4.matrix4_map
+#print axioms CompoundFeasibility.Auxiliary4.matrix4_map
+#check CompoundFeasibility.Auxiliary4.integralMatrix4
+#print CompoundFeasibility.Auxiliary4.integralMatrix4
+#print axioms CompoundFeasibility.Auxiliary4.integralMatrix4
+#check CompoundFeasibility.Auxiliary4.integralMatrix4_kernel
+#print CompoundFeasibility.Auxiliary4.integralMatrix4_kernel
+#print axioms CompoundFeasibility.Auxiliary4.integralMatrix4_kernel
+#check CompoundFeasibility.Auxiliary4.integralHeightBase4
+#print CompoundFeasibility.Auxiliary4.integralHeightBase4
+#print axioms CompoundFeasibility.Auxiliary4.integralHeightBase4
+#check CompoundFeasibility.Auxiliary4.integralCoordinateConstant4
+#print CompoundFeasibility.Auxiliary4.integralCoordinateConstant4
+#print axioms CompoundFeasibility.Auxiliary4.integralCoordinateConstant4
+#check CompoundFeasibility.Auxiliary4.integralMatrix4_entry_bound
+#print CompoundFeasibility.Auxiliary4.integralMatrix4_entry_bound
+#print axioms CompoundFeasibility.Auxiliary4.integralMatrix4_entry_bound
+#check CompoundFeasibility.Auxiliary4.dimension4_le_pow
+#print CompoundFeasibility.Auxiliary4.dimension4_le_pow
+#print axioms CompoundFeasibility.Auxiliary4.dimension4_le_pow
+#check CompoundFeasibility.Auxiliary4.integralSiegelConstant4
+#print CompoundFeasibility.Auxiliary4.integralSiegelConstant4
+#print axioms CompoundFeasibility.Auxiliary4.integralSiegelConstant4
+#check CompoundFeasibility.Auxiliary4.integralSiegelConstant4_ge_one
+#print CompoundFeasibility.Auxiliary4.integralSiegelConstant4_ge_one
+#print axioms CompoundFeasibility.Auxiliary4.integralSiegelConstant4_ge_one
+#check CompoundFeasibility.Auxiliary4.integralMatrix4_uniform_bound
+#print CompoundFeasibility.Auxiliary4.integralMatrix4_uniform_bound
+#print axioms CompoundFeasibility.Auxiliary4.integralMatrix4_uniform_bound
+#check CompoundFeasibility.Auxiliary4.integralMatrix4_bounded_kernel
+#print CompoundFeasibility.Auxiliary4.integralMatrix4_bounded_kernel
+#print axioms CompoundFeasibility.Auxiliary4.integralMatrix4_bounded_kernel
+#check CompoundFeasibility.Auxiliary4.height4
+#print CompoundFeasibility.Auxiliary4.height4
+#print axioms CompoundFeasibility.Auxiliary4.height4
+#check CompoundFeasibility.Auxiliary4.polynomial4_ne_zero
+#print CompoundFeasibility.Auxiliary4.polynomial4_ne_zero
+#print axioms CompoundFeasibility.Auxiliary4.polynomial4_ne_zero
+#check CompoundFeasibility.Auxiliary4.polynomial4_height_le
+#print CompoundFeasibility.Auxiliary4.polynomial4_height_le
+#print axioms CompoundFeasibility.Auxiliary4.polynomial4_height_le
+#check CompoundFeasibility.Auxiliary4.kernelChart4_scale
+#print CompoundFeasibility.Auxiliary4.kernelChart4_scale
+#print axioms CompoundFeasibility.Auxiliary4.kernelChart4_scale
+#check CompoundFeasibility.Auxiliary4.kernelRestriction4_scale
+#print CompoundFeasibility.Auxiliary4.kernelRestriction4_scale
+#print axioms CompoundFeasibility.Auxiliary4.kernelRestriction4_scale
+#check CompoundFeasibility.Auxiliary4.kernelRestriction4_map
+#print CompoundFeasibility.Auxiliary4.kernelRestriction4_map
+#print axioms CompoundFeasibility.Auxiliary4.kernelRestriction4_map
+#check CompoundFeasibility.Auxiliary4.integral_auxiliary4
+#print CompoundFeasibility.Auxiliary4.integral_auxiliary4
+#print axioms CompoundFeasibility.Auxiliary4.integral_auxiliary4
+#check CompoundFeasibility.Auxiliary4.source_integral_scaling4
+#print CompoundFeasibility.Auxiliary4.source_integral_scaling4
+#print axioms CompoundFeasibility.Auxiliary4.source_integral_scaling4
+#check CompoundFeasibility.Auxiliary4.algebraic_auxiliary4
+#print CompoundFeasibility.Auxiliary4.algebraic_auxiliary4
+#print axioms CompoundFeasibility.Auxiliary4.algebraic_auxiliary4
+#check CompoundFeasibility.Auxiliary4.source_restriction4_real
+#print CompoundFeasibility.Auxiliary4.source_restriction4_real
+#print axioms CompoundFeasibility.Auxiliary4.source_restriction4_real
+#check CompoundFeasibility.Auxiliary4.source_auxiliary4_field
+#print CompoundFeasibility.Auxiliary4.source_auxiliary4_field
+#print axioms CompoundFeasibility.Auxiliary4.source_auxiliary4_field
+#check CompoundFeasibility.Auxiliary4.source_auxiliary4
+#print CompoundFeasibility.Auxiliary4.source_auxiliary4
+#print axioms CompoundFeasibility.Auxiliary4.source_auxiliary4
+#check CompoundFeasibility.Auxiliary4.matrixIndex4
+#print CompoundFeasibility.Auxiliary4.matrixIndex4
+#print axioms CompoundFeasibility.Auxiliary4.matrixIndex4
+#check CompoundFeasibility.Auxiliary4.restriction4_map_int
+#print CompoundFeasibility.Auxiliary4.restriction4_map_int
+#print axioms CompoundFeasibility.Auxiliary4.restriction4_map_int
+#check CompoundFeasibility.Auxiliary4.padic_restriction4_zero
+#print CompoundFeasibility.Auxiliary4.padic_restriction4_zero
+#print axioms CompoundFeasibility.Auxiliary4.padic_restriction4_zero
+#check CompoundFeasibility.Auxiliary4.finite_matrix_index4
+#print CompoundFeasibility.Auxiliary4.finite_matrix_index4
+#print axioms CompoundFeasibility.Auxiliary4.finite_matrix_index4
+#check CompoundFeasibility.Auxiliary4.source_auxiliary4_all_places
+#print CompoundFeasibility.Auxiliary4.source_auxiliary4_all_places
+#print axioms CompoundFeasibility.Auxiliary4.source_auxiliary4_all_places
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.linearChart
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.linearChart
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.linearChart
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.expansion
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.expansion
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.expansion
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_one
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_one
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_one
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_comp
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_comp
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_comp
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution_comp
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution_comp
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution_comp
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution_one
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution_one
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.substitution_one
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.reconstruct
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.reconstruct
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.reconstruct
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.unique
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.unique
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.unique
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_mass
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_mass
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.chart_mass
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.monomial_mass
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.monomial_mass
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.monomial_mass
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.support_index
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.support_index
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.support_index
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.support_card
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.support_card
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.support_card
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.expansion_sum
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.expansion_sum
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.expansion_sum
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.coefficient_bound
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.coefficient_bound
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.coefficient_bound
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget_one
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget_one
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget_one
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget_entry
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget_entry
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.inverseBudget_entry
+#check CompoundFeasibility.Auxiliary4.SourceExpansion4.source_coefficient_bounds
+#print CompoundFeasibility.Auxiliary4.SourceExpansion4.source_coefficient_bounds
+#print axioms CompoundFeasibility.Auxiliary4.SourceExpansion4.source_coefficient_bounds
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.chart_pderiv
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.chart_pderiv
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.chart_pderiv
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.substitution_chain
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.substitution_chain
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.substitution_chain
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.zeroCoordinate
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.zeroCoordinate
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.zeroCoordinate
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.kernelImage
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.kernelImage
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.kernelImage
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_image_form
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_image_form
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_image_form
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_factor_variable
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_factor_variable
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_factor_variable
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.zero_monomial
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.zero_monomial
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.zero_monomial
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.zero_coeff
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.zero_coeff
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.zero_coeff
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.pderiv_coeff
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.pderiv_coeff
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.pderiv_coeff
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_factor
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_factor
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.kernel_factor
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.index_zero_slice
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.index_zero_slice
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.index_zero_slice
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.expansion_chain
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.expansion_chain
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.expansion_chain
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.coordinateWeight
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.coordinateWeight
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.coordinateWeight
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.coordinate_weight_add
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.coordinate_weight_add
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.coordinate_weight_add
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.coordinate_weight_single
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.coordinate_weight_single
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.coordinate_weight_single
+#check CompoundFeasibility.Auxiliary4.SourceSupport4.coeff_zero_below_index
+#print CompoundFeasibility.Auxiliary4.SourceSupport4.coeff_zero_below_index
+#print axioms CompoundFeasibility.Auxiliary4.SourceSupport4.coeff_zero_below_index
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.chart_block_weight
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.chart_block_weight
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.chart_block_weight
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.expansion_block_weight
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.expansion_block_weight
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.expansion_block_weight
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.expansion_block_degree
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.expansion_block_degree
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.expansion_block_degree
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.total_coordinate_weight_le
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.total_coordinate_weight_le
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.total_coordinate_weight_le
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.balance_from_weights
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.balance_from_weights
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.balance_from_weights
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.balanced_of_vanishing
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.balanced_of_vanishing
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.balanced_of_vanishing
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.Claims
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.Claims
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.Claims
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.claims_of_charts
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.claims_of_charts
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.claims_of_charts
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.claims_of_matrix_index4
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.claims_of_matrix_index4
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.claims_of_matrix_index4
+#check CompoundFeasibility.Auxiliary4.SourceBalance4.source_auxiliary4_balanced
+#print CompoundFeasibility.Auxiliary4.SourceBalance4.source_auxiliary4_balanced
+#print axioms CompoundFeasibility.Auxiliary4.SourceBalance4.source_auxiliary4_balanced
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_cast
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_cast
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_cast
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_lower
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_lower
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_lower
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_finite_le_one
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_finite_le_one
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.integerValue_finite_le_one
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.evaluation_identity
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.evaluation_identity
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.evaluation_identity
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.logWeight
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.logWeight
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.logWeight
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.log_weight_transport
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.log_weight_transport
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.log_weight_transport
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.monomial_bound
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.monomial_bound
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.monomial_bound
+#check CompoundFeasibility.Auxiliary4.SourceEvaluation4.expansion_support_card
+#print CompoundFeasibility.Auxiliary4.SourceEvaluation4.expansion_support_card
+#print axioms CompoundFeasibility.Auxiliary4.SourceEvaluation4.expansion_support_card
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.evaluation_upper
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.evaluation_upper
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.evaluation_upper
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.gridPoint
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.gridPoint
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.gridPoint
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.matrix_grid
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.matrix_grid
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.matrix_grid
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.grid_form_norm
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.grid_form_norm
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.grid_form_norm
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.real_multiplier
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.real_multiplier
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.real_multiplier
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.padic_multiplier
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.padic_multiplier
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.padic_multiplier
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.grid_form_rpow
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.grid_form_rpow
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.grid_form_rpow
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.log_total_bounds
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.log_total_bounds
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.log_total_bounds
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.weighted_log_upper
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.weighted_log_upper
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.weighted_log_upper
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.source_exponents
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.source_exponents
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.source_exponents
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.local_upper
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.local_upper
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.local_upper
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.strict_product_bound
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.strict_product_bound
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.strict_product_bound
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.real_grid_bounds
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.real_grid_bounds
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.real_grid_bounds
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.padic_grid_bounds
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.padic_grid_bounds
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.padic_grid_bounds
+#check CompoundFeasibility.Auxiliary4.SourceGrid4.sourceBound
+#print CompoundFeasibility.Auxiliary4.SourceGrid4.sourceBound
+#print axioms CompoundFeasibility.Auxiliary4.SourceGrid4.sourceBound
+#check CompoundFeasibility.Auxiliary4.SourceVanishing4.evaluation_identity_of_reconstruction
+#print CompoundFeasibility.Auxiliary4.SourceVanishing4.evaluation_identity_of_reconstruction
+#print axioms CompoundFeasibility.Auxiliary4.SourceVanishing4.evaluation_identity_of_reconstruction
+#check CompoundFeasibility.Auxiliary4.SourceVanishing4.evaluation_upper_of_reconstruction
+#print CompoundFeasibility.Auxiliary4.SourceVanishing4.evaluation_upper_of_reconstruction
+#print axioms CompoundFeasibility.Auxiliary4.SourceVanishing4.evaluation_upper_of_reconstruction
+#check CompoundFeasibility.Auxiliary4.SourceVanishing4.local_upper_from_claims
+#print CompoundFeasibility.Auxiliary4.SourceVanishing4.local_upper_from_claims
+#print axioms CompoundFeasibility.Auxiliary4.SourceVanishing4.local_upper_from_claims
+#check CompoundFeasibility.Auxiliary4.SourceVanishing4.three_place_upper
+#print CompoundFeasibility.Auxiliary4.SourceVanishing4.three_place_upper
+#print axioms CompoundFeasibility.Auxiliary4.SourceVanishing4.three_place_upper
+#check CompoundFeasibility.Auxiliary4.SourceVanishing4.sourceBound_product
+#print CompoundFeasibility.Auxiliary4.SourceVanishing4.sourceBound_product
+#print axioms CompoundFeasibility.Auxiliary4.SourceVanishing4.sourceBound_product
+#check CompoundFeasibility.Auxiliary4.SourceVanishing4.three_place_product_lt_one
+#print CompoundFeasibility.Auxiliary4.SourceVanishing4.three_place_product_lt_one
+#print axioms CompoundFeasibility.Auxiliary4.SourceVanishing4.three_place_product_lt_one
+#check CompoundFeasibility.Auxiliary4.SourceVanishing4.grid_derivative_vanishes
+#print CompoundFeasibility.Auxiliary4.SourceVanishing4.grid_derivative_vanishes
+#print axioms CompoundFeasibility.Auxiliary4.SourceVanishing4.grid_derivative_vanishes
+#check CompoundFeasibility.Auxiliary4.SourceVanishing4.source_auxiliary4_grid_vanishing
+#print CompoundFeasibility.Auxiliary4.SourceVanishing4.source_auxiliary4_grid_vanishing
+#print axioms CompoundFeasibility.Auxiliary4.SourceVanishing4.source_auxiliary4_grid_vanishing
+#check CompoundFeasibility.SourceWeights4.select_unbounded_weights
+#print CompoundFeasibility.SourceWeights4.select_unbounded_weights
+#print axioms CompoundFeasibility.SourceWeights4.select_unbounded_weights
+#check CompoundFeasibility.SourceWeights4.logWeight
+#print CompoundFeasibility.SourceWeights4.logWeight
+#print axioms CompoundFeasibility.SourceWeights4.logWeight
+#check CompoundFeasibility.SourceWeights4.logWeight_bounds
+#print CompoundFeasibility.SourceWeights4.logWeight_bounds
+#print axioms CompoundFeasibility.SourceWeights4.logWeight_bounds
+#check CompoundFeasibility.SourceWeights4.logWeight_power
+#print CompoundFeasibility.SourceWeights4.logWeight_power
+#print axioms CompoundFeasibility.SourceWeights4.logWeight_power
+#check CompoundFeasibility.SourceWeights4.logWeight_balance
+#print CompoundFeasibility.SourceWeights4.logWeight_balance
+#print axioms CompoundFeasibility.SourceWeights4.logWeight_balance
+#check CompoundFeasibility.SourceWeights4.fixedWeights
+#print CompoundFeasibility.SourceWeights4.fixedWeights
+#print axioms CompoundFeasibility.SourceWeights4.fixedWeights
+#check CompoundFeasibility.SourceWeights4.fixedWeights_bounds_balance
+#print CompoundFeasibility.SourceWeights4.fixedWeights_bounds_balance
+#print axioms CompoundFeasibility.SourceWeights4.fixedWeights_bounds_balance
+#check CompoundFeasibility.SourceWeights4.finite_form_bounds
+#print CompoundFeasibility.SourceWeights4.finite_form_bounds
+#print axioms CompoundFeasibility.SourceWeights4.finite_form_bounds
+#check CompoundFeasibility.SourceWeights4.frameWidths
+#print CompoundFeasibility.SourceWeights4.frameWidths
+#print axioms CompoundFeasibility.SourceWeights4.frameWidths
+#check CompoundFeasibility.SourceWeights4.fixed_weights_same_frame4
+#print CompoundFeasibility.SourceWeights4.fixed_weights_same_frame4
+#print axioms CompoundFeasibility.SourceWeights4.fixed_weights_same_frame4
+#check CompoundFeasibility.SourceBlocks4.original_blocks4
+#print CompoundFeasibility.SourceBlocks4.original_blocks4
+#print axioms CompoundFeasibility.SourceBlocks4.original_blocks4
+#check CompoundFeasibility.SourceBlocks4.same_selected_frame_grid4
+#print CompoundFeasibility.SourceBlocks4.same_selected_frame_grid4
+#print axioms CompoundFeasibility.SourceBlocks4.same_selected_frame_grid4
+#check CompoundFeasibility.SourceNormalIndex4.primitive_integer4
+#print CompoundFeasibility.SourceNormalIndex4.primitive_integer4
+#print axioms CompoundFeasibility.SourceNormalIndex4.primitive_integer4
+#check CompoundFeasibility.SourceNormalIndex4.realNormalForm4
+#print CompoundFeasibility.SourceNormalIndex4.realNormalForm4
+#print axioms CompoundFeasibility.SourceNormalIndex4.realNormalForm4
+#check CompoundFeasibility.SourceNormalIndex4.realNormalForm4_apply
+#print CompoundFeasibility.SourceNormalIndex4.realNormalForm4_apply
+#print axioms CompoundFeasibility.SourceNormalIndex4.realNormalForm4_apply
+#check CompoundFeasibility.SourceNormalIndex4.real_normal_kernel4
+#print CompoundFeasibility.SourceNormalIndex4.real_normal_kernel4
+#print axioms CompoundFeasibility.SourceNormalIndex4.real_normal_kernel4
+#check CompoundFeasibility.SourceNormalIndex4.hermite_sizes4
+#print CompoundFeasibility.SourceNormalIndex4.hermite_sizes4
+#print axioms CompoundFeasibility.SourceNormalIndex4.hermite_sizes4
+#check CompoundFeasibility.SourceNormalIndex4.additional_weight4
+#print CompoundFeasibility.SourceNormalIndex4.additional_weight4
+#print axioms CompoundFeasibility.SourceNormalIndex4.additional_weight4
+#check CompoundFeasibility.SourceNormalIndex4.additional_cutoff4
+#print CompoundFeasibility.SourceNormalIndex4.additional_cutoff4
+#print axioms CompoundFeasibility.SourceNormalIndex4.additional_cutoff4
+#check CompoundFeasibility.SourceNormalIndex4.hasse_grid_composition4
+#print CompoundFeasibility.SourceNormalIndex4.hasse_grid_composition4
+#print axioms CompoundFeasibility.SourceNormalIndex4.hasse_grid_composition4
+#check CompoundFeasibility.SourceNormalIndex4.normalPolynomial4
+#print CompoundFeasibility.SourceNormalIndex4.normalPolynomial4
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalPolynomial4
+#check CompoundFeasibility.SourceNormalIndex4.sourceNormalIdeal4
+#print CompoundFeasibility.SourceNormalIndex4.sourceNormalIdeal4
+#print axioms CompoundFeasibility.SourceNormalIndex4.sourceNormalIdeal4
+#check CompoundFeasibility.SourceNormalIndex4.homogeneous4_map
+#print CompoundFeasibility.SourceNormalIndex4.homogeneous4_map
+#print axioms CompoundFeasibility.SourceNormalIndex4.homogeneous4_map
+#check CompoundFeasibility.SourceNormalIndex4.integer_grid_rational_restriction4
+#print CompoundFeasibility.SourceNormalIndex4.integer_grid_rational_restriction4
+#print axioms CompoundFeasibility.SourceNormalIndex4.integer_grid_rational_restriction4
+#check CompoundFeasibility.SourceNormalIndex4.integer_grid_real_restriction4
+#print CompoundFeasibility.SourceNormalIndex4.integer_grid_real_restriction4
+#print axioms CompoundFeasibility.SourceNormalIndex4.integer_grid_real_restriction4
+#check CompoundFeasibility.SourceNormalIndex4.normalForward4
+#print CompoundFeasibility.SourceNormalIndex4.normalForward4
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalForward4
+#check CompoundFeasibility.SourceNormalIndex4.normalInverse4
+#print CompoundFeasibility.SourceNormalIndex4.normalInverse4
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalInverse4
+#check CompoundFeasibility.SourceNormalIndex4.normalForward6_inverse4
+#print CompoundFeasibility.SourceNormalIndex4.normalForward6_inverse4
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalForward6_inverse4
+#check CompoundFeasibility.SourceNormalIndex4.normalInverse6_forward4
+#print CompoundFeasibility.SourceNormalIndex4.normalInverse6_forward4
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalInverse6_forward4
+#check CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4
+#print CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4
+#print axioms CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4
+#check CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4_monomial
+#print CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4_monomial
+#print axioms CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4_monomial
+#check CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4_coeff
+#print CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4_coeff
+#print axioms CompoundFeasibility.SourceNormalIndex4.zeroNormalCoordinates4_coeff
+#check CompoundFeasibility.SourceNormalIndex4.normal_zero_restriction4
+#print CompoundFeasibility.SourceNormalIndex4.normal_zero_restriction4
+#print axioms CompoundFeasibility.SourceNormalIndex4.normal_zero_restriction4
+#check CompoundFeasibility.SourceNormalIndex4.normalInverse4_pderiv_X
+#print CompoundFeasibility.SourceNormalIndex4.normalInverse4_pderiv_X
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalInverse4_pderiv_X
+#check CompoundFeasibility.SourceNormalIndex4.normalInverse4_chain
+#print CompoundFeasibility.SourceNormalIndex4.normalInverse4_chain
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalInverse4_chain
+#check CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4
+#print CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4
+#check CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4_add
+#print CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4_add
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4_add
+#check CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4_single
+#print CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4_single
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalCoordinateWeight4_single
+#check CompoundFeasibility.SourceNormalIndex4.normalInverse4_coeff_zero
+#print CompoundFeasibility.SourceNormalIndex4.normalInverse4_coeff_zero
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalInverse4_coeff_zero
+#check CompoundFeasibility.SourceNormalIndex4.normalForward4_monomial
+#print CompoundFeasibility.SourceNormalIndex4.normalForward4_monomial
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalForward4_monomial
+#check CompoundFeasibility.SourceNormalIndex4.normalForward4_monomial_mem
+#print CompoundFeasibility.SourceNormalIndex4.normalForward4_monomial_mem
+#print axioms CompoundFeasibility.SourceNormalIndex4.normalForward4_monomial_mem
+#check CompoundFeasibility.SourceNormalIndex4.sourceNormalIdeal4_of_derivative_restrictions
+#print CompoundFeasibility.SourceNormalIndex4.sourceNormalIdeal4_of_derivative_restrictions
+#print axioms CompoundFeasibility.SourceNormalIndex4.sourceNormalIdeal4_of_derivative_restrictions
+#check CompoundFeasibility.SourceNormalIndex4.integer_grid_high_normal_index4
+#print CompoundFeasibility.SourceNormalIndex4.integer_grid_high_normal_index4
+#print axioms CompoundFeasibility.SourceNormalIndex4.integer_grid_high_normal_index4
+#check CompoundFeasibility.SourceNormalIndex4.primitive_cofactor_normal4
+#print CompoundFeasibility.SourceNormalIndex4.primitive_cofactor_normal4
+#print axioms CompoundFeasibility.SourceNormalIndex4.primitive_cofactor_normal4
+#check CompoundFeasibility.SourceNormalIndex4.sourceFrameHighIndex4
+#print CompoundFeasibility.SourceNormalIndex4.sourceFrameHighIndex4
+#print axioms CompoundFeasibility.SourceNormalIndex4.sourceFrameHighIndex4
+#check CompoundFeasibility.SourceNormalIndex4.same_selected_frame_high_index4
+#print CompoundFeasibility.SourceNormalIndex4.same_selected_frame_high_index4
+#print axioms CompoundFeasibility.SourceNormalIndex4.same_selected_frame_high_index4

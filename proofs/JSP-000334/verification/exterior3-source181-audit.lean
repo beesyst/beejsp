@@ -1,0 +1,28 @@
+import SubspaceBridge.OriginalExterior3_4
+#check CompoundFeasibility.Exterior3.tripleIndex4
+#print CompoundFeasibility.Exterior3.tripleIndex4
+#print axioms CompoundFeasibility.Exterior3.tripleIndex4
+#check CompoundFeasibility.Exterior3.tripleWedge4
+#print CompoundFeasibility.Exterior3.tripleWedge4
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4
+#check CompoundFeasibility.Exterior3.compound3Matrix4
+#print CompoundFeasibility.Exterior3.compound3Matrix4
+#print axioms CompoundFeasibility.Exterior3.compound3Matrix4
+#check CompoundFeasibility.Exterior3.tripleWedge4_expansion
+#print CompoundFeasibility.Exterior3.tripleWedge4_expansion
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4_expansion
+#check CompoundFeasibility.Exterior3.tripleWedge4_map
+#print CompoundFeasibility.Exterior3.tripleWedge4_map
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4_map
+#check CompoundFeasibility.Exterior3.tripleWedge4_transform
+#print CompoundFeasibility.Exterior3.tripleWedge4_transform
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4_transform
+#check CompoundFeasibility.Exterior3.tripleLattice4
+#print CompoundFeasibility.Exterior3.tripleLattice4
+#print axioms CompoundFeasibility.Exterior3.tripleLattice4
+#check CompoundFeasibility.Exterior3.padic_tripleWedge4_bound
+#print CompoundFeasibility.Exterior3.padic_tripleWedge4_bound
+#print axioms CompoundFeasibility.Exterior3.padic_tripleWedge4_bound
+#check CompoundFeasibility.Exterior3.tripleWedge4_lattice
+#print CompoundFeasibility.Exterior3.tripleWedge4_lattice
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4_lattice

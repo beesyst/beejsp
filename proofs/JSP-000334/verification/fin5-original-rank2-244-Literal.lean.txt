@@ -1,0 +1,702 @@
+import SubspaceBridge.SourceExterior53_242
+import SubspaceBridge.SourceExceptionalPair241
+import SubspaceBridge.SourceCompoundGap53_242
+import SubspaceBridge.SourceShortSpan241
+import SubspaceBridge.SourceCompound3FixedLine243
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralSourceFlag244
+open Exterior53_242 SchmidtNormal10
+
+def tripleForm244 (b : Fin 10 → ℤ) (x y z : Fin 5 → ℚ) : ℚ :=
+  ∑ s, (b s : ℚ)*wedge3242 x y z s
+
+theorem tripleForm_add1_244 (b : Fin 10 → ℤ) (x y z w : Fin 5 → ℚ) :
+    tripleForm244 b (x+w) y z = tripleForm244 b x y z+tripleForm244 b w y z := by
+  simp only [tripleForm244]
+  rw [← Finset.sum_add_distrib]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [wedge3242,det3242,Pi.add_apply]
+  ring
+
+theorem tripleForm_smul1_244 (b : Fin 10 → ℤ) (c : ℚ) (x y z : Fin 5 → ℚ) :
+    tripleForm244 b (c • x) y z = c*tripleForm244 b x y z := by
+  simp only [tripleForm244]
+  rw [Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [wedge3242,det3242,Pi.smul_apply,smul_eq_mul]
+  ring
+
+theorem tripleForm_add2_244 (b : Fin 10 → ℤ) (x y z w : Fin 5 → ℚ) :
+    tripleForm244 b x (y+w) z = tripleForm244 b x y z+tripleForm244 b x w z := by
+  simp only [tripleForm244]
+  rw [← Finset.sum_add_distrib]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [wedge3242,det3242,Pi.add_apply]
+  ring
+
+theorem tripleForm_smul2_244 (b : Fin 10 → ℤ) (c : ℚ) (x y z : Fin 5 → ℚ) :
+    tripleForm244 b x (c • y) z = c*tripleForm244 b x y z := by
+  simp only [tripleForm244]
+  rw [Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [wedge3242,det3242,Pi.smul_apply,smul_eq_mul]
+  ring
+
+theorem tripleForm_add3_244 (b : Fin 10 → ℤ) (x y z w : Fin 5 → ℚ) :
+    tripleForm244 b x y (z+w) = tripleForm244 b x y z+tripleForm244 b x y w := by
+  simp only [tripleForm244]
+  rw [← Finset.sum_add_distrib]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [wedge3242,det3242,Pi.add_apply]
+  ring
+
+theorem tripleForm_smul3_244 (b : Fin 10 → ℤ) (c : ℚ) (x y z : Fin 5 → ℚ) :
+    tripleForm244 b x y (c • z) = c*tripleForm244 b x y z := by
+  simp only [tripleForm244]
+  rw [Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [wedge3242,det3242,Pi.smul_apply,smul_eq_mul]
+  ring
+
+theorem tripleForm_swap12_244 (b : Fin 10 → ℤ) (x y z : Fin 5 → ℚ) :
+    tripleForm244 b x y z = -tripleForm244 b y x z := by
+  simp only [tripleForm244]
+  rw [← Finset.sum_neg_distrib]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [wedge3242,det3242]
+  ring
+
+theorem tripleForm_swap23_244 (b : Fin 10 → ℤ) (x y z : Fin 5 → ℚ) :
+    tripleForm244 b x y z = -tripleForm244 b x z y := by
+  simp only [tripleForm244]
+  rw [← Finset.sum_neg_distrib]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [wedge3242,det3242]
+  ring
+
+theorem tripleForm_12_244 (b : Fin 10 → ℤ) (x y : Fin 5 → ℚ) :
+    tripleForm244 b x x y = 0 := by
+  apply Finset.sum_eq_zero
+  intro s _
+  simp only [wedge3242,det3242,Pi.zero_apply]
+  ring
+
+theorem tripleForm_23_244 (b : Fin 10 → ℤ) (x y : Fin 5 → ℚ) :
+    tripleForm244 b y x x = 0 := by
+  apply Finset.sum_eq_zero
+  intro s _
+  simp only [wedge3242,det3242,Pi.zero_apply]
+  ring
+
+theorem tripleForm_13_244 (b : Fin 10 → ℤ) (x y : Fin 5 → ℚ) :
+    tripleForm244 b x y x = 0 := by
+  apply Finset.sum_eq_zero
+  intro s _
+  simp only [wedge3242,det3242,Pi.zero_apply]
+  ring
+
+theorem tripleForm_zero_244 (b : Fin 10 → ℤ) (x y : Fin 5 → ℚ) :
+    tripleForm244 b 0 x y = 0 := by
+  apply Finset.sum_eq_zero
+  intro s _
+  simp only [wedge3242,det3242,Pi.zero_apply]
+  ring
+
+def radical244 (b : Fin 10 → ℤ) : Submodule ℚ (Fin 5 → ℚ) where
+  carrier := {x | ∀ y z, tripleForm244 b x y z = 0}
+  zero_mem' := tripleForm_zero_244 b
+  add_mem' := by
+    intro x y hx hy z w
+    rw [tripleForm_add1_244,hx,hy,add_zero]
+  smul_mem' := by
+    intro c x hx y z
+    rw [tripleForm_smul1_244,hx,mul_zero]
+
+theorem tripleForm_integer_cast244 (b : Fin 10 → ℤ) (x y z : Fin 5 → ℤ) :
+    tripleForm244 b (fun i => (x i : ℚ)) (fun i => (y i : ℚ)) (fun i => (z i : ℚ)) =
+      normalForm10 b (fun s => (wedge3242 (R := ℤ) x y z s : ℚ)) := by
+  simp only [tripleForm244,normalForm10_apply,wedge3242,det3242,Int.cast_sub,Int.cast_add,Int.cast_mul]
+
+end CompoundFeasibility.LiteralSourceFlag244
+
+namespace CompoundFeasibility.LiteralSourceFlag244
+open Exterior53_242
+
+theorem tripleForm_basis_pattern244 (b : Fin 10 → ℤ) (u : Fin 5 → Fin 5 → ℚ)
+    (hz : ∀ s : Fin 10, s ≠ 9 → tripleForm244 b (u (lo242 s)) (u (mid242 s)) (u (hi242 s)) = 0) :
+    (∀ (i : Fin 2) (j k : Fin 5), tripleForm244 b (u (Fin.castLE (by decide) i)) (u j) (u k) = 0) ∧
+    (∀ i : Fin 5, tripleForm244 b (u i) (u 3) (u 4) =
+      if i=2 then tripleForm244 b (u 2) (u 3) (u 4) else 0) ∧
+    (∀ i : Fin 5, tripleForm244 b (u i) (u 2) (u 4) =
+      if i=3 then -tripleForm244 b (u 2) (u 3) (u 4) else 0) ∧
+    (∀ i : Fin 5, tripleForm244 b (u i) (u 2) (u 3) =
+      if i=4 then tripleForm244 b (u 2) (u 3) (u 4) else 0) := by
+  have h012 : tripleForm244 b (u 0) (u 1) (u 2) = 0 := hz 0 (by decide)
+  have h013 : tripleForm244 b (u 0) (u 1) (u 3) = 0 := hz 1 (by decide)
+  have h014 : tripleForm244 b (u 0) (u 1) (u 4) = 0 := hz 2 (by decide)
+  have h023 : tripleForm244 b (u 0) (u 2) (u 3) = 0 := hz 3 (by decide)
+  have h024 : tripleForm244 b (u 0) (u 2) (u 4) = 0 := hz 4 (by decide)
+  have h034 : tripleForm244 b (u 0) (u 3) (u 4) = 0 := hz 5 (by decide)
+  have h123 : tripleForm244 b (u 1) (u 2) (u 3) = 0 := hz 6 (by decide)
+  have h124 : tripleForm244 b (u 1) (u 2) (u 4) = 0 := hz 7 (by decide)
+  have h134 : tripleForm244 b (u 1) (u 3) (u 4) = 0 := hz 8 (by decide)
+  refine ⟨?_,?_,?_,?_⟩
+  · intro i j k
+    fin_cases i <;> fin_cases j <;> fin_cases k
+    · change tripleForm244 b (u 0) (u 0) (u 0) = 0
+      exact tripleForm_12_244 b (u 0) (u 0)
+    · change tripleForm244 b (u 0) (u 0) (u 1) = 0
+      exact tripleForm_12_244 b (u 0) (u 1)
+    · change tripleForm244 b (u 0) (u 0) (u 2) = 0
+      exact tripleForm_12_244 b (u 0) (u 2)
+    · change tripleForm244 b (u 0) (u 0) (u 3) = 0
+      exact tripleForm_12_244 b (u 0) (u 3)
+    · change tripleForm244 b (u 0) (u 0) (u 4) = 0
+      exact tripleForm_12_244 b (u 0) (u 4)
+    · change tripleForm244 b (u 0) (u 1) (u 0) = 0
+      exact tripleForm_13_244 b (u 0) (u 1)
+    · change tripleForm244 b (u 0) (u 1) (u 1) = 0
+      exact tripleForm_23_244 b (u 1) (u 0)
+    · change tripleForm244 b (u 0) (u 1) (u 2) = 0
+      rw [h012]
+    · change tripleForm244 b (u 0) (u 1) (u 3) = 0
+      rw [h013]
+    · change tripleForm244 b (u 0) (u 1) (u 4) = 0
+      rw [h014]
+    · change tripleForm244 b (u 0) (u 2) (u 0) = 0
+      exact tripleForm_13_244 b (u 0) (u 2)
+    · change tripleForm244 b (u 0) (u 2) (u 1) = 0
+      rw [tripleForm_swap23_244 b (u 0) (u 2) (u 1),h012]
+      ring
+    · change tripleForm244 b (u 0) (u 2) (u 2) = 0
+      exact tripleForm_23_244 b (u 2) (u 0)
+    · change tripleForm244 b (u 0) (u 2) (u 3) = 0
+      rw [h023]
+    · change tripleForm244 b (u 0) (u 2) (u 4) = 0
+      rw [h024]
+    · change tripleForm244 b (u 0) (u 3) (u 0) = 0
+      exact tripleForm_13_244 b (u 0) (u 3)
+    · change tripleForm244 b (u 0) (u 3) (u 1) = 0
+      rw [tripleForm_swap23_244 b (u 0) (u 3) (u 1),h013]
+      ring
+    · change tripleForm244 b (u 0) (u 3) (u 2) = 0
+      rw [tripleForm_swap23_244 b (u 0) (u 3) (u 2),h023]
+      ring
+    · change tripleForm244 b (u 0) (u 3) (u 3) = 0
+      exact tripleForm_23_244 b (u 3) (u 0)
+    · change tripleForm244 b (u 0) (u 3) (u 4) = 0
+      rw [h034]
+    · change tripleForm244 b (u 0) (u 4) (u 0) = 0
+      exact tripleForm_13_244 b (u 0) (u 4)
+    · change tripleForm244 b (u 0) (u 4) (u 1) = 0
+      rw [tripleForm_swap23_244 b (u 0) (u 4) (u 1),h014]
+      ring
+    · change tripleForm244 b (u 0) (u 4) (u 2) = 0
+      rw [tripleForm_swap23_244 b (u 0) (u 4) (u 2),h024]
+      ring
+    · change tripleForm244 b (u 0) (u 4) (u 3) = 0
+      rw [tripleForm_swap23_244 b (u 0) (u 4) (u 3),h034]
+      ring
+    · change tripleForm244 b (u 0) (u 4) (u 4) = 0
+      exact tripleForm_23_244 b (u 4) (u 0)
+    · change tripleForm244 b (u 1) (u 0) (u 0) = 0
+      exact tripleForm_23_244 b (u 0) (u 1)
+    · change tripleForm244 b (u 1) (u 0) (u 1) = 0
+      exact tripleForm_13_244 b (u 1) (u 0)
+    · change tripleForm244 b (u 1) (u 0) (u 2) = 0
+      rw [tripleForm_swap12_244 b (u 1) (u 0) (u 2),h012]
+      ring
+    · change tripleForm244 b (u 1) (u 0) (u 3) = 0
+      rw [tripleForm_swap12_244 b (u 1) (u 0) (u 3),h013]
+      ring
+    · change tripleForm244 b (u 1) (u 0) (u 4) = 0
+      rw [tripleForm_swap12_244 b (u 1) (u 0) (u 4),h014]
+      ring
+    · change tripleForm244 b (u 1) (u 1) (u 0) = 0
+      exact tripleForm_12_244 b (u 1) (u 0)
+    · change tripleForm244 b (u 1) (u 1) (u 1) = 0
+      exact tripleForm_12_244 b (u 1) (u 1)
+    · change tripleForm244 b (u 1) (u 1) (u 2) = 0
+      exact tripleForm_12_244 b (u 1) (u 2)
+    · change tripleForm244 b (u 1) (u 1) (u 3) = 0
+      exact tripleForm_12_244 b (u 1) (u 3)
+    · change tripleForm244 b (u 1) (u 1) (u 4) = 0
+      exact tripleForm_12_244 b (u 1) (u 4)
+    · change tripleForm244 b (u 1) (u 2) (u 0) = 0
+      rw [tripleForm_swap23_244 b (u 1) (u 2) (u 0),tripleForm_swap12_244 b (u 1) (u 0) (u 2),h012]
+      ring
+    · change tripleForm244 b (u 1) (u 2) (u 1) = 0
+      exact tripleForm_13_244 b (u 1) (u 2)
+    · change tripleForm244 b (u 1) (u 2) (u 2) = 0
+      exact tripleForm_23_244 b (u 2) (u 1)
+    · change tripleForm244 b (u 1) (u 2) (u 3) = 0
+      rw [h123]
+    · change tripleForm244 b (u 1) (u 2) (u 4) = 0
+      rw [h124]
+    · change tripleForm244 b (u 1) (u 3) (u 0) = 0
+      rw [tripleForm_swap23_244 b (u 1) (u 3) (u 0),tripleForm_swap12_244 b (u 1) (u 0) (u 3),h013]
+      ring
+    · change tripleForm244 b (u 1) (u 3) (u 1) = 0
+      exact tripleForm_13_244 b (u 1) (u 3)
+    · change tripleForm244 b (u 1) (u 3) (u 2) = 0
+      rw [tripleForm_swap23_244 b (u 1) (u 3) (u 2),h123]
+      ring
+    · change tripleForm244 b (u 1) (u 3) (u 3) = 0
+      exact tripleForm_23_244 b (u 3) (u 1)
+    · change tripleForm244 b (u 1) (u 3) (u 4) = 0
+      rw [h134]
+    · change tripleForm244 b (u 1) (u 4) (u 0) = 0
+      rw [tripleForm_swap23_244 b (u 1) (u 4) (u 0),tripleForm_swap12_244 b (u 1) (u 0) (u 4),h014]
+      ring
+    · change tripleForm244 b (u 1) (u 4) (u 1) = 0
+      exact tripleForm_13_244 b (u 1) (u 4)
+    · change tripleForm244 b (u 1) (u 4) (u 2) = 0
+      rw [tripleForm_swap23_244 b (u 1) (u 4) (u 2),h124]
+      ring
+    · change tripleForm244 b (u 1) (u 4) (u 3) = 0
+      rw [tripleForm_swap23_244 b (u 1) (u 4) (u 3),h134]
+      ring
+    · change tripleForm244 b (u 1) (u 4) (u 4) = 0
+      exact tripleForm_23_244 b (u 4) (u 1)
+  · intro i
+    fin_cases i
+    · change tripleForm244 b (u 0) (u 3) (u 4) = 0
+      rw [h034]
+    · change tripleForm244 b (u 1) (u 3) (u 4) = 0
+      rw [h134]
+    · change tripleForm244 b (u 2) (u 3) (u 4) = tripleForm244 b (u 2) (u 3) (u 4)
+      ring
+    · change tripleForm244 b (u 3) (u 3) (u 4) = 0
+      exact tripleForm_12_244 b (u 3) (u 4)
+    · change tripleForm244 b (u 4) (u 3) (u 4) = 0
+      exact tripleForm_13_244 b (u 4) (u 3)
+  · intro i
+    fin_cases i
+    · change tripleForm244 b (u 0) (u 2) (u 4) = 0
+      rw [h024]
+    · change tripleForm244 b (u 1) (u 2) (u 4) = 0
+      rw [h124]
+    · change tripleForm244 b (u 2) (u 2) (u 4) = 0
+      exact tripleForm_12_244 b (u 2) (u 4)
+    · change tripleForm244 b (u 3) (u 2) (u 4) = -tripleForm244 b (u 2) (u 3) (u 4)
+      rw [tripleForm_swap12_244 b (u 3) (u 2) (u 4)]
+    · change tripleForm244 b (u 4) (u 2) (u 4) = 0
+      exact tripleForm_13_244 b (u 4) (u 2)
+  · intro i
+    fin_cases i
+    · change tripleForm244 b (u 0) (u 2) (u 3) = 0
+      rw [h023]
+    · change tripleForm244 b (u 1) (u 2) (u 3) = 0
+      rw [h123]
+    · change tripleForm244 b (u 2) (u 2) (u 3) = 0
+      exact tripleForm_12_244 b (u 2) (u 3)
+    · change tripleForm244 b (u 3) (u 2) (u 3) = 0
+      exact tripleForm_13_244 b (u 3) (u 2)
+    · change tripleForm244 b (u 4) (u 2) (u 3) = tripleForm244 b (u 2) (u 3) (u 4)
+      rw [tripleForm_swap12_244 b (u 4) (u 2) (u 3),tripleForm_swap23_244 b (u 2) (u 4) (u 3)]
+      ring
+
+theorem radical_rank2_244 (b : Fin 10 → ℤ) (u : Fin 5 → Fin 5 → ℚ)
+    (hu : LinearIndependent ℚ u)
+    (hz : ∀ s : Fin 10, s ≠ 9 → tripleForm244 b (u (lo242 s)) (u (mid242 s)) (u (hi242 s)) = 0)
+    (hc : tripleForm244 b (u 2) (u 3) (u 4) ≠ 0) :
+    radical244 b = Submodule.span ℚ (Set.range (fun j : Fin 2 => u (Fin.castLE (by decide) j))) ∧
+      Module.finrank ℚ (radical244 b) = 2 := by
+  let B := rationalFrameBasis42 u hu
+  have hp := tripleForm_basis_pattern244 b u hz
+  let f1 (y z : Fin 5 → ℚ) : Module.Dual ℚ (Fin 5 → ℚ) :=
+    { toFun := fun x => tripleForm244 b x y z
+      map_add' := fun x w => tripleForm_add1_244 b x y z w
+      map_smul' := by
+        intro c x
+        change tripleForm244 b (c • x) y z = c*tripleForm244 b x y z
+        exact tripleForm_smul1_244 b c x y z }
+  let f2 (x z : Fin 5 → ℚ) : Module.Dual ℚ (Fin 5 → ℚ) :=
+    { toFun := fun y => tripleForm244 b x y z
+      map_add' := fun y w => tripleForm_add2_244 b x y z w
+      map_smul' := by
+        intro c y
+        change tripleForm244 b x (c • y) z = c*tripleForm244 b x y z
+        exact tripleForm_smul2_244 b c x y z }
+  let f3 (x y : Fin 5 → ℚ) : Module.Dual ℚ (Fin 5 → ℚ) :=
+    { toFun := fun z => tripleForm244 b x y z
+      map_add' := fun z w => tripleForm_add3_244 b x y z w
+      map_smul' := by
+        intro c z
+        change tripleForm244 b x y (c • z) = c*tripleForm244 b x y z
+        exact tripleForm_smul3_244 b c x y z }
+  have heval (x y z : Fin 5 → ℚ) : tripleForm244 b x y z =
+      ∑ i, B.repr x i * tripleForm244 b (u i) y z := by
+    change f1 y z x = _
+    conv_lhs => rw [← B.sum_repr x]
+    simp only [map_sum,map_smul,smul_eq_mul,B,rationalFrameBasis42_apply]
+    rfl
+  have hcoords (x : Fin 5 → ℚ) (hx : x ∈ radical244 b) :
+      B.repr x 2=0 ∧ B.repr x 3=0 ∧ B.repr x 4=0 := by
+    have hzero : ∀ y z, tripleForm244 b x y z=0 := hx
+    have h2 : B.repr x 2 * tripleForm244 b (u 2) (u 3) (u 4)=0 := by
+      have h := hzero (u 3) (u 4)
+      rw [heval] at h
+      have he : (∑ i, B.repr x i * tripleForm244 b (u i) (u 3) (u 4)) =
+          B.repr x 2 * tripleForm244 b (u 2) (u 3) (u 4) := by
+        calc
+          _ = ∑ i, B.repr x i * (if i=2 then tripleForm244 b (u 2) (u 3) (u 4) else 0) :=
+            Finset.sum_congr rfl (fun i _ => congrArg (fun q : ℚ => B.repr x i*q) (hp.2.1 i))
+          _ = _ := by simp [mul_ite]
+      rw [he] at h
+      exact h
+    have h3 : B.repr x 3 * (-tripleForm244 b (u 2) (u 3) (u 4))=0 := by
+      have h := hzero (u 2) (u 4)
+      rw [heval] at h
+      have he : (∑ i, B.repr x i * tripleForm244 b (u i) (u 2) (u 4)) =
+          B.repr x 3 * (-tripleForm244 b (u 2) (u 3) (u 4)) := by
+        calc
+          _ = ∑ i, B.repr x i * (if i=3 then -tripleForm244 b (u 2) (u 3) (u 4) else 0) :=
+            Finset.sum_congr rfl (fun i _ => congrArg (fun q : ℚ => B.repr x i*q) (hp.2.2.1 i))
+          _ = _ := by simp [mul_ite]
+      rw [he] at h
+      exact h
+    have h4 : B.repr x 4 * tripleForm244 b (u 2) (u 3) (u 4)=0 := by
+      have h := hzero (u 2) (u 3)
+      rw [heval] at h
+      have he : (∑ i, B.repr x i * tripleForm244 b (u i) (u 2) (u 3)) =
+          B.repr x 4 * tripleForm244 b (u 2) (u 3) (u 4) := by
+        calc
+          _ = ∑ i, B.repr x i * (if i=4 then tripleForm244 b (u 2) (u 3) (u 4) else 0) :=
+            Finset.sum_congr rfl (fun i _ => congrArg (fun q : ℚ => B.repr x i*q) (hp.2.2.2 i))
+          _ = _ := by simp [mul_ite]
+      rw [he] at h
+      exact h
+    exact ⟨(mul_eq_zero.mp h2).resolve_right hc,(mul_eq_zero.mp h3).resolve_right (neg_ne_zero.mpr hc),
+      (mul_eq_zero.mp h4).resolve_right hc⟩
+  have heq : radical244 b = Submodule.span ℚ
+      (Set.range (fun j : Fin 2 => u (Fin.castLE (by decide) j))) := by
+    apply le_antisymm
+    · intro x hx
+      obtain ⟨h2,h3,h4⟩ := hcoords x hx
+      rw [← B.sum_repr x]
+      apply Submodule.sum_mem
+      intro i _
+      rw [show B i=u i from rationalFrameBasis42_apply u hu i]
+      by_cases hi : i.val<2
+      · apply Submodule.smul_mem
+        exact Submodule.subset_span ⟨⟨i.val,hi⟩,rfl⟩
+      · have hi' : i=2 ∨ i=3 ∨ i=4 := by
+          have := i.isLt
+          have hv : i.val=2 ∨ i.val=3 ∨ i.val=4 := by omega
+          exact hv.imp (fun h => Fin.ext h) (fun h => h.imp (fun h => Fin.ext h) (fun h => Fin.ext h))
+        rcases hi' with rfl | rfl | rfl <;> simp [h2,h3,h4]
+    · apply Submodule.span_le.mpr
+      rintro _ ⟨i,rfl⟩
+      change ∀ y z, tripleForm244 b (u (Fin.castLE (by decide) i)) y z=0
+      intro y z
+      have hthird (j : Fin 5) : f3 (u (Fin.castLE (by decide) i)) (u j)=0 := by
+        apply B.ext
+        intro k
+        change tripleForm244 b (u (Fin.castLE (by decide) i)) (u j) (B k)=0
+        rw [show B k=u k from rationalFrameBasis42_apply u hu k]
+        exact hp.1 i j k
+      have hsecond : f2 (u (Fin.castLE (by decide) i)) z=0 := by
+        apply B.ext
+        intro j
+        change tripleForm244 b (u (Fin.castLE (by decide) i)) (B j) z=0
+        rw [show B j=u j from rationalFrameBasis42_apply u hu j]
+        exact congrArg (fun f : Module.Dual ℚ (Fin 5 → ℚ) => f z) (hthird j)
+      exact congrArg (fun f : Module.Dual ℚ (Fin 5 → ℚ) => f y) hsecond
+  refine ⟨heq,?_⟩
+  rw [heq]
+  exact (finrank_span_eq_card (hu.comp (Fin.castLE (by decide) : Fin 2 → Fin 5)
+    (Fin.castLE_injective _))).trans (Fintype.card_fin 2)
+
+end CompoundFeasibility.LiteralSourceFlag244
+
+namespace CompoundFeasibility.LiteralSourceFlag244
+open Exterior53_242
+
+theorem unique_triple_top244 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i)
+    (hm : Monotone a) (h12 : a 1 < a 2) (s : Fin 10) (hs : s ≠ 9) :
+    a (lo242 s)*a (mid242 s)*a (hi242 s) < a 2*a 3*a 4 := by
+  have bounds : ∀ s : Fin 10, s ≠ 9 → lo242 s ≤ (1 : Fin 5) ∧ mid242 s ≤ (3 : Fin 5) ∧ hi242 s ≤ (4 : Fin 5) := by decide
+  exact (mul_le_mul (mul_le_mul (hm (bounds s hs).1) (hm (bounds s hs).2.1) (ha _).le (ha _).le)
+    (hm (bounds s hs).2.2) (ha _).le (mul_pos (ha _) (ha _)).le).trans_lt
+    (mul_lt_mul_of_pos_right (mul_lt_mul_of_pos_right h12 (ha 3)) (ha 4))
+
+theorem tripleOrder_last244 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i)
+    (hm : Monotone a) (Q delta : ℝ) (hQ : 1 < Q) (hd : 0 < delta)
+    (hg : a 1 < a 2*Q^(-delta)) : tripleOrder242 a 9 = 9 := by
+  have h12 : a 1 < a 2 := hg.trans_le (by
+    simpa only [mul_one] using mul_le_mul_of_nonneg_left
+      (Real.rpow_le_one_of_one_le_of_nonpos hQ.le (by linarith : -delta ≤ 0)) (ha 2).le)
+  by_contra h
+  have hs := unique_triple_top244 a ha hm h12 _ h
+  have he := (tripleProducts_top242 a ha hm).2
+  exact (ne_of_lt hs) he
+
+theorem tripleOrder_first_nine244 (a : Fin 5 → ℝ) (hlast : tripleOrder242 a 9 = 9)
+    (s : Fin 10) : (∃ j : Fin 9, tripleOrder242 a j.castSucc = s) ↔ s ≠ 9 := by
+  constructor
+  · rintro ⟨j,rfl⟩ he
+    have hj := (tripleOrder242 a).injective (he.trans hlast.symm)
+    have hv : j.val = 9 := congrArg Fin.val hj
+    have := j.isLt
+    omega
+  · intro hs
+    let k := (tripleOrder242 a).symm s
+    have hk : k ≠ 9 := by
+      intro h
+      have hh := (tripleOrder242 a).apply_symm_apply s
+      change tripleOrder242 a k = s at hh
+      rw [h,hlast] at hh
+      exact hs hh.symm
+    have hlt : k.val < 9 := by
+      have := k.isLt
+      have hn : k.val ≠ 9 := fun h => hk (Fin.ext h)
+      omega
+    refine ⟨⟨k.val,hlt⟩,?_⟩
+    change tripleOrder242 a k = s
+    exact (tripleOrder242 a).apply_symm_apply s
+
+end CompoundFeasibility.LiteralSourceFlag244
+
+namespace CompoundFeasibility.LiteralSourceFlag244
+open Exterior53_242
+
+theorem short_triple_cutoff244 (kappa delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ Q : ℝ, T < Q → 6/kappa < Q^(delta/2) :=
+  compound_gap_cutoff42 (6/kappa) delta hd
+
+theorem short_triple_bound244 (mu nu : Fin 10 → ℝ) (kappa Q delta : ℝ)
+    (hk : 0 < kappa) (hQ : 1 < Q) (hm : 0 < mu 8)
+    (hcomp : kappa*mu 8 ≤ nu 8)
+    (hgap : nu 8 < nu 9*(Q^3)^(-delta/6))
+    (hcut : 6/kappa < Q^(delta/2)) : 6*mu 8 < nu 9 := by
+  have ht := Real.rpow_pos_of_pos (zero_lt_one.trans hQ) (delta/2)
+  have he : Q^(-delta/2)*Q^(delta/2) = 1 := by
+    rw [← Real.rpow_add (zero_lt_one.trans hQ)]
+    convert Real.rpow_zero Q using 1 <;> congr 1 <;> ring
+  rw [← powered_gap_exponent3242 Q delta hQ] at hgap
+  have hn := mul_lt_mul_of_pos_right hgap ht
+  rw [mul_assoc,he,mul_one] at hn
+  have hc : 6 < Q^(delta/2)*kappa := (div_lt_iff₀ hk).mp hcut
+  calc
+    6*mu 8 < (Q^(delta/2)*kappa)*mu 8 := mul_lt_mul_of_pos_right hc hm
+    _ = (kappa*mu 8)*Q^(delta/2) := by ring
+    _ ≤ nu 8*Q^(delta/2) := mul_le_mul_of_nonneg_right hcomp ht.le
+    _ < nu 9 := hn
+
+theorem actual_short_triples244
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (hshort : 6*tripleProducts242 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) 8 <
+      compoundMinima3242 A2 A3 L hL Q hQ c0 c2 c3 9) :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+      (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+      let z := orderedWedge3242 (fun i => (u i : Fin 5 → ℤ)) (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3)
+      (∀ j, z j ∈ directGroup3242 A2 A3 Q c2 c3) ∧
+      LinearIndependent ℝ (fun j => integerReal (z j)) ∧
+      ∀ j : Fin 9, coordinateGauge10 (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (normalizedWeights3242 c0)) (integerReal (z j.castSucc)) <
+          compoundMinima3242 A2 A3 L hL Q hQ c0 c2 c3 9 := by
+  obtain ⟨u,hu,ha,hm,hi,hb,hg⟩ := actual_wedge_frame3242 A2 A3 L hL Q hQ c0 c2 c3
+  refine ⟨u,hu,ha,hm,hi,?_⟩
+  intro j
+  exact (hg j.castSucc).trans_lt ((mul_le_mul_of_nonneg_left
+    (tripleProducts_mono242 _ (show j.castSucc ≤ (8 : Fin 10) by change j.val ≤ 8; omega))
+    (by norm_num : (0 : ℝ) ≤ 6)).trans_lt hshort)
+
+end CompoundFeasibility.LiteralSourceFlag244
+
+namespace CompoundFeasibility.LiteralSourceFlag244
+open Exterior53_242 SchmidtNormal10 SourceOriginalDual10
+
+theorem exceptional_triple_nonzero244 (u : Fin 5 → Fin 5 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j))) (b : Fin 10 → ℤ) (hb : b ≠ 0)
+    (hz : ∀ s : Fin 10, s ≠ 9 → normalForm10 b
+      (fun i => (wedge3242 (R := ℤ) (u (lo242 s)) (u (mid242 s)) (u (hi242 s)) i : ℚ)) = 0) :
+    normalForm10 b (fun i => (wedge3242 (R := ℤ) (u 2) (u 3) (u 4) i : ℚ)) ≠ 0 := by
+  intro h9
+  let w : Fin 10 → Fin 10 → ℤ := fun s => wedge3242 (R := ℤ) (u (lo242 s)) (u (mid242 s)) (u (hi242 s))
+  have hw := integer_frame_rational_independent10 w (compoundFrame_independent3242 u hu)
+  have hf : normalForm10 b = 0 := by
+    apply (rationalFrameBasis42 (fun j i => (w j i : ℚ)) hw).ext
+    intro s
+    rw [rationalFrameBasis42_apply]
+    change normalForm10 b (fun i => (w s i : ℚ)) = 0
+    by_cases hs : s = 9
+    · subst s
+      exact h9
+    · exact hz s hs
+  apply hb
+  funext i
+  have h := congrArg (fun f : Module.Dual ℚ (Fin 10 → ℚ) => f (Pi.single i 1)) hf
+  have hi : (b i : ℚ) = 0 := by simpa [normalForm10_apply,Pi.single_apply] using h
+  exact_mod_cast hi
+
+end CompoundFeasibility.LiteralSourceFlag244
+
+namespace CompoundFeasibility.LiteralSourceFlag244
+open Exterior53_242 SourceFlag241 SchmidtNormal10 OriginalDual10 SourceOriginalDual10
+
+theorem sameQ_radical_recovery244
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (kappa delta : ℝ) (hk : 0 < kappa) (hd : 0 < delta)
+    (hcut : 6/kappa < Q^(delta/2))
+    (hcomp : kappa*tripleProducts242 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) 8 ≤
+      compoundMinima3242 A2 A3 L hL Q hQ c0 c2 c3 8)
+    (hgap : compoundMinima3242 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      compoundMinima3242 A2 A3 L hL Q hQ c0 c2 c3 9*(Q^3)^(-delta/6))
+    (hsource : sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 1 <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 2*Q^(-delta))
+    (b : Fin 10 → ℤ) (hb : b ≠ 0)
+    (w : Fin 10 → originalSourceGroup10 (compound3242 A2) (compound3242 A3) (Q^3)
+      (normalizedWeights3242 c2) (normalizedWeights3242 c3))
+    (hw : LinearIndependent ℝ (fun i => integerReal (w i : Fin 10 → ℤ)))
+    (hatt : ∀ i, coordinateGauge10 (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL)
+      (Q^3) (powered_gt_one3242 Q hQ) (normalizedWeights3242 c0))
+      (integerReal (w i : Fin 10 → ℤ)) = compoundMinima3242 A2 A3 L hL Q hQ c0 c2 c3 i)
+    (hline : Submodule.span ℚ {lastDual10 (fun j i => ((w j : Fin 10 → ℤ) i : ℚ))
+      (integer_frame_rational_independent10 _ hw)} = Submodule.span ℚ {fun i => (b i : ℚ)}) :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+      (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+      radical244 b = Submodule.span ℚ (Set.range
+        (fun j : Fin 2 => fun i => ((u (Fin.castLE (by decide) j) : Fin 5 → ℤ) i : ℚ))) ∧
+      Module.finrank ℚ (radical244 b) = 2 := by
+  have hp := sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3
+  have hshort := short_triple_bound244 _ _ kappa Q delta hk hQ
+    (tripleProducts_pos242 _ hp.1 8) hcomp hgap hcut
+  obtain ⟨u,hu,hua,hmem,hi,hg⟩ := actual_short_triples244 A2 A3 L hL Q hQ c0 c2 c3 hshort
+  let u0 : Fin 5 → Fin 5 → ℤ := fun i => (u i : Fin 5 → ℤ)
+  let a := sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3
+  let z := orderedWedge3242 u0 a
+  have hlast := tripleOrder_last244 a hp.1 hp.2 Q delta hQ hd hsource
+  have hstrict : compoundMinima3242 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      compoundMinima3242 A2 A3 L hL Q hQ c0 c2 c3 9 := hgap.trans_le (by
+    simpa only [mul_one] using mul_le_mul_of_nonneg_left
+      (Real.rpow_le_one_of_one_le_of_nonpos (powered_gt_one3242 Q hQ).le (by linarith : -delta/6 ≤ 0))
+      ((compoundMinima_pos_mono3242 A2 A3 L hL Q hQ c0 c2 c3).1 9).le)
+  have hz (s : Fin 10) (hs : s ≠ 9) : normalForm10 b
+      (fun i => (wedge3242 (R := ℤ) (u0 (lo242 s)) (u0 (mid242 s)) (u0 (hi242 s)) i : ℚ)) = 0 := by
+    obtain ⟨j,hj⟩ := (tripleOrder_first_nine244 a hlast s).mpr hs
+    have hm : z j.castSucc ∈ originalSourceGroup10 (compound3242 A2) (compound3242 A3)
+        (Q^3) (normalizedWeights3242 c2) (normalizedWeights3242 c3) := by
+      rw [powered_group3242]
+      exact hmem j.castSucc
+    have hspan := attaining_short_span241 (compound3242 A2) (compound3242 A3) (compound3242 L)
+      (compound_real_unit3242 L hL) (Q^3) (powered_gt_one3242 Q hQ) (normalizedWeights3242 c0)
+      (normalizedWeights3242 c2) (normalizedWeights3242 c3) w hw hatt hstrict (z j.castSucc) hm (hg j)
+    have hn := rational_annihilation_from_real_span241 (fun i => (w i : Fin 10 → ℤ))
+      (integer_frame_rational_independent10 _ hw) b hline (z j.castSucc) hspan
+    have he : z j.castSucc = wedge3242 (R := ℤ) (u0 (lo242 s)) (u0 (mid242 s)) (u0 (hi242 s)) := by
+      dsimp only [z,orderedWedge3242]
+      rw [hj]
+    simpa only [he] using hn
+  have hn := exceptional_triple_nonzero244 u0 hu b hb hz
+  have hrat := original_rational_independent241 u0 hu
+  have hr := radical_rank2_244 b (fun j i => (u0 j i : ℚ)) hrat
+    (fun s hs => by rw [tripleForm_integer_cast244]; exact hz s hs)
+    (by rw [tripleForm_integer_cast244]; exact hn)
+  exact ⟨u,hu,hua,hr.1,hr.2⟩
+
+end CompoundFeasibility.LiteralSourceFlag244
+
+namespace CompoundFeasibility.LiteralSourceFlag244
+open Exterior53_242 CompoundLine53_243
+
+theorem source_original_fixed_rank2_244
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q)
+    (hgap : ∀ (Q : ℝ) (hQO : Q ∈ Omega),
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 1 <
+        sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 2*Q^(-delta)) :
+    ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = 2 ∧
+      ∃ V : Set ℝ, ∃ hVO : V ⊆ Omega, ¬ BddAbove V ∧
+        ∀ (Q : ℝ) (hQV : Q ∈ V),
+          ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+            LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+            (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q (hq Q (hVO hQV)) c0)
+              (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q (hq Q (hVO hQV)) c0 c2 c3 i) ∧
+            P = Submodule.span ℚ (Set.range
+              (fun j : Fin 2 => fun i => ((u (Fin.castLE (by decide) j) : Fin 5 → ℤ) i : ℚ))) := by
+  have h2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+  have h3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+  obtain ⟨C5,c10,kappa,hC,hc,hk,he,huniform⟩ := source_uniform_gap3242 A2 A3 L h2 h3 hL
+  obtain ⟨Tgap,hTgap,hg⟩ := huniform delta hd
+  obtain ⟨Tshort,hTshort,hshort⟩ := short_triple_cutoff244 kappa delta hd
+  obtain ⟨T0,hT0,b,hbn,Vprime,hVP,hVp,V,hVO,hV,hfixed⟩ :=
+    source_compound3_fixed_line243 A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3
+      hc0 hc2 hc3 hb delta hd Omega hO hq hgap
+  let U : Set ℝ := {Q | Q ∈ V ∧ max Tgap Tshort < Q}
+  have hU : ¬ BddAbove U := JSP000334.sourceDual_unbounded_tail3 V hV (max Tgap Tshort)
+  have hUO : U ⊆ Omega := fun _ h => hVO h.1
+  have hlocal (Q : ℝ) (hQU : Q ∈ U) :
+      ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+        LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+        (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q (hq Q (hUO hQU)) c0)
+          (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q (hq Q (hUO hQU)) c0 c2 c3 i) ∧
+        radical244 b = Submodule.span ℚ (Set.range
+          (fun j : Fin 2 => fun i => ((u (Fin.castLE (by decide) j) : Fin 5 → ℤ) i : ℚ))) ∧
+        Module.finrank ℚ (radical244 b) = 2 := by
+    have hsource := hgap Q (hUO hQU)
+    obtain ⟨hcomp,hpowgap⟩ := hg Q (hq Q (hUO hQU)) c0 c2 c3
+      (fun i => (hc2 i).2) (fun i => (hc3 i).2) hb ((le_max_left _ _).trans_lt hQU.2) hsource
+    obtain ⟨p,hpV,hpEq,hp,w,hw,hatt,hline⟩ := hfixed Q hQU.1
+    rcases p with ⟨p,hpP⟩
+    change p = Q^3 at hpEq
+    subst p
+    exact sameQ_radical_recovery244 A2 A3 L hL Q (hq Q (hUO hQU)) c0 c2 c3
+      kappa delta hk hd (hshort Q ((le_max_right _ _).trans_lt hQU.2)) (hcomp 8).1 hpowgap
+      hsource b hbn w hw hatt hline
+  obtain ⟨Q0,hQ0,hQ0large⟩ := not_bddAbove_iff.mp hU 0
+  obtain ⟨u0,hu0,ha0,hP0,hrank⟩ := hlocal Q0 hQ0
+  refine ⟨radical244 b,hrank,U,hUO,hU,?_⟩
+  intro Q hQU
+  obtain ⟨u,hu,ha,hP,hr⟩ := hlocal Q hQU
+  exact ⟨u,hu,ha,hP⟩
+
+end CompoundFeasibility.LiteralSourceFlag244
+
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_add1_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_smul1_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_add2_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_smul2_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_add3_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_smul3_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_swap12_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_swap23_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_12_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_23_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_13_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_zero_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.radical244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_integer_cast244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleForm_basis_pattern244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.radical_rank2_244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.unique_triple_top244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleOrder_last244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.tripleOrder_first_nine244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.short_triple_cutoff244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.short_triple_bound244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.actual_short_triples244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.exceptional_triple_nonzero244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.sameQ_radical_recovery244
+#print axioms CompoundFeasibility.LiteralSourceFlag244.source_original_fixed_rank2_244

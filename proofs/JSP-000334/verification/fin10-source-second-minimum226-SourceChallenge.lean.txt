@@ -1,0 +1,51 @@
+import SubspaceBridge.SourceShortLine226
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.SourceSecondMinimum226
+  CompoundFeasibility.OriginalDual10 CompoundFeasibility.SourceSatz51Entry218
+  CompoundFeasibility.SourceDualAnnihilation222 CompoundFeasibility.SourceDualGeometry219
+namespace M226SourceChallenge
+
+theorem uniform_original_short_pair (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+      (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L) (q : ℝ), T < q →
+      ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z1 z2 : Fin 10 → ℚ),
+        z1 ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3) →
+        z2 ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3) →
+        (∀ z ∈ ({z1,z2} : Set (Fin 10 → ℚ)), ∀ i,
+          |(L⁻¹.transpose *ᵥ (fun k => (z k : ℝ))) i| ≤
+            2 * (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) / A i)) →
+        (∃ a b : ℚ, z1 = a • (fun i => (integerLastDual10 D.u i : ℚ)) ∧
+          z2 = b • (fun i => (integerLastDual10 D.u i : ℚ))) ∧
+        ¬ LinearIndependent ℝ (fun j : Fin 2 =>
+          if j = 0 then (fun i => (z1 i : ℝ)) else (fun i => (z2 i : ℝ))) := by
+  obtain ⟨T, hT, hline⟩ := source_short_line226 delta hd
+  refine ⟨T, hT, ?_⟩
+  intro A2 A3 L hL q hqT hq c2 c3 A D z1 z2 hz1 hz2 hg
+  have gauge (z : Fin 10 → ℚ) (hz : z ∈ ({z1,z2} : Set (Fin 10 → ℚ))) :
+      dualGauge222 L hL
+        (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+        (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive (ratReal222 z) ≤ 2 :=
+    (dualGauge_bounds222 L hL _ _ A D.positive (ratReal222 z) 2).mpr (hg z hz)
+  have h1 := hline A2 A3 L hL q hqT hq c2 c3 A D z1 hz1 (gauge z1 (by simp))
+  have h2 := hline A2 A3 L hL q hqT hq c2 c3 A D z2 hz2 (gauge z2 (by simp))
+  exact ⟨rational_line_pair226 _ _ _ h1 h2, real_line_pair_dependent226 _ _ _ h1 h2⟩
+
+theorem same_integral_frame
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (y : Fin 10 → ℚ)
+    (hy : ∀ j : Fin 9, ∑ i, (D.u j.castSucc i : ℚ) * y i = 0) :
+    integerLastDual10 D.u ≠ 0 ∧ ∃ a : ℚ, y = a • (fun i => (integerLastDual10 D.u i : ℚ)) := by
+  exact ⟨(same_frame_line226 D).1,
+    let ⟨a, ha⟩ := Submodule.mem_span_singleton.mp ((same_frame_line226 D).2 y hy)
+    ⟨a, ha.symm⟩⟩
+
+end M226SourceChallenge
+#check M226SourceChallenge.uniform_original_short_pair
+#print M226SourceChallenge.uniform_original_short_pair
+#print axioms M226SourceChallenge.uniform_original_short_pair
+#check M226SourceChallenge.same_integral_frame
+#print M226SourceChallenge.same_integral_frame
+#print axioms M226SourceChallenge.same_integral_frame

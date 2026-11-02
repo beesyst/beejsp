@@ -1,0 +1,7 @@
+import SubspaceBridge.SourceExterior54Cofactor246
+#check CompoundFeasibility.Exterior54_246.paddedFrame246
+#print CompoundFeasibility.Exterior54_246.paddedFrame246
+#print axioms CompoundFeasibility.Exterior54_246.paddedFrame246
+#check CompoundFeasibility.Exterior54_246.wedge_cofactor246
+#print CompoundFeasibility.Exterior54_246.wedge_cofactor246
+#print axioms CompoundFeasibility.Exterior54_246.wedge_cofactor246

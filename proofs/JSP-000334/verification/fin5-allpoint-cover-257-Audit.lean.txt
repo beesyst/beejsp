@@ -1,0 +1,25 @@
+import SubspaceBridge.AllPointSourceExtraction5
+#check JSP000334.successiveRadius5_le_family
+#print JSP000334.successiveRadius5_le_family
+#print axioms JSP000334.successiveRadius5_le_family
+#check JSP000334.lattice5Span_short_mem_minimaFlag
+#print JSP000334.lattice5Span_short_mem_minimaFlag
+#print axioms JSP000334.lattice5Span_short_mem_minimaFlag
+#check JSP000334.allpoint_rational_functional5
+#print JSP000334.allpoint_rational_functional5
+#print axioms JSP000334.allpoint_rational_functional5
+#check JSP000334.allpoint_rational_functional5_cast
+#print JSP000334.allpoint_rational_functional5_cast
+#print axioms JSP000334.allpoint_rational_functional5_cast
+#check JSP000334.allpoint_rational_flag5
+#print JSP000334.allpoint_rational_flag5
+#print axioms JSP000334.allpoint_rational_flag5
+#check JSP000334.allpoint_source_short_rational5
+#print JSP000334.allpoint_source_short_rational5
+#print axioms JSP000334.allpoint_source_short_rational5
+#check JSP000334.allpoint_rank_scalar5
+#print JSP000334.allpoint_rank_scalar5
+#print axioms JSP000334.allpoint_rank_scalar5
+#check JSP000334.allpoint_source_unit5
+#print JSP000334.allpoint_source_unit5
+#print axioms JSP000334.allpoint_source_unit5

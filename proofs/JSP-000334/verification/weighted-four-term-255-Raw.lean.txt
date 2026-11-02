@@ -1,0 +1,162 @@
+import SubspaceBridge.WeightedFourTermSource3
+namespace Raw255
+open scoped Matrix BigOperators
+open JSP000334
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {n : ℕ} (x : Fin n → ℚ) : Prop :=
+  ∀ I : Finset (Fin n),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Product (x : ℚ) : ℚ := |x| *padicNorm 2 x*padicNorm 3 x
+def Raw_WeightedFourTermSolutions (A B C D : ℚ) : Set (Group × Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=0 ∧
+    Nondeg ![A,B*((p.1 : ℚˣ) : ℚ),C*((p.2.1 : ℚˣ) : ℚ),D*((p.2.2 : ℚˣ) : ℚ)]}
+
+def Raw_weightedRetainedMatrix3 (B C D : ℚ) : Matrix (Fin 3) (Fin 3) ℚ :=
+  !![B,C,D;0,1,0;0,0,1]
+
+def Raw_weightedNormalizedMatrix3 (B C D : ℚ) : Matrix (Fin 3) (Fin 3) ℚ :=
+  !![1,C/B,D/B;0,1,0;0,0,1]
+
+theorem source_weighted_retained_det3 : ∀ (B C D : ℚ),
+ (Raw_weightedRetainedMatrix3 B C D).det=B :=
+  @JSP000334.weighted_retained_det3
+
+theorem source_weighted_normalized_det3 : ∀ (B C D : ℚ),
+ (Raw_weightedNormalizedMatrix3 B C D).det=1 :=
+  @JSP000334.weighted_normalized_det3
+
+theorem source_weighted_normalized_apply3 : ∀ (B C D : ℚ) (hB : B≠0) (z : Fin 3 → ℚ),
+
+    (Raw_weightedNormalizedMatrix3 B C D *ᵥ z) 0=(B*z 0+C*z 1+D*z 2)/B :=
+  @JSP000334.weighted_normalized_apply3
+
+theorem source_weighted_scaled_relation3 : ∀ (A B C D : ℚ) (u v w s : Group)
+    (z : Fin 3 → ℤ)
+    (he : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)+D*((w : ℚˣ) : ℚ)=0)
+    (hz : ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*(![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ),((w : ℚˣ) : ℚ)] i)),
+
+    B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ)=-A*((s : ℚˣ) : ℚ) :=
+  @JSP000334.weighted_scaled_relation3
+
+theorem source_weighted_three_place_product3 : ∀ (A B C D : ℚ) (u v w s : Group)
+    (z : Fin 3 → ℤ)
+    (he : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)+D*((w : ℚˣ) : ℚ)=0)
+    (hz : ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*(![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ),((w : ℚˣ) : ℚ)] i)),
+
+    Product (B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ))=Product A :=
+  @JSP000334.weighted_three_place_product3
+
+theorem source_weighted_coordinate_product3 : ∀ (s u : Group) (m : ℤ)
+    (hm : (m : ℚ)=((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ)),
+
+    Product (m : ℚ)=1 :=
+  @JSP000334.weighted_coordinate_product3
+
+theorem source_weighted_example_two_nondegenerate :
+ Nondeg (![-5,2,1,2] : Fin 4 → ℚ) :=
+  @JSP000334.weighted_example_two_nondegenerate
+
+theorem source_weighted_example_three_nondegenerate :
+ Nondeg (![-5,3,1,1] : Fin 4 → ℚ) :=
+  @JSP000334.weighted_example_three_nondegenerate
+
+theorem source_weighted_example_two_solution :
+ (1,1,1)∈Raw_WeightedFourTermSolutions (-5) 2 1 2 :=
+  @JSP000334.weighted_example_two_solution
+
+theorem source_weighted_example_three_solution :
+ (1,1,1)∈Raw_WeightedFourTermSolutions (-5) 3 1 1 :=
+  @JSP000334.weighted_example_three_solution
+
+theorem source_weighted_normalized_two_value :
+
+    (Raw_weightedNormalizedMatrix3 2 1 2 *ᵥ (fun _ => 1)) 0=5/2 :=
+  @JSP000334.weighted_normalized_two_value
+
+theorem source_weighted_normalized_three_value :
+
+    (Raw_weightedNormalizedMatrix3 3 1 1 *ᵥ (fun _ => 1)) 0=5/3 :=
+  @JSP000334.weighted_normalized_three_value
+
+theorem source_weighted_normalized_two_norm :
+ padicNorm 2 (5/2 : ℚ)=2 :=
+  @JSP000334.weighted_normalized_two_norm
+
+theorem source_weighted_normalized_three_norm :
+ padicNorm 3 (5/3 : ℚ)=3 :=
+  @JSP000334.weighted_normalized_three_norm
+
+theorem source_weighted_nonunit_product_constant :
+ Product (5 : ℚ)=5 :=
+  @JSP000334.weighted_nonunit_product_constant
+
+theorem source_weighted_finite_place_bound3 : ∀ (p : ℕ) [Fact p.Prime] (B C D : ℚ) (z : Fin 3 → ℤ),
+
+    padicNorm p (B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ)) ≤
+      max (max (padicNorm p B) (padicNorm p C)) (padicNorm p D) :=
+  @JSP000334.weighted_finite_place_bound3
+
+theorem source_weighted_two_nonpositive_source_impossible : ∀ (Q c : ℝ) (hQ : 1<Q) (hc : c≤0),
+
+    ¬ ((padicNorm 2 ((Raw_weightedNormalizedMatrix3 2 1 2 *ᵥ (fun _ => 1)) 0) : ℝ)≤Q^c) :=
+  @JSP000334.weighted_two_nonpositive_source_impossible
+
+theorem source_weighted_three_nonpositive_source_impossible : ∀ (Q c : ℝ) (hQ : 1<Q) (hc : c≤0),
+
+    ¬ ((padicNorm 3 ((Raw_weightedNormalizedMatrix3 3 1 1 *ᵥ (fun _ => 1)) 0) : ℝ)≤Q^c) :=
+  @JSP000334.weighted_three_nonpositive_source_impossible
+
+theorem source_weighted_opposite_pairs_degenerate : ∀ (t : ℚ),
+ ¬Nondeg (![1,-1,t,-t] : Fin 4 → ℚ) :=
+  @JSP000334.weighted_opposite_pairs_degenerate
+
+theorem source_weighted_normalized_finite_of_max3 : ∀ (p : ℕ) [Fact p.Prime]
+    (B C D : ℚ) (hB : B≠0) (z : Fin 3 → ℤ)
+    (hC : padicNorm p (C*(z 1 : ℚ))≤padicNorm p (B*(z 0 : ℚ)))
+    (hD : padicNorm p (D*(z 2 : ℚ))≤padicNorm p (B*(z 0 : ℚ))),
+
+    padicNorm p ((B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ))/B)≤1 :=
+  @JSP000334.weighted_normalized_finite_of_max3
+
+end Raw255
+#check Raw255.source_weighted_retained_det3
+#print axioms Raw255.source_weighted_retained_det3
+#check Raw255.source_weighted_normalized_det3
+#print axioms Raw255.source_weighted_normalized_det3
+#check Raw255.source_weighted_normalized_apply3
+#print axioms Raw255.source_weighted_normalized_apply3
+#check Raw255.source_weighted_scaled_relation3
+#print axioms Raw255.source_weighted_scaled_relation3
+#check Raw255.source_weighted_three_place_product3
+#print axioms Raw255.source_weighted_three_place_product3
+#check Raw255.source_weighted_coordinate_product3
+#print axioms Raw255.source_weighted_coordinate_product3
+#check Raw255.source_weighted_example_two_nondegenerate
+#print axioms Raw255.source_weighted_example_two_nondegenerate
+#check Raw255.source_weighted_example_three_nondegenerate
+#print axioms Raw255.source_weighted_example_three_nondegenerate
+#check Raw255.source_weighted_example_two_solution
+#print axioms Raw255.source_weighted_example_two_solution
+#check Raw255.source_weighted_example_three_solution
+#print axioms Raw255.source_weighted_example_three_solution
+#check Raw255.source_weighted_normalized_two_value
+#print axioms Raw255.source_weighted_normalized_two_value
+#check Raw255.source_weighted_normalized_three_value
+#print axioms Raw255.source_weighted_normalized_three_value
+#check Raw255.source_weighted_normalized_two_norm
+#print axioms Raw255.source_weighted_normalized_two_norm
+#check Raw255.source_weighted_normalized_three_norm
+#print axioms Raw255.source_weighted_normalized_three_norm
+#check Raw255.source_weighted_nonunit_product_constant
+#print axioms Raw255.source_weighted_nonunit_product_constant
+#check Raw255.source_weighted_finite_place_bound3
+#print axioms Raw255.source_weighted_finite_place_bound3
+#check Raw255.source_weighted_two_nonpositive_source_impossible
+#print axioms Raw255.source_weighted_two_nonpositive_source_impossible
+#check Raw255.source_weighted_three_nonpositive_source_impossible
+#print axioms Raw255.source_weighted_three_nonpositive_source_impossible
+#check Raw255.source_weighted_opposite_pairs_degenerate
+#print axioms Raw255.source_weighted_opposite_pairs_degenerate
+#check Raw255.source_weighted_normalized_finite_of_max3
+#print axioms Raw255.source_weighted_normalized_finite_of_max3

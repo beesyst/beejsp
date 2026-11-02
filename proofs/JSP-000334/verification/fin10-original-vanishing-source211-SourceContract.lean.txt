@@ -1,0 +1,120 @@
+import SubspaceBridge.SourceOriginalRationalVanishing10
+open scoped BigOperators Classical Matrix
+namespace M211SourceContract
+open CompoundFeasibility CompoundFeasibility.SourceOriginalDual10
+open SourceGlobalSelected10 OriginalDual10 SourceSelectedSet10 SourceSelectedUpper10 SourceOriginalVariable10 SchmidtNormal10 SourceSampling10
+noncomputable section
+
+theorem original_dual_pairing10 (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (j : Fin 10) :
+    (∑ i, (u j i : ℚ)*lastDual10 (fun j i => (u j i : ℚ)) hu i) =
+      if j = (9 : Fin 10) then 1 else 0 := by
+  have hf := functional_coordinates_dual10
+    (rationalFrameDual42 (fun j i => (u j i : ℚ)) hu (9 : Fin 10))
+    (fun i => (u j i : ℚ))
+  rw [rationalFrameDual42_pairing] at hf
+  simpa only [lastDual10,eq_comm] using hf.symm
+
+def sourceDualCoordinate10 (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (k : Fin 10) : ℚ :=
+  rationalFrameDual42 (fun j i => (u j i : ℚ)) hu (9 : Fin 10) (Pi.single k 1)
+
+def sourceDualProduct10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (s : Fin 3 → Fin 10) : ℝ :=
+  |(L⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ))) (s 0)| *
+    ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+      (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2]))) (s 1)‖ *
+    ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+      (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3]))) (s 2)‖
+
+theorem exact_source_product_nonzero10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (s : Fin 3 → Fin 10) :
+    sourceDualProduct10 A2 A3 L u hu s ≠ 0 ↔
+      mixedProduct10 A2 A3 L (integerLastDual10 u) s ≠ 0 := by
+  have hp : sourceDualProduct10 A2 A3 L u hu s ≠ 0 ↔
+      (L⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ))) (s 0) ≠ 0 ∧
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2]))) (s 1) ≠ 0 ∧
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3]))) (s 2) ≠ 0 := by
+    simp only [sourceDualProduct10,mul_ne_zero_iff,abs_ne_zero,norm_ne_zero_iff,and_assoc]
+  constructor
+  · intro h
+    obtain ⟨h0,h2,h3⟩ := hp.mp h
+    exact (mixedProduct10_ne_zero_iff A2 A3 L (integerLastDual10 u) s).mpr
+      ⟨(original_real_nonzero10 L u hu (s 0)).mpr h0,
+       (original_p2_nonzero10 A2 u hu (s 1)).mpr h2,
+       (original_p3_nonzero10 A3 u hu (s 2)).mpr h3⟩
+  · intro h
+    obtain ⟨h0,h2,h3⟩ := (mixedProduct10_ne_zero_iff A2 A3 L (integerLastDual10 u) s).mp h
+    exact hp.mpr ⟨(original_real_nonzero10 L u hu (s 0)).mp h0,
+      (original_p2_nonzero10 A2 u hu (s 1)).mp h2,
+      (original_p3_nonzero10 A3 u hu (s 2)).mp h3⟩
+
+end
+end M211SourceContract
+
+#print axioms M211SourceContract.original_dual_pairing10
+#print axioms M211SourceContract.exact_source_product_nonzero10
+
+namespace M211SourceContract
+open CompoundFeasibility CompoundFeasibility.SourceOriginalDual10
+open OriginalDual10 SourceSelectedSet10 SourceSelectedUpper10 SourceOriginalVariable10 SchmidtNormal10 SourceSampling10
+open SourceOriginalVanishing10
+noncomputable section
+
+theorem source_data_to_rational10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset MixedIndex10}
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (s : MixedIndex10)
+    (hn : sourceDualProduct10 A2 A3 L D.u (integer_frame_rational_independent10 D.u D.independent) s ≠ 0) :
+    dataRationalDualProduct10 D s ≠ 0 := by
+  apply (data_rational_product_nonzero_iff D s).mpr
+  exact (exact_source_product_nonzero10 A2 A3 L D.u
+    (integer_frame_rational_independent10 D.u D.independent) s).mp hn
+
+theorem source_literal_failure_contradiction10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10)
+    (hfail : ∀ B : ℝ, ∃ Q : ℝ, ∃ hQ : 1 < Q, B < Q ∧
+      ∃ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+        ∃ s ∈ S0, sourceDualProduct10 A2 A3 L D.u (integer_frame_rational_independent10 D.u D.independent) s ≠ 0) : False := by
+  apply original_rational_failure_contradiction10 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  intro B
+  obtain ⟨Q,hQ,hBQ,D,s,hs,hn⟩ := hfail B
+  exact ⟨Q,hQ,hBQ,D,s,hs,source_data_to_rational10 D s hn⟩
+
+theorem source_literal_selected_eventually_zero10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10) :
+    ∃ Q0 : ℝ, 1 < Q0 ∧ ∀ Q : ℝ, ∀ hQ : 1 < Q, Q0 < Q →
+      ∀ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+      ∀ s : MixedIndex10, s ∈ S0 → sourceDualProduct10 A2 A3 L D.u (integer_frame_rational_independent10 D.u D.independent) s = 0 := by
+  obtain ⟨Q0,hzero⟩ := original_rational_selected_eventually_zero10 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  refine ⟨max 2 Q0,lt_of_lt_of_le (by norm_num : (1 : ℝ) < 2) (le_max_left _ _),?_⟩
+  intro Q hQ hlarge D s hs
+  have hQ0 : Q0 < Q := (le_max_right 2 Q0).trans_lt hlarge
+  by_contra hn
+  exact source_data_to_rational10 D s hn (hzero Q hQ hQ0 D s hs)
+
+end
+end M211SourceContract
+
+#print M211SourceContract.original_dual_pairing10
+#print axioms M211SourceContract.original_dual_pairing10
+
+#print M211SourceContract.exact_source_product_nonzero10
+#print axioms M211SourceContract.exact_source_product_nonzero10
+
+#print M211SourceContract.source_data_to_rational10
+#print axioms M211SourceContract.source_data_to_rational10
+
+#print M211SourceContract.source_literal_failure_contradiction10
+#print axioms M211SourceContract.source_literal_failure_contradiction10
+
+#print M211SourceContract.source_literal_selected_eventually_zero10
+#print axioms M211SourceContract.source_literal_selected_eventually_zero10

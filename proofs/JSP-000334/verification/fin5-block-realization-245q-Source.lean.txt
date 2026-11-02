@@ -1,0 +1,122 @@
+import SubspaceBridge.SourceBlockUnit245Q
+import SubspaceBridge.SourceBlockLattice245Q
+import SubspaceBridge.SourceBlockGauge245Q
+import SubspaceBridge.SourceBlockSeparation245Q
+import SubspaceBridge.SourceBlockLower245Q
+import SubspaceBridge.SourceBlockNine245Q
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M245POpenContracts
+open CompoundFeasibility CompoundFeasibility.BlockReduction245P
+
+def Fin5BlockLowerStatement245P : Prop :=
+  ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L),
+    ∃ hB0 : IsUnit (block245P L),
+      ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+        Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4 ≤
+          sourceMinima10 (block245P A2) (block245P A3) (block245P L) hB0 (Q^3)
+            (Exterior53_242.powered_gt_one3242 Q hQ)
+            (weight0245P c0) (weightp245P c2) (weightp245P c3) 9
+
+def Fin5BlockGapStatement245P : Prop :=
+  ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta),
+    ∃ hB0 : IsUnit (block245P L), ∃ T : ℝ, 1 < T ∧ 0 < delta/3 ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q), T < Q →
+        sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3 <
+          sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4*Q^(-delta) →
+        sourceMinima10 (block245P A2) (block245P A3) (block245P L) hB0 (Q^3)
+          (Exterior53_242.powered_gt_one3242 Q hQ)
+          (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 <
+        sourceMinima10 (block245P A2) (block245P A3) (block245P L) hB0 (Q^3)
+          (Exterior53_242.powered_gt_one3242 Q hQ)
+          (weight0245P c0) (weightp245P c2) (weightp245P c3) 9*(Q^3)^(-delta/3)
+
+#check Fin5BlockLowerStatement245P
+#check Fin5BlockGapStatement245P
+end M245POpenContracts
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M245QChallenges
+open CompoundFeasibility CompoundFeasibility.BlockReduction245P
+  CompoundFeasibility.BlockReduction245Q CompoundFeasibility.Exterior53_242
+
+theorem actual_block_injective (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) :
+    Function.Injective (block245P L).mulVec :=
+  Matrix.mulVec_injective_iff_isUnit.mpr (block_unit245Q L hL)
+
+theorem native_group_expanded (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ) (z : Fin 10 → ℤ) :
+    ((∀ i, padicNorm 2 (((block245P A2) *ᵥ (fun j => (z j : ℚ))) i) ≤
+        (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 (Q^3) (weightp245P c2 i)) : ℤ))) ∧
+      (∀ i, padicNorm 3 (((block245P A3) *ᵥ (fun j => (z j : ℚ))) i) ≤
+        (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 (Q^3) (weightp245P c3 i)) : ℤ)))) ↔
+    ((∀ i, padicNorm 2 ((A2 *ᵥ (fun j => ((first245Q z j : ℤ) : ℚ))) i) ≤
+        (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 Q (c2 i)) : ℤ))) ∧
+      (∀ i, padicNorm 3 ((A3 *ᵥ (fun j => ((first245Q z j : ℤ) : ℚ))) i) ≤
+        (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 Q (c3 i)) : ℤ)))) := by
+  have h := block_source_group245Q A2 A3 Q c2 c3 z
+  change (z ∈ lattice10 2 (block245P A2) _ ∧ z ∈ lattice10 3 (block245P A3) _) ↔
+    (first245Q z ∈ lattice5 2 A2 _ ∧ first245Q z ∈ lattice5 3 A3 _) at h
+  simpa only [lattice10_spec,lattice5_spec] using h
+
+theorem native_gauge_expanded (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c : Fin 5 → ℝ) (z : Fin 10 → ℝ) :
+    ‖originalCoordinates10 (block245P L) (block_unit245Q L hL) (Q^3)
+      (powered_gt_one3242 Q hQ) (weight0245P c) z‖ =
+      max (Q^2*‖originalCoordinates5 L hL Q hQ c (first245Q z)‖)
+        (Q^(-2 : ℝ)*‖second245Q z‖) := by
+  have he : Q^(-2 : ℝ) = (Q^2)⁻¹ := by
+    rw [Real.rpow_neg (zero_lt_one.trans hQ).le,Real.rpow_two]
+  rw [he]
+  exact gauge_full245Q L hL Q hQ c z
+
+theorem original_embedding_gauge (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c : Fin 5 → ℝ) (x : Fin 5 → ℝ) :
+    ‖originalCoordinates10 (block245P L) (block_unit245Q L hL) (Q^3)
+      (powered_gt_one3242 Q hQ) (weight0245P c) (join245Q x 0)‖ =
+      Q^2*‖originalCoordinates5 L hL Q hQ c x‖ :=
+  gauge_original245Q L hL Q hQ c x
+
+theorem dummy_real_gauge (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c : Fin 5 → ℝ) (i : Fin 5) :
+    ‖originalCoordinates10 (block245P L) (block_unit245Q L hL) (Q^3)
+      (powered_gt_one3242 Q hQ) (weight0245P c) (join245Q 0 (Pi.single i 1))‖ =
+      Q^(-2 : ℝ) := by
+  rw [Real.rpow_neg (zero_lt_one.trans hQ).le,Real.rpow_two]
+  exact gauge_dummy245Q L hL Q hQ c i
+
+theorem uniform_integer_separation (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) :
+    ∃ D : ℝ, 0 < D ∧ ∀ (Q : ℝ) (hQ : 1 < Q) (c0 : Fin 5 → ℝ),
+      (∀ i, |c0 i| ≤ 1) → ∀ x : Fin 5 → ℤ, x ≠ 0 →
+      1/(D*Q) ≤ ‖originalCoordinates5 L hL Q hQ c0 (integerReal x)‖ :=
+  uniform_integer_lower245Q L hL
+
+theorem original_lower_contract : M245POpenContracts.Fin5BlockLowerStatement245P := by
+  intro A2 A3 L hL
+  exact ⟨block_unit245Q L hL,fun Q hQ c0 c2 c3 => source_lower245Q A2 A3 L hL Q hQ c0 c2 c3⟩
+
+theorem nine_genuine_frame_independent (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      (∀ j, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u j : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j) ∧
+      LinearIndependent ℝ (nineFrame245Q (fun j => integerReal (u j : Fin 5 → ℤ))) := by
+  obtain ⟨u,hu,_,_,hatt,_⟩ := exists_sourceMinima5_attaining A2 A3 L hL Q hQ c0 c2 c3
+  exact ⟨u,hatt,nine_independent245Q _ hu⟩
+
+end M245QChallenges
+
+#print axioms M245QChallenges.actual_block_injective
+#print axioms M245QChallenges.native_group_expanded
+#print axioms M245QChallenges.native_gauge_expanded
+#print axioms M245QChallenges.original_embedding_gauge
+#print axioms M245QChallenges.dummy_real_gauge
+#print axioms M245QChallenges.uniform_integer_separation
+#print axioms M245QChallenges.original_lower_contract
+#print axioms M245QChallenges.nine_genuine_frame_independent

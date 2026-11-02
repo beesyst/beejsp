@@ -1,0 +1,94 @@
+import SubspaceBridge.Exterior3Normalization4
+#check CompoundFeasibility.Exterior3.normalizedWeights3_4
+#print CompoundFeasibility.Exterior3.normalizedWeights3_4
+#print axioms CompoundFeasibility.Exterior3.normalizedWeights3_4
+#check CompoundFeasibility.Exterior3.cube_gt_one3
+#print CompoundFeasibility.Exterior3.cube_gt_one3
+#print axioms CompoundFeasibility.Exterior3.cube_gt_one3
+#check CompoundFeasibility.Exterior3.normalizedWeights3_conditions
+#print CompoundFeasibility.Exterior3.normalizedWeights3_conditions
+#print axioms CompoundFeasibility.Exterior3.normalizedWeights3_conditions
+#check CompoundFeasibility.Exterior3.normalized_power3
+#print CompoundFeasibility.Exterior3.normalized_power3
+#print axioms CompoundFeasibility.Exterior3.normalized_power3
+#check CompoundFeasibility.Exterior3.normalized_threshold3
+#print CompoundFeasibility.Exterior3.normalized_threshold3
+#print axioms CompoundFeasibility.Exterior3.normalized_threshold3
+#check CompoundFeasibility.Exterior3.directExponents3_4
+#print CompoundFeasibility.Exterior3.directExponents3_4
+#print axioms CompoundFeasibility.Exterior3.directExponents3_4
+#check CompoundFeasibility.Exterior3.direct_summed_exponents3
+#print CompoundFeasibility.Exterior3.direct_summed_exponents3
+#print axioms CompoundFeasibility.Exterior3.direct_summed_exponents3
+#check CompoundFeasibility.Exterior3.normalizedGroup3_4
+#print CompoundFeasibility.Exterior3.normalizedGroup3_4
+#print axioms CompoundFeasibility.Exterior3.normalizedGroup3_4
+#check CompoundFeasibility.Exterior3.normalized_group3_eq
+#print CompoundFeasibility.Exterior3.normalized_group3_eq
+#print axioms CompoundFeasibility.Exterior3.normalized_group3_eq
+#check CompoundFeasibility.Exterior3.lattice4_antitone3
+#print CompoundFeasibility.Exterior3.lattice4_antitone3
+#print axioms CompoundFeasibility.Exterior3.lattice4_antitone3
+#check CompoundFeasibility.Exterior3.summed_le_normalized_group3
+#print CompoundFeasibility.Exterior3.summed_le_normalized_group3
+#print axioms CompoundFeasibility.Exterior3.summed_le_normalized_group3
+#check CompoundFeasibility.Exterior3.thirtysix_norm2_3
+#print CompoundFeasibility.Exterior3.thirtysix_norm2_3
+#print axioms CompoundFeasibility.Exterior3.thirtysix_norm2_3
+#check CompoundFeasibility.Exterior3.thirtysix_norm3_3
+#print CompoundFeasibility.Exterior3.thirtysix_norm3_3
+#print axioms CompoundFeasibility.Exterior3.thirtysix_norm3_3
+#check CompoundFeasibility.Exterior3.lattice4_scale_loss2_3
+#print CompoundFeasibility.Exterior3.lattice4_scale_loss2_3
+#print axioms CompoundFeasibility.Exterior3.lattice4_scale_loss2_3
+#check CompoundFeasibility.Exterior3.normalized_thirtysix_mem3
+#print CompoundFeasibility.Exterior3.normalized_thirtysix_mem3
+#print axioms CompoundFeasibility.Exterior3.normalized_thirtysix_mem3
+#check CompoundFeasibility.Exterior3.normalized_coordinates3_eq
+#print CompoundFeasibility.Exterior3.normalized_coordinates3_eq
+#print axioms CompoundFeasibility.Exterior3.normalized_coordinates3_eq
+#check CompoundFeasibility.Exterior3.normalized_body3_eq
+#print CompoundFeasibility.Exterior3.normalized_body3_eq
+#print axioms CompoundFeasibility.Exterior3.normalized_body3_eq
+#check CompoundFeasibility.Exterior3.normalizedMinima3_4
+#print CompoundFeasibility.Exterior3.normalizedMinima3_4
+#print axioms CompoundFeasibility.Exterior3.normalizedMinima3_4
+#check CompoundFeasibility.Exterior3.coordinateGauge4_thirtysix3
+#print CompoundFeasibility.Exterior3.coordinateGauge4_thirtysix3
+#print axioms CompoundFeasibility.Exterior3.coordinateGauge4_thirtysix3
+#check CompoundFeasibility.Exterior3.integerReal_thirtysix3
+#print CompoundFeasibility.Exterior3.integerReal_thirtysix3
+#print axioms CompoundFeasibility.Exterior3.integerReal_thirtysix3
+#check CompoundFeasibility.Exterior3.compoundMinima3_prefix_admissible
+#print CompoundFeasibility.Exterior3.compoundMinima3_prefix_admissible
+#print axioms CompoundFeasibility.Exterior3.compoundMinima3_prefix_admissible
+#check CompoundFeasibility.Exterior3.normalized_minima3_comparison
+#print CompoundFeasibility.Exterior3.normalized_minima3_comparison
+#print axioms CompoundFeasibility.Exterior3.normalized_minima3_comparison
+#check CompoundFeasibility.Exterior3.normalizedMinima3_pos_mono
+#print CompoundFeasibility.Exterior3.normalizedMinima3_pos_mono
+#print axioms CompoundFeasibility.Exterior3.normalizedMinima3_pos_mono
+#check CompoundFeasibility.Exterior3.normalized_gap_power3
+#print CompoundFeasibility.Exterior3.normalized_gap_power3
+#print axioms CompoundFeasibility.Exterior3.normalized_gap_power3
+#check CompoundFeasibility.Exterior3.normalized_top_gap3
+#print CompoundFeasibility.Exterior3.normalized_top_gap3
+#print axioms CompoundFeasibility.Exterior3.normalized_top_gap3
+#check CompoundFeasibility.Exterior3.normalization_cutoff3
+#print CompoundFeasibility.Exterior3.normalization_cutoff3
+#print axioms CompoundFeasibility.Exterior3.normalization_cutoff3
+#check CompoundFeasibility.Exterior3.cubeImage3_4
+#print CompoundFeasibility.Exterior3.cubeImage3_4
+#print axioms CompoundFeasibility.Exterior3.cubeImage3_4
+#check CompoundFeasibility.Exterior3.cubeImage3_unbounded
+#print CompoundFeasibility.Exterior3.cubeImage3_unbounded
+#print axioms CompoundFeasibility.Exterior3.cubeImage3_unbounded
+#check CompoundFeasibility.Exterior3.normalizationTransport3_4
+#print CompoundFeasibility.Exterior3.normalizationTransport3_4
+#print axioms CompoundFeasibility.Exterior3.normalizationTransport3_4
+#check CompoundFeasibility.Exterior3.source_normalizationTransport3
+#print CompoundFeasibility.Exterior3.source_normalizationTransport3
+#print axioms CompoundFeasibility.Exterior3.source_normalizationTransport3
+#check CompoundFeasibility.Exterior3.source_exterior3_normalized_gap4
+#print CompoundFeasibility.Exterior3.source_exterior3_normalized_gap4
+#print axioms CompoundFeasibility.Exterior3.source_exterior3_normalized_gap4

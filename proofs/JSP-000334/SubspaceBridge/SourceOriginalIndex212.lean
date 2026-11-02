@@ -1,0 +1,43 @@
+import SubspaceBridge.SourceOriginalData10
+import SubspaceBridge.SourceRelativeIndex6
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceOriginalSatz212
+open SourceOriginalVariable10 SourceRelativeIndex6
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+
+def originalLattice212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) : AddSubgroup (Fin 10 → ℤ) :=
+  sourceLattice10 A2 A3 (fun i => (-D.f2 i).toNat) (fun i => (-D.f3 i).toNat)
+
+theorem original_lattice_eq212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    originalSourceGroup10 A2 A3 Q (fun i => normalizedFinite10 2 Q (D.f2 i))
+      (fun i => normalizedFinite10 3 Q (D.f3 i)) = originalLattice212 D := by
+  change sourceLattice10 A2 A3 _ _ = _
+  simp_rw [normalized_threshold_exact10 2 (by decide) Q hQ,
+    normalized_threshold_exact10 3 (by decide) Q hQ]
+  rfl
+
+theorem original_lattice_mem212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (x : Fin 10 → ℤ) :
+    x ∈ originalLattice212 D ↔
+      (∀ i, padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) ≤ (2 : ℚ)^(D.f2 i)) ∧
+      (∀ i, padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) ≤ (3 : ℚ)^(D.f3 i)) := by
+  rw [← original_lattice_eq212 D]
+  exact normalized_source_group_exact10 A2 A3 Q hQ D.f2 D.f3 D.nonpos2 D.nonpos3 x
+
+def originalFrame212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) : Fin 10 → originalLattice212 D :=
+  fun j => ⟨D.u j,(original_lattice_mem212 D (D.u j)).mpr ⟨D.member2 j,D.member3 j⟩⟩
+
+def originalIndex212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) : ℕ :=
+  frameRelativeIndex (originalLattice212 D) (originalFrame212 D)
+
+def originalCovolume212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) : ℝ :=
+  ZLattice.covolume (integerRealImage (originalLattice212 D))
+
+theorem original_frame_independent212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    LinearIndependent ℤ (originalFrame212 D) := by
+  exact LinearIndependent.of_comp (integerReal.comp (originalLattice212 D).subtype.toIntLinearMap)
+    (D.independent.restrict_scalars' ℤ)
+
+end CompoundFeasibility.SourceOriginalSatz212

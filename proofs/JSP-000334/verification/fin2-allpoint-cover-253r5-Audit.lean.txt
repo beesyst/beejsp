@@ -1,0 +1,203 @@
+import SubspaceBridge.BinarySourceWeights2
+import SubspaceBridge.BinaryWeightedSourceProduct2
+import SubspaceBridge.BinaryIntegerSourceBounds2
+import SubspaceBridge.BinaryCanonicalNormal2
+import SubspaceBridge.BinarySourceNorms2
+import SubspaceBridge.BinaryLogTailBounds2
+import SubspaceBridge.BinaryWeightedSourcePoint2
+import SubspaceBridge.BinaryFiniteWeights2
+import SubspaceBridge.BinaryFixedSourcePoint2
+import SubspaceBridge.BinaryZeroForms2
+import SubspaceBridge.BinaryParameterSelection2
+import SubspaceBridge.BinaryFixedSourceFamily2
+import SubspaceBridge.BinarySourceFamilyBounded2
+import SubspaceBridge.BinaryHeightFinite2
+import SubspaceBridge.BinaryWeightedSolutionHeight2
+import SubspaceBridge.BinaryAllPointFiniteCover2
+#check JSP000334.binaryLogRaw
+#print JSP000334.binaryLogRaw
+#print axioms JSP000334.binaryLogRaw
+#check JSP000334.binaryLogAlpha
+#print JSP000334.binaryLogAlpha
+#print axioms JSP000334.binaryLogAlpha
+#check JSP000334.binaryLogWeights
+#print JSP000334.binaryLogWeights
+#print axioms JSP000334.binaryLogWeights
+#check JSP000334.binary_log_balance
+#print JSP000334.binary_log_balance
+#print axioms JSP000334.binary_log_balance
+#check JSP000334.binary_log_positive_margin
+#print JSP000334.binary_log_positive_margin
+#print axioms JSP000334.binary_log_positive_margin
+#check JSP000334.binary_log_source_bounds
+#print JSP000334.binary_log_source_bounds
+#print axioms JSP000334.binary_log_source_bounds
+#check JSP000334.binary_log_alpha_raw_sum
+#print JSP000334.binary_log_alpha_raw_sum
+#print axioms JSP000334.binary_log_alpha_raw_sum
+#check JSP000334.binary_log_uniform_bound
+#print JSP000334.binary_log_uniform_bound
+#print axioms JSP000334.binary_log_uniform_bound
+#check JSP000334.binary_weighted_normalization
+#print JSP000334.binary_weighted_normalization
+#print axioms JSP000334.binary_weighted_normalization
+#check JSP000334.binary_primitive_retained_bound
+#print JSP000334.binary_primitive_retained_bound
+#print axioms JSP000334.binary_primitive_retained_bound
+#check JSP000334.binary_denominator_tail_bound
+#print JSP000334.binary_denominator_tail_bound
+#print axioms JSP000334.binary_denominator_tail_bound
+#check JSP000334.binary_place_norm_cast
+#print JSP000334.binary_place_norm_cast
+#print axioms JSP000334.binary_place_norm_cast
+#check JSP000334.binary_integer_pattern_value
+#print JSP000334.binary_integer_pattern_value
+#print axioms JSP000334.binary_integer_pattern_value
+#check JSP000334.binary_integer_pattern_product
+#print JSP000334.binary_integer_pattern_product
+#print axioms JSP000334.binary_integer_pattern_product
+#check JSP000334.binaryIntegerFormConstant
+#print JSP000334.binaryIntegerFormConstant
+#print axioms JSP000334.binaryIntegerFormConstant
+#check JSP000334.binary_integer_norm_bounds
+#print JSP000334.binary_integer_norm_bounds
+#print axioms JSP000334.binary_integer_norm_bounds
+#check JSP000334.binary_integer_pattern_arch_bound
+#print JSP000334.binary_integer_pattern_arch_bound
+#print axioms JSP000334.binary_integer_pattern_arch_bound
+#check JSP000334.binaryPairNormal
+#print JSP000334.binaryPairNormal
+#print axioms JSP000334.binaryPairNormal
+#check JSP000334.binary_primitive_pair_ideal
+#print JSP000334.binary_primitive_pair_ideal
+#print axioms JSP000334.binary_primitive_pair_ideal
+#check JSP000334.binary_pair_normal_primitive
+#print JSP000334.binary_pair_normal_primitive
+#print axioms JSP000334.binary_pair_normal_primitive
+#check JSP000334.binary_pair_normal_ideal
+#print JSP000334.binary_pair_normal_ideal
+#print axioms JSP000334.binary_pair_normal_ideal
+#check JSP000334.binary_pair_normal_nonzero
+#print JSP000334.binary_pair_normal_nonzero
+#print axioms JSP000334.binary_pair_normal_nonzero
+#check JSP000334.binary_pair_normal_vector
+#print JSP000334.binary_pair_normal_vector
+#print axioms JSP000334.binary_pair_normal_vector
+#check JSP000334.binary_pair_normal_height
+#print JSP000334.binary_pair_normal_height
+#print axioms JSP000334.binary_pair_normal_height
+#check JSP000334.binary_vector_value_integer
+#print JSP000334.binary_vector_value_integer
+#print axioms JSP000334.binary_vector_value_integer
+#check JSP000334.binary_pattern_value_nonzero
+#print JSP000334.binary_pattern_value_nonzero
+#print axioms JSP000334.binary_pattern_value_nonzero
+#check JSP000334.binary_pattern_local_bounds
+#print JSP000334.binary_pattern_local_bounds
+#print axioms JSP000334.binary_pattern_local_bounds
+#check JSP000334.binary_log_tail_bounds
+#print JSP000334.binary_log_tail_bounds
+#print axioms JSP000334.binary_log_tail_bounds
+#check JSP000334.binaryPatternNorms
+#print JSP000334.binaryPatternNorms
+#print axioms JSP000334.binaryPatternNorms
+#check JSP000334.binary_weighted_source_point
+#print JSP000334.binary_weighted_source_point
+#print axioms JSP000334.binary_weighted_source_point
+#check JSP000334.binaryWeightIndex
+#print JSP000334.binaryWeightIndex
+#print axioms JSP000334.binaryWeightIndex
+#check JSP000334.binaryWeightRaw
+#print JSP000334.binaryWeightRaw
+#print axioms JSP000334.binaryWeightRaw
+#check JSP000334.binaryWeightCandidate
+#print JSP000334.binaryWeightCandidate
+#print axioms JSP000334.binaryWeightCandidate
+#check JSP000334.binaryWeightApprox
+#print JSP000334.binaryWeightApprox
+#print axioms JSP000334.binaryWeightApprox
+#check JSP000334.binary_weight_raw_error
+#print JSP000334.binary_weight_raw_error
+#print axioms JSP000334.binary_weight_raw_error
+#check JSP000334.binary_weight_candidate_balance
+#print JSP000334.binary_weight_candidate_balance
+#print axioms JSP000334.binary_weight_candidate_balance
+#check JSP000334.binary_weight_round_bounds
+#print JSP000334.binary_weight_round_bounds
+#print axioms JSP000334.binary_weight_round_bounds
+#check JSP000334.binaryWeightCandidates
+#print JSP000334.binaryWeightCandidates
+#print axioms JSP000334.binaryWeightCandidates
+#check JSP000334.binary_weight_candidates_finite
+#print JSP000334.binary_weight_candidates_finite
+#print axioms JSP000334.binary_weight_candidates_finite
+#check JSP000334.binary_weight_approx_mem
+#print JSP000334.binary_weight_approx_mem
+#print axioms JSP000334.binary_weight_approx_mem
+#check JSP000334.binary_weighted_fixed_source_point
+#print JSP000334.binary_weighted_fixed_source_point
+#print axioms JSP000334.binary_weighted_fixed_source_point
+#check JSP000334.binaryCoordinateLine
+#print JSP000334.binaryCoordinateLine
+#print axioms JSP000334.binaryCoordinateLine
+#check JSP000334.binaryWeightedForm
+#print JSP000334.binaryWeightedForm
+#print axioms JSP000334.binaryWeightedForm
+#check JSP000334.binaryWeightedLine
+#print JSP000334.binaryWeightedLine
+#print axioms JSP000334.binaryWeightedLine
+#check JSP000334.binaryZeroLines
+#print JSP000334.binaryZeroLines
+#print axioms JSP000334.binaryZeroLines
+#check JSP000334.binary_coordinate_line_proper
+#print JSP000334.binary_coordinate_line_proper
+#print axioms JSP000334.binary_coordinate_line_proper
+#check JSP000334.binary_weighted_line_proper
+#print JSP000334.binary_weighted_line_proper
+#print axioms JSP000334.binary_weighted_line_proper
+#check JSP000334.binary_zero_lines_proper
+#print JSP000334.binary_zero_lines_proper
+#print axioms JSP000334.binary_zero_lines_proper
+#check JSP000334.binary_zero_form_cover
+#print JSP000334.binary_zero_form_cover
+#print axioms JSP000334.binary_zero_form_cover
+#check JSP000334.binary_parameter_selection
+#print JSP000334.binary_parameter_selection
+#print axioms JSP000334.binary_parameter_selection
+#check JSP000334.binary_fixed_source_family
+#print JSP000334.binary_fixed_source_family
+#print axioms JSP000334.binary_fixed_source_family
+#check JSP000334.binary_weighted_source_family_bounded
+#print JSP000334.binary_weighted_source_family_bounded
+#print axioms JSP000334.binary_weighted_source_family_bounded
+#check JSP000334.binary_integer_height_ball_finite
+#print JSP000334.binary_integer_height_ball_finite
+#print axioms JSP000334.binary_integer_height_ball_finite
+#check JSP000334.binaryRationalSpan
+#print JSP000334.binaryRationalSpan
+#print axioms JSP000334.binaryRationalSpan
+#check JSP000334.binary_rational_span_mem
+#print JSP000334.binary_rational_span_mem
+#print axioms JSP000334.binary_rational_span_mem
+#check JSP000334.binary_rational_span_proper
+#print JSP000334.binary_rational_span_proper
+#print axioms JSP000334.binary_rational_span_proper
+#check JSP000334.BinaryWeightedNonexceptional
+#print JSP000334.BinaryWeightedNonexceptional
+#print axioms JSP000334.BinaryWeightedNonexceptional
+#check JSP000334.binary_weighted_solution_height_bound
+#print JSP000334.binary_weighted_solution_height_bound
+#print axioms JSP000334.binary_weighted_solution_height_bound
+#check JSP000334.binary_weighted_allpoint_finite_cover
+#print JSP000334.binary_weighted_allpoint_finite_cover
+#print axioms JSP000334.binary_weighted_allpoint_finite_cover
+#check JSP000334.binary_auxiliary_integer_analytic_contradiction
+#print axioms JSP000334.binary_auxiliary_integer_analytic_contradiction
+#check JSP000334.primitive_pair_height
+#print axioms JSP000334.primitive_pair_height
+#check JSP000334.parameter_sparse_Q
+#print axioms JSP000334.parameter_sparse_Q
+#check JSP000334.parameter_integer_degrees
+#print axioms JSP000334.parameter_integer_degrees
+#check JSP000334.allpoint_finite_parameter_fiber3
+#print axioms JSP000334.allpoint_finite_parameter_fiber3

@@ -1,0 +1,230 @@
+import SubspaceBridge.SourceSelectedSampleUpper10
+import SubspaceBridge.SourceSampleSchmidtExclusion10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M217M206Copied
+open SourceSampling10 OriginalDual10 SourceSelectedSet10 SourceSelectedUpper10 SchmidtNormal10
+
+theorem mixedProduct10_ne_zero_iff (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (M : Fin 10 → ℤ) (s : MixedIndex10) :
+    mixedProduct10 A2 A3 L M s ≠ 0 ↔
+      (L⁻¹.transpose *ᵥ integerReal M) (s 0) ≠ 0 ∧
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) (s 1) ≠ 0 ∧
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) (s 2) ≠ 0 := by
+  simp only [mixedProduct10,mul_ne_zero_iff,abs_ne_zero,norm_ne_zero_iff,and_assoc]
+
+theorem mixedProduct10_int_mul_ne_zero_iff (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (g : ℤ) (hg : g ≠ 0)
+    (M : Fin 10 → ℤ) (s : MixedIndex10) :
+    mixedProduct10 A2 A3 L (fun k => g*M k) s ≠ 0 ↔ mixedProduct10 A2 A3 L M s ≠ 0 := by
+  rw [mixedProduct10_int_mul]
+  have hn := ne_of_gt (zero_lt_one.trans_le (integer_three_place_scalar10 g hg))
+  exact ⟨fun h => (mul_ne_zero_iff.mp h).2,fun h => mul_ne_zero hn h⟩
+
+theorem original_attaining_cofactor_factor10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {c2 c3 : Fin 10 → ℝ} {V : Set ℝ} {v : V → Fin 10 → Fin 10 → ℤ}
+    {c : Fin 3 → Fin 10 → ℝ} {epsilon eta D E B rho : ℝ} {m : ℕ} {hm : 0 < m}
+    (hv : ∀ q : V, LinearIndependent ℝ (fun j => integerReal (v q j)))
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+    (h : Fin m) :
+    ∃ g : ℤ, g ≠ 0 ∧ integerLastDual10 (v (S.data.t h)) = fun i => g*S.data.M h i := by
+  let f : (Fin 10 → ℚ) →ₗ[ℚ] (Fin 10 → ℝ) :=
+    LinearMap.pi (fun i => (Algebra.linearMap ℚ ℝ).comp (LinearMap.proj i))
+  have hvQ : LinearIndependent ℚ (fun j i => (v (S.data.t h) j i : ℚ)) := by
+    apply LinearIndependent.of_comp f
+    convert (hv (S.data.t h)).restrict_scalars' ℚ using 1
+  have hann (j : Fin 9) : (∑ i, S.data.M h i*v (S.data.t h) j.castSucc i) = 0 := by
+    have hk : (fun i => (v (S.data.t h) j.castSucc i : ℚ)) ∈
+        LinearMap.ker (normalForm10 (S.data.M h)) := by
+      rw [S.conditions.original_rational_kernel h]
+      exact Submodule.subset_span ⟨j,rfl⟩
+    have hq : (∑ i, (S.data.M h i : ℚ)*(v (S.data.t h) j.castSucc i : ℚ)) = 0 := hk
+    exact_mod_cast hq
+  have hg := SourcePrimitiveHeight10.primitive_original_cofactor_factor10
+    (v (S.data.t h)) hvQ (S.data.M h) (S.data.a h)
+    (S.conditions.normal_nonzero h) (S.conditions.bezout h) hann
+  exact ⟨_,hg.1,funext hg.2.1⟩
+
+theorem original_cofactor_sample_nonzero10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {c2 c3 : Fin 10 → ℝ} {V : Set ℝ} {v : V → Fin 10 → Fin 10 → ℤ}
+    {c : Fin 3 → Fin 10 → ℝ} {epsilon eta D E B rho : ℝ} {m : ℕ} {hm : 0 < m}
+    (hv : ∀ q : V, LinearIndependent ℝ (fun j => integerReal (v q j)))
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+    (h : Fin m) (s : MixedIndex10)
+    (hn : mixedProduct10 A2 A3 L (integerLastDual10 (v (S.data.t h))) s ≠ 0) :
+    mixedProduct10 A2 A3 L (S.data.M h) s ≠ 0 := by
+  obtain ⟨g,hg,hscale⟩ := original_attaining_cofactor_factor10 hv S h
+  rw [hscale] at hn
+  exact (mixedProduct10_int_mul_ne_zero_iff A2 A3 L g hg (S.data.M h) s).mp hn
+
+end CompoundFeasibility.M217M206Copied
+
+open scoped Classical
+noncomputable section
+namespace CompoundFeasibility.M217M206Copied
+
+theorem unbounded_selected_nonzero_tail10 {ι : Type*} [DecidableEq ι]
+    (U : Set ℝ) (F : U → Finset ι) (P : U → ι → ℝ)
+    (hfail : ¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ F q, P q s = 0) :
+    ¬ BddAbove {q : ℝ | ∃ hq : q ∈ U, ∃ s ∈ F ⟨q,hq⟩, P ⟨q,hq⟩ s ≠ 0} := by
+  rintro ⟨B,hB⟩
+  apply hfail
+  refine ⟨B,?_⟩
+  intro q hq s hs
+  by_contra hn
+  exact (not_le_of_gt hq) (hB ⟨q.property,s,hs,hn⟩)
+
+end CompoundFeasibility.M217M206Copied
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M217M206Copied
+open SourceSampling10 OriginalDual10 SourceSelectedSet10 SourceSelectedUpper10 SchmidtNormal10
+open SourceSchmidtContradiction10
+
+theorem fixed_weight_original_cofactor_eventually_zero10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j))
+    (c2 c3 : Fin 10 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (c : Fin 3 → Fin 10 → ℝ) (hc : ∀ tau i, |c tau i| ≤ 1)
+    (hb : (∑ tau, ∑ i, c tau i) = 0) (hf : ∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5)
+    (epsilon : ℝ) (he : 0 < epsilon) (he1 : epsilon < 1)
+    (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+    (hv : ∀ q, LinearIndependent ℝ (fun j => integerReal (v q j)))
+    (w : (q : V) → Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hw : ∀ q, LinearIndependent ℝ (fun j => integerReal (w q j : Fin 10 → ℤ)))
+    (hflag : ∀ q, minimaFlag10 (fun j => integerReal (v q j)) 9 =
+      minimaFlag10 (fun j => integerReal (w q j : Fin 10 → ℤ)) 9)
+    (hw0 : ∀ q : V, ∀ (j : Fin 9) i, ‖(L *ᵥ integerReal (w q j.castSucc : Fin 10 → ℤ)) i‖ ≤
+      (q.val^5)^(c 0 i-epsilon))
+    (hw2 : ∀ q : V, ∀ (j : Fin 9) i, ‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ
+      (fun k => ((w q j.castSucc : Fin 10 → ℤ) k : ℚ_[2]))) i‖ ≤ (q.val^5)^(c 1 i))
+    (hw3 : ∀ q : V, ∀ (j : Fin 9) i, ‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ
+      (fun k => ((w q j.castSucc : Fin 10 → ℤ) k : ℚ_[3]))) i‖ ≤ (q.val^5)^(c 2 i)) :
+    ∃ B : ℝ, ∀ q : V, B < q.val →
+      ∀ s ∈ roundedSelector10 (q.val^5) (epsilon/2) (fun i => (q.val^5)^(c 0 i)) (c 1) (c 2),
+        mixedProduct10 A2 A3 L (integerLastDual10 (v q)) s = 0 := by
+  by_contra hfail
+  let F := fun q : V => roundedSelector10 (q.val^5) (epsilon/2)
+    (fun i => (q.val^5)^(c 0 i)) (c 1) (c 2)
+  let P := fun (q : V) s => mixedProduct10 A2 A3 L (integerLastDual10 (v q)) s
+  let W : Set ℝ := {q | ∃ hq : q ∈ V, ∃ s ∈ F ⟨q,hq⟩, P ⟨q,hq⟩ s ≠ 0}
+  have hW : ¬ BddAbove W := unbounded_selected_nonzero_tail10 V F P hfail
+  have hWV : W ⊆ V := fun _ h => h.choose
+  let lift : W → V := fun q => ⟨q.val,hWV q.property⟩
+  let vW := fun (q : W) => v (lift q)
+  let wW := fun (q : W) => w (lift q)
+  obtain ⟨K,hK,D,E,hD,hE,haux⟩ := source_auxiliary_samples10 A2 A3 L h2 h3 hL hAlg
+  obtain ⟨eta,heta,_hmargin,m,hm,_hcount,hfamily⟩ := haux c2 c3 W hW vW
+    (fun q => hv (lift q)) wW (fun q => hw (lift q)) (fun q => hflag (lift q))
+    c epsilon he he1 hc hb (fun q => hw0 (lift q)) (fun q => hw2 (lift q)) (fun q => hw3 (lift q))
+  obtain ⟨a,Cu,T,Cs,beta,_ha,_hCu,_hT,_hCs,_hCspos,_hCsone,_hbeta,hresult⟩ :=
+    original_sample_schmidt_exclusion10 A2 A3 L h2 h3 hL hAlg c2 c3 hc2 hc3
+      c (hc 0) hb hf epsilon he
+  obtain ⟨B0,_hB0,_hBpos,_ht,_htu,_hte,_hr,_hrhalf,_hrw,_hw,_hdpos,_hppos,hsamples,hexclude⟩ :=
+    hresult W vW eta D E heta hD m hm hfamily
+  let S := Classical.choice (hsamples B0)
+  have hbad (h : Fin m) : ∃ s ∈ F (lift (S.data.t h)), P (lift (S.data.t h)) s ≠ 0 := by
+    obtain ⟨hq,s,hs,hn⟩ := (S.data.t h).property
+    exact ⟨s,hs,hn⟩
+  choose s hs hn using hbad
+  have hnM (h : Fin m) : mixedProduct10 A2 A3 L (S.data.M h) (s h) ≠ 0 :=
+    original_cofactor_sample_nonzero10 (fun q => hv (lift q)) S h (s h) (hn h)
+  have hnative (h) := (mixedProduct10_ne_zero_iff A2 A3 L (S.data.M h) (s h)).mp (hnM h)
+  exact (hexclude B0 le_rfl S).1 ⟨s,hs,fun h => (hnative h).1,
+    fun h => (hnative h).2.1,fun h => (hnative h).2.2⟩
+
+end CompoundFeasibility.M217M206Copied
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M217M206Copied
+open SourceSampling10 OriginalDual10 SourceSelectedSet10 SourceSelectedUpper10 SchmidtNormal10
+
+theorem original_refined_selected_vanishing10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (ha : ∀ i j, IsAlgebraic ℚ (L i j))
+    : ∃ hLu : IsUnit L,
+    ∀ (c0 c2 c3 : Fin 10 → ℝ) (hc0 : ∀ i, |c0 i| ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) (delta : ℝ) (hd : 0 < delta)
+    (U : Set ℝ) (hU : ¬ BddAbove U) (hQU : ∀ q ∈ U, 1 < q)
+    (u : (q : U) → Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : U, LinearIndependent ℝ (fun i => integerReal (u q i : Fin 10 → ℤ)))
+    (hatt : ∀ (q : U) (i : Fin 10), coordinateGauge10
+      (originalCoordinates10 L hLu q.val (hQU q.val q.property) c0)
+      (integerReal (u q i : Fin 10 → ℤ)) = sourceMinima10 A2 A3 L
+        hLu q.val (hQU q.val q.property) c0 c2 c3 i)
+    (hgap : ∀ q : U, sourceMinima10 A2 A3 L hLu
+      q.val (hQU q.val q.property) c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hLu
+        q.val (hQU q.val q.property) c0 c2 c3 9*q.val^(-delta)),
+    ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+    ∃ epsilon : ℝ, 0 < epsilon ∧ epsilon < 1 ∧
+    ∃ c : Fin 3 → Fin 10 → ℝ, (∀ tau i, |c tau i| ≤ 1) ∧
+      (∑ tau, ∑ i, c tau i) = 0 ∧ (∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5) ∧
+    ∃ B : ℝ, ∀ q : V, B < q.val →
+      ∀ s ∈ roundedSelector10 (q.val^5) (epsilon/2) (fun i => (q.val^5)^(c 0 i)) (c 1) (c 2),
+        mixedProduct10 A2 A3 L
+          (integerLastDual10 (fun j => (u ⟨q.val,hVU q.property⟩ j : Fin 10 → ℤ))) s = 0 ∧
+        ∀ M a : Fin 10 → ℤ, M ≠ 0 → (∑ i, a i*M i) = 1 →
+          (∀ j : Fin 9, (∑ i, M i*(u ⟨q.val,hVU q.property⟩ j.castSucc : Fin 10 → ℤ) i) = 0) →
+          mixedProduct10 A2 A3 L M s = 0 := by
+  have h2u : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2]; exact isUnit_one)
+  have h3u : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3]; exact isUnit_one)
+  have hLu : IsUnit L := (Matrix.isUnit_iff_isUnit_det L).mpr (by rw [hLd]; exact isUnit_one)
+  refine ⟨hLu,?_⟩
+  intro c0 c2 c3 hc0 hc2 hc3 hb delta hd U hU hQU u hu hatt hgap
+  obtain ⟨V,hVU,hV,epsilon,he,he1,c,hc,hbalance,hfinite,hframes⟩ :=
+    source_original_fixed_weight_family10 A2 A3 L h2u h3u hLu c0 c2 c3 hc0 hc2 hc3
+      hb delta hd U hU hQU u hu hatt hgap
+  choose w hw hflag hw0 hw2 hw3 using hframes
+  let v := fun (q : V) j => (u ⟨q.val,hVU q.property⟩ j : Fin 10 → ℤ)
+  have hv (q : V) : LinearIndependent ℝ (fun j => integerReal (v q j)) := hu ⟨q.val,hVU q.property⟩
+  obtain ⟨B,hzero⟩ := fixed_weight_original_cofactor_eventually_zero10 A2 A3 L h2 h3 hLd ha
+    c2 c3 (fun i => (hc2 i).2) (fun i => (hc3 i).2) c hc hbalance hfinite epsilon he he1
+    V v hv w hw hflag hw0 hw2 hw3
+  refine ⟨V,hVU,hV,epsilon,he,he1,c,hc,hbalance,hfinite,B,?_⟩
+  intro q hq s hs
+  have hz := hzero q hq s hs
+  refine ⟨hz,?_⟩
+  intro M a hM hbez hann
+  let f : (Fin 10 → ℚ) →ₗ[ℚ] (Fin 10 → ℝ) :=
+    LinearMap.pi (fun i => (Algebra.linearMap ℚ ℝ).comp (LinearMap.proj i))
+  have hvQ : LinearIndependent ℚ (fun j i => (v q j i : ℚ)) := by
+    apply LinearIndependent.of_comp f
+    convert (hv q).restrict_scalars' ℚ using 1
+  obtain ⟨hg,hscale,_hgcd⟩ := SourcePrimitiveHeight10.primitive_original_cofactor_factor10
+    (v q) hvQ M a hM hbez hann
+  by_contra hn
+  have hn' := (mixedProduct10_int_mul_ne_zero_iff A2 A3 L _ hg M s).mpr hn
+  have heq : integerLastDual10 (v q) = fun i => (∑ i, a i*integerLastDual10 (v q) i)*M i := funext hscale
+  rw [← heq] at hn'
+  exact hn' hz
+
+end CompoundFeasibility.M217M206Copied
+
+#print CompoundFeasibility.M217M206Copied.mixedProduct10_ne_zero_iff
+#print axioms CompoundFeasibility.M217M206Copied.mixedProduct10_ne_zero_iff
+
+#print CompoundFeasibility.M217M206Copied.mixedProduct10_int_mul_ne_zero_iff
+#print axioms CompoundFeasibility.M217M206Copied.mixedProduct10_int_mul_ne_zero_iff
+
+#print CompoundFeasibility.M217M206Copied.original_attaining_cofactor_factor10
+#print axioms CompoundFeasibility.M217M206Copied.original_attaining_cofactor_factor10
+
+#print CompoundFeasibility.M217M206Copied.original_cofactor_sample_nonzero10
+#print axioms CompoundFeasibility.M217M206Copied.original_cofactor_sample_nonzero10
+
+#print CompoundFeasibility.M217M206Copied.unbounded_selected_nonzero_tail10
+#print axioms CompoundFeasibility.M217M206Copied.unbounded_selected_nonzero_tail10
+
+#print CompoundFeasibility.M217M206Copied.fixed_weight_original_cofactor_eventually_zero10
+#print axioms CompoundFeasibility.M217M206Copied.fixed_weight_original_cofactor_eventually_zero10
+
+#print CompoundFeasibility.M217M206Copied.original_refined_selected_vanishing10
+#print axioms CompoundFeasibility.M217M206Copied.original_refined_selected_vanishing10

@@ -1,0 +1,346 @@
+import SubspaceBridge.SourceCompoundGap52_239
+import SubspaceBridge.SchmidtNormal10
+import SubspaceBridge.OriginalDual10
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M241Literal
+open Exterior52_237 Exterior52_238 ExteriorGap52_239
+
+theorem unique_pair_top241 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i)
+    (hm : Monotone a) (h23 : a 2 < a 3) (s : Fin 10) (hs : s ≠ 9) :
+    a (lo237 s)*a (hi237 s) < a 3*a 4 := by
+  have bounds : ∀ s : Fin 10, s ≠ 9 → lo237 s ≤ (2 : Fin 5) ∧ hi237 s ≤ (4 : Fin 5) := by decide
+  exact (mul_le_mul (hm (bounds s hs).1) (hm (bounds s hs).2) (ha _).le (ha _).le).trans_lt
+    (mul_lt_mul_of_pos_right h23 (ha 4))
+
+theorem pairOrder_last241 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i)
+    (hm : Monotone a) (Q delta : ℝ) (hQ : 1 < Q) (hd : 0 < delta)
+    (hg : a 2 < a 3*Q^(-delta)) : pairOrder239 a 9 = 9 := by
+  have h23 : a 2 < a 3 := hg.trans_le (by
+    simpa only [mul_one] using mul_le_mul_of_nonneg_left
+      (Real.rpow_le_one_of_one_le_of_nonpos hQ.le (by linarith : -delta ≤ 0)) (ha 3).le)
+  by_contra h
+  have hs := unique_pair_top241 a ha hm h23 _ h
+  have he := (pairProducts_top239 a ha hm).2
+  exact (ne_of_lt hs) he
+
+theorem pairOrder_first_nine241 (a : Fin 5 → ℝ) (hlast : pairOrder239 a 9 = 9)
+    (s : Fin 10) : (∃ j : Fin 9, pairOrder239 a j.castSucc = s) ↔ s ≠ 9 := by
+  constructor
+  · rintro ⟨j,rfl⟩ he
+    have hj := (pairOrder239 a).injective (he.trans hlast.symm)
+    have hv : j.val = 9 := congrArg Fin.val hj
+    have := j.isLt
+    omega
+  · intro hs
+    let k := (pairOrder239 a).symm s
+    have hk : k ≠ 9 := by
+      intro h
+      have hh := (pairOrder239 a).apply_symm_apply s
+      change pairOrder239 a k = s at hh
+      rw [h,hlast] at hh
+      exact hs hh.symm
+    have hlt : k.val < 9 := by
+      have := k.isLt
+      have hn : k.val ≠ 9 := fun h => hk (Fin.ext h)
+      omega
+    refine ⟨⟨k.val,hlt⟩,?_⟩
+    change pairOrder239 a k = s
+    exact (pairOrder239 a).apply_symm_apply s
+
+end CompoundFeasibility.M241Literal
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M241Literal
+open Exterior52_237 Exterior52_238 ExteriorGap52_239
+
+theorem short_wedge_cutoff241 (kappa delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ Q : ℝ, T < Q → 2/kappa < Q^(delta/2) :=
+  compound_gap_cutoff42 (2/kappa) delta hd
+
+theorem short_pair_bound241 (mu nu : Fin 10 → ℝ) (kappa Q delta : ℝ)
+    (hk : 0 < kappa) (hQ : 1 < Q) (hm : 0 < mu 8)
+    (hcomp : kappa*mu 8 ≤ nu 8)
+    (hgap : nu 8 < nu 9*(Q^2)^(-delta/4))
+    (hcut : 2/kappa < Q^(delta/2)) : 2*mu 8 < nu 9 := by
+  have ht := Real.rpow_pos_of_pos (zero_lt_one.trans hQ) (delta/2)
+  have he : Q^(-delta/2)*Q^(delta/2) = 1 := by
+    rw [← Real.rpow_add (zero_lt_one.trans hQ)]
+    convert Real.rpow_zero Q using 1 <;> congr 1 <;> ring
+  rw [← powered_gap_exponent239 Q delta hQ] at hgap
+  have hn := mul_lt_mul_of_pos_right hgap ht
+  rw [mul_assoc,he,mul_one] at hn
+  have hc : 2 < Q^(delta/2)*kappa := (div_lt_iff₀ hk).mp hcut
+  calc
+    2*mu 8 < (Q^(delta/2)*kappa)*mu 8 := mul_lt_mul_of_pos_right hc hm
+    _ = (kappa*mu 8)*Q^(delta/2) := by ring
+    _ ≤ nu 8*Q^(delta/2) := mul_le_mul_of_nonneg_right hcomp ht.le
+    _ < nu 9 := hn
+
+theorem actual_short_wedges241
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (hshort : 2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) 8 <
+      compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 9) :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+      (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+      let z := orderedWedge239 (fun i => (u i : Fin 5 → ℤ)) (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3)
+      (∀ j, z j ∈ directGroup238 A2 A3 Q c2 c3) ∧
+      LinearIndependent ℝ (fun j => integerReal (z j)) ∧
+      ∀ j : Fin 9, coordinateGauge10 (originalCoordinates10 (compound237 L) (compound_unit238 L hL)
+        (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0)) (integerReal (z j.castSucc)) <
+          compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 9 := by
+  obtain ⟨u,hu,ha,hm,hi,hb,hg⟩ := actual_wedge_frame239 A2 A3 L hL Q hQ c0 c2 c3
+  refine ⟨u,hu,ha,hm,hi,?_⟩
+  intro j
+  exact (hg j.castSucc).trans_lt ((mul_le_mul_of_nonneg_left
+    (pairProducts_mono239 _ (show j.castSucc ≤ (8 : Fin 10) by change j.val ≤ 8; omega))
+    (by norm_num : (0 : ℝ) ≤ 2)).trans_lt hshort)
+
+variable (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+  (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ)
+
+theorem sourceMinima10_short_span241 (v : Fin 9 → Fin 10 → ℝ)
+    (hv : LinearIndependent ℝ v)
+    (hvL : ∀ j, v j ∈ integerRealImage (originalSourceGroup10 A2 A3 Q c2 c3))
+    (hvg : ∀ j, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) (v j) <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9)
+    (z : Fin 10 → ℝ) (hz : z ∈ integerRealImage (originalSourceGroup10 A2 A3 Q c2 c3))
+    (hzg : coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) z <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9) :
+    z ∈ Submodule.span ℝ (Set.range v) := by
+  classical
+  by_contra hout
+  let w : Fin 10 → Fin 10 → ℝ := Fin.snoc v z
+  have hi : LinearIndependent ℝ w := linearIndependent_fin_snoc.mpr ⟨hv,hout⟩
+  have hwL : ∀ i, w i ∈ integerRealImage (originalSourceGroup10 A2 A3 Q c2 c3) := by
+    intro i
+    refine Fin.lastCases ?_ (fun j => ?_) i
+    · simpa only [w,Fin.snoc_last] using hz
+    · simpa only [w,Fin.snoc_castSucc] using hvL j
+  have hwg : ∀ i, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) (w i) <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9 := by
+    intro i
+    refine Fin.lastCases ?_ (fun j => ?_) i
+    · simpa only [w,Fin.snoc_last] using hzg
+    · simpa only [w,Fin.snoc_castSucc] using hvg j
+  obtain ⟨i,_,hmax⟩ := Finset.exists_max_image Finset.univ
+    (fun i => coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) (w i)) Finset.univ_nonempty
+  have hle := (sourceMinima10_radius_set_properties A2 A3 L hL Q hQ c0 c2 c3 9).2.2.2
+    ⟨w,hi,hwL,fun j => hmax j (Finset.mem_univ j)⟩
+  exact (not_lt_of_ge hle) (hwg i)
+
+end CompoundFeasibility.M241Literal
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M241Literal
+open SchmidtNormal10 OriginalDual10
+
+variable (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+  (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ)
+
+theorem attaining_short_span241 (w : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3)
+    (hw : LinearIndependent ℝ (fun i => integerReal (w i : Fin 10 → ℤ)))
+    (hatt : ∀ i, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0)
+      (integerReal (w i : Fin 10 → ℤ)) = sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 i)
+    (hgap : sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9)
+    (z : Fin 10 → ℤ) (hz : z ∈ originalSourceGroup10 A2 A3 Q c2 c3)
+    (hzg : coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) (integerReal z) <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9) :
+    integerReal z ∈ Submodule.span ℝ (Set.range (fun j : Fin 9 => integerReal (w j.castSucc : Fin 10 → ℤ))) := by
+  apply sourceMinima10_short_span241 A2 A3 L hL Q hQ c0 c2 c3 _
+    (hw.comp (fun j : Fin 9 => j.castSucc) (Fin.castSucc_injective _))
+  · intro j
+    exact ⟨(w j.castSucc : Fin 10 → ℤ),(w j.castSucc).property,rfl⟩
+  · intro j
+    change coordinateGauge10 (originalCoordinates10 L hL Q hQ c0)
+      (integerReal (w j.castSucc : Fin 10 → ℤ)) < _
+    rw [hatt]
+    exact ((sourceMinima10_pos_mono A2 A3 L hL Q hQ c0 c2 c3).2
+      (show j.castSucc ≤ (8 : Fin 10) by change j.val ≤ 8; omega)).trans_lt hgap
+  · exact ⟨z,hz,rfl⟩
+  · exact hzg
+
+theorem first_nine_span_eq241
+    (w : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3)
+    (hw : LinearIndependent ℝ (fun i => integerReal (w i : Fin 10 → ℤ)))
+    (hatt : ∀ i, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0)
+      (integerReal (w i : Fin 10 → ℤ)) = sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 i)
+    (hgap : sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9)
+    (v : Fin 9 → originalSourceGroup10 A2 A3 Q c2 c3)
+    (hv : LinearIndependent ℝ (fun j => integerReal (v j : Fin 10 → ℤ)))
+    (hvg : ∀ j, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0)
+      (integerReal (v j : Fin 10 → ℤ)) < sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9) :
+    Submodule.span ℝ (Set.range (fun j => integerReal (v j : Fin 10 → ℤ))) =
+      Submodule.span ℝ (Set.range (fun j : Fin 9 => integerReal (w j.castSucc : Fin 10 → ℤ))) := by
+  apply Submodule.eq_of_le_of_finrank_eq
+  · apply Submodule.span_le.mpr
+    rintro _ ⟨j,rfl⟩
+    exact attaining_short_span241 A2 A3 L hL Q hQ c0 c2 c3 w hw hatt hgap _ (v j).property (hvg j)
+  · exact (finrank_span_eq_card hv).trans (finrank_span_eq_card
+      (hw.comp (fun j : Fin 9 => j.castSucc) (Fin.castSucc_injective _))).symm
+
+end CompoundFeasibility.M241Literal
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M241Literal
+open SchmidtNormal10 OriginalDual10
+
+def realNormal241 (b : Fin 10 → ℤ) : Module.Dual ℝ (Fin 10 → ℝ) :=
+  ∑ i, (b i : ℝ) • LinearMap.proj i
+
+theorem realNormal_cast241 (b x : Fin 10 → ℤ) :
+    realNormal241 b (integerReal x) = (normalForm10 b (fun i => (x i : ℚ)) : ℝ) := by
+  simp [realNormal241,normalForm10_apply,integerReal]
+
+theorem fixed_normal_first_nine241 (w : Fin 10 → Fin 10 → ℚ)
+    (hw : LinearIndependent ℚ w) (b : Fin 10 → ℤ)
+    (hline : Submodule.span ℚ {lastDual10 w hw} = Submodule.span ℚ {fun i => (b i : ℚ)}) :
+    ∀ j : Fin 9, normalForm10 b (w j.castSucc) = 0 := by
+  have hm : (fun i => (b i : ℚ)) ∈ Submodule.span ℚ {lastDual10 w hw} := by
+    rw [hline]
+    exact Submodule.subset_span (Set.mem_singleton _)
+  obtain ⟨a,ha⟩ := Submodule.mem_span_singleton.mp hm
+  have he : normalForm10 b = a • rationalFrameDual42 w hw 9 := by
+    apply LinearMap.ext
+    intro x
+    rw [normalForm10_apply,LinearMap.smul_apply,functional_coordinates10
+      (rationalFrameDual42 w hw 9) x]
+    simp only [smul_eq_mul,Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro i _
+    have hi := congrFun ha i
+    change a*lastDual10 w hw i = (b i : ℚ) at hi
+    rw [← hi]
+    dsimp [lastDual10]
+    ring
+  intro j
+  rw [he,LinearMap.smul_apply,rationalFrameDual42_pairing,if_neg]
+  · simp
+  · intro h
+    have hj : j.val = 9 := congrArg Fin.val h
+    have := j.isLt
+    omega
+
+theorem rational_annihilation_from_real_span241 (w : Fin 10 → Fin 10 → ℤ)
+    (hw : LinearIndependent ℚ (fun j i => (w j i : ℚ))) (b : Fin 10 → ℤ)
+    (hline : Submodule.span ℚ {lastDual10 (fun j i => (w j i : ℚ)) hw} =
+      Submodule.span ℚ {fun i => (b i : ℚ)}) (z : Fin 10 → ℤ)
+    (hz : integerReal z ∈ Submodule.span ℝ (Set.range (fun j : Fin 9 => integerReal (w j.castSucc)))) :
+    normalForm10 b (fun i => (z i : ℚ)) = 0 := by
+  have hker : Submodule.span ℝ (Set.range (fun j : Fin 9 => integerReal (w j.castSucc))) ≤
+      LinearMap.ker (realNormal241 b) := by
+    apply Submodule.span_le.mpr
+    rintro _ ⟨j,rfl⟩
+    change realNormal241 b (integerReal (w j.castSucc)) = 0
+    rw [realNormal_cast241,fixed_normal_first_nine241 _ hw b hline j,Rat.cast_zero]
+  have h := hker hz
+  change realNormal241 b (integerReal z) = 0 at h
+  rw [realNormal_cast241] at h
+  exact_mod_cast h
+
+end CompoundFeasibility.M241Literal
+
+#check CompoundFeasibility.M241Literal.unique_pair_top241
+#print axioms CompoundFeasibility.M241Literal.unique_pair_top241
+#check CompoundFeasibility.M241Literal.pairOrder_last241
+#print axioms CompoundFeasibility.M241Literal.pairOrder_last241
+#check CompoundFeasibility.M241Literal.pairOrder_first_nine241
+#print axioms CompoundFeasibility.M241Literal.pairOrder_first_nine241
+#check CompoundFeasibility.M241Literal.short_wedge_cutoff241
+#print axioms CompoundFeasibility.M241Literal.short_wedge_cutoff241
+#check CompoundFeasibility.M241Literal.short_pair_bound241
+#print axioms CompoundFeasibility.M241Literal.short_pair_bound241
+#check CompoundFeasibility.M241Literal.actual_short_wedges241
+#print axioms CompoundFeasibility.M241Literal.actual_short_wedges241
+#check CompoundFeasibility.M241Literal.sourceMinima10_short_span241
+#print axioms CompoundFeasibility.M241Literal.sourceMinima10_short_span241
+#check CompoundFeasibility.M241Literal.attaining_short_span241
+#print axioms CompoundFeasibility.M241Literal.attaining_short_span241
+#check CompoundFeasibility.M241Literal.first_nine_span_eq241
+#print axioms CompoundFeasibility.M241Literal.first_nine_span_eq241
+#check CompoundFeasibility.M241Literal.realNormal241
+#print axioms CompoundFeasibility.M241Literal.realNormal241
+#check CompoundFeasibility.M241Literal.realNormal_cast241
+#print axioms CompoundFeasibility.M241Literal.realNormal_cast241
+#check CompoundFeasibility.M241Literal.fixed_normal_first_nine241
+#print axioms CompoundFeasibility.M241Literal.fixed_normal_first_nine241
+#check CompoundFeasibility.M241Literal.rational_annihilation_from_real_span241
+#print axioms CompoundFeasibility.M241Literal.rational_annihilation_from_real_span241
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.M241Literal
+open CompoundFeasibility.ExteriorGap52_239 CompoundFeasibility.Exterior52_237
+open CompoundFeasibility.SchmidtNormal10 CompoundFeasibility.OriginalDual10
+namespace M241LiteralChallenge
+
+theorem original_pair_order241 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (delta : ℝ) (hd : 0 < delta)
+    (hg : sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 2 <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3*Q^(-delta)) :
+    pairOrder239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) 9 = 9 ∧
+      ∀ s : Fin 10, (∃ j : Fin 9,
+        pairOrder239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j.castSucc = s) ↔ s ≠ 9 := by
+  have hp := sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3
+  have he := pairOrder_last241 _ hp.1 hp.2 Q delta hQ hd hg
+  exact ⟨he,pairOrder_first_nine241 _ he⟩
+
+theorem actual_pair_short241 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (kappa delta : ℝ) (hk : 0 < kappa)
+    (hcomp : kappa*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) 8 ≤
+      compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 8)
+    (hgap : compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 9*(Q^2)^(-delta/4))
+    (hcut : 2/kappa < Q^(delta/2)) :
+    2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) 8 <
+      compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 9 := by
+  exact short_pair_bound241 _ _ kappa Q delta hk hQ
+    (pairProducts_pos239 _ (sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3).1 8)
+    hcomp hgap hcut
+
+variable (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+  (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ)
+
+theorem expanded_short_span241 (v : Fin 9 → Fin 10 → ℝ)
+    (hv : LinearIndependent ℝ v)
+    (hvL : ∀ j, v j ∈ integerRealImage (originalSourceGroup10 A2 A3 Q c2 c3))
+    (hvg : ∀ j, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) (v j) <
+      sInf {r : ℝ | ∃ u : Fin 10 → (Fin 10 → ℝ), LinearIndependent ℝ u ∧
+      (∀ i, u i ∈ integerRealImage (originalSourceGroup10 A2 A3 Q c2 c3)) ∧
+      ∀ i, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) (u i) ≤ r})
+    (z : Fin 10 → ℝ) (hz : z ∈ integerRealImage (originalSourceGroup10 A2 A3 Q c2 c3))
+    (hzg : coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) z <
+      sInf {r : ℝ | ∃ u : Fin 10 → (Fin 10 → ℝ), LinearIndependent ℝ u ∧
+      (∀ i, u i ∈ integerRealImage (originalSourceGroup10 A2 A3 Q c2 c3)) ∧
+      ∀ i, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0) (u i) ≤ r}) :
+    z ∈ Submodule.span ℝ (Set.range v) := by
+  exact sourceMinima10_short_span241 A2 A3 L hL Q hQ c0 c2 c3 v hv hvL hvg z hz hzg
+
+theorem rational_sum_transport241 (w : Fin 10 → Fin 10 → ℤ)
+    (hw : LinearIndependent ℚ (fun j i => (w j i : ℚ))) (b : Fin 10 → ℤ)
+    (hline : Submodule.span ℚ {lastDual10 (fun j i => (w j i : ℚ)) hw} =
+      Submodule.span ℚ {fun i => (b i : ℚ)}) (z : Fin 10 → ℤ)
+    (hz : integerReal z ∈ Submodule.span ℝ (Set.range (fun j : Fin 9 => integerReal (w j.castSucc)))) :
+    (∑ i, (b i : ℚ)*(z i : ℚ)) = 0 := by
+  simpa only [normalForm10_apply] using rational_annihilation_from_real_span241 w hw b hline z hz
+
+end M241LiteralChallenge
+#check M241LiteralChallenge.original_pair_order241
+#print axioms M241LiteralChallenge.original_pair_order241
+#check M241LiteralChallenge.actual_pair_short241
+#print axioms M241LiteralChallenge.actual_pair_short241
+#check M241LiteralChallenge.expanded_short_span241
+#print axioms M241LiteralChallenge.expanded_short_span241
+#check M241LiteralChallenge.rational_sum_transport241
+#print axioms M241LiteralChallenge.rational_sum_transport241

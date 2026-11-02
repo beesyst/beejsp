@@ -1,0 +1,177 @@
+import SubspaceBridge.BinaryKernelPrimitive2
+import SubspaceBridge.BinaryKernelDehom2
+import SubspaceBridge.BinaryKernelNonvanishing2
+import SubspaceBridge.BinaryLocalCore2
+import SubspaceBridge.BinaryLocalIndex2
+import SubspaceBridge.BinaryLocalMass2
+import SubspaceBridge.BinaryIntegerBridge2
+open scoped BigOperators Classical Matrix
+namespace RawR3
+open JSP000334
+abbrev Vars (m : ℕ) := Fin m × Fin 2
+abbrev Grid {m : ℕ} (r : Fin m → ℕ) := (h : Fin m) → Fin (r h+1)
+abbrev Bad {m : ℕ} (r : Fin m → ℕ) (eta : ℝ) :=
+  {b : Grid r // (∑ h, ((b h).val : ℝ)/(r h : ℝ)) < (1/2-eta)*m}
+abbrev Equations {m : ℕ} (r : Fin m → ℕ) (eta : ℝ) := (Fin 3 × Fin 2) × Bad r eta
+
+def Homogeneous {m : ℕ} (r : Fin m → ℕ) (P : MvPolynomial (Vars m) ℤ) : Prop :=
+  ∀ e, P.coeff e ≠ 0 → ∀ h, e (h,0)+e (h,1) = r h
+
+noncomputable def Height {m : ℕ} (P : MvPolynomial (Vars m) ℤ) : ℕ :=
+  P.support.sup (fun e => (P.coeff e).natAbs)
+
+noncomputable def Derivative {m : ℕ} (J : Vars m →₀ ℕ) (P : MvPolynomial (Vars m) ℤ) :
+    MvPolynomial (Vars m) ℤ :=
+  P.sum (fun e c => MvPolynomial.monomial (e-J)
+    (c*(∏ u : Vars m, (Nat.choose (e u) (J u) : ℤ))))
+
+noncomputable def Chart {m : ℕ} (V : Fin m → Fin 2 → ℤ) (k : Fin m → Fin 2)
+    (u : Vars m) : MvPolynomial (Vars m) ℚ :=
+  if u.2=k u.1 then
+    MvPolynomial.C (-(V u.1 (k u.1).rev : ℚ)/(V u.1 (k u.1) : ℚ))*MvPolynomial.X (u.1,(k u.1).rev)
+  else MvPolynomial.X u
+
+noncomputable def Restriction {m : ℕ} (V : Fin m → Fin 2 → ℤ) (k : Fin m → Fin 2)
+    (P : MvPolynomial (Vars m) ℤ) : MvPolynomial (Vars m) ℚ :=
+  MvPolynomial.eval₂ (Int.castRingHom (MvPolynomial (Vars m) ℚ)) (Chart V k) P
+
+def Index {m : ℕ} (r : Fin m → ℕ) (V : Fin m → Fin 2 → ℤ)
+    (T : ℝ) (P : MvPolynomial (Vars m) ℤ) : Prop :=
+  ∀ J : Vars m →₀ ℕ, (∑ h, ((J (h,0) : ℝ)+(J (h,1) : ℝ))/(r h : ℝ)) < T →
+    ∀ k : Fin m → Fin 2, (∀ h, V h (k h) ≠ 0) → Restriction V k (Derivative J P) = 0
+
+theorem chart_eq {m : ℕ} (V : Fin m → Fin 2 → ℤ) (k : Fin m → Fin 2) (u : Vars m) :
+    Chart V k u = binaryKernelChart V k u := by
+  rcases u with ⟨h,j⟩
+  generalize hk : k h = q
+  fin_cases q <;> fin_cases j <;> simp [Chart,binaryKernelChart,hk,neg_div,map_neg,neg_mul]
+
+theorem restriction_eq {m : ℕ} (V : Fin m → Fin 2 → ℤ) (k : Fin m → Fin 2)
+    (P : MvPolynomial (Vars m) ℤ) : Restriction V k P = binaryKernelRestriction V k P := by
+  unfold Restriction binaryKernelRestriction
+  congr 1
+  funext u
+  exact chart_eq V k u
+
+
+def NormalHeight (V : Fin 2 → ℤ) : ℕ := max (V 0).natAbs (V 1).natAbs
+
+noncomputable def LocalMatrix (L : Matrix (Fin 2) (Fin 2) ℤ) : Matrix (Fin 2) (Fin 2) ℚ :=
+  fun i j => (L i j : ℚ)
+noncomputable def LocalChart {m : ℕ} (B : Matrix (Fin 2) (Fin 2) ℚ) (u : Vars m) : MvPolynomial (Vars m) ℚ :=
+  MvPolynomial.C (B u.2 0)*MvPolynomial.X (u.1,0)+MvPolynomial.C (B u.2 1)*MvPolynomial.X (u.1,1)
+noncomputable def Expansion {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ) (J : Vars m →₀ ℕ)
+    (P : MvPolynomial (Vars m) ℤ) : MvPolynomial (Vars m) ℚ :=
+  MvPolynomial.eval₂Hom (Int.castRingHom _) (LocalChart (LocalMatrix L)⁻¹) (Derivative J P)
+def Abs (tau : Fin 3) (q : ℚ) : ℝ :=
+  if tau=0 then |(q : ℝ)| else if tau=1 then padicNorm 2 q else padicNorm 3 q
+noncomputable def CoordinateWeight {m : ℕ} (r : Fin m → ℕ) (i : Fin 2) (b : Vars m →₀ ℕ) : ℝ :=
+  ∑ h, (b (h,i) : ℝ)/(r h : ℝ)
+noncomputable def Weight {m : ℕ} (r : Fin m → ℕ) (J : Vars m →₀ ℕ) : ℝ :=
+  ∑ h, ((J (h,0) : ℝ)+(J (h,1) : ℝ))/(r h : ℝ)
+
+theorem homogeneous_eq {m : ℕ} (r : Fin m → ℕ) (P : MvPolynomial (Vars m) ℤ) :
+    Homogeneous r P ↔ binaryBlockHomogeneous r P := by
+  constructor
+  · intro hh e he h
+    simpa only [Fin.sum_univ_two] using hh e (MvPolynomial.mem_support_iff.mp he) h
+  · intro hh e he h
+    simpa only [Fin.sum_univ_two] using hh e (MvPolynomial.mem_support_iff.mpr he) h
+
+theorem expansion_eq {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ) (J : Vars m →₀ ℕ)
+    (P : MvPolynomial (Vars m) ℤ) : Expansion L J P = JSP000334.binaryLocalExpansion L J P := by
+  have he : (LocalChart (m:=m) (LocalMatrix L)⁻¹) = JSP000334.binaryLocalLinearChart (JSP000334.binaryLocalRationalMatrix L)⁻¹ := by
+    funext u
+    simp only [LocalChart,JSP000334.binaryLocalLinearChart,Fin.sum_univ_two]
+    rfl
+  unfold Expansion JSP000334.binaryLocalExpansion
+  rw [he]
+  rfl
+
+theorem primitive_denominator (V : Fin 2 → ℤ) (hn : ∃ i,V i ≠ 0)
+    (hp : Ideal.span (Set.range V) = ⊤) :
+    ∃ k : Fin 2,V k ≠ 0 ∧ Int.gcd (-(V k.rev)) (V k)=1 ∧ (V k).natAbs=NormalHeight V :=
+  JSP000334.binary_primitive_parameters V hn hp
+
+theorem full_nonvanishing :
+∀ (m : ℕ) (hm : 0 < m) (theta Gamma : ℝ),
+    0 < theta → theta < 1/12 → 0 < Gamma → Gamma ≤ 1 →
+    ∀ (r : Fin m → ℕ) (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (Vars m) ℤ),
+    (∀ h, 0 < r h) →
+    (∀ (h : Fin m) (hh : h.val+1 < m),
+      (r ⟨h.val+1,hh⟩ : ℝ) ≤ rothInductionOmega m theta*(r h : ℝ)) →
+    (∀ h, (∃ i, V h i ≠ 0) ∧ Ideal.span (Set.range (V h)) = ⊤) →
+    (∀ h : Fin m, h.val ≠ 0 →
+      Real.rpow (NormalHeight (V ⟨0,hm⟩) : ℝ) ((r ⟨0,hm⟩ : ℝ)*Gamma) ≤
+        (NormalHeight (V h) : ℝ)^r h) →
+    (∀ h, (2 : ℝ)^(3*m) ≤ Real.rpow (NormalHeight (V h) : ℝ) (rothInductionOmega m theta*Gamma)) →
+    P ≠ 0 → Homogeneous r P →
+    (Height P : ℝ) ≤ Real.rpow (NormalHeight (V ⟨0,hm⟩) : ℝ)
+      (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*Gamma) →
+    ∃ (J : Vars m →₀ ℕ) (k : Fin m → Fin 2),
+      Weight r J ≤ theta ∧ (∀ h, V h (k h) ≠ 0) ∧
+        Restriction V k (Derivative J P) ≠ 0 := by
+  intro m hm theta Gamma ht ht' hG hG' r V P hr hsep hrow hgrowth hden hP hhom hheight
+  obtain ⟨J,k,hJ,hk,hne⟩ := JSP000334.binary_kernel_omega65_nonvanishing
+    m hm theta Gamma ht ht' hG hG' r V P hr hsep hrow hgrowth hden hP
+      ((homogeneous_eq r P).mp hhom) hheight
+  refine ⟨J,k,?_,hk,?_⟩
+  · simpa only [Weight,binarySourceDerivativeWeight,Fin.sum_univ_two] using hJ
+  · rw [restriction_eq]
+    exact hne
+
+theorem coefficient_bound {m : ℕ} (r : Fin m → ℕ) (P : MvPolynomial (Vars m) ℤ)
+    (hh : Homogeneous r P) (D : ℝ) (hD : 1 ≤ D) (hH : (Height P : ℝ) ≤ D^(∑ h,r h))
+    (tau : Fin 3) (L : Matrix (Fin 2) (Fin 2) ℤ) (G : ℝ) (hG : 1 ≤ G)
+    (he : ∀ i j, Abs tau ((LocalMatrix L)⁻¹ i j) ≤ G) (J b : Vars m →₀ ℕ) :
+    Abs tau ((Expansion L J P).coeff b) ≤ (8*D*G)^(∑ h,r h) := by
+  rw [expansion_eq]
+  exact JSP000334.binaryLocal_expansion_coeff_bound r P ((homogeneous_eq r P).mp hh) D hD hH tau L G hG he J b
+
+theorem six_form_balance {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h,0<r h)
+    (eta : ℝ) (heta : 0<eta) (L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : ∀ tau,(LocalMatrix (L tau)).det ≠ 0) (P : MvPolynomial (Vars m) ℤ)
+    (hh : Homogeneous r P)
+    (hindex : ∀ tau i,Index r (fun _ => L tau i) ((1/2-eta)*m) P)
+    (J b : Vars m →₀ ℕ) (hJ : Weight r J ≤ 2*eta*m) :
+    ∀ tau,(Expansion (L tau) J P).coeff b ≠ 0 →
+      ∀ i : Fin 2, |CoordinateWeight r i b-(m : ℝ)/2| ≤ 3*m*eta := by
+  have hi (tau : Fin 3) (i : Fin 2) :
+      binarySourceHighIndex r (fun _ => L tau i) ((1/2-eta)*m) P := by
+    intro K hK k hk
+    have hw : Weight r K < (1/2-eta)*m := by
+      simpa only [Weight,binarySourceDerivativeWeight,Fin.sum_univ_two] using hK
+    have hz := hindex tau i K hw k hk
+    rw [restriction_eq] at hz
+    exact hz
+  intro tau hb
+  rw [expansion_eq] at hb
+  have hw : binarySourceDerivativeWeight r J ≤ 2*eta*m := by
+    simpa only [Weight,binarySourceDerivativeWeight,Fin.sum_univ_two] using hJ
+  exact JSP000334.binaryLocal_coefficient_balance r hr eta heta (L tau) (hL tau) P
+    ((homogeneous_eq r P).mp hh) (hi tau) J b hw hb
+end RawR3
+
+#check RawR3.chart_eq
+#print axioms RawR3.chart_eq
+
+#check RawR3.restriction_eq
+#print axioms RawR3.restriction_eq
+
+#check RawR3.homogeneous_eq
+#print axioms RawR3.homogeneous_eq
+
+#check RawR3.expansion_eq
+#print axioms RawR3.expansion_eq
+
+#check RawR3.primitive_denominator
+#print axioms RawR3.primitive_denominator
+
+#check RawR3.full_nonvanishing
+#print axioms RawR3.full_nonvanishing
+
+#check RawR3.coefficient_bound
+#print axioms RawR3.coefficient_bound
+
+#check RawR3.six_form_balance
+#print axioms RawR3.six_form_balance

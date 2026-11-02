@@ -1,0 +1,205 @@
+import SubspaceBridge.SixTermDegeneracy5
+import SubspaceBridge.SixTermProjection5
+import SubspaceBridge.SixTermSource5
+import SubspaceBridge.SixTermFixedFibers5
+import SubspaceBridge.SixTermRatioFibers5
+import SubspaceBridge.SixTermSmallCoefficientFibers5
+import SubspaceBridge.SixTermLargeCoefficientFibers5
+import SubspaceBridge.SixTermCoefficientFiber5
+import SubspaceBridge.SixTermFiniteness5
+import SubspaceBridge.NewmanCompletion
+#check JSP000334.six_term_annihilator_degenerate5
+#print JSP000334.six_term_annihilator_degenerate5
+#print axioms JSP000334.six_term_annihilator_degenerate5
+#check JSP000334.six_term_nondegenerate_coarsen5
+#print JSP000334.six_term_nondegenerate_coarsen5
+#print axioms JSP000334.six_term_nondegenerate_coarsen5
+#check JSP000334.six_term_nondegenerate_coarsen4
+#print JSP000334.six_term_nondegenerate_coarsen4
+#print axioms JSP000334.six_term_nondegenerate_coarsen4
+#check JSP000334.sixTermUnit5
+#print JSP000334.sixTermUnit5
+#print axioms JSP000334.sixTermUnit5
+#check JSP000334.six_term_unit_value5
+#print JSP000334.six_term_unit_value5
+#print axioms JSP000334.six_term_unit_value5
+#check JSP000334.six_term_relation_facts5
+#print JSP000334.six_term_relation_facts5
+#print axioms JSP000334.six_term_relation_facts5
+#check JSP000334.sixTermCoefficientFiber5
+#print JSP000334.sixTermCoefficientFiber5
+#print axioms JSP000334.sixTermCoefficientFiber5
+#check JSP000334.six_term_weighted_triple_projection5
+#print JSP000334.six_term_weighted_triple_projection5
+#print axioms JSP000334.six_term_weighted_triple_projection5
+#check JSP000334.six_term_weighted_pair_projection5
+#print JSP000334.six_term_weighted_pair_projection5
+#print axioms JSP000334.six_term_weighted_pair_projection5
+#check JSP000334.six_term_finite_over_pairs5
+#print JSP000334.six_term_finite_over_pairs5
+#print axioms JSP000334.six_term_finite_over_pairs5
+#check JSP000334.six_term_weighted_quad_projection5
+#print JSP000334.six_term_weighted_quad_projection5
+#print axioms JSP000334.six_term_weighted_quad_projection5
+#check JSP000334.six_term_proper_annihilator5
+#print JSP000334.six_term_proper_annihilator5
+#print axioms JSP000334.six_term_proper_annihilator5
+#check JSP000334.six_term_fixed_1_finite5
+#print JSP000334.six_term_fixed_1_finite5
+#print axioms JSP000334.six_term_fixed_1_finite5
+#check JSP000334.six_term_fixed_2_finite5
+#print JSP000334.six_term_fixed_2_finite5
+#print axioms JSP000334.six_term_fixed_2_finite5
+#check JSP000334.six_term_fixed_3_finite5
+#print JSP000334.six_term_fixed_3_finite5
+#print axioms JSP000334.six_term_fixed_3_finite5
+#check JSP000334.six_term_fixed_4_finite5
+#print JSP000334.six_term_fixed_4_finite5
+#print axioms JSP000334.six_term_fixed_4_finite5
+#check JSP000334.six_term_fixed_12_finite5
+#print JSP000334.six_term_fixed_12_finite5
+#print axioms JSP000334.six_term_fixed_12_finite5
+#check JSP000334.six_term_fixed_13_finite5
+#print JSP000334.six_term_fixed_13_finite5
+#print axioms JSP000334.six_term_fixed_13_finite5
+#check JSP000334.six_term_fixed_14_finite5
+#print JSP000334.six_term_fixed_14_finite5
+#print axioms JSP000334.six_term_fixed_14_finite5
+#check JSP000334.six_term_fixed_23_finite5
+#print JSP000334.six_term_fixed_23_finite5
+#print axioms JSP000334.six_term_fixed_23_finite5
+#check JSP000334.six_term_fixed_24_finite5
+#print JSP000334.six_term_fixed_24_finite5
+#print axioms JSP000334.six_term_fixed_24_finite5
+#check JSP000334.six_term_fixed_34_finite5
+#print JSP000334.six_term_fixed_34_finite5
+#print axioms JSP000334.six_term_fixed_34_finite5
+#check JSP000334.six_term_fixed_123_finite5
+#print JSP000334.six_term_fixed_123_finite5
+#print axioms JSP000334.six_term_fixed_123_finite5
+#check JSP000334.six_term_fixed_124_finite5
+#print JSP000334.six_term_fixed_124_finite5
+#print axioms JSP000334.six_term_fixed_124_finite5
+#check JSP000334.six_term_fixed_134_finite5
+#print JSP000334.six_term_fixed_134_finite5
+#print axioms JSP000334.six_term_fixed_134_finite5
+#check JSP000334.six_term_fixed_234_finite5
+#print JSP000334.six_term_fixed_234_finite5
+#print axioms JSP000334.six_term_fixed_234_finite5
+#check JSP000334.six_term_ratios_12_finite5
+#print JSP000334.six_term_ratios_12_finite5
+#print axioms JSP000334.six_term_ratios_12_finite5
+#check JSP000334.six_term_ratios_13_finite5
+#print JSP000334.six_term_ratios_13_finite5
+#print axioms JSP000334.six_term_ratios_13_finite5
+#check JSP000334.six_term_ratios_14_finite5
+#print JSP000334.six_term_ratios_14_finite5
+#print axioms JSP000334.six_term_ratios_14_finite5
+#check JSP000334.six_term_ratios_23_finite5
+#print JSP000334.six_term_ratios_23_finite5
+#print axioms JSP000334.six_term_ratios_23_finite5
+#check JSP000334.six_term_ratios_24_finite5
+#print JSP000334.six_term_ratios_24_finite5
+#print axioms JSP000334.six_term_ratios_24_finite5
+#check JSP000334.six_term_ratios_34_finite5
+#print JSP000334.six_term_ratios_34_finite5
+#print axioms JSP000334.six_term_ratios_34_finite5
+#check JSP000334.six_term_ratios_123_finite5
+#print JSP000334.six_term_ratios_123_finite5
+#print axioms JSP000334.six_term_ratios_123_finite5
+#check JSP000334.six_term_ratios_124_finite5
+#print JSP000334.six_term_ratios_124_finite5
+#print axioms JSP000334.six_term_ratios_124_finite5
+#check JSP000334.six_term_ratios_134_finite5
+#print JSP000334.six_term_ratios_134_finite5
+#print axioms JSP000334.six_term_ratios_134_finite5
+#check JSP000334.six_term_ratios_234_finite5
+#print JSP000334.six_term_ratios_234_finite5
+#print axioms JSP000334.six_term_ratios_234_finite5
+#check JSP000334.six_term_ratios_1234_finite5
+#print JSP000334.six_term_ratios_1234_finite5
+#print axioms JSP000334.six_term_ratios_1234_finite5
+#check JSP000334.six_term_constant_12_good5
+#print JSP000334.six_term_constant_12_good5
+#print axioms JSP000334.six_term_constant_12_good5
+#check JSP000334.six_term_constant_13_good5
+#print JSP000334.six_term_constant_13_good5
+#print axioms JSP000334.six_term_constant_13_good5
+#check JSP000334.six_term_constant_14_good5
+#print JSP000334.six_term_constant_14_good5
+#print axioms JSP000334.six_term_constant_14_good5
+#check JSP000334.six_term_constant_23_good5
+#print JSP000334.six_term_constant_23_good5
+#print axioms JSP000334.six_term_constant_23_good5
+#check JSP000334.six_term_constant_24_good5
+#print JSP000334.six_term_constant_24_good5
+#print axioms JSP000334.six_term_constant_24_good5
+#check JSP000334.six_term_constant_34_good5
+#print JSP000334.six_term_constant_34_good5
+#print axioms JSP000334.six_term_constant_34_good5
+#check JSP000334.six_term_constant_123_good5
+#print JSP000334.six_term_constant_123_good5
+#print axioms JSP000334.six_term_constant_123_good5
+#check JSP000334.six_term_constant_123_finite5
+#print JSP000334.six_term_constant_123_finite5
+#print axioms JSP000334.six_term_constant_123_finite5
+#check JSP000334.six_term_constant_124_good5
+#print JSP000334.six_term_constant_124_good5
+#print axioms JSP000334.six_term_constant_124_good5
+#check JSP000334.six_term_constant_124_finite5
+#print JSP000334.six_term_constant_124_finite5
+#print axioms JSP000334.six_term_constant_124_finite5
+#check JSP000334.six_term_constant_134_good5
+#print JSP000334.six_term_constant_134_good5
+#print axioms JSP000334.six_term_constant_134_good5
+#check JSP000334.six_term_constant_134_finite5
+#print JSP000334.six_term_constant_134_finite5
+#print axioms JSP000334.six_term_constant_134_finite5
+#check JSP000334.six_term_constant_234_good5
+#print JSP000334.six_term_constant_234_good5
+#print axioms JSP000334.six_term_constant_234_good5
+#check JSP000334.six_term_constant_234_finite5
+#print JSP000334.six_term_constant_234_finite5
+#print axioms JSP000334.six_term_constant_234_finite5
+#check JSP000334.six_term_homogeneous_123_finite5
+#print JSP000334.six_term_homogeneous_123_finite5
+#print axioms JSP000334.six_term_homogeneous_123_finite5
+#check JSP000334.six_term_homogeneous_124_finite5
+#print JSP000334.six_term_homogeneous_124_finite5
+#print axioms JSP000334.six_term_homogeneous_124_finite5
+#check JSP000334.six_term_homogeneous_134_finite5
+#print JSP000334.six_term_homogeneous_134_finite5
+#print axioms JSP000334.six_term_homogeneous_134_finite5
+#check JSP000334.six_term_homogeneous_234_finite5
+#print JSP000334.six_term_homogeneous_234_finite5
+#print axioms JSP000334.six_term_homogeneous_234_finite5
+#check JSP000334.six_term_homogeneous_four_good5
+#print JSP000334.six_term_homogeneous_four_good5
+#print axioms JSP000334.six_term_homogeneous_four_good5
+#check JSP000334.six_term_homogeneous_four_finite5
+#print JSP000334.six_term_homogeneous_four_finite5
+#print axioms JSP000334.six_term_homogeneous_four_finite5
+#check JSP000334.six_term_five_good_finite5
+#print JSP000334.six_term_five_good_finite5
+#print axioms JSP000334.six_term_five_good_finite5
+#check JSP000334.six_term_five_coefficients_finite5
+#print JSP000334.six_term_five_coefficients_finite5
+#print axioms JSP000334.six_term_five_coefficients_finite5
+#check JSP000334.six_term_coefficient_fiber_finite5
+#print JSP000334.six_term_coefficient_fiber_finite5
+#print axioms JSP000334.six_term_coefficient_fiber_finite5
+#check JSP000334.sixTermProperFiber5
+#print JSP000334.sixTermProperFiber5
+#print axioms JSP000334.sixTermProperFiber5
+#check JSP000334.six_term_proper_fiber_finite5
+#print JSP000334.six_term_proper_fiber_finite5
+#print axioms JSP000334.six_term_proper_fiber_finite5
+#check JSP000334.fixed_six_term_finite
+#print JSP000334.fixed_six_term_finite
+#print axioms JSP000334.fixed_six_term_finite
+#check JSP000334.fixed_sunit_finiteness_complete
+#print JSP000334.fixed_sunit_finiteness_complete
+#print axioms JSP000334.fixed_sunit_finiteness_complete
+#check JSP000334.newman_conjecture_complete
+#print JSP000334.newman_conjecture_complete
+#print axioms JSP000334.newman_conjecture_complete

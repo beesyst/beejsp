@@ -1,0 +1,78 @@
+import SubspaceBridge.BoundedWeights4
+set_option pp.all true
+
+#check CompoundFeasibility.BoundedWeights4.scaledWeights4
+#print CompoundFeasibility.BoundedWeights4.scaledWeights4
+#print axioms CompoundFeasibility.BoundedWeights4.scaledWeights4
+
+#check CompoundFeasibility.BoundedWeights4.exists_weight_bound4
+#print CompoundFeasibility.BoundedWeights4.exists_weight_bound4
+#print axioms CompoundFeasibility.BoundedWeights4.exists_weight_bound4
+
+#check CompoundFeasibility.BoundedWeights4.scaledWeights4_conditions
+#print CompoundFeasibility.BoundedWeights4.scaledWeights4_conditions
+#print axioms CompoundFeasibility.BoundedWeights4.scaledWeights4_conditions
+
+#check CompoundFeasibility.BoundedWeights4.power_gt_one4
+#print CompoundFeasibility.BoundedWeights4.power_gt_one4
+#print axioms CompoundFeasibility.BoundedWeights4.power_gt_one4
+
+#check CompoundFeasibility.BoundedWeights4.scaled_power4
+#print CompoundFeasibility.BoundedWeights4.scaled_power4
+#print axioms CompoundFeasibility.BoundedWeights4.scaled_power4
+
+#check CompoundFeasibility.BoundedWeights4.scaled_body4
+#print CompoundFeasibility.BoundedWeights4.scaled_body4
+#print axioms CompoundFeasibility.BoundedWeights4.scaled_body4
+
+#check CompoundFeasibility.BoundedWeights4.scaled_coordinates4
+#print CompoundFeasibility.BoundedWeights4.scaled_coordinates4
+#print axioms CompoundFeasibility.BoundedWeights4.scaled_coordinates4
+
+#check CompoundFeasibility.BoundedWeights4.scaled_threshold4
+#print CompoundFeasibility.BoundedWeights4.scaled_threshold4
+#print axioms CompoundFeasibility.BoundedWeights4.scaled_threshold4
+
+#check CompoundFeasibility.BoundedWeights4.scaled_ceiling4
+#print CompoundFeasibility.BoundedWeights4.scaled_ceiling4
+#print axioms CompoundFeasibility.BoundedWeights4.scaled_ceiling4
+
+#check CompoundFeasibility.BoundedWeights4.scaled_group4
+#print CompoundFeasibility.BoundedWeights4.scaled_group4
+#print axioms CompoundFeasibility.BoundedWeights4.scaled_group4
+
+#check CompoundFeasibility.BoundedWeights4.scaled_minima4
+#print CompoundFeasibility.BoundedWeights4.scaled_minima4
+#print axioms CompoundFeasibility.BoundedWeights4.scaled_minima4
+
+#check CompoundFeasibility.BoundedWeights4.scaled_gap_power4
+#print CompoundFeasibility.BoundedWeights4.scaled_gap_power4
+#print axioms CompoundFeasibility.BoundedWeights4.scaled_gap_power4
+
+#check CompoundFeasibility.BoundedWeights4.powerImage4
+#print CompoundFeasibility.BoundedWeights4.powerImage4
+#print axioms CompoundFeasibility.BoundedWeights4.powerImage4
+
+#check CompoundFeasibility.BoundedWeights4.powerImage4_gt_one
+#print CompoundFeasibility.BoundedWeights4.powerImage4_gt_one
+#print axioms CompoundFeasibility.BoundedWeights4.powerImage4_gt_one
+
+#check CompoundFeasibility.BoundedWeights4.selected_gap_powerImage4
+#print CompoundFeasibility.BoundedWeights4.selected_gap_powerImage4
+#print axioms CompoundFeasibility.BoundedWeights4.selected_gap_powerImage4
+
+#check CompoundFeasibility.BoundedWeights4.powerImage4_unbounded
+#print CompoundFeasibility.BoundedWeights4.powerImage4_unbounded
+#print axioms CompoundFeasibility.BoundedWeights4.powerImage4_unbounded
+
+#check CompoundFeasibility.BoundedWeights4.source_scaled_selected_flag4
+#print CompoundFeasibility.BoundedWeights4.source_scaled_selected_flag4
+#print axioms CompoundFeasibility.BoundedWeights4.source_scaled_selected_flag4
+
+#check CompoundFeasibility.BoundedWeights4.originalPreimage4
+#print CompoundFeasibility.BoundedWeights4.originalPreimage4
+#print axioms CompoundFeasibility.BoundedWeights4.originalPreimage4
+
+#check CompoundFeasibility.BoundedWeights4.originalPreimage4_unbounded
+#print CompoundFeasibility.BoundedWeights4.originalPreimage4_unbounded
+#print axioms CompoundFeasibility.BoundedWeights4.originalPreimage4_unbounded

@@ -1,0 +1,89 @@
+import SubspaceBridge.WeightedPairTransport2
+import SubspaceBridge.WeightedPairCover2
+import SubspaceBridge.WeightedPairLinear2
+open scoped BigOperators Classical Matrix
+namespace RawR6
+open JSP000334
+
+def Primitive (z : Fin 2 → ℤ) : Prop := ∃ c : Fin 2 → ℤ,∑ i,c i*z i=1
+def Height (z : Fin 2 → ℤ) : ℚ := max |(z 0 : ℚ)| |(z 1 : ℚ)|
+def Place (tau : Fin 3) (q : ℚ) : ℚ := ![|q|,padicNorm 2 q,padicNorm 3 q] tau
+def PairHeight (u v : ℚ) : ℚ := ∏ tau : Fin 3,max (Place tau u) (Place tau v)
+def Integral (q : ℚ) : Fin 2 → ℤ := ![(q.den : ℤ),q.num]
+def Solutions (A B C : ℚ) : Set (fixedSUnitGroup × fixedSUnitGroup) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+def Product (B C u v : ℚ) : ℚ :=
+  ∏ tau : Fin 3,(min (Place tau u) (Place tau v)/max (Place tau u) (Place tau v))*
+    (Place tau (B*u+C*v)/max (Place tau u) (Place tau v))
+def RequiredEndpoint : Prop := ∀ A B C : ℚ,A≠0 → B≠0 → C≠0 → (Solutions A B C).Finite
+#check RequiredEndpoint
+theorem source_weighted_pair_primitive_transport : ∀ (u v : fixedSUnitGroup),
+
+    ∃ z : Fin 2 → ℤ, ∃ s : fixedSUnitGroup,
+      z = Integral ((((v/u : fixedSUnitGroup) : ℚˣ) : ℚ)) ∧
+      Primitive z ∧ z 0 ≠ 0 ∧ z 1 ≠ 0 ∧
+      (z 0 : ℚ) = ((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ) ∧
+      (z 1 : ℚ) = ((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ) ∧
+      PairHeight ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ) = Height z :=
+  @JSP000334.weighted_pair_primitive_transport
+
+theorem source_weighted_normalized_sunit_scale2 : ∀ (B C : ℚ) (s : fixedSUnitGroup) (u v : ℚ),
+
+    Product B C (((s : ℚˣ) : ℚ)*u) (((s : ℚˣ) : ℚ)*v) =
+      Product B C u v :=
+  @JSP000334.weighted_normalized_sunit_scale2
+
+theorem source_weighted_pair_descale_mem : ∀ (P : Submodule ℚ (Fin 2 → ℚ))
+    (u v s : fixedSUnitGroup) (z : Fin 2 → ℤ)
+    (h0 : (z 0 : ℚ)=((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))
+    (h1 : (z 1 : ℚ)=((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ))
+    (hz : (fun i => (z i : ℚ)) ∈ P),
+
+    ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] ∈ P :=
+  @JSP000334.weighted_pair_descale_mem
+
+theorem source_weighted_pair_high_product : ∀ (A B C : ℚ) (hA : A≠0) (u v s : fixedSUnitGroup)
+    (z : Fin 2 → ℤ)
+    (he : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)=0)
+    (h0 : (z 0 : ℚ)=((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))
+    (h1 : (z 1 : ℚ)=((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ))
+    (hheight : PairHeight ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ)=Height z)
+    (hH : max 1 ((threePlaceProduct A : ℝ)^2)<(Height z : ℝ)),
+
+    (Product B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (Height z : ℝ) (-(5 : ℝ)/2) :=
+  @JSP000334.weighted_pair_high_product
+
+theorem source_weighted_pair_finite_proper_cover : ∀ (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0),
+
+    ∃ F : Set (Submodule ℚ (Fin 2 → ℚ)), F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ p ∈ Solutions A B C,
+        ∃ P∈F, ![((p.1 : ℚˣ) : ℚ),((p.2 : ℚˣ) : ℚ)] ∈ P :=
+  @JSP000334.weighted_pair_finite_proper_cover
+
+theorem source_binary_proper_annihilator : ∀ (P : Submodule ℚ (Fin 2 → ℚ)) (hP : P ≠ ⊤),
+
+    ∃ b0 b1 : ℚ, (b0 ≠ 0 ∨ b1 ≠ 0) ∧ ∀ x ∈ P, b0*x 0+b1*x 1=0 :=
+  @JSP000334.binary_proper_annihilator
+
+theorem source_weighted_pair_exact_values : ∀ (A B C b0 b1 u v : ℚ)
+    (hd : B*b1-C*b0 ≠ 0) (he : A+B*u+C*v=0) (hl : b0*u+b1*v=0),
+
+    u = -A*b1/(B*b1-C*b0) ∧ v = A*b0/(B*b1-C*b0) :=
+  @JSP000334.weighted_pair_exact_values
+
+end RawR6
+#check RawR6.source_weighted_pair_primitive_transport
+#print axioms RawR6.source_weighted_pair_primitive_transport
+#check RawR6.source_weighted_normalized_sunit_scale2
+#print axioms RawR6.source_weighted_normalized_sunit_scale2
+#check RawR6.source_weighted_pair_descale_mem
+#print axioms RawR6.source_weighted_pair_descale_mem
+#check RawR6.source_weighted_pair_high_product
+#print axioms RawR6.source_weighted_pair_high_product
+#check RawR6.source_weighted_pair_finite_proper_cover
+#print axioms RawR6.source_weighted_pair_finite_proper_cover
+#check RawR6.source_binary_proper_annihilator
+#print axioms RawR6.source_binary_proper_annihilator
+#check RawR6.source_weighted_pair_exact_values
+#print axioms RawR6.source_weighted_pair_exact_values

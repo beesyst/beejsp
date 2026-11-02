@@ -1,0 +1,66 @@
+import SubspaceBridge.CofactorGap3
+import SubspaceBridge.CofactorGapPersistence3
+import SubspaceBridge.CofactorOriginalRankOne3
+#check JSP000334.cofactor_sourceIntegralLattice3
+#print JSP000334.cofactor_sourceIntegralLattice3
+#print axioms JSP000334.cofactor_sourceIntegralLattice3
+#check JSP000334.cofactor_source_davenport_lemma3
+#print JSP000334.cofactor_source_davenport_lemma3
+#print axioms JSP000334.cofactor_source_davenport_lemma3
+#check JSP000334.cofactor_gap_rescaled_lattice3
+#print JSP000334.cofactor_gap_rescaled_lattice3
+#print axioms JSP000334.cofactor_gap_rescaled_lattice3
+#check JSP000334.cofactor_gap_source_product3
+#print JSP000334.cofactor_gap_source_product3
+#print axioms JSP000334.cofactor_gap_source_product3
+#check JSP000334.cofactor_gap_integer_real_lower3
+#print JSP000334.cofactor_gap_integer_real_lower3
+#print axioms JSP000334.cofactor_gap_integer_real_lower3
+#check JSP000334.cofactor_gap_source_first_lower3
+#print JSP000334.cofactor_gap_source_first_lower3
+#print axioms JSP000334.cofactor_gap_source_first_lower3
+#check JSP000334.cofactor_gap_lattice_scale_mem3
+#print JSP000334.cofactor_gap_lattice_scale_mem3
+#print axioms JSP000334.cofactor_gap_lattice_scale_mem3
+#check JSP000334.cofactor_gap_source_last_upper3
+#print JSP000334.cofactor_gap_source_last_upper3
+#print axioms JSP000334.cofactor_gap_source_last_upper3
+#check JSP000334.cofactor_gap_source_integral_lattice3
+#print JSP000334.cofactor_gap_source_integral_lattice3
+#print axioms JSP000334.cofactor_gap_source_integral_lattice3
+#check JSP000334.cofactor_gap_source_davenport3
+#print JSP000334.cofactor_gap_source_davenport3
+#print axioms JSP000334.cofactor_gap_source_davenport3
+#check JSP000334.cofactor_GapDeformedData3
+#print JSP000334.cofactor_GapDeformedData3
+#print axioms JSP000334.cofactor_GapDeformedData3
+#check JSP000334.cofactor_gap_deformed_data3
+#print JSP000334.cofactor_gap_deformed_data3
+#print axioms JSP000334.cofactor_gap_deformed_data3
+#check JSP000334.cofactor_GapSatz51Family3
+#print JSP000334.cofactor_GapSatz51Family3
+#print axioms JSP000334.cofactor_GapSatz51Family3
+#check JSP000334.cofactor_gap_satz51_family3
+#print JSP000334.cofactor_gap_satz51_family3
+#print axioms JSP000334.cofactor_gap_satz51_family3
+#check JSP000334.cofactor_gap_satz51_apply3
+#print JSP000334.cofactor_gap_satz51_apply3
+#print axioms JSP000334.cofactor_gap_satz51_apply3
+#check JSP000334.cofactor_source_gap_satz51_applicable3
+#print JSP000334.cofactor_source_gap_satz51_applicable3
+#print axioms JSP000334.cofactor_source_gap_satz51_applicable3
+#check JSP000334.cofactor_originalPlane_deformed_transport3
+#print JSP000334.cofactor_originalPlane_deformed_transport3
+#print axioms JSP000334.cofactor_originalPlane_deformed_transport3
+#check JSP000334.cofactor_originalPlane_pullback_unbounded3
+#print JSP000334.cofactor_originalPlane_pullback_unbounded3
+#print axioms JSP000334.cofactor_originalPlane_pullback_unbounded3
+#check JSP000334.cofactor_source_fixed_last_dual_under_gap3
+#print JSP000334.cofactor_source_fixed_last_dual_under_gap3
+#print axioms JSP000334.cofactor_source_fixed_last_dual_under_gap3
+#check JSP000334.source_original_fixed_rank1_3
+#print JSP000334.source_original_fixed_rank1_3
+#print axioms JSP000334.source_original_fixed_rank1_3
+#check JSP000334.source_original_fixed_rank1_restricted3
+#print JSP000334.source_original_fixed_rank1_restricted3
+#print axioms JSP000334.source_original_fixed_rank1_restricted3

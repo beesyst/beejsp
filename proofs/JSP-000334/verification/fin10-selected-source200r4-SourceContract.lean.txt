@@ -1,0 +1,26 @@
+import SubspaceBridge.SourceMixedLiouville10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M200R4Contract
+open CompoundFeasibility CompoundFeasibility.SchmidtNormal10 CompoundFeasibility.SourceHeightEnvelope10
+
+theorem source_same_normal_contract10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ C : ℝ, 0 < C ∧ ∃ D : ℕ, ∀ (Q : ℝ) (M : Fin 10 → ℤ) (s : Fin 3 → Fin 10),
+      (L⁻¹.transpose *ᵥ integerReal M) (s 0) ≠ 0 →
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) (s 1) ≠ 0 →
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) (s 2) ≠ 0 →
+      C ≤ |(L⁻¹.transpose *ᵥ integerReal M) (s 0)| *
+        ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) (s 1)‖ *
+        ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) (s 2)‖ *
+        (max 1 (normalHeight10 M : ℝ))^(D+2) := by
+  obtain ⟨C,hC,D,h⟩ := actual_same_normal_mixed_lower10 A2 A3 L h2 h3 hL hAlg
+  refine ⟨C,hC,D,?_⟩
+  intro _Q M s hn0 hn2 hn3
+  exact h M (s 0) (s 1) (s 2) hn0 hn2 hn3
+
+#print source_same_normal_contract10
+#print axioms source_same_normal_contract10
+end M200R4Contract

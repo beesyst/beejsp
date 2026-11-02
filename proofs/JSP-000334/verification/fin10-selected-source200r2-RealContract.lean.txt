@@ -1,0 +1,17 @@
+import SubspaceBridge.SourceRealLiouville10
+open scoped BigOperators Classical Matrix
+namespace M200R2Contract
+open CompoundFeasibility CompoundFeasibility.SchmidtNormal10
+open CompoundFeasibility.SourceHeightEnvelope10
+
+theorem actual_real_lower (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : L.det = 1) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ C : ℝ, 0 < C ∧ ∃ D : ℕ, ∀ i (M : Fin 10 → ℤ),
+      (L⁻¹.transpose *ᵥ integerReal M) i ≠ 0 →
+      C ≤ |(L⁻¹.transpose *ᵥ integerReal M) i| * (max 1 (normalHeight10 M : ℝ))^D := by
+  obtain ⟨C,hC,D,h⟩ := actual_real_dual_liouville10 L hL ha
+  exact ⟨C,hC,D,fun i M hn => h M i hn⟩
+
+#print actual_real_lower
+#print axioms actual_real_lower
+end M200R2Contract

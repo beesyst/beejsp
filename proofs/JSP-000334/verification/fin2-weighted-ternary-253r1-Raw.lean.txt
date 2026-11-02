@@ -1,0 +1,123 @@
+import SubspaceBridge.WeightedTernaryProduct2
+
+
+open scoped BigOperators Matrix
+namespace RawR1
+open JSP000334
+
+def rawGroup : Subgroup ℚˣ := Subgroup.closure
+  ({-1, Units.mk0 (2 : ℚ) (by norm_num), Units.mk0 (3 : ℚ) (by norm_num)} : Set ℚˣ)
+
+def rawNorm (tau : Fin 3) (q : ℚ) : ℚ :=
+  if tau = 0 then |q| else if tau = 1 then padicNorm 2 q else padicNorm 3 q
+
+def rawForms (B C : ℚ) (x : Fin 2 → ℚ) : Fin 3 → ℚ :=
+  fun j => if j = 0 then x 0 else if j = 1 then x 1 else B*x 0+C*x 1
+
+def rawH (x : Fin 2 → ℚ) : ℚ := ∏ tau : Fin 3, max (rawNorm tau (x 0)) (rawNorm tau (x 1))
+def rawK (A : ℚ) : ℚ := ∏ tau : Fin 3, rawNorm tau A
+
+def rawNormalized (B C : ℚ) (x : Fin 2 → ℚ) : ℚ :=
+  ∏ tau : Fin 3,
+    (min (rawNorm tau (x 0)) (rawNorm tau (x 1)) /
+      max (rawNorm tau (x 0)) (rawNorm tau (x 1))) *
+    (rawNorm tau (rawForms B C x 2) /
+      max (rawNorm tau (x 0)) (rawNorm tau (x 1)))
+
+theorem raw_norm_eq (tau : Fin 3) (q : ℚ) : rawNorm tau q = rationalPlaceNorm tau q := by
+  fin_cases tau <;> rfl
+
+theorem raw_constant_pos (A : ℚ) (hA : A ≠ 0) : 0 < rawK A := by
+  unfold rawK
+  simp_rw [raw_norm_eq]
+  rw [rationalPlaceNorm_product]
+  exact JSP000334.weighted_constant_pos2 A hA
+
+theorem raw_full (A B C : ℚ) (u v : rawGroup)
+    (h : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ) = 0) :
+    (∏ tau : Fin 3, ∏ j : Fin 3,
+      rawNorm tau (rawForms B C ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] j)) = rawK A := by
+  have hf (tau : Fin 3) : (∏ j : Fin 3,
+      rawNorm tau (rawForms B C ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] j)) =
+      rawNorm tau ((u : ℚˣ) : ℚ) * rawNorm tau ((v : ℚˣ) : ℚ) *
+        rawNorm tau (B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)) := by
+    simp [Fin.prod_univ_three, rawForms]
+  simp_rw [hf, raw_norm_eq]
+  unfold rawK
+  simp_rw [raw_norm_eq]
+  rw [rationalPlaceNorm_product]
+  exact JSP000334.weighted_full_product2 A B C u v h
+
+theorem raw_normalized (A B C : ℚ) (u v : rawGroup)
+    (h : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ) = 0) :
+    rawNormalized B C ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] =
+      rawK A / rawH ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)]^3 := by
+  unfold rawNormalized rawK rawH rawForms
+  norm_num only [Fin.reduceEq, if_false, Matrix.cons_val_zero, Matrix.cons_val_one]
+  simp_rw [raw_norm_eq]
+  rw [rationalPlaceNorm_product]
+  exact JSP000334.weighted_normalized_product2 A B C u v h
+
+theorem raw_strict (A B C : ℚ) (hA : A ≠ 0) (u v : rawGroup)
+    (h : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ) = 0)
+    (hH : max 1 ((rawK A : ℝ)^2) <
+      (rawH ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] : ℝ)) :
+    (rawNormalized B C ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] : ℝ) <
+      (rawH ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] : ℝ)^(-(5 : ℝ)/2) := by
+  rw [raw_normalized A B C u v h]
+  push_cast
+  exact JSP000334.weighted_large_height_scalar2 _ _
+    (by exact_mod_cast raw_constant_pos A hA) hH
+
+def rawMatrix (B C : ℚ) (k : Fin 2) : Matrix (Fin 2) (Fin 2) ℚ :=
+  fun i j => if i = 0 then if j = k then 1 else 0 else if j = 0 then B else C
+
+theorem raw_matrix_eq (B C : ℚ) (k : Fin 2) :
+    rawMatrix B C k = JSP000334.weightedRetainedMatrix2 B C k := by
+  ext i j
+  fin_cases k <;> fin_cases i <;> fin_cases j <;> rfl
+
+theorem raw_det (B C : ℚ) (hB : B ≠ 0) (hC : C ≠ 0) (k : Fin 2) :
+    (rawMatrix B C k).det ≠ 0 := by
+  rw [raw_matrix_eq]
+  exact JSP000334.weighted_retained_det2 B C hB hC k
+
+theorem raw_patterns (B C u v : ℚ) :
+    ∃ choice : Fin 3 → Fin 2,
+      (∏ tau : Fin 3, ∏ j : Fin 2, rawNorm tau ((rawMatrix B C (choice tau) *ᵥ ![u,v]) j)) =
+      ∏ tau : Fin 3, min (rawNorm tau u) (rawNorm tau v) *
+        rawNorm tau (rawForms B C ![u,v] 2) := by
+  simp_rw [raw_norm_eq, raw_matrix_eq]
+  norm_num only [rawForms, Fin.reduceEq, if_false, Matrix.cons_val_zero, Matrix.cons_val_one]
+  exact JSP000334.weighted_eight_patterns2 B C u v
+
+theorem raw_pattern_count : Fintype.card (Fin 3 → Fin 2) = 8 := by decide
+
+end RawR1
+
+#check RawR1.raw_norm_eq
+#print axioms RawR1.raw_norm_eq
+
+#check RawR1.raw_constant_pos
+#print axioms RawR1.raw_constant_pos
+
+#check RawR1.raw_full
+#print axioms RawR1.raw_full
+
+#check RawR1.raw_normalized
+#print axioms RawR1.raw_normalized
+
+#check RawR1.raw_strict
+#print axioms RawR1.raw_strict
+
+#check RawR1.raw_matrix_eq
+#print axioms RawR1.raw_matrix_eq
+
+#check RawR1.raw_det
+#print axioms RawR1.raw_det
+
+#check RawR1.raw_patterns
+#print axioms RawR1.raw_patterns
+
+#check RawR1.raw_pattern_count
+#print axioms RawR1.raw_pattern_count

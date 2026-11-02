@@ -1,0 +1,30 @@
+import SubspaceBridge.SourceExterior54_246
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M246Challenges
+open CompoundFeasibility.Exterior54_246
+
+theorem raw_actual_signed_minor {R : Type*} [CommRing R]
+    (A : Matrix (Fin 5) (Fin 5) R) (i j : Fin 5) :
+    A.adjugate.transpose i j = (-1)^(i.val+j.val)*
+      Matrix.det (fun r c : Fin 4 => A (i.succAbove r) (j.succAbove c)) := by
+  exact compound_minor4246 A i j
+
+theorem raw_actual_composition {R : Type*} [CommRing R]
+    (A B : Matrix (Fin 5) (Fin 5) R) :
+    (A*B).adjugate.transpose = A.adjugate.transpose*B.adjugate.transpose := by
+  exact compound_mul4246 A B
+
+theorem raw_actual_four_vector_transform {R : Type*} [CommRing R]
+    (A : Matrix (Fin 5) (Fin 5) R) (x : Fin 4 → Fin 5 → R) :
+    A.adjugate.transpose *ᵥ (fun i => (Matrix.of (Fin.snoc x 0)).adjugate i 4) =
+      (fun i => (Matrix.of (Fin.snoc (fun j => A *ᵥ x j) 0)).adjugate i 4) := by
+  exact wedge_transform4246 A x
+
+end M246Challenges
+#check M246Challenges.raw_actual_signed_minor
+#print axioms M246Challenges.raw_actual_signed_minor
+#check M246Challenges.raw_actual_composition
+#print axioms M246Challenges.raw_actual_composition
+#check M246Challenges.raw_actual_four_vector_transform
+#print axioms M246Challenges.raw_actual_four_vector_transform

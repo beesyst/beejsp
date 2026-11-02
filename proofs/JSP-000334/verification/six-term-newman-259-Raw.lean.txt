@@ -1,0 +1,517 @@
+import SubspaceBridge.SixTermDegeneracy5
+import SubspaceBridge.SixTermProjection5
+import SubspaceBridge.SixTermSource5
+import SubspaceBridge.SixTermFixedFibers5
+import SubspaceBridge.SixTermRatioFibers5
+import SubspaceBridge.SixTermSmallCoefficientFibers5
+import SubspaceBridge.SixTermLargeCoefficientFibers5
+import SubspaceBridge.SixTermCoefficientFiber5
+import SubspaceBridge.SixTermFiniteness5
+import SubspaceBridge.NewmanCompletion
+namespace Raw259
+noncomputable section
+open JSP000334
+open scoped Matrix BigOperators Classical
+
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {n : ℕ} (x : Fin n → ℚ) : Prop := ∀ I : Finset (Fin n),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Relations (G : Subgroup ℚˣ) (m : ℕ) : Set (Fin (m+1) → ℚ) :=
+  {x | x 0=1 ∧ (∀ i,∃ u : G,((u : ℚˣ) : ℚ)=x i) ∧ (∑ i,x i=0) ∧ Nondeg x}
+def WeightedTerms (A : ℚ) (B : Fin 4 → ℚ) (u : Fin 4 → Group) : Fin 5 → ℚ :=
+  Fin.cons A (fun i => B i*((u i : ℚˣ) : ℚ))
+def WeightedFive (A : ℚ) (B : Fin 4 → ℚ) : Set (Fin 4 → Group) :=
+  {u | A+∑ i,B i*((u i : ℚˣ) : ℚ)=0 ∧ Nondeg (WeightedTerms A B u)}
+def Pairs (A B C : ℚ) : Set (Group × Group) := {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+def WeightedFour (A B C D : ℚ) : Set (Group × Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=0 ∧
+    Nondeg ![A,B*((p.1 : ℚˣ) : ℚ),C*((p.2.1 : ℚˣ) : ℚ),D*((p.2.2 : ℚˣ) : ℚ)]}
+def FixedFinite : Prop := ∀ m : Fin 5,(Relations Group (m.val+1)).Finite
+def Value (r : Exponents) : ℕ := 2^r.a+3^r.b+2^r.c*3^r.d
+def Solutions (n : ℕ) : Set Exponents := {r | Value r=n}
+noncomputable def Count (n : ℕ) : ℕ := (Solutions n).ncard
+def Newman : Prop := ∃ C : ℕ,∀ n : ℕ,0<n → Count n≤C
+noncomputable def Raw_sixTermUnit5 (x : Fin 6 → ℚ) (i : Fin 6) : Group := by
+  classical
+  exact if h : x∈Relations Group 5 then (h.2.1 i).choose else 1
+
+def Raw_sixTermCoefficientFiber5 (b : Fin 5 → ℚ) : Set (Fin 6 → ℚ) :=
+  {x∈Relations Group 5 | ∑ i,b i*x i.castSucc=0}
+
+def Raw_sixTermProperFiber5 (P : Submodule ℚ (Fin 5 → ℚ)) : Set (Fin 6 → ℚ) :=
+  {x∈Relations Group 5 | (fun i : Fin 5 => x i.castSucc)∈P}
+
+theorem source_six_term_annihilator_degenerate5 : ∀ (x : Fin 5 → ℚ)
+    (hx : ∀ i,x i≠0) (hs : ∑ i,x i=0) (hn : ¬Nondeg x),
+
+    x 0+x 1=0 ∨ x 0+x 2=0 ∨ x 0+x 3=0 ∨ x 0+x 4=0 ∨ x 0+x 1+x 2=0 ∨ x 0+x 1+x 3=0 ∨ x 0+x 1+x 4=0 ∨ x 0+x 2+x 3=0 ∨ x 0+x 2+x 4=0 ∨ x 0+x 3+x 4=0 :=
+  @JSP000334.six_term_annihilator_degenerate5
+
+theorem source_six_term_nondegenerate_coarsen5 : ∀ (x : Fin 6 → ℚ) (hx : Nondeg x)
+    (f : Fin 6 → Fin 5) (hf : Function.Surjective f),
+
+    Nondeg (fun j => ∑ i : Fin 6,if f i=j then x i else 0) :=
+  @JSP000334.six_term_nondegenerate_coarsen5
+
+theorem source_six_term_nondegenerate_coarsen4 : ∀ (x : Fin 6 → ℚ) (hx : Nondeg x)
+    (f : Fin 6 → Fin 4) (hf : Function.Surjective f),
+
+    Nondeg (fun j => ∑ i : Fin 6,if f i=j then x i else 0) :=
+  @JSP000334.six_term_nondegenerate_coarsen4
+
+theorem source_six_term_unit_value5 : ∀ {x : Fin 6 → ℚ} (hx : x∈Relations Group 5) (i : Fin 6),
+
+    ((Raw_sixTermUnit5 x i : ℚˣ) : ℚ)=x i :=
+  @JSP000334.six_term_unit_value5
+
+theorem source_six_term_relation_facts5 : ∀ {x : Fin 6 → ℚ}
+    (hx : x∈Relations Group 5),
+
+    x 0=1 ∧ x 0+x 1+x 2+x 3+x 4+x 5=0 ∧ (∀ i,x i≠0) :=
+  @JSP000334.six_term_relation_facts5
+
+theorem source_six_term_weighted_triple_projection5 : ∀ (S : Set (Fin 6 → ℚ))
+    (hs : S⊆Relations Group 5)
+    (A B C D : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0)
+    (i j k : Fin 6) (recover : ℚ → ℚ → ℚ → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+B*x i+C*x j+D*x k=0)
+    (hn : ∀ x∈S,Nondeg (![A,B*x i,C*x j,D*x k] : Fin 4 → ℚ))
+    (hr : ∀ x∈S,recover (x i) (x j) (x k)=x),
+ S.Finite :=
+  @JSP000334.six_term_weighted_triple_projection5
+
+theorem source_six_term_weighted_pair_projection5 : ∀ (S : Set (Fin 6 → ℚ))
+    (hs : S⊆Relations Group 5)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (i j : Fin 6) (recover : ℚ → ℚ → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+B*x i+C*x j=0)
+    (hr : ∀ x∈S,recover (x i) (x j)=x),
+ S.Finite :=
+  @JSP000334.six_term_weighted_pair_projection5
+
+theorem source_six_term_finite_over_pairs5 : ∀ (S : Set (Fin 6 → ℚ))
+    (f : (Fin 6 → ℚ) → Group × Group)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (he : ∀ x∈S,A+B*(((f x).1 : ℚˣ) : ℚ)+C*(((f x).2 : ℚˣ) : ℚ)=0)
+    (hf : ∀ p∈Pairs A B C,{x∈S | f x=p}.Finite),
+ S.Finite :=
+  @JSP000334.six_term_finite_over_pairs5
+
+theorem source_six_term_weighted_quad_projection5 : ∀ (S : Set (Fin 6 → ℚ))
+    (hs : S⊆Relations Group 5)
+    (A : ℚ) (B : Fin 4 → ℚ) (hA : A≠0) (hB : ∀ i,B i≠0)
+    (idx : Fin 4 → Fin 6) (recover : (Fin 4 → ℚ) → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+∑ i,B i*x (idx i)=0)
+    (hn : ∀ x∈S,Nondeg (Fin.cons A (fun i => B i*x (idx i))))
+    (hr : ∀ x∈S,recover (fun i => x (idx i))=x),
+ S.Finite :=
+  @JSP000334.six_term_weighted_quad_projection5
+
+theorem source_six_term_proper_annihilator5 : ∀ (P : Submodule ℚ (Fin 5 → ℚ)) (hP : P≠⊤),
+
+    ∃ b : Fin 5 → ℚ,(∃ i,b i≠0) ∧ ∀ y∈P,∑ i,b i*y i=0 :=
+  @JSP000334.six_term_proper_annihilator5
+
+theorem source_six_term_fixed_1_finite5 : ∀ (a : ℚ),
+
+    {x∈Relations Group 5 | x 1=a}.Finite :=
+  @JSP000334.six_term_fixed_1_finite5
+
+theorem source_six_term_fixed_2_finite5 : ∀ (a : ℚ),
+
+    {x∈Relations Group 5 | x 2=a}.Finite :=
+  @JSP000334.six_term_fixed_2_finite5
+
+theorem source_six_term_fixed_3_finite5 : ∀ (a : ℚ),
+
+    {x∈Relations Group 5 | x 3=a}.Finite :=
+  @JSP000334.six_term_fixed_3_finite5
+
+theorem source_six_term_fixed_4_finite5 : ∀ (a : ℚ),
+
+    {x∈Relations Group 5 | x 4=a}.Finite :=
+  @JSP000334.six_term_fixed_4_finite5
+
+theorem source_six_term_fixed_12_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 2=b}.Finite :=
+  @JSP000334.six_term_fixed_12_finite5
+
+theorem source_six_term_fixed_13_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 3=b}.Finite :=
+  @JSP000334.six_term_fixed_13_finite5
+
+theorem source_six_term_fixed_14_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 4=b}.Finite :=
+  @JSP000334.six_term_fixed_14_finite5
+
+theorem source_six_term_fixed_23_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 2=a ∧ x 3=b}.Finite :=
+  @JSP000334.six_term_fixed_23_finite5
+
+theorem source_six_term_fixed_24_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 2=a ∧ x 4=b}.Finite :=
+  @JSP000334.six_term_fixed_24_finite5
+
+theorem source_six_term_fixed_34_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 3=a ∧ x 4=b}.Finite :=
+  @JSP000334.six_term_fixed_34_finite5
+
+theorem source_six_term_fixed_123_finite5 : ∀ (a b c : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 2=b ∧ x 3=c}.Finite :=
+  @JSP000334.six_term_fixed_123_finite5
+
+theorem source_six_term_fixed_124_finite5 : ∀ (a b c : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 2=b ∧ x 4=c}.Finite :=
+  @JSP000334.six_term_fixed_124_finite5
+
+theorem source_six_term_fixed_134_finite5 : ∀ (a b c : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 3=b ∧ x 4=c}.Finite :=
+  @JSP000334.six_term_fixed_134_finite5
+
+theorem source_six_term_fixed_234_finite5 : ∀ (a b c : ℚ),
+
+    {x∈Relations Group 5 | x 2=a ∧ x 3=b ∧ x 4=c}.Finite :=
+  @JSP000334.six_term_fixed_234_finite5
+
+theorem source_six_term_ratios_12_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 2=r*x 1}.Finite :=
+  @JSP000334.six_term_ratios_12_finite5
+
+theorem source_six_term_ratios_13_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 3=r*x 1}.Finite :=
+  @JSP000334.six_term_ratios_13_finite5
+
+theorem source_six_term_ratios_14_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 4=r*x 1}.Finite :=
+  @JSP000334.six_term_ratios_14_finite5
+
+theorem source_six_term_ratios_23_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 3=r*x 2}.Finite :=
+  @JSP000334.six_term_ratios_23_finite5
+
+theorem source_six_term_ratios_24_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 4=r*x 2}.Finite :=
+  @JSP000334.six_term_ratios_24_finite5
+
+theorem source_six_term_ratios_34_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 4=r*x 3}.Finite :=
+  @JSP000334.six_term_ratios_34_finite5
+
+theorem source_six_term_ratios_123_finite5 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 5 | x 2=r*x 1 ∧ x 3=s*x 1}.Finite :=
+  @JSP000334.six_term_ratios_123_finite5
+
+theorem source_six_term_ratios_124_finite5 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 5 | x 2=r*x 1 ∧ x 4=s*x 1}.Finite :=
+  @JSP000334.six_term_ratios_124_finite5
+
+theorem source_six_term_ratios_134_finite5 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 5 | x 3=r*x 1 ∧ x 4=s*x 1}.Finite :=
+  @JSP000334.six_term_ratios_134_finite5
+
+theorem source_six_term_ratios_234_finite5 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 5 | x 3=r*x 2 ∧ x 4=s*x 2}.Finite :=
+  @JSP000334.six_term_ratios_234_finite5
+
+theorem source_six_term_ratios_1234_finite5 : ∀ (r s t : ℚ),
+
+    {x∈Relations Group 5 | x 2=r*x 1 ∧ x 3=s*x 1 ∧ x 4=t*x 1}.Finite :=
+  @JSP000334.six_term_ratios_1234_finite5
+
+theorem source_six_term_constant_12_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2=0}.Finite :=
+  @JSP000334.six_term_constant_12_good5
+
+theorem source_six_term_constant_13_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 3=0}.Finite :=
+  @JSP000334.six_term_constant_13_good5
+
+theorem source_six_term_constant_14_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 4=0}.Finite :=
+  @JSP000334.six_term_constant_14_good5
+
+theorem source_six_term_constant_23_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 2+c*x 3=0}.Finite :=
+  @JSP000334.six_term_constant_23_good5
+
+theorem source_six_term_constant_24_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 2+c*x 4=0}.Finite :=
+  @JSP000334.six_term_constant_24_good5
+
+theorem source_six_term_constant_34_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 3+c*x 4=0}.Finite :=
+  @JSP000334.six_term_constant_34_good5
+
+theorem source_six_term_constant_123_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2+d*x 3=0 ∧ Nondeg (![a,b*x 1,c*x 2,d*x 3] : Fin 4 → ℚ)}.Finite :=
+  @JSP000334.six_term_constant_123_good5
+
+theorem source_six_term_constant_123_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2+d*x 3=0}.Finite :=
+  @JSP000334.six_term_constant_123_finite5
+
+theorem source_six_term_constant_124_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2+d*x 4=0 ∧ Nondeg (![a,b*x 1,c*x 2,d*x 4] : Fin 4 → ℚ)}.Finite :=
+  @JSP000334.six_term_constant_124_good5
+
+theorem source_six_term_constant_124_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2+d*x 4=0}.Finite :=
+  @JSP000334.six_term_constant_124_finite5
+
+theorem source_six_term_constant_134_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 3+d*x 4=0 ∧ Nondeg (![a,b*x 1,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite :=
+  @JSP000334.six_term_constant_134_good5
+
+theorem source_six_term_constant_134_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 3+d*x 4=0}.Finite :=
+  @JSP000334.six_term_constant_134_finite5
+
+theorem source_six_term_constant_234_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 2+c*x 3+d*x 4=0 ∧ Nondeg (![a,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite :=
+  @JSP000334.six_term_constant_234_good5
+
+theorem source_six_term_constant_234_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 2+c*x 3+d*x 4=0}.Finite :=
+  @JSP000334.six_term_constant_234_finite5
+
+theorem source_six_term_homogeneous_123_finite5 : ∀ (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 2+c*x 3=0}.Finite :=
+  @JSP000334.six_term_homogeneous_123_finite5
+
+theorem source_six_term_homogeneous_124_finite5 : ∀ (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 2+c*x 4=0}.Finite :=
+  @JSP000334.six_term_homogeneous_124_finite5
+
+theorem source_six_term_homogeneous_134_finite5 : ∀ (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 3+c*x 4=0}.Finite :=
+  @JSP000334.six_term_homogeneous_134_finite5
+
+theorem source_six_term_homogeneous_234_finite5 : ∀ (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a*x 2+b*x 3+c*x 4=0}.Finite :=
+  @JSP000334.six_term_homogeneous_234_finite5
+
+theorem source_six_term_homogeneous_four_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 2+c*x 3+d*x 4=0 ∧
+      Nondeg (![a*x 1,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite :=
+  @JSP000334.six_term_homogeneous_four_good5
+
+theorem source_six_term_homogeneous_four_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 2+c*x 3+d*x 4=0}.Finite :=
+  @JSP000334.six_term_homogeneous_four_finite5
+
+theorem source_six_term_five_good_finite5 : ∀ (b : Fin 5 → ℚ) (hb : ∀ i,b i≠0),
+
+    {x∈Relations Group 5 |
+      b 0+b 1*x 1+b 2*x 2+b 3*x 3+b 4*x 4=0 ∧
+      Nondeg (![b 0,b 1*x 1,b 2*x 2,b 3*x 3,b 4*x 4] : Fin 5 → ℚ)}.Finite :=
+  @JSP000334.six_term_five_good_finite5
+
+theorem source_six_term_five_coefficients_finite5 : ∀ (b : Fin 5 → ℚ) (hb : ∀ i,b i≠0),
+
+    {x∈Relations Group 5 | b 0+b 1*x 1+b 2*x 2+b 3*x 3+b 4*x 4=0}.Finite :=
+  @JSP000334.six_term_five_coefficients_finite5
+
+theorem source_six_term_coefficient_fiber_finite5 : ∀ (b : Fin 5 → ℚ) (hb : ∃ i,b i≠0),
+
+    (Raw_sixTermCoefficientFiber5 b).Finite :=
+  @JSP000334.six_term_coefficient_fiber_finite5
+
+theorem source_six_term_proper_fiber_finite5 : ∀ (P : Submodule ℚ (Fin 5 → ℚ)) (hP : P≠⊤),
+
+    (Raw_sixTermProperFiber5 P).Finite :=
+  @JSP000334.six_term_proper_fiber_finite5
+
+theorem source_fixed_six_term_finite :
+ (Relations Group 5).Finite :=
+  @JSP000334.fixed_six_term_finite
+
+theorem source_fixed_sunit_finiteness_complete :
+ FixedFinite :=
+  @JSP000334.fixed_sunit_finiteness_complete
+
+theorem source_newman_conjecture_complete :
+ Newman :=
+  @JSP000334.newman_conjecture_complete
+
+end
+end Raw259
+#check Raw259.source_six_term_annihilator_degenerate5
+#print axioms Raw259.source_six_term_annihilator_degenerate5
+#check Raw259.source_six_term_nondegenerate_coarsen5
+#print axioms Raw259.source_six_term_nondegenerate_coarsen5
+#check Raw259.source_six_term_nondegenerate_coarsen4
+#print axioms Raw259.source_six_term_nondegenerate_coarsen4
+#check Raw259.source_six_term_unit_value5
+#print axioms Raw259.source_six_term_unit_value5
+#check Raw259.source_six_term_relation_facts5
+#print axioms Raw259.source_six_term_relation_facts5
+#check Raw259.source_six_term_weighted_triple_projection5
+#print axioms Raw259.source_six_term_weighted_triple_projection5
+#check Raw259.source_six_term_weighted_pair_projection5
+#print axioms Raw259.source_six_term_weighted_pair_projection5
+#check Raw259.source_six_term_finite_over_pairs5
+#print axioms Raw259.source_six_term_finite_over_pairs5
+#check Raw259.source_six_term_weighted_quad_projection5
+#print axioms Raw259.source_six_term_weighted_quad_projection5
+#check Raw259.source_six_term_proper_annihilator5
+#print axioms Raw259.source_six_term_proper_annihilator5
+#check Raw259.source_six_term_fixed_1_finite5
+#print axioms Raw259.source_six_term_fixed_1_finite5
+#check Raw259.source_six_term_fixed_2_finite5
+#print axioms Raw259.source_six_term_fixed_2_finite5
+#check Raw259.source_six_term_fixed_3_finite5
+#print axioms Raw259.source_six_term_fixed_3_finite5
+#check Raw259.source_six_term_fixed_4_finite5
+#print axioms Raw259.source_six_term_fixed_4_finite5
+#check Raw259.source_six_term_fixed_12_finite5
+#print axioms Raw259.source_six_term_fixed_12_finite5
+#check Raw259.source_six_term_fixed_13_finite5
+#print axioms Raw259.source_six_term_fixed_13_finite5
+#check Raw259.source_six_term_fixed_14_finite5
+#print axioms Raw259.source_six_term_fixed_14_finite5
+#check Raw259.source_six_term_fixed_23_finite5
+#print axioms Raw259.source_six_term_fixed_23_finite5
+#check Raw259.source_six_term_fixed_24_finite5
+#print axioms Raw259.source_six_term_fixed_24_finite5
+#check Raw259.source_six_term_fixed_34_finite5
+#print axioms Raw259.source_six_term_fixed_34_finite5
+#check Raw259.source_six_term_fixed_123_finite5
+#print axioms Raw259.source_six_term_fixed_123_finite5
+#check Raw259.source_six_term_fixed_124_finite5
+#print axioms Raw259.source_six_term_fixed_124_finite5
+#check Raw259.source_six_term_fixed_134_finite5
+#print axioms Raw259.source_six_term_fixed_134_finite5
+#check Raw259.source_six_term_fixed_234_finite5
+#print axioms Raw259.source_six_term_fixed_234_finite5
+#check Raw259.source_six_term_ratios_12_finite5
+#print axioms Raw259.source_six_term_ratios_12_finite5
+#check Raw259.source_six_term_ratios_13_finite5
+#print axioms Raw259.source_six_term_ratios_13_finite5
+#check Raw259.source_six_term_ratios_14_finite5
+#print axioms Raw259.source_six_term_ratios_14_finite5
+#check Raw259.source_six_term_ratios_23_finite5
+#print axioms Raw259.source_six_term_ratios_23_finite5
+#check Raw259.source_six_term_ratios_24_finite5
+#print axioms Raw259.source_six_term_ratios_24_finite5
+#check Raw259.source_six_term_ratios_34_finite5
+#print axioms Raw259.source_six_term_ratios_34_finite5
+#check Raw259.source_six_term_ratios_123_finite5
+#print axioms Raw259.source_six_term_ratios_123_finite5
+#check Raw259.source_six_term_ratios_124_finite5
+#print axioms Raw259.source_six_term_ratios_124_finite5
+#check Raw259.source_six_term_ratios_134_finite5
+#print axioms Raw259.source_six_term_ratios_134_finite5
+#check Raw259.source_six_term_ratios_234_finite5
+#print axioms Raw259.source_six_term_ratios_234_finite5
+#check Raw259.source_six_term_ratios_1234_finite5
+#print axioms Raw259.source_six_term_ratios_1234_finite5
+#check Raw259.source_six_term_constant_12_good5
+#print axioms Raw259.source_six_term_constant_12_good5
+#check Raw259.source_six_term_constant_13_good5
+#print axioms Raw259.source_six_term_constant_13_good5
+#check Raw259.source_six_term_constant_14_good5
+#print axioms Raw259.source_six_term_constant_14_good5
+#check Raw259.source_six_term_constant_23_good5
+#print axioms Raw259.source_six_term_constant_23_good5
+#check Raw259.source_six_term_constant_24_good5
+#print axioms Raw259.source_six_term_constant_24_good5
+#check Raw259.source_six_term_constant_34_good5
+#print axioms Raw259.source_six_term_constant_34_good5
+#check Raw259.source_six_term_constant_123_good5
+#print axioms Raw259.source_six_term_constant_123_good5
+#check Raw259.source_six_term_constant_123_finite5
+#print axioms Raw259.source_six_term_constant_123_finite5
+#check Raw259.source_six_term_constant_124_good5
+#print axioms Raw259.source_six_term_constant_124_good5
+#check Raw259.source_six_term_constant_124_finite5
+#print axioms Raw259.source_six_term_constant_124_finite5
+#check Raw259.source_six_term_constant_134_good5
+#print axioms Raw259.source_six_term_constant_134_good5
+#check Raw259.source_six_term_constant_134_finite5
+#print axioms Raw259.source_six_term_constant_134_finite5
+#check Raw259.source_six_term_constant_234_good5
+#print axioms Raw259.source_six_term_constant_234_good5
+#check Raw259.source_six_term_constant_234_finite5
+#print axioms Raw259.source_six_term_constant_234_finite5
+#check Raw259.source_six_term_homogeneous_123_finite5
+#print axioms Raw259.source_six_term_homogeneous_123_finite5
+#check Raw259.source_six_term_homogeneous_124_finite5
+#print axioms Raw259.source_six_term_homogeneous_124_finite5
+#check Raw259.source_six_term_homogeneous_134_finite5
+#print axioms Raw259.source_six_term_homogeneous_134_finite5
+#check Raw259.source_six_term_homogeneous_234_finite5
+#print axioms Raw259.source_six_term_homogeneous_234_finite5
+#check Raw259.source_six_term_homogeneous_four_good5
+#print axioms Raw259.source_six_term_homogeneous_four_good5
+#check Raw259.source_six_term_homogeneous_four_finite5
+#print axioms Raw259.source_six_term_homogeneous_four_finite5
+#check Raw259.source_six_term_five_good_finite5
+#print axioms Raw259.source_six_term_five_good_finite5
+#check Raw259.source_six_term_five_coefficients_finite5
+#print axioms Raw259.source_six_term_five_coefficients_finite5
+#check Raw259.source_six_term_coefficient_fiber_finite5
+#print axioms Raw259.source_six_term_coefficient_fiber_finite5
+#check Raw259.source_six_term_proper_fiber_finite5
+#print axioms Raw259.source_six_term_proper_fiber_finite5
+#check Raw259.source_fixed_six_term_finite
+#print axioms Raw259.source_fixed_six_term_finite
+#check Raw259.source_fixed_sunit_finiteness_complete
+#print axioms Raw259.source_fixed_sunit_finiteness_complete
+#check Raw259.source_newman_conjecture_complete
+#print axioms Raw259.source_newman_conjecture_complete

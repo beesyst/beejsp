@@ -1,0 +1,284 @@
+import SubspaceBridge.CofactorSourceVanishing3
+open scoped BigOperators Matrix
+open MeasureTheory
+open JSP000334
+namespace CofactorRaw252R2
+noncomputable section
+
+def rawC (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ :=
+  (retainedIntegerMatrix3 k).adjugate.transpose
+
+def rawR (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℝ :=
+  (rawC k).map (Int.castRingHom ℝ)
+
+def rawG (k2 k3 : Fin 3) (Q : ℝ) (c2 c3 : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (rawC k2) (rawC k3)
+    (fun i => Nat.ceil (-c2 i * Real.log Q / Real.log 2))
+    (fun i => Nat.ceil (-c3 i * Real.log Q / Real.log 3))
+
+def rawE (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) (hQ : 1 < Q) :
+    RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3
+    (LinearEquiv.ofBijective (Matrix.toLin' (rawR k)) (by
+      have hu : IsUnit (rawR k) := (Matrix.isUnit_iff_isUnit_det _).mpr
+        (by change IsUnit (cofactorRealMatrix3 k).det; rw [cofactorRealMatrix3_det]; exact isUnit_one)
+      exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr hu,Matrix.mulVec_surjective_iff_isUnit.mpr hu⟩))
+    (fun i => Q ^ c i) (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+
+def rawBody (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) : Set RealTriple :=
+  {x | ∀ i, |(rawR k *ᵥ x) i| ≤ Q ^ c i}
+
+def rawForms (k i : Fin 3) (x : Fin 3 → ℚ) : ℚ :=
+  ∑ j : Fin 3, (rawC k i j : ℚ) * x j
+
+def rawDual (k : Fin 3) (x : Fin 3 → ℚ) (i : Fin 3) : ℚ :=
+  ∑ l : Fin 3, ((rawC k).map (Int.castRingHom ℚ))⁻¹ l i * x l
+
+def rawMin (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (j.val + 1) → RealTriple,
+    LinearIndependent ℝ u ∧ (∀ i, u i ∈ lattice3 B) ∧
+      ∀ i, coordinateGauge3 e (u i) ≤ r}
+
+def rawProduct (k0 k2 k3 : Fin 3) (s : Fin 3 → Fin 3) (x : Fin 3 → ℚ) : ℝ :=
+  |((∑ l : Fin 3, (((rawC k0).map (Int.castRingHom ℚ))⁻¹ l (s 0)) * x l : ℚ) : ℝ)| *
+    (padicNorm 2 (∑ l : Fin 3, (((rawC k2).map (Int.castRingHom ℚ))⁻¹ l (s 1)) * x l) : ℝ) *
+    (padicNorm 3 (∑ l : Fin 3, (((rawC k3).map (Int.castRingHom ℚ))⁻¹ l (s 2)) * x l) : ℝ)
+
+theorem rawMin_eq (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) :
+    rawMin B e j = successiveRadius3 B e j := rfl
+
+theorem raw_cofactorIntegerMatrix3_det (k : Fin 3) : (rawC k).det = 1 := by
+  exact JSP000334.cofactorIntegerMatrix3_det k
+
+theorem raw_cofactorSourceLattice3_spec (k₂ k₃ : Fin 3) (Q : ℝ) (c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0) :
+    (∀ x, x ∈ rawG k₂ k₃ Q c₂ c₃ ↔
+      (∀ i, (padicNorm 2 (rawForms k₂ i (fun j => (x j : ℚ))) : ℝ) ≤ Q ^ c₂ i) ∧
+      (∀ i, (padicNorm 3 (rawForms k₃ i (fun j => (x j : ℚ))) : ℝ) ≤ Q ^ c₃ i)) ∧
+    Finite (IntegerTriple ⧸ rawG k₂ k₃ Q c₂ c₃) ∧
+    (rawG k₂ k₃ Q c₂ c₃).index = qCongruenceIndex3 Q c₂ c₃ ∧
+    ZLattice.covolume ((rawG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3) =
+      (qCongruenceIndex3 Q c₂ c₃ : ℝ) := by
+  exact JSP000334.cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃
+
+theorem raw_cofactorSourceBody3_volume (k : Fin 3) (Q : ℝ) (c₀ : Fin 3 → ℝ) (hQ : 1 < Q) :
+    volume.real (rawBody k Q c₀) = 8 * ∏ i, Q ^ c₀ i := by
+  exact JSP000334.cofactorSourceBody3_volume k Q c₀ hQ
+
+theorem raw_exists_cofactorSource_integer_attaining_frame
+    (k₀ k₂ k₃ : Fin 3) (Q : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0) :
+    ∃ (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawG k₂ k₃ Q c₂ c₃),
+      lattice3 B = (rawG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 ∧
+      LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+      (∀ j, coordinateGauge3 (rawE k₀ Q c₀ hQ)
+        (integerTripleReal3 (u j : IntegerTriple)) =
+          rawMin B (rawE k₀ Q c₀ hQ) j) ∧
+      Finite ((rawG k₂ k₃ Q c₂ c₃) ⧸ Submodule.span ℤ (Set.range u)) ∧
+      (Submodule.span ℤ (Set.range u)).toAddSubgroup.index ≤ 6 ∧
+      (∀ i j, |cofactorRealCoordinates3 k₀ (integerTripleReal3 (u j : IntegerTriple)) i| ≤
+        rawMin B (rawE k₀ Q c₀ hQ) j * Q ^ c₀ i) ∧
+      (∀ i j, (padicNorm 2 (rawForms k₂ i
+        (fun l => ((u j : IntegerTriple) l : ℚ))) : ℝ) ≤ Q ^ c₂ i) ∧
+      (∀ i j, (padicNorm 3 (rawForms k₃ i
+        (fun l => ((u j : IntegerTriple) l : ℚ))) : ℝ) ≤ Q ^ c₃ i) ∧
+      (∏ j, rawMin B (rawE k₀ Q c₀ hQ) j) ≤
+        qRoundingFactor3 Q c₂ c₃ ∧ qRoundingFactor3 Q c₂ c₃ < 216 ∧
+      (∏ j, rawMin B (rawE k₀ Q c₀ hQ) j) < 216 := by
+  exact JSP000334.exists_cofactorSource_integer_attaining_frame k₀ k₂ k₃ Q c₀ c₂ c₃ hQ hc₂ hc₃ hb
+
+theorem raw_cofactor_actual_finite_bounds3
+    (k₂ k₃ : Fin 3) (Q : ℝ) (c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (c : Basis (Fin 3) ℤ (rawG k₂ k₃ Q c₂ c₃))
+    (u : Fin 3 → rawG k₂ k₃ Q c₂ c₃)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple))) :
+    let z := fun l => ((dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u *
+      (rawG k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+        dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 l
+    (∀ i, (padicNorm 2 (rawDual k₂ z i) : ℝ) ≤
+      Q ^ (c₂ (i.succAbove 0) + c₂ (i.succAbove 1))) ∧
+    (∀ i, (padicNorm 3 (rawDual k₃ z i) : ℝ) ≤
+      Q ^ (c₃ (i.succAbove 0) + c₃ (i.succAbove 1))) := by
+  exact JSP000334.cofactor_actual_finite_bounds3 k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃ c u hu
+
+theorem raw_cofactorDualInt3_value (k : Fin 3) (m : IntegerTriple) (i : Fin 3) :
+    rawDual k (fun l => (m l : ℚ)) i = (cofactorDualInt3 k m i : ℚ) := by
+  exact JSP000334.cofactorDualInt3_value k m i
+
+theorem raw_cofactorDualValue3_real_cast (k : Fin 3) (x : Fin 3 → ℚ) (i : Fin 3) :
+    (rawDual k x i : ℝ) =
+      ∑ l : Fin 3, (rawR k)⁻¹ l i * (x l : ℝ) := by
+  exact JSP000334.cofactorDualValue3_real_cast k x i
+
+theorem raw_cofactor_selected_product_lower3 (k₀ k₂ k₃ : Fin 3)
+    (s : Fin 3 → Fin 3) (m : IntegerTriple) (hm : m ≠ 0)
+    (hn : rawProduct k₀ k₂ k₃ s (fun l => (m l : ℚ)) ≠ 0) :
+    1 / (9 * (rothKernelRowHeight m : ℝ) ^ 2) ≤
+      rawProduct k₀ k₂ k₃ s (fun l => (m l : ℚ)) := by
+  exact JSP000334.cofactor_selected_product_lower3 k₀ k₂ k₃ s m hm hn
+
+theorem raw_cofactor_actual_real_bound3
+    (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (u : Fin 3 → rawG k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (rawG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hreal : ∀ i, |((dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u *
+      (rawG k₂ k₃ Q c₂ c₃).index : ℕ) : ℝ) *
+        dualFrameRealLocalValue3 (rawR k₀)
+          (fun j => (u j : IntegerTriple)) 2 i| ≤
+      6 * ((rawG k₂ k₃ Q c₂ c₃).index : ℝ) * (Q ^ c₀ i)⁻¹ *
+        (rawMin B (rawE k₀ Q c₀ hQ) 2)⁻¹)
+    (hsmall : rawMin B (rawE k₀ Q c₀ hQ) 1 < Q ^ (-delta))
+    (i : Fin 3) :
+    |((dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u *
+      (rawG k₂ k₃ Q c₂ c₃).index : ℕ) : ℝ) *
+        dualFrameRealLocalValue3 (rawR k₀)
+          (fun j => (u j : IntegerTriple)) 2 i| ≤
+      36 * (∏ l : Fin 3, Q ^ c₀ l) * (Q ^ c₀ i)⁻¹ * Q ^ (-2 * delta) := by
+  exact JSP000334.cofactor_actual_real_bound3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ hc₂ hc₃ B u hB hreal hsmall i
+
+theorem raw_cofactor_source_normal_height3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (S : Set (Fin 3 → Fin 3)) (_hS : S.Nonempty) :
+    ∃ C1 C2 C3 : ℝ, 0 < C1 ∧ 0 < C2 ∧ 0 < C3 ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q), C3 < Q →
+      ∀ c₀ c₂ c₃ : Fin 3 → ℝ,
+        (∀ i, |c₀ i| ≤ 1) → (∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) →
+        (∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0) →
+        (∑ i, (c₀ i + c₂ i + c₃ i) = 0) →
+        (∀ s ∈ S, -(3 * delta) / 4 ≤ c₀ (s 0) + c₂ (s 1) + c₃ (s 2)) →
+        ∀ (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawG k₂ k₃ Q c₂ c₃),
+          lattice3 B = (rawG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 →
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) →
+          (∀ j, coordinateGauge3 (rawE k₀ Q c₀ hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              rawMin B (rawE k₀ Q c₀ hQ) j) →
+          rawMin B (rawE k₀ Q c₀ hQ) 1 < Q ^ (-delta) →
+          (∃ s ∈ S, rawProduct k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0) →
+          ∃ (z m : IntegerTriple) (g : ℤ),
+            g ≠ 0 ∧ m ≠ 0 ∧
+            (∀ i, ((dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u *
+              (rawG k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+                dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i = (z i : ℚ)) ∧
+            (∀ i, z i = g * m i) ∧ Ideal.span (Set.range m) = ⊤ ∧
+            Finset.univ.gcd (fun i => (m i).natAbs) = 1 ∧
+            (∃ r : ℚ, r ≠ 0 ∧ (fun i => (m i : ℚ)) =
+              r • dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ∧
+            Submodule.span ℚ ({fun i => (m i : ℚ)} : Set (Fin 3 → ℚ)) =
+              Submodule.span ℚ {dualFrameVector3 (fun j => (u j : IntegerTriple)) 2} ∧
+            (∀ j : Fin 2, (∑ i : Fin 3, m i * ((u j.castSucc : IntegerTriple) i)) = 0) ∧
+            dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u ≤ 6 ∧
+            Q ^ C1 ≤ (rothKernelRowHeight m : ℝ) ∧ (rothKernelRowHeight m : ℝ) ≤ Q ^ C2 := by
+  exact JSP000334.cofactor_source_normal_height3 k₀ k₂ k₃ delta hd S _hS
+
+theorem raw_cofactor_finiteWeight_same_frame3 (n : ℕ) (hn : 16 ≤ n)
+    (deltaSource deltaAux Q : ℝ) (hQ : 1 < Q) (he : 7/(n : ℝ) ≤ deltaSource-deltaAux)
+    (c : Fin 3 → Fin 3 → ℝ) (hc : sourceWeightConditions3 c) (k₀ k₂ k₃ : Fin 3)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (u : Fin 3 → rawG k₂ k₃ Q (c 1) (c 2))
+    (hatt : ∀ j, coordinateGauge3 (rawE k₀ Q (c 0) hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+        rawMin B (rawE k₀ Q (c 0) hQ) j)
+    (hsmall : rawMin B (rawE k₀ Q (c 0) hQ) 1 < Q^(-deltaSource)) :
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 0
+      (rothNormalLocalValue (rawC k₀) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 0 i-deltaAux)) ∧
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 1
+      (rothNormalLocalValue (rawC k₂) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 1 i)) ∧
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 2
+      (rothNormalLocalValue (rawC k₃) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 2 i)) := by
+  exact JSP000334.cofactor_finiteWeight_same_frame3 n hn deltaSource deltaAux Q hQ he c hc k₀ k₂ k₃ B u hatt hsmall
+
+theorem raw_cofactor_source_family_contradiction3
+    (k₀ k₂ k₃ : Fin 3) (S : Set (Fin 3 → Fin 3)) (hS : S.Nonempty) :
+    ∀ (deltaSource : ℝ), 0 < deltaSource →
+    ∀ (U : Set ℝ), ¬ BddAbove U →
+    ∀ (c : ℝ → Fin 3 → Fin 3 → ℝ),
+      (∀ Q ∈ U, sourceWeightConditions3 (c Q)) →
+      (∀ Q ∈ U, ∀ s ∈ S,
+        -deltaSource/2 ≤ c Q 0 (s 0)+c Q 1 (s 1)+c Q 2 (s 2)) →
+      (∀ Q ∈ U, ∀ hQ : 1 < Q,
+        ∃ (B : Basis (Fin 3) ℝ RealTriple)
+          (u : Fin 3 → rawG k₂ k₃ Q (c Q 1) (c Q 2)),
+          lattice3 B = (rawG k₂ k₃ Q (c Q 1) (c Q 2)).toIntSubmodule.map integerTripleReal3 ∧
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+          (∀ j, coordinateGauge3 (rawE k₀ Q (c Q 0) hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              rawMin B (rawE k₀ Q (c Q 0) hQ) j) ∧
+          dualFrameRelativeIndex3 (rawG k₂ k₃ Q (c Q 1) (c Q 2)) u ≤ 6 ∧
+          rawMin B (rawE k₀ Q (c Q 0) hQ) 1 < Q^(-deltaSource) ∧
+          (∃ s ∈ S, rawProduct k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0)) → False := by
+  exact JSP000334.cofactor_source_family_contradiction3 k₀ k₂ k₃ S hS
+
+theorem raw_cofactor_uniform_selected_vanishing3 (k₀ k₂ k₃ : Fin 3)
+    (S : Set (Fin 3 → Fin 3)) (hS : S.Nonempty) (deltaSource : ℝ) (hd : 0 < deltaSource) :
+    ∃ Q0 : ℝ, 1 ≤ Q0 ∧
+      ∀ Q : ℝ, Q0 < Q → ∀ hQ : 1 < Q,
+      ∀ c : Fin 3 → Fin 3 → ℝ, sourceWeightConditions3 c →
+        (∀ s ∈ S, -deltaSource/2 ≤ c 0 (s 0)+c 1 (s 1)+c 2 (s 2)) →
+      ∀ (B : Basis (Fin 3) ℝ RealTriple)
+        (u : Fin 3 → rawG k₂ k₃ Q (c 1) (c 2)),
+          lattice3 B = (rawG k₂ k₃ Q (c 1) (c 2)).toIntSubmodule.map integerTripleReal3 →
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) →
+          (∀ j, coordinateGauge3 (rawE k₀ Q (c 0) hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              rawMin B (rawE k₀ Q (c 0) hQ) j) →
+          rawMin B (rawE k₀ Q (c 0) hQ) 1 < Q^(-deltaSource) →
+      ∀ s ∈ S, rawProduct k₀ k₂ k₃ s
+        (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) = 0 := by
+  exact JSP000334.cofactor_uniform_selected_vanishing3 k₀ k₂ k₃ S hS deltaSource hd
+
+end
+end CofactorRaw252R2
+#check CofactorRaw252R2.rawC
+#print axioms CofactorRaw252R2.rawC
+#check CofactorRaw252R2.rawR
+#print axioms CofactorRaw252R2.rawR
+#check CofactorRaw252R2.rawG
+#print axioms CofactorRaw252R2.rawG
+#check CofactorRaw252R2.rawE
+#print axioms CofactorRaw252R2.rawE
+#check CofactorRaw252R2.rawBody
+#print axioms CofactorRaw252R2.rawBody
+#check CofactorRaw252R2.rawForms
+#print axioms CofactorRaw252R2.rawForms
+#check CofactorRaw252R2.rawDual
+#print axioms CofactorRaw252R2.rawDual
+#check CofactorRaw252R2.rawMin
+#print axioms CofactorRaw252R2.rawMin
+#check CofactorRaw252R2.rawProduct
+#print axioms CofactorRaw252R2.rawProduct
+#check CofactorRaw252R2.rawMin_eq
+#print axioms CofactorRaw252R2.rawMin_eq
+#check CofactorRaw252R2.raw_cofactorIntegerMatrix3_det
+#print axioms CofactorRaw252R2.raw_cofactorIntegerMatrix3_det
+#check CofactorRaw252R2.raw_cofactorSourceLattice3_spec
+#print axioms CofactorRaw252R2.raw_cofactorSourceLattice3_spec
+#check CofactorRaw252R2.raw_cofactorSourceBody3_volume
+#print axioms CofactorRaw252R2.raw_cofactorSourceBody3_volume
+#check CofactorRaw252R2.raw_exists_cofactorSource_integer_attaining_frame
+#print axioms CofactorRaw252R2.raw_exists_cofactorSource_integer_attaining_frame
+#check CofactorRaw252R2.raw_cofactor_actual_finite_bounds3
+#print axioms CofactorRaw252R2.raw_cofactor_actual_finite_bounds3
+#check CofactorRaw252R2.raw_cofactorDualInt3_value
+#print axioms CofactorRaw252R2.raw_cofactorDualInt3_value
+#check CofactorRaw252R2.raw_cofactorDualValue3_real_cast
+#print axioms CofactorRaw252R2.raw_cofactorDualValue3_real_cast
+#check CofactorRaw252R2.raw_cofactor_selected_product_lower3
+#print axioms CofactorRaw252R2.raw_cofactor_selected_product_lower3
+#check CofactorRaw252R2.raw_cofactor_actual_real_bound3
+#print axioms CofactorRaw252R2.raw_cofactor_actual_real_bound3
+#check CofactorRaw252R2.raw_cofactor_source_normal_height3
+#print axioms CofactorRaw252R2.raw_cofactor_source_normal_height3
+#check CofactorRaw252R2.raw_cofactor_finiteWeight_same_frame3
+#print axioms CofactorRaw252R2.raw_cofactor_finiteWeight_same_frame3
+#check CofactorRaw252R2.raw_cofactor_source_family_contradiction3
+#print axioms CofactorRaw252R2.raw_cofactor_source_family_contradiction3
+#check CofactorRaw252R2.raw_cofactor_uniform_selected_vanishing3
+#print axioms CofactorRaw252R2.raw_cofactor_uniform_selected_vanishing3

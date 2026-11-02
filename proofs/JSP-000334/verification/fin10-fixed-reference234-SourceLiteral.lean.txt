@@ -1,0 +1,576 @@
+import SubspaceBridge.SourceCofactorGeometry233
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M234ScopedLiteral
+theorem integer_matrix_index_dvd234 {n : ℕ} (G : AddSubgroup (Fin n → ℤ))
+    (U : Matrix (Fin n) (Fin n) ℤ) (hU : U.det ≠ 0) (hm : ∀ j, U.col j ∈ G) :
+    G.index ∣ U.det.natAbs := by
+  classical
+  let N := Submodule.span ℤ (Set.range U.col)
+  obtain ⟨hf,hi,hd⟩ := integer_span5_index_det (Pi.basisFun ℤ (Fin n)) U.col
+    (Matrix.linearIndependent_cols_of_det_ne_zero hU)
+  have he : (Pi.basisFun ℤ (Fin n)).toMatrix U.col = U := by ext i j; rfl
+  have hiMatrix := congrArg (fun M : Matrix (Fin n) (Fin n) ℤ => M.det.natAbs) he
+  have hi := hi.trans hiMatrix
+  letI : N.toAddSubgroup.FiniteIndex := ⟨by rw [hi]; exact Int.natAbs_ne_zero.mpr hU⟩
+  have hle : N.toAddSubgroup ≤ G := by
+    change N ≤ G.toIntSubmodule
+    exact Submodule.span_le.mpr (by rintro _ ⟨j,rfl⟩; exact hm j)
+  have hiN : N.toAddSubgroup.index = U.det.natAbs := hi
+  rw [← hiN]
+  exact AddSubgroup.index_dvd_of_le hle
+
+theorem lattice10_index_dvd234 {n : ℕ} (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin n) (Fin n) ℚ) (D : ℤ) (B : Matrix (Fin n) (Fin n) ℤ)
+    (hB : B.det ≠ 0)
+    (he : B.map (Int.castRingHom ℚ) = (D : ℚ) • A⁻¹) (hA : IsUnit A)
+    (e : Fin n → ℕ) :
+    (lattice10 p A e).index ∣ B.det.natAbs * p ^ (∑ i, e i) := by
+  classical
+  let U := B * Matrix.diagonal (fun i => (p : ℤ) ^ e i)
+  have hd : U.det = B.det * (p : ℤ) ^ (∑ i, e i) := by
+    rw [Matrix.det_mul, Matrix.det_diagonal, Finset.prod_pow_eq_pow_sum]
+  have hp : p ≠ 0 := (Fact.out : p.Prime).ne_zero
+  have hU : U.det ≠ 0 := by rw [hd]; exact mul_ne_zero hB (pow_ne_zero _ (by exact_mod_cast hp))
+  have hm (j : Fin n) : U.col j ∈ lattice10 p A e := by
+    apply (lattice10_spec p A e _).mpr
+    have hcol : (fun k => (U.col j k : ℚ)) =
+        (p : ℚ) ^ e j • (B.map (Int.castRingHom ℚ)).col j := by
+      ext k
+      simp [U,Matrix.mul_diagonal,Matrix.col_apply,smul_eq_mul,mul_comm]
+    have hmul : A * B.map (Int.castRingHom ℚ) = (D : ℚ) • (1 : Matrix (Fin n) (Fin n) ℚ) := by
+      rw [he,Matrix.mul_smul,Matrix.mul_nonsing_inv A ((Matrix.isUnit_iff_isUnit_det A).mp hA)]
+    have hact : A *ᵥ (B.map (Int.castRingHom ℚ)).col j =
+        ((D : ℚ) • (1 : Matrix (Fin n) (Fin n) ℚ)).col j := by
+      change (A * B.map (Int.castRingHom ℚ)).col j = _
+      rw [hmul]
+    intro i
+    rw [hcol,Matrix.mulVec_smul,hact]
+    by_cases hij : i = j
+    · subst i
+      simp only [Pi.smul_apply,smul_eq_mul,Matrix.col_apply,Matrix.smul_apply,Matrix.one_apply_eq,mul_one]
+      rw [show (p : ℚ) ^ e j * (D : ℚ) = (((p : ℤ) ^ e j * D : ℤ) : ℚ) by push_cast; ring]
+      apply padicNorm.dvd_iff_norm_le.mp
+      exact_mod_cast (dvd_mul_right ((p : ℤ) ^ e j) D)
+    · simp [Matrix.col_apply,Matrix.one_apply,hij,Ne.symm hij]
+  have h := integer_matrix_index_dvd234 (lattice10 p A e) U hU hm
+  rw [hd,Int.natAbs_mul,Int.natAbs_pow,Int.natAbs_natCast] at h
+  exact h
+
+
+theorem intersection_index_dvd234 (H K : AddSubgroup (Fin 10 → ℤ)) :
+    (H ⊓ K).index ∣ H.index * K.index := by
+  rw [← AddSubgroup.relindex_mul_index (show H ⊓ K ≤ K from inf_le_right),
+    AddSubgroup.inf_relindex_right]
+  exact mul_dvd_mul_right (AddSubgroup.relindex_dvd_index_of_normal H K) _
+
+theorem source_index_dvd234 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (h2 : IsUnit A2) (h3 : IsUnit A3) :
+    ∃ C : ℕ, 0 < C ∧ ∀ e2 e3 : Fin 10 → ℕ,
+      (sourceLattice10 A2 A3 e2 e3).index ∣ C * 2^(∑ i, e2 i) * 3^(∑ i, e3 i) := by
+  obtain ⟨D2,B2,_,hB2,he2⟩ := inverse_integral_frame10 A2 h2
+  obtain ⟨D3,B3,_,hB3,he3⟩ := inverse_integral_frame10 A3 h3
+  refine ⟨B2.det.natAbs*B3.det.natAbs,
+    Nat.mul_pos (Int.natAbs_pos.mpr hB2) (Int.natAbs_pos.mpr hB3),?_⟩
+  intro e2 e3
+  have hd := (intersection_index_dvd234 (lattice10 2 A2 e2) (lattice10 3 A3 e3)).trans
+    (Nat.mul_dvd_mul (lattice10_index_dvd234 2 A2 D2 B2 hB2 he2 h2 e2)
+      (lattice10_index_dvd234 3 A3 D3 B3 hB3 he3 h3 e3))
+  simpa only [sourceLattice10,Nat.mul_assoc,Nat.mul_left_comm,Nat.mul_comm] using hd
+
+end CompoundFeasibility.M234ScopedLiteral
+namespace CompoundFeasibility.M234ScopedLiteral
+def dualSupport234 (A : Matrix (Fin 10) (Fin 10) ℚ) (v : Fin 10 → ℤ) : Finset (Fin 10) :=
+  Finset.univ.filter (fun i => (A⁻¹.transpose *ᵥ (fun j => (v j : ℚ))) i ≠ 0)
+
+theorem dualSupport_nonempty234 (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A)
+    (v : Fin 10 → ℤ) (hv : v ≠ 0) : (dualSupport234 A v).Nonempty := by
+  by_contra he
+  have hz : A⁻¹.transpose *ᵥ (fun j => (v j : ℚ)) = 0 := by
+    funext i
+    by_contra hi
+    change (A⁻¹.transpose *ᵥ (fun j => (v j : ℚ))) i ≠ 0 at hi
+    exact he ⟨i,by simp [dualSupport234,hi]⟩
+  have hr := congrArg (Matrix.mulVec A.transpose) hz
+  rw [Matrix.mulVec_mulVec,← Matrix.transpose_mul,
+    Matrix.nonsing_inv_mul A ((Matrix.isUnit_iff_isUnit_det A).mp hA),
+    Matrix.transpose_one,Matrix.one_mulVec,Matrix.mulVec_zero] at hr
+  apply hv
+  funext i
+  have hi := congrFun hr i
+  simp only [Pi.zero_apply] at hi
+  change v i = 0
+  exact_mod_cast hi
+
+def complementaryFloor234 (p : ℕ) (q : ℝ) (c : Fin 10 → ℝ) (i : Fin 10) : ℤ :=
+  Int.floor ((Real.log q/Real.log p)*(∑ j : Fin 9, c (i.succAbove j)))
+
+def floorMin234 (p : ℕ) (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A)
+    (q : ℝ) (c : Fin 10 → ℝ) (v : Fin 10 → ℤ) (hv : v ≠ 0) : ℤ :=
+  ((dualSupport234 A v).image (complementaryFloor234 p q c)).min'
+    ((dualSupport_nonempty234 A hA v hv).image _)
+
+theorem floorMin_le234 (p : ℕ) (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A)
+    (q : ℝ) (c : Fin 10 → ℝ) (v : Fin 10 → ℤ) (hv : v ≠ 0)
+    (i : Fin 10) (hi : i ∈ dualSupport234 A v) :
+    floorMin234 p A hA q c v hv ≤ complementaryFloor234 p q c i := by
+  exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨i,hi,rfl⟩)
+
+theorem floorMin_nonpos234 (p : ℕ) (hp : 1 < p) (A : Matrix (Fin 10) (Fin 10) ℚ)
+    (hA : IsUnit A) (q : ℝ) (hq : 1 < q) (c : Fin 10 → ℝ)
+    (hc : ∀ i, c i ≤ 0) (v : Fin 10 → ℤ) (hv : v ≠ 0) :
+    floorMin234 p A hA q c v hv ≤ 0 := by
+  obtain ⟨i,hi⟩ := dualSupport_nonempty234 A hA v hv
+  apply (floorMin_le234 p A hA q c v hv i hi).trans
+  apply Int.floor_nonpos
+  exact mul_nonpos_of_nonneg_of_nonpos
+    (div_nonneg (Real.log_pos hq).le (Real.log_pos (by exact_mod_cast hp)).le)
+    (Finset.sum_nonpos (fun j _ => hc (i.succAbove j)))
+
+theorem rounding_margin234 (x : Fin 9 → ℝ) (hx : ∀ j, 0 ≤ x j) :
+    (∑ j, Nat.ceil (x j)) ≤ (9-Int.floor (-(∑ j, x j))).toNat := by
+  have hg : Int.floor (-(∑ j, x j)) ≤ 0 :=
+    Int.floor_nonpos (neg_nonpos.mpr (Finset.sum_nonneg (fun j _ => hx j)))
+  have hn : 0 ≤ 9-Int.floor (-(∑ j, x j)) := by omega
+  have he : (((9-Int.floor (-(∑ j, x j))).toNat : ℕ) : ℝ) =
+      9-(Int.floor (-(∑ j, x j)) : ℝ) := by
+    rw [← Int.cast_natCast,Int.toNat_of_nonneg hn]
+    push_cast
+    rfl
+  have hsum := Finset.sum_le_sum (s := Finset.univ)
+    (fun j _ => (Nat.ceil_lt_add_one (hx j)).le)
+  simp only [Finset.sum_add_distrib,Finset.sum_const,Finset.card_univ,Fintype.card_fin,nsmul_eq_mul,mul_one] at hsum
+  have hf := Int.floor_le (-(∑ j, x j))
+  have hh : (∑ j : Fin 9, (Nat.ceil (x j) : ℝ)) ≤
+      (((9-Int.floor (-(∑ j, x j))).toNat : ℕ) : ℝ) := by
+    rw [he]
+    norm_num at hsum
+    linarith
+  exact_mod_cast hh
+
+theorem floor_bound234 (p : ℕ) (hp : 1 < p) (q : ℝ) (hq : 1 < q)
+    (c : Fin 10 → ℝ) (hc : ∀ i, c i ≤ 0) (i : Fin 10) :
+    (∑ j, Nat.ceil (JSP000334.qThreshold p q (c j))) -
+      Nat.ceil (JSP000334.qThreshold p q (c i)) ≤
+        (9-complementaryFloor234 p q c i).toNat := by
+  have ht (j : Fin 10) : 0 ≤ JSP000334.qThreshold p q (c j) :=
+    JSP000334.qThreshold_nonneg p hp q (c j) hq (hc j)
+  have h := rounding_margin234 (fun j : Fin 9 => JSP000334.qThreshold p q (c (i.succAbove j)))
+    (fun j => ht (i.succAbove j))
+  have he : (Real.log q/Real.log p)*(∑ j : Fin 9, c (i.succAbove j)) =
+      -(∑ j : Fin 9, JSP000334.qThreshold p q (c (i.succAbove j))) := by
+    rw [Finset.mul_sum,← Finset.sum_neg_distrib]
+    apply Finset.sum_congr rfl
+    intro j _
+    unfold JSP000334.qThreshold
+    ring
+  unfold complementaryFloor234
+  rw [he]
+  have hs := Fin.sum_univ_succAbove (fun j => Nat.ceil (JSP000334.qThreshold p q (c j))) i
+  rw [hs,Nat.add_sub_cancel_left]
+  exact h
+
+
+end CompoundFeasibility.M234ScopedLiteral
+namespace CompoundFeasibility.M234ScopedLiteral
+theorem clear_positive234 (A : Matrix (Fin 10) (Fin 10) ℚ) :
+    ∃ d : ℤ, 0 < d ∧ ∃ M : Matrix (Fin 10) (Fin 10) ℤ,
+      M.map (Int.castRingHom ℚ) = (d : ℚ) • A := by
+  obtain ⟨d,hd,h⟩ := clear_matrix_denominators A
+  choose M hM using h
+  by_cases hp : 0 < d
+  · refine ⟨d,hp,M,?_⟩
+    ext i j
+    exact hM i j
+  · refine ⟨-d,by omega,-M,?_⟩
+    ext i j
+    simp only [Matrix.map_apply,Matrix.neg_apply,Int.cast_neg,Matrix.smul_apply,smul_eq_mul,neg_mul]
+    exact congrArg Neg.neg (hM i j)
+
+theorem rational_pairing234 (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A)
+    (x v : Fin 10 → ℚ) :
+    (A *ᵥ x) ⬝ᵥ (A⁻¹.transpose *ᵥ v) = x ⬝ᵥ v := by
+  rw [dotProduct_comm,Matrix.dotProduct_mulVec,← Matrix.mulVec_transpose,
+    Matrix.mulVec_mulVec,← Matrix.transpose_mul,
+    Matrix.nonsing_inv_mul A ((Matrix.isUnit_iff_isUnit_det A).mp hA),
+    Matrix.transpose_one,Matrix.one_mulVec,dotProduct_comm]
+
+theorem cleared_pairing234 (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A)
+    (d f : ℤ) (M N : Matrix (Fin 10) (Fin 10) ℤ)
+    (hM : M.map (Int.castRingHom ℚ) = (d : ℚ) • A)
+    (hN : N.map (Int.castRingHom ℚ) = (f : ℚ) • A⁻¹.transpose)
+    (x v : Fin 10 → ℤ) :
+    (∑ i, (M *ᵥ x) i * (N *ᵥ v) i) = d*f*(∑ i, x i*v i) := by
+  have h := rational_pairing234 A hA (fun i => (x i : ℚ)) (fun i => (v i : ℚ))
+  have hx : (fun i => ((M *ᵥ x) i : ℚ)) = (d : ℚ) • (A *ᵥ (fun i => (x i : ℚ))) := by
+    ext i
+    simpa only [hM,Matrix.smul_mulVec_assoc,Pi.smul_apply,smul_eq_mul] using
+      (Int.castRingHom ℚ).map_mulVec M x i
+  have hv : (fun i => ((N *ᵥ v) i : ℚ)) = (f : ℚ) • (A⁻¹.transpose *ᵥ (fun i => (v i : ℚ))) := by
+    ext i
+    simpa only [hN,Matrix.smul_mulVec_assoc,Pi.smul_apply,smul_eq_mul] using
+      (Int.castRingHom ℚ).map_mulVec N v i
+  have hh : (fun i => ((M *ᵥ x) i : ℚ)) ⬝ᵥ (fun i => ((N *ᵥ v) i : ℚ)) =
+      (d : ℚ)*(f : ℚ)*((fun i => (x i : ℚ)) ⬝ᵥ (fun i => (v i : ℚ))) := by
+    rw [hx,hv,smul_dotProduct,dotProduct_smul,h]
+    simp only [smul_eq_mul]
+    ring
+  simp only [dotProduct] at hh
+  exact_mod_cast hh
+
+theorem local_rows_dvd234 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (d : ℤ) (M : Matrix (Fin 10) (Fin 10) ℤ)
+    (hM : M.map (Int.castRingHom ℚ) = (d : ℚ) • A)
+    (e : Fin 10 → ℕ) (x : Fin 10 → ℤ) (hx : x ∈ lattice10 p A e) :
+    ∀ i, (p : ℤ)^(e i) ∣ (M *ᵥ x) i := by
+  intro i
+  have he : ((M *ᵥ x) i : ℚ) = (d : ℚ)*(A *ᵥ (fun j => (x j : ℚ))) i := by
+    have hh := (Int.castRingHom ℚ).map_mulVec M x i
+    rw [hM,Matrix.smul_mulVec_assoc] at hh
+    exact hh
+  suffices hn : padicNorm p ((M *ᵥ x) i : ℚ) ≤ (p : ℚ)^(-(e i : ℤ)) by
+    simpa only [Nat.cast_pow] using (padicNorm.dvd_iff_norm_le (p := p)).mpr hn
+  rw [he,padicNorm.mul]
+  have hb := (lattice10_spec p A e x).mp hx i
+  exact (mul_le_mul_of_nonneg_right (padicNorm.of_int d) (padicNorm.nonneg _)).trans (by simpa using hb)
+
+theorem rational_padic_coordinates234 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A)
+    (v : Fin 10 → ℤ) (i : Fin 10) :
+    ((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ (fun j => (v j : ℚ_[p]))) i =
+      algebraMap ℚ ℚ_[p] ((A⁻¹.transpose *ᵥ (fun j => (v j : ℚ))) i) := by
+  have hi : (A.map (algebraMap ℚ ℚ_[p]))⁻¹ = A⁻¹.map (algebraMap ℚ ℚ_[p]) := by
+    apply Matrix.inv_eq_right_inv
+    rw [← Matrix.map_mul,Matrix.mul_nonsing_inv A ((Matrix.isUnit_iff_isUnit_det A).mp hA)]
+    ext i j
+    simp [Matrix.map_apply,Matrix.one_apply]
+  rw [hi]
+  simpa only [Matrix.transpose_map,Function.comp_apply,map_intCast] using
+    ((algebraMap ℚ ℚ_[p]).map_mulVec A⁻¹.transpose (fun j => (v j : ℚ)) i).symm
+
+theorem local_rescale_dvd234 (p : ℕ) [Fact p.Prime] (hp : 1 < p)
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A)
+    (d f : ℤ) (M N : Matrix (Fin 10) (Fin 10) ℤ)
+    (hM : M.map (Int.castRingHom ℚ) = (d : ℚ) • A)
+    (hN : N.map (Int.castRingHom ℚ) = (f : ℚ) • A⁻¹.transpose)
+    (q : ℝ) (hq : 1 < q) (c : Fin 10 → ℝ) (hc : ∀ i, c i ≤ 0)
+    (v : Fin 10 → ℤ) (hv : v ≠ 0) (x : Fin 10 → ℤ)
+    (hx : x ∈ lattice10 p A (fun i => Nat.ceil (JSP000334.qThreshold p q (c i)))) :
+    (p : ℤ)^(∑ i, Nat.ceil (JSP000334.qThreshold p q (c i))) ∣
+      d*f*(p : ℤ)^((9-floorMin234 p A hA q c v hv).toNat)*(∑ i, x i*v i) := by
+  let e := fun i => Nat.ceil (JSP000334.qThreshold p q (c i))
+  let n := (9-floorMin234 p A hA q c v hv).toNat
+  have hrow := local_rows_dvd234 p A d M hM e x hx
+  have hcomp (i : Fin 10) : (p : ℤ)^((∑ j, e j)-e i) ∣ (p : ℤ)^n*(N *ᵥ v) i := by
+    have he : ((N *ᵥ v) i : ℚ) = (f : ℚ)*(A⁻¹.transpose *ᵥ (fun j => (v j : ℚ))) i := by
+      have hh := (Int.castRingHom ℚ).map_mulVec N v i
+      rw [hN,Matrix.smul_mulVec_assoc] at hh
+      exact hh
+    by_cases hi : (A⁻¹.transpose *ᵥ (fun j => (v j : ℚ))) i = 0
+    · have hz : (N *ᵥ v) i = 0 := by
+        have hh : ((N *ᵥ v) i : ℚ) = 0 := by rw [he,hi,mul_zero]
+        exact_mod_cast hh
+      rw [hz,mul_zero]
+      exact dvd_zero _
+    · have hm := floorMin_le234 p A hA q c v hv i (by simp [dualSupport234,hi])
+      have hb := floor_bound234 p hp q hq c hc i
+      have hn := Int.toNat_le_toNat (sub_le_sub_left hm 9)
+      exact dvd_mul_of_dvd_left (pow_dvd_pow (p : ℤ) (hb.trans hn)) _
+  have hd : (p : ℤ)^(∑ i, e i) ∣ ∑ i, (M *ᵥ x) i*((p : ℤ)^n*(N *ᵥ v) i) := by
+    apply Finset.dvd_sum
+    intro i _
+    have he : e i ≤ ∑ j, e j := Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_univ i)
+    have hh := mul_dvd_mul (hrow i) (hcomp i)
+    rwa [← pow_add,Nat.add_sub_of_le he] at hh
+  have he : (∑ i, (M *ᵥ x) i*((p : ℤ)^n*(N *ᵥ v) i)) =
+      d*f*(p : ℤ)^n*(∑ i, x i*v i) := by
+    calc
+      _ = (p : ℤ)^n*(∑ i, (M *ᵥ x) i*(N *ᵥ v) i) := by
+        rw [Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro i _
+        ring
+      _ = _ := by rw [cleared_pairing234 A hA d f M N hM hN x v]; ring
+  exact he ▸ hd
+
+end CompoundFeasibility.M234ScopedLiteral
+namespace CompoundFeasibility.M234ScopedLiteral
+open SourceOriginalDual10 SourceDualGeometry219
+
+theorem fixed_rescale_mem234 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (h2 : IsUnit A2) (h3 : IsUnit A3) (v : Fin 10 → ℤ) (hv : v ≠ 0) :
+    ∃ C : ℤ, 0 < C ∧ ∀ (q : ℝ), 1 < q → ∀ (c2 c3 : Fin 10 → ℝ),
+      (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) →
+      let t : ℤ := C*2^((9-floorMin234 2 A2 h2 q c2 v hv).toNat)*
+        3^((9-floorMin234 3 A3 h3 q c3 v hv).toNat)
+      t ≠ 0 ∧ (fun i => ((t • v) i : ℚ)) ∈ scaledDual219
+        (originalSourceGroup10 A2 A3 q c2 c3) := by
+  obtain ⟨I,hI,hindex⟩ := source_index_dvd234 A2 A3 h2 h3
+  obtain ⟨d2,hd2,M2,hM2⟩ := clear_positive234 A2
+  obtain ⟨f2,hf2,N2,hN2⟩ := clear_positive234 A2⁻¹.transpose
+  obtain ⟨d3,hd3,M3,hM3⟩ := clear_positive234 A3
+  obtain ⟨f3,hf3,N3,hN3⟩ := clear_positive234 A3⁻¹.transpose
+  let C : ℤ := (I : ℤ)*d2*f2*d3*f3
+  refine ⟨C,by dsimp [C]; positivity,?_⟩
+  intro q hq c2 c3 hc2 hc3 t
+  have ht : t ≠ 0 := by dsimp [t,C]; positivity
+  refine ⟨ht,?_⟩
+  let e2 := fun i => Nat.ceil (JSP000334.qThreshold 2 q (c2 i))
+  let e3 := fun i => Nat.ceil (JSP000334.qThreshold 3 q (c3 i))
+  let P2 : ℤ := 2^((9-floorMin234 2 A2 h2 q c2 v hv).toNat)
+  let P3 : ℤ := 3^((9-floorMin234 3 A3 h3 q c3 v hv).toNat)
+  let G := originalSourceGroup10 A2 A3 q c2 c3
+  have hdi : G.index ∣ I*2^(∑ i, e2 i)*3^(∑ i, e3 i) := hindex e2 e3
+  have hG : G.index ≠ 0 := ne_zero_of_dvd_ne_zero (by positivity) hdi
+  apply (scaledDual_pairing219 G hG _).mpr
+  intro x
+  have hx : (x : Fin 10 → ℤ) ∈ sourceLattice10 A2 A3 e2 e3 := x.property
+  have hlocal2 := local_rescale_dvd234 2 (by decide) A2 h2 d2 f2 M2 N2 hM2 hN2
+    q hq c2 hc2 v hv x hx.1
+  have hlocal3 := local_rescale_dvd234 3 (by decide) A3 h3 d3 f3 M3 N3 hM3 hN3
+    q hq c3 hc3 v hv x hx.2
+  let z : ℤ := d2*f2*d3*f3*P2*P3*(∑ i, (x : Fin 10 → ℤ) i*v i)
+  have hz2 : (2 : ℤ)^(∑ i, e2 i) ∣ z := by
+    simpa only [z,P2,mul_assoc,mul_left_comm,mul_comm] using
+      dvd_mul_of_dvd_left hlocal2 (d3*f3*P3)
+  have hz3 : (3 : ℤ)^(∑ i, e3 i) ∣ z := by
+    simpa only [z,P3,mul_assoc,mul_left_comm,mul_comm] using
+      dvd_mul_of_dvd_left hlocal3 (d2*f2*P2)
+  have hcop : IsCoprime ((2 : ℤ)^(∑ i, e2 i)) ((3 : ℤ)^(∑ i, e3 i)) :=
+    IsCoprime.pow (show IsCoprime (2 : ℤ) 3 from ⟨-1,1,by norm_num⟩)
+  have hz := hcop.mul_dvd hz2 hz3
+  have hzI : (I : ℤ)*2^(∑ i, e2 i)*3^(∑ i, e3 i) ∣
+      t*(∑ i, (x : Fin 10 → ℤ) i*v i) := by
+    have hh := mul_dvd_mul_left (I : ℤ) hz
+    simpa only [t,C,z,P2,P3,mul_assoc,mul_left_comm,mul_comm] using hh
+  have hiZ : (G.index : ℤ) ∣ (I : ℤ)*2^(∑ i, e2 i)*3^(∑ i, e3 i) := by
+    exact_mod_cast hdi
+  obtain ⟨a,ha⟩ := hiZ.trans hzI
+  refine ⟨a,?_⟩
+  have he : (∑ i, (x : Fin 10 → ℤ) i*(t • v) i) =
+      t*(∑ i, (x : Fin 10 → ℤ) i*v i) := by
+    simp only [Pi.smul_apply,smul_eq_mul,Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro i _
+    ring
+  change (∑ i, ((x : Fin 10 → ℤ) i : ℚ)*((t • v) i : ℚ)) = _
+  exact_mod_cast he.trans ha
+open SourceSelectedUpper10 OriginalDual10 SourceSatz51Entry218 SourceOriginalDual10 SourceGlobalSelected10
+  SourceCofactorGeometry233
+
+theorem source_fixed_reference234
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ v0 : Fin 10 → ℤ, v0 = integerLastDual10 (D q1).u ∧ v0 ≠ 0 ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            ∀ q : Omega, q.val ∈ U → sourceSet218 q.val delta (A q.val) c2 c3 = S0 := by
+  obtain ⟨S0,hS0,B,hB,U,hUO,hU,hzero⟩ := source_entry_fixed_set_vanishing218
+    A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+  obtain ⟨T,_,hpoint⟩ := source_uniform_cofactor233 delta hd
+  obtain ⟨q1,hq1U,hq1gt⟩ := not_bddAbove_iff.mp hU (max B T)
+  let q1O : Omega := ⟨q1,hUO hq1U⟩
+  have hp := hpoint A2 A3 h2d h3d L hL hLd q1
+    ((le_max_right B T).trans_lt hq1gt) (hq q1 q1O.property) c2 c3 (A q1) (D q1O)
+  have hn : integerLastDual10 (D q1O).u ≠ 0 := by
+    intro he
+    apply hp.1
+    funext i
+    have hi := congrFun he i
+    change (integerLastDual10 (D q1O).u i : ℚ) = 0
+    exact_mod_cast hi
+  refine ⟨S0,hS0,max B T,hB.trans_le (le_max_left _ _),U,hUO,hU,
+    q1O,hq1U,hq1gt,integerLastDual10 (D q1O).u,rfl,hn,?_,?_⟩
+  · intro s hs
+    by_contra hnz
+    have hh := (original_rational_product_nonzero_iff A2 A3 L (D q1O).u
+      (integer_frame_rational_independent10 (D q1O).u (D q1O).independent) s).mpr hnz
+    exact hh ((hzero q1O hq1U).2.2 s hs)
+  · intro q hqU
+    exact (hzero q hqU).2.1
+
+theorem source_fixed_membership234
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            (∀ q : Omega, q.val ∈ U → sourceSet218 q.val delta (A q.val) c2 c3 = S0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∀ q ∈ U, B < q → t q ≠ 0 ∧
+                (fun i => (((t q) • v0) i : ℚ)) ∈ scaledDual219
+                  (originalSourceGroup10 A2 A3 q c2 c3) := by
+  intro hA2 hA3
+  obtain ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hveq,hv0,hzero,hpattern⟩ :=
+    source_fixed_reference234 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3
+      delta hd Omega hO hq A D
+  obtain ⟨C,hC,hm⟩ := fixed_rescale_mem234 A2 A3 hA2 hA3 v0 hv0
+  let t : ℝ → ℤ := fun q => C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+    3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)
+  refine ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,hpattern,
+    C,hC,t,fun _ => rfl,?_⟩
+  intro q hqU _
+  exact hm q (hq q (hUO hqU)) c2 c3 (fun i => (h2 i).2) (fun i => (h3 i).2)
+
+end CompoundFeasibility.M234ScopedLiteral
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.M234ScopedLiteral
+  CompoundFeasibility.OriginalDual10 CompoundFeasibility.SourceSatz51Entry218
+  CompoundFeasibility.SourceOriginalDual10 CompoundFeasibility.SourceSelectedUpper10
+  CompoundFeasibility.SourceDualGeometry219
+namespace M234SourceLiteral
+theorem original_fixed_membership
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            (∀ q : Omega, q.val ∈ U → sourceSet218 q.val delta (A q.val) c2 c3 = S0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∀ q ∈ U, B < q → t q ≠ 0 ∧
+                (fun i => (((t q) • v0) i : ℚ)) ∈ scaledDual219
+                  (originalSourceGroup10 A2 A3 q c2 c3) := by
+  exact source_fixed_membership234 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+
+theorem original_index_pairing
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            (∀ q : Omega, q.val ∈ U → sourceSet218 q.val delta (A q.val) c2 c3 = S0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∀ q ∈ U, B < q → t q ≠ 0 ∧
+                ∀ x : originalSourceGroup10 A2 A3 q c2 c3, ∃ a : ℤ,
+                  (∑ i, (x : Fin 10 → ℤ) i*((t q) • v0) i) =
+                    ((originalSourceGroup10 A2 A3 q c2 c3).index : ℤ)*a := by
+  intro hA2 hA3
+  obtain ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,hpattern,C,hC,t,ht,hm⟩ :=
+    source_fixed_membership234 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+  refine ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,hpattern,C,hC,t,ht,?_⟩
+  intro q hqU hqB
+  obtain ⟨hn,hmem⟩ := hm q hqU hqB
+  refine ⟨hn,?_⟩
+  intro x
+  obtain ⟨z,hz,he⟩ := hmem
+  obtain ⟨a,ha⟩ := hz x
+  have hh := pairing_smul219
+    ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) z (x : Fin 10 → ℤ)
+  change ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) • z =
+    (fun i => (((t q) • v0) i : ℚ)) at he
+  rw [he,ha] at hh
+  change (∑ i, ((x : Fin 10 → ℤ) i : ℚ)*(((t q) • v0) i : ℚ)) = _ at hh
+  refine ⟨a,?_⟩
+  exact_mod_cast hh
+
+end M234SourceLiteral
+#check M234SourceLiteral.original_fixed_membership
+#print M234SourceLiteral.original_fixed_membership
+#print axioms M234SourceLiteral.original_fixed_membership
+#check M234SourceLiteral.original_index_pairing
+#print M234SourceLiteral.original_index_pairing
+#print axioms M234SourceLiteral.original_index_pairing
+#check CompoundFeasibility.M234ScopedLiteral.integer_matrix_index_dvd234
+#print CompoundFeasibility.M234ScopedLiteral.integer_matrix_index_dvd234
+#print axioms CompoundFeasibility.M234ScopedLiteral.integer_matrix_index_dvd234
+#check CompoundFeasibility.M234ScopedLiteral.lattice10_index_dvd234
+#print CompoundFeasibility.M234ScopedLiteral.lattice10_index_dvd234
+#print axioms CompoundFeasibility.M234ScopedLiteral.lattice10_index_dvd234
+#check CompoundFeasibility.M234ScopedLiteral.intersection_index_dvd234
+#print CompoundFeasibility.M234ScopedLiteral.intersection_index_dvd234
+#print axioms CompoundFeasibility.M234ScopedLiteral.intersection_index_dvd234
+#check CompoundFeasibility.M234ScopedLiteral.source_index_dvd234
+#print CompoundFeasibility.M234ScopedLiteral.source_index_dvd234
+#print axioms CompoundFeasibility.M234ScopedLiteral.source_index_dvd234
+#check CompoundFeasibility.M234ScopedLiteral.dualSupport_nonempty234
+#print CompoundFeasibility.M234ScopedLiteral.dualSupport_nonempty234
+#print axioms CompoundFeasibility.M234ScopedLiteral.dualSupport_nonempty234
+#check CompoundFeasibility.M234ScopedLiteral.floorMin_le234
+#print CompoundFeasibility.M234ScopedLiteral.floorMin_le234
+#print axioms CompoundFeasibility.M234ScopedLiteral.floorMin_le234
+#check CompoundFeasibility.M234ScopedLiteral.floorMin_nonpos234
+#print CompoundFeasibility.M234ScopedLiteral.floorMin_nonpos234
+#print axioms CompoundFeasibility.M234ScopedLiteral.floorMin_nonpos234
+#check CompoundFeasibility.M234ScopedLiteral.rounding_margin234
+#print CompoundFeasibility.M234ScopedLiteral.rounding_margin234
+#print axioms CompoundFeasibility.M234ScopedLiteral.rounding_margin234
+#check CompoundFeasibility.M234ScopedLiteral.floor_bound234
+#print CompoundFeasibility.M234ScopedLiteral.floor_bound234
+#print axioms CompoundFeasibility.M234ScopedLiteral.floor_bound234
+#check CompoundFeasibility.M234ScopedLiteral.clear_positive234
+#print CompoundFeasibility.M234ScopedLiteral.clear_positive234
+#print axioms CompoundFeasibility.M234ScopedLiteral.clear_positive234
+#check CompoundFeasibility.M234ScopedLiteral.rational_pairing234
+#print CompoundFeasibility.M234ScopedLiteral.rational_pairing234
+#print axioms CompoundFeasibility.M234ScopedLiteral.rational_pairing234
+#check CompoundFeasibility.M234ScopedLiteral.cleared_pairing234
+#print CompoundFeasibility.M234ScopedLiteral.cleared_pairing234
+#print axioms CompoundFeasibility.M234ScopedLiteral.cleared_pairing234
+#check CompoundFeasibility.M234ScopedLiteral.local_rows_dvd234
+#print CompoundFeasibility.M234ScopedLiteral.local_rows_dvd234
+#print axioms CompoundFeasibility.M234ScopedLiteral.local_rows_dvd234
+#check CompoundFeasibility.M234ScopedLiteral.rational_padic_coordinates234
+#print CompoundFeasibility.M234ScopedLiteral.rational_padic_coordinates234
+#print axioms CompoundFeasibility.M234ScopedLiteral.rational_padic_coordinates234
+#check CompoundFeasibility.M234ScopedLiteral.local_rescale_dvd234
+#print CompoundFeasibility.M234ScopedLiteral.local_rescale_dvd234
+#print axioms CompoundFeasibility.M234ScopedLiteral.local_rescale_dvd234
+#check CompoundFeasibility.M234ScopedLiteral.fixed_rescale_mem234
+#print CompoundFeasibility.M234ScopedLiteral.fixed_rescale_mem234
+#print axioms CompoundFeasibility.M234ScopedLiteral.fixed_rescale_mem234
+#check CompoundFeasibility.M234ScopedLiteral.source_fixed_reference234
+#print CompoundFeasibility.M234ScopedLiteral.source_fixed_reference234
+#print axioms CompoundFeasibility.M234ScopedLiteral.source_fixed_reference234
+#check CompoundFeasibility.M234ScopedLiteral.source_fixed_membership234
+#print CompoundFeasibility.M234ScopedLiteral.source_fixed_membership234
+#print axioms CompoundFeasibility.M234ScopedLiteral.source_fixed_membership234
+#check CompoundFeasibility.M234ScopedLiteral.dualSupport234
+#print CompoundFeasibility.M234ScopedLiteral.dualSupport234
+#print axioms CompoundFeasibility.M234ScopedLiteral.dualSupport234
+#check CompoundFeasibility.M234ScopedLiteral.complementaryFloor234
+#print CompoundFeasibility.M234ScopedLiteral.complementaryFloor234
+#print axioms CompoundFeasibility.M234ScopedLiteral.complementaryFloor234
+#check CompoundFeasibility.M234ScopedLiteral.floorMin234
+#print CompoundFeasibility.M234ScopedLiteral.floorMin234
+#print axioms CompoundFeasibility.M234ScopedLiteral.floorMin234

@@ -1,0 +1,271 @@
+import SubspaceBridge.OriginalNonRothFlag5
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace AssemblySourceChallenge248
+open CompoundFeasibility CompoundFeasibility.OriginalFlagAssembly5 CompoundFeasibility.OriginalVariableGap5
+def rawMinima246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ v : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ v ∧
+    (∀ i, ∃ z : Fin 5 → ℤ,
+      (∀ k, padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) k) ≤
+        (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 Q (c2 k)) : ℤ))) ∧
+      (∀ k, padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) k) ≤
+        (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 Q (c3 k)) : ℤ))) ∧
+      integerReal z = v i) ∧
+    ∀ i k, |(L *ᵥ v i) k| ≤ r * Q^(c0 k)}
+
+theorem rawMinima_eq246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) :
+    rawMinima246 A2 A3 L Q c0 c2 c3 j = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j := by
+  unfold rawMinima246 sourceMinima5
+  congr 1
+  ext r
+  constructor
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,?_⟩
+    · intro i
+      obtain ⟨z,h2,h3,he⟩ := hm i
+      exact ⟨z,⟨(lattice5_spec 2 A2 _ z).mpr h2,(lattice5_spec 3 A3 _ z).mpr h3⟩,he⟩
+    · intro i
+      exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mpr (hb i)
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,?_⟩
+    · intro i
+      obtain ⟨z,hz,he⟩ := hm i
+      exact ⟨z,(lattice5_spec 2 A2 _ z).mp hz.1,(lattice5_spec 3 A3 _ z).mp hz.2,he⟩
+    · intro i
+      exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mp (hb i)
+
+def rawGauge247 (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c : Fin 5 → ℝ)
+    (x : Fin 5 → ℝ) : ℝ := ‖fun i => (L *ᵥ x) i / Q^(c i)‖
+
+theorem rawGauge_eq247 (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c : Fin 5 → ℝ) (x : Fin 5 → ℝ) :
+    rawGauge247 L Q c x = coordinateGauge5 (originalCoordinates5 L hL Q hQ c) x := rfl
+
+def rawSolution248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ)
+    (Q delta : ℝ) (x : Fin 5 → ℤ) : Prop :=
+  x ≠ 0 ∧ 1 < Q ∧ 0 < delta ∧
+    (∀ i, |(L *ᵥ integerReal x) i| ≤ Q^(c0 i-delta)) ∧
+    (∀ i, (padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) : ℝ) ≤ Q^(c2 i)) ∧
+    (∀ i, (padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) : ℝ) ≤ Q^(c3 i))
+
+def rawRoth248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ) : Prop :=
+  ∀ delta : ℝ, 0 < delta → ∃ B : ℝ, ∀ Q : ℝ, B < Q →
+    ¬ ∃ x : Fin 5 → ℤ, rawSolution248 A2 A3 L c0 c2 c3 Q delta x
+
+theorem rawSolution_eq248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ) (Q delta : ℝ) (x : Fin 5 → ℤ) :
+    rawSolution248 A2 A3 L c0 c2 c3 Q delta x ↔ originalSourceSolution5 A2 A3 L c0 c2 c3 Q delta x := Iff.rfl
+
+theorem rawRoth_eq248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ) :
+    rawRoth248 A2 A3 L c0 c2 c3 ↔ originalRothProperty5 A2 A3 L c0 c2 c3 := Iff.rfl
+
+def rawMinima248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ v : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ v ∧
+    (∀ i, ∃ z : Fin 5 → ℤ,
+      (∀ k, (padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+      (∀ k, (padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) k) : ℝ) ≤ Q^(c3 k)) ∧
+      integerReal z = v i) ∧
+    ∀ i k, |(L *ᵥ v i) k| ≤ r * Q^(c0 k)}
+
+theorem raw_place_eq248 (p : ℕ) [Fact p.Prime] (Q c : ℝ) (hQ : 1 < Q) (hc : c ≤ 0) (x : ℚ) :
+    (padicNorm p x : ℝ) ≤ Q^c ↔
+      padicNorm p x ≤ (p : ℚ)^(-(Nat.ceil (JSP000334.qThreshold p Q c) : ℤ)) := by
+  simpa only [zpow_neg,zpow_natCast] using padic_rpow_ceil42 p Q c hQ hc x
+
+theorem rawMinima_eq248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0) (j : Fin 5) :
+    rawMinima248 A2 A3 L Q c0 c2 c3 j = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j := by
+  rw [← rawMinima_eq246 A2 A3 L hL Q hQ c0 c2 c3 j]
+  unfold rawMinima248 rawMinima246
+  congr 1
+  ext r
+  constructor
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,hb⟩
+    intro i
+    obtain ⟨z,h2,h3,he⟩ := hm i
+    exact ⟨z,fun k => (raw_place_eq248 2 Q (c2 k) hQ (hc2 k) _).mp (h2 k),
+      fun k => (raw_place_eq248 3 Q (c3 k) hQ (hc3 k) _).mp (h3 k),he⟩
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,hb⟩
+    intro i
+    obtain ⟨z,h2,h3,he⟩ := hm i
+    exact ⟨z,fun k => (raw_place_eq248 2 Q (c2 k) hQ (hc2 k) _).mpr (h2 k),
+      fun k => (raw_place_eq248 3 Q (c3 k) hQ (hc3 k) _).mpr (h3 k),he⟩
+
+theorem raw_selected_gap_fixed_flag248
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q) (j : Fin 4)
+    (hgap : ∀ (Q : ℝ) (hQO : Q ∈ Omega),
+      rawMinima248 A2 A3 L Q c0 c2 c3 j.castSucc <
+        rawMinima248 A2 A3 L Q c0 c2 c3 j.succ*Q^(-delta)) :
+    ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = j.val+1 ∧
+      ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+        ∀ (Q : ℝ) (hQV : Q ∈ V),
+          ∃ u : Fin 5 → Fin 5 → ℤ,
+            LinearIndependent ℝ (fun i => integerReal (u i)) ∧
+            (∀ a k, (padicNorm 2 ((A2 *ᵥ (fun l => (u a l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+            (∀ a k, (padicNorm 3 ((A3 *ᵥ (fun l => (u a l : ℚ))) k) : ℝ) ≤ Q^(c3 k)) ∧
+            (∀ i, rawGauge247 L Q c0
+              (integerReal (u i)) = rawMinima248 A2 A3 L Q c0 c2 c3 i) ∧
+            P = Submodule.span ℚ (Set.range (fun a : Fin (j.val+1) => fun i =>
+              (u (Fin.castLE (by omega) a) i : ℚ))) := by
+  have hs (Q : ℝ) (hQO : Q ∈ Omega) :
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 j.castSucc <
+        sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 j.succ*Q^(-delta) := by
+    rw [← rawMinima_eq248 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) j.castSucc,
+      ← rawMinima_eq248 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) j.succ]
+    exact hgap Q hQO
+  obtain ⟨P,hP,V,hVO,hV,hframes⟩ := source_selected_gap_fixed_flag5
+    A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq j hs
+  refine ⟨P,hP,V,hVO,hV,?_⟩
+  intro Q hQV
+  obtain ⟨u,hu,ha,hspan⟩ := hframes Q hQV
+  refine ⟨fun a => (u a : Fin 5 → ℤ),hu,?_,?_,?_,hspan⟩
+  · intro a k
+    apply (raw_place_eq248 2 Q (c2 k) (hq Q (hVO hQV)) (hc2 k).2 _).mpr
+    exact (lattice5_spec 2 A2 _ _).mp (u a).property.1 k
+  · intro a k
+    apply (raw_place_eq248 3 Q (c3 k) (hq Q (hVO hQV)) (hc3 k).2 _).mpr
+    exact (lattice5_spec 3 A3 _ _).mp (u a).property.2 k
+  · intro i
+    rw [rawGauge_eq247 L hL Q (hq Q (hVO hQV)),
+      rawMinima_eq248 A2 A3 L hL Q (hq Q (hVO hQV)) c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) i]
+    exact ha i
+
+theorem raw_normalized_nonroth_fixed_flag248
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (hn : ¬ rawRoth248 A2 A3 L c0 c2 c3) :
+    ∃ hL : IsUnit L,
+    ∃ epsilon deltaGap c5 C5 B : ℝ, ∃ U V : Set ℝ, ∃ j : Fin 4,
+      0 < epsilon ∧ deltaGap = (epsilon/2)/5 ∧ 0 < deltaGap ∧
+      0 < c5 ∧ 0 < C5 ∧ 1 < B ∧
+      U = {Q : ℝ | ∃ x : Fin 5 → ℤ,
+        rawSolution248 A2 A3 L c0 c2 c3 Q epsilon x} ∧
+      ¬ BddAbove U ∧
+      (∀ Q ∈ U, ∃ hQ : 1 < Q, ∃ x : Fin 5 → ℤ,
+        rawSolution248 A2 A3 L c0 c2 c3 Q epsilon x ∧
+        ((∀ k, (padicNorm 2 ((A2 *ᵥ (fun l => (x l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+        (∀ k, (padicNorm 3 ((A3 *ᵥ (fun l => (x l : ℚ))) k) : ℝ) ≤ Q^(c3 k))) ∧
+        rawGauge247 L Q c0 (integerReal x) ≤ Q^(-epsilon) ∧
+        rawMinima248 A2 A3 L Q c0 c2 c3 0 < Q^(-(epsilon/2))) ∧
+      (∀ (Q : ℝ) (hQ : 1 < Q),
+        c5 ≤ (∏ i : Fin 5, rawMinima248 A2 A3 L Q c0 c2 c3 i) ∧
+        (∏ i : Fin 5, rawMinima248 A2 A3 L Q c0 c2 c3 i) ≤ C5) ∧
+      V ⊆ U ∧ ¬ BddAbove V ∧ 1 ≤ j.val+1 ∧ j.val+1 ≤ 4 ∧
+      (∀ Q ∈ V, B < Q ∧ ∃ hQ : 1 < Q,
+        rawMinima248 A2 A3 L Q c0 c2 c3 j.castSucc <
+          rawMinima248 A2 A3 L Q c0 c2 c3 j.succ * Q^(-deltaGap)) ∧
+      ∃ hq : ∀ Q ∈ V, 1 < Q,
+      ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = j.val+1 ∧ P ≠ ⊥ ∧ P ≠ ⊤ ∧
+      ∃ W : Set ℝ, ∃ hWV : W ⊆ V, ¬ BddAbove W ∧ W ⊆ U ∧
+        ∀ (Q : ℝ) (_hQW : Q ∈ W),
+          ∃ u : Fin 5 → Fin 5 → ℤ,
+            LinearIndependent ℝ (fun i => integerReal (u i)) ∧
+            (∀ a k, (padicNorm 2 ((A2 *ᵥ (fun l => (u a l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+            (∀ a k, (padicNorm 3 ((A3 *ᵥ (fun l => (u a l : ℚ))) k) : ℝ) ≤ Q^(c3 k)) ∧
+            (∀ i, rawGauge247 L Q c0
+              (integerReal (u i)) = rawMinima248 A2 A3 L Q c0 c2 c3 i) ∧
+            P = Submodule.span ℚ (Set.range (fun a : Fin (j.val+1) => fun i =>
+              (u (Fin.castLE (by omega) a) i : ℚ))) := by
+  have hn' : ¬ originalRothProperty5 A2 A3 L c0 c2 c3 :=
+    fun h => hn ((rawRoth_eq248 A2 A3 L c0 c2 c3).mpr h)
+  obtain ⟨hL,epsilon,deltaGap,c5,C5,B,U,V,j,he,hdEq,hd,hc,hC,hB,hUeq,hU,hsolutions,hproduct,
+    hVU,hV,hjlo,hjhi,hg,hq,P,hP,hPb,hPt,W,hWV,hW,hWU,hframes⟩ :=
+    source_normalized_nonroth_fixed_flag5 A2 A3 L h2d h3d hLd hAlg c0 c2 c3 hc0 hc2 hc3 hb hn'
+  refine ⟨hL,epsilon,deltaGap,c5,C5,B,U,V,j,he,hdEq,hd,hc,hC,hB,?_,hU,?_,?_,hVU,hV,
+    hjlo,hjhi,?_,hq,P,hP,hPb,hPt,W,hWV,hW,hWU,?_⟩
+  · exact hUeq
+  · intro Q hQU
+    obtain ⟨hQ,x,hx,hm,hgauge,hfirst⟩ := hsolutions Q hQU
+    refine ⟨hQ,x,hx,⟨fun k => (raw_place_eq248 2 Q (c2 k) hQ (hc2 k).2 _).mpr ((lattice5_spec 2 A2 _ x).mp hm.1 k),
+      fun k => (raw_place_eq248 3 Q (c3 k) hQ (hc3 k).2 _).mpr ((lattice5_spec 3 A3 _ x).mp hm.2 k)⟩,?_,?_⟩
+    · rw [rawGauge_eq247 L hL Q hQ]
+      exact hgauge
+    · rw [rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) 0]
+      exact hfirst
+  · intro Q hQ
+    have hp : (∏ i : Fin 5, rawMinima248 A2 A3 L Q c0 c2 c3 i) =
+        ∏ i : Fin 5, sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i := by
+      apply Finset.prod_congr rfl
+      intro i _
+      exact rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) i
+    rw [hp]
+    exact hproduct Q hQ
+  · intro Q hQV
+    obtain ⟨hBQ,hQ,hgap⟩ := hg Q hQV
+    refine ⟨hBQ,hQ,?_⟩
+    rw [rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) j.castSucc,
+      rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) j.succ]
+    exact hgap
+  · intro Q hQW
+    obtain ⟨u,hu,ha,hspan⟩ := hframes Q hQW
+    refine ⟨fun a => (u a : Fin 5 → ℤ),hu,?_,?_,?_,hspan⟩
+    · intro a k
+      apply (raw_place_eq248 2 Q (c2 k) (hq Q (hWV hQW)) (hc2 k).2 _).mpr
+      exact (lattice5_spec 2 A2 _ _).mp (u a).property.1 k
+    · intro a k
+      apply (raw_place_eq248 3 Q (c3 k) (hq Q (hWV hQW)) (hc3 k).2 _).mpr
+      exact (lattice5_spec 3 A3 _ _).mp (u a).property.2 k
+    · intro i
+      rw [rawGauge_eq247 L hL Q (hq Q (hWV hQW)),
+        rawMinima_eq248 A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) i]
+      exact ha i
+
+end AssemblySourceChallenge248
+#check AssemblySourceChallenge248.rawMinima246
+#print AssemblySourceChallenge248.rawMinima246
+#print axioms AssemblySourceChallenge248.rawMinima246
+#check AssemblySourceChallenge248.rawMinima_eq246
+#print AssemblySourceChallenge248.rawMinima_eq246
+#print axioms AssemblySourceChallenge248.rawMinima_eq246
+#check AssemblySourceChallenge248.rawGauge247
+#print AssemblySourceChallenge248.rawGauge247
+#print axioms AssemblySourceChallenge248.rawGauge247
+#check AssemblySourceChallenge248.rawGauge_eq247
+#print AssemblySourceChallenge248.rawGauge_eq247
+#print axioms AssemblySourceChallenge248.rawGauge_eq247
+#check AssemblySourceChallenge248.rawSolution248
+#print AssemblySourceChallenge248.rawSolution248
+#print axioms AssemblySourceChallenge248.rawSolution248
+#check AssemblySourceChallenge248.rawRoth248
+#print AssemblySourceChallenge248.rawRoth248
+#print axioms AssemblySourceChallenge248.rawRoth248
+#check AssemblySourceChallenge248.rawSolution_eq248
+#print AssemblySourceChallenge248.rawSolution_eq248
+#print axioms AssemblySourceChallenge248.rawSolution_eq248
+#check AssemblySourceChallenge248.rawRoth_eq248
+#print AssemblySourceChallenge248.rawRoth_eq248
+#print axioms AssemblySourceChallenge248.rawRoth_eq248
+#check AssemblySourceChallenge248.rawMinima248
+#print AssemblySourceChallenge248.rawMinima248
+#print axioms AssemblySourceChallenge248.rawMinima248
+#check AssemblySourceChallenge248.raw_place_eq248
+#print AssemblySourceChallenge248.raw_place_eq248
+#print axioms AssemblySourceChallenge248.raw_place_eq248
+#check AssemblySourceChallenge248.rawMinima_eq248
+#print AssemblySourceChallenge248.rawMinima_eq248
+#print axioms AssemblySourceChallenge248.rawMinima_eq248
+#check AssemblySourceChallenge248.raw_selected_gap_fixed_flag248
+#print AssemblySourceChallenge248.raw_selected_gap_fixed_flag248
+#print axioms AssemblySourceChallenge248.raw_selected_gap_fixed_flag248
+#check AssemblySourceChallenge248.raw_normalized_nonroth_fixed_flag248
+#print AssemblySourceChallenge248.raw_normalized_nonroth_fixed_flag248
+#print axioms AssemblySourceChallenge248.raw_normalized_nonroth_fixed_flag248

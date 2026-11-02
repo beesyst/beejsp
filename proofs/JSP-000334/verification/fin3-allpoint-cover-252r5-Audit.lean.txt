@@ -1,0 +1,122 @@
+import SubspaceBridge.AllPointPrimitive3
+import SubspaceBridge.AllPointActualValues3
+import SubspaceBridge.AllPointWeights3
+import SubspaceBridge.AllPointFixedWeights3
+import SubspaceBridge.AllPointSourcePoint3
+import SubspaceBridge.AllPointRankThreshold3
+import SubspaceBridge.AllPointRationalSpan3
+import SubspaceBridge.AllPointShortExtraction3
+import SubspaceBridge.AllPointRestrictedExtraction3
+import SubspaceBridge.AllPointFixedFamily3
+import SubspaceBridge.AllPointSourceFamily3
+import SubspaceBridge.AllPointFiniteGeometry3
+import SubspaceBridge.AllPointGeneralPosition3
+import SubspaceBridge.AllPointFiniteCover3
+#check JSP000334.allpoint_primitive_product3
+#print JSP000334.allpoint_primitive_product3
+#print axioms JSP000334.allpoint_primitive_product3
+#check JSP000334.allpoint_primitive_input3
+#print JSP000334.allpoint_primitive_input3
+#print axioms JSP000334.allpoint_primitive_input3
+#check JSP000334.allpoint_form_product3
+#print JSP000334.allpoint_form_product3
+#print axioms JSP000334.allpoint_form_product3
+#check JSP000334.allpoint_form_arch_bound3
+#print JSP000334.allpoint_form_arch_bound3
+#print axioms JSP000334.allpoint_form_arch_bound3
+#check JSP000334.allpoint_local_inverse3
+#print JSP000334.allpoint_local_inverse3
+#print axioms JSP000334.allpoint_local_inverse3
+#check JSP000334.allpoint_balanced_values3
+#print JSP000334.allpoint_balanced_values3
+#print axioms JSP000334.allpoint_balanced_values3
+#check JSP000334.allpoint_balanced_weights3
+#print JSP000334.allpoint_balanced_weights3
+#print axioms JSP000334.allpoint_balanced_weights3
+#check JSP000334.allpoint_round_point3
+#print JSP000334.allpoint_round_point3
+#print axioms JSP000334.allpoint_round_point3
+#check JSP000334.allpoint_norms3
+#print JSP000334.allpoint_norms3
+#print axioms JSP000334.allpoint_norms3
+#check JSP000334.allpoint_source_weights3
+#print JSP000334.allpoint_source_weights3
+#print axioms JSP000334.allpoint_source_weights3
+#check JSP000334.allpoint_fixed_source_point3
+#print JSP000334.allpoint_fixed_source_point3
+#print axioms JSP000334.allpoint_fixed_source_point3
+#check JSP000334.allpoint_rank_cutoff3
+#print JSP000334.allpoint_rank_cutoff3
+#print axioms JSP000334.allpoint_rank_cutoff3
+#check JSP000334.allpoint_rank_scalar3
+#print JSP000334.allpoint_rank_scalar3
+#print axioms JSP000334.allpoint_rank_scalar3
+#check JSP000334.allpoint_rank_threshold3
+#print JSP000334.allpoint_rank_threshold3
+#print axioms JSP000334.allpoint_rank_threshold3
+#check JSP000334.allpoint_rational_flag3
+#print JSP000334.allpoint_rational_flag3
+#print axioms JSP000334.allpoint_rational_flag3
+#check JSP000334.allpoint_line_proper3
+#print JSP000334.allpoint_line_proper3
+#print axioms JSP000334.allpoint_line_proper3
+#check JSP000334.allpoint_kernel_proper3
+#print JSP000334.allpoint_kernel_proper3
+#print axioms JSP000334.allpoint_kernel_proper3
+#check JSP000334.allpoint_source_short_rational3
+#print JSP000334.allpoint_source_short_rational3
+#print axioms JSP000334.allpoint_source_short_rational3
+#check JSP000334.allpoint_first_rational_span3
+#print JSP000334.allpoint_first_rational_span3
+#print axioms JSP000334.allpoint_first_rational_span3
+#check JSP000334.allpoint_plane_annihilation3
+#print JSP000334.allpoint_plane_annihilation3
+#print axioms JSP000334.allpoint_plane_annihilation3
+#check JSP000334.allpoint_rank1_extract3
+#print JSP000334.allpoint_rank1_extract3
+#print axioms JSP000334.allpoint_rank1_extract3
+#check JSP000334.allpoint_rank2_extract3
+#print JSP000334.allpoint_rank2_extract3
+#print axioms JSP000334.allpoint_rank2_extract3
+#check JSP000334.allpoint_finite_parameter_fiber3
+#print JSP000334.allpoint_finite_parameter_fiber3
+#print axioms JSP000334.allpoint_finite_parameter_fiber3
+#check JSP000334.allpoint_fixed_short_family3
+#print JSP000334.allpoint_fixed_short_family3
+#print axioms JSP000334.allpoint_fixed_short_family3
+#check JSP000334.allpoint_source_family3
+#print JSP000334.allpoint_source_family3
+#print axioms JSP000334.allpoint_source_family3
+#check JSP000334.allpoint_pair_proper3
+#print JSP000334.allpoint_pair_proper3
+#print axioms JSP000334.allpoint_pair_proper3
+#check JSP000334.allpoint_bounded_height_finite3
+#print JSP000334.allpoint_bounded_height_finite3
+#print axioms JSP000334.allpoint_bounded_height_finite3
+#check JSP000334.allpoint_no_finite_cover3
+#print JSP000334.allpoint_no_finite_cover3
+#print axioms JSP000334.allpoint_no_finite_cover3
+#check JSP000334.allpoint_avoid_finite3
+#print JSP000334.allpoint_avoid_finite3
+#print axioms JSP000334.allpoint_avoid_finite3
+#check JSP000334.allpoint_general_position_step3
+#print JSP000334.allpoint_general_position_step3
+#print axioms JSP000334.allpoint_general_position_step3
+#check JSP000334.allpoint_general_position_sequence3
+#print JSP000334.allpoint_general_position_sequence3
+#print axioms JSP000334.allpoint_general_position_sequence3
+#check JSP000334.allpoint_general_position_intersection3
+#print JSP000334.allpoint_general_position_intersection3
+#print axioms JSP000334.allpoint_general_position_intersection3
+#check JSP000334.allpointEligible3
+#print JSP000334.allpointEligible3
+#print axioms JSP000334.allpointEligible3
+#check JSP000334.source_primitive_four_term_finite_cover3
+#print JSP000334.source_primitive_four_term_finite_cover3
+#print axioms JSP000334.source_primitive_four_term_finite_cover3
+#check JSP000334.allpoint_four_term_recovery3
+#print JSP000334.allpoint_four_term_recovery3
+#print axioms JSP000334.allpoint_four_term_recovery3
+#check JSP000334.source_four_term_finite_cover3
+#print JSP000334.source_four_term_finite_cover3
+#print axioms JSP000334.source_four_term_finite_cover3

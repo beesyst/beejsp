@@ -1,0 +1,17 @@
+import SubspaceBridge.SourceRationalFiniteLower10
+open scoped BigOperators Classical Matrix
+namespace M200R2Contract
+open CompoundFeasibility.SourceHeightEnvelope10 CompoundFeasibility.SchmidtNormal10
+
+theorem rational_place_3_lower (B : Matrix (Fin 10) (Fin 10) ℚ) :
+    ∃ C : ℝ, 0 < C ∧ ∀ (M : Fin 10 → ℤ) i,
+      (∑ k, (B i k : ℚ_[3])*(M k : ℚ_[3])) ≠ 0 →
+      C ≤ ‖∑ k, (B i k : ℚ_[3])*(M k : ℚ_[3])‖ * max 1 (normalHeight10 M : ℝ) := by
+  obtain ⟨C,hC,h⟩ := finite_form_lower10 3 (Or.inr rfl) B
+  refine ⟨C,hC,?_⟩
+  intro M i hn
+  exact (h M i hn).1
+
+#print rational_place_3_lower
+#print axioms rational_place_3_lower
+end M200R2Contract

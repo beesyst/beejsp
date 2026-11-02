@@ -1,0 +1,35 @@
+import SubspaceBridge.SourceSecondRadius228
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.SourceSecondMinimum228
+  CompoundFeasibility.SourceDualGeometry219 CompoundFeasibility.SourceDualAnnihilation222
+  CompoundFeasibility.SourceSatz51Entry218
+namespace M229SourceChallenge
+
+theorem original_lattice_image (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (q : ℝ) (c2 c3 : Fin 10 → ℝ) :
+    (lattice10Span (originalDualRealBasis228 A2 A3 q c2 c3) : Set (Fin 10 → ℝ)) =
+      ratReal222 '' ((fun z : Fin 10 → ℚ =>
+        ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) • z) ''
+        {z | ∀ x : originalSourceGroup10 A2 A3 q c2 c3,
+          ∃ a : ℤ, (∑ i, ((x : Fin 10 → ℤ) i : ℚ) * z i) = (a : ℚ)}) := by
+  exact originalDualRealBasis_lattice228 A2 A3 q c2 c3
+
+theorem original_real_body
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℝ) :
+    dualGauge222 L hL
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive z ≤ 2 ↔
+    ∀ i, |(L⁻¹.transpose *ᵥ z) i| ≤
+      2 * (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) / A i) := by
+  exact dualGauge_bounds222 L hL _ _ A D.positive z 2
+
+end M229SourceChallenge
+#check M229SourceChallenge.original_lattice_image
+#print M229SourceChallenge.original_lattice_image
+#print axioms M229SourceChallenge.original_lattice_image
+#check M229SourceChallenge.original_real_body
+#print M229SourceChallenge.original_real_body
+#print axioms M229SourceChallenge.original_real_body

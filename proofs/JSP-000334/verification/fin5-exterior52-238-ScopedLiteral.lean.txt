@@ -1,0 +1,401 @@
+import SubspaceBridge.SourceExterior52_237
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M238ScopedLiteral
+open Exterior52_237
+
+theorem pair_bijective238 : Function.Bijective pair237 := by
+  constructor
+  · intro s t he
+    have hh : ({lo237 s,hi237 s} : Finset (Fin 5)) = {lo237 t,hi237 t} :=
+      congrArg Subtype.val he
+    have hset : ({lo237 s,hi237 s} : Set (Fin 5)) = {lo237 t,hi237 t} := by
+      simpa only [Finset.coe_pair] using congrArg (fun a : Finset (Fin 5) => (a : Set (Fin 5))) hh
+    obtain h | h := Set.pair_eq_pair_iff.mp hset
+    · exact pair_unique237 s t h.1 h.2
+    · have hlt := pair_lt237 s
+      rw [h.1,h.2] at hlt
+      exact False.elim (lt_asymm hlt (pair_lt237 t))
+  · intro a
+    obtain ⟨i,j,hij,he⟩ := Finset.card_eq_two.mp a.property
+    rcases lt_or_gt_of_ne hij with h | h
+    · obtain ⟨s,hs,ht⟩ := pair_exists237 i j h
+      refine ⟨s,Subtype.ext ?_⟩
+      simpa only [pair237,hs,ht] using he.symm
+    · obtain ⟨s,hs,ht⟩ := pair_exists237 j i h
+      refine ⟨s,Subtype.ext ?_⟩
+      simpa only [pair237,hs,ht,Finset.pair_comm] using he.symm
+
+def pairEquiv238 : Fin 10 ≃ {a : Finset (Fin 5) // a.card = 2} :=
+  Equiv.ofBijective pair237 pair_bijective238
+
+theorem integer_wedge_casts238 (x y : Fin 5 → ℤ) (s : Fin 10) :
+    (wedge237 (R := ℤ) x y s : ℚ) = (x (lo237 s) : ℚ)*(y (hi237 s) : ℚ)-
+      (x (hi237 s) : ℚ)*(y (lo237 s) : ℚ) ∧
+    (wedge237 (R := ℤ) x y s : ℝ) = (x (lo237 s) : ℝ)*(y (hi237 s) : ℝ)-
+      (x (hi237 s) : ℝ)*(y (lo237 s) : ℝ) := by
+  constructor <;> simp only [wedge237,Int.cast_sub,Int.cast_mul]
+
+theorem pair_order238 : ∀ s t : Fin 10, t < s →
+    (lo237 t < lo237 s ∨ hi237 t < hi237 s) ∧ lo237 t < hi237 s := by decide
+
+theorem compound_upper238 {K : Type*} [Field K] (A : Matrix (Fin 5) (Fin 5) K)
+    (hA : A.BlockTriangular id) : (compound237 A).BlockTriangular id := by
+  intro s t h
+  obtain ⟨hor,hcross⟩ := pair_order238 s t h
+  change A (lo237 s) (lo237 t) * A (hi237 s) (hi237 t) - A (lo237 s) (hi237 t) * A (hi237 s) (lo237 t) = 0
+  have hzero : A (hi237 s) (lo237 t) = 0 := hA hcross
+  rw [hzero,mul_zero,sub_zero]
+  rcases hor with hleft | hright
+  · have hz : A (lo237 s) (lo237 t) = 0 := hA hleft
+    rw [hz,zero_mul]
+  · have hz : A (hi237 s) (hi237 t) = 0 := hA hright
+    rw [hz,mul_zero]
+
+theorem compound_upper238_det {K : Type*} [Field K] (A : Matrix (Fin 5) (Fin 5) K)
+    (hA : A.BlockTriangular id) : (compound237 A).det = A.det ^ (4 : ℕ) := by
+  rw [Matrix.det_of_upperTriangular (compound_upper238 A hA),Matrix.det_of_upperTriangular hA]
+  have he (s : Fin 10) : compound237 A s s = A (lo237 s) (lo237 s) * A (hi237 s) (hi237 s) := by
+    have hz : A (hi237 s) (lo237 s) = 0 := hA (pair_lt237 s)
+    simp only [compound237,hz,mul_zero,sub_zero]
+  simp_rw [he]
+  simp [lo237,hi237,Fin.prod_univ_succ]
+  ring
+
+theorem compound_transpose238 {K : Type*} [Field K] (A : Matrix (Fin 5) (Fin 5) K) :
+    compound237 A.transpose = (compound237 A).transpose := by
+  ext s t
+  simp only [compound237,Matrix.transpose_apply]
+  ring
+
+theorem compound_transvection_det238 {K : Type*} [Field K] (i j : Fin 5)
+    (hij : i ≠ j) (c : K) : (compound237 (Matrix.transvection i j c)).det = 1 := by
+  have upper (a b : Fin 5) (hab : a < b) :
+      (Matrix.transvection a b c : Matrix (Fin 5) (Fin 5) K).BlockTriangular id := by
+    intro s t hts
+    have hne : s ≠ t := ne_of_gt hts
+    have hentry : ¬ (a = s ∧ b = t) := by
+      rintro ⟨rfl,rfl⟩
+      exact (not_lt_of_ge hab.le) hts
+    simp [Matrix.transvection,Matrix.stdBasisMatrix,Matrix.one_apply,hne,hentry]
+  by_cases h : i < j
+  · rw [compound_upper238_det _ (upper i j h),Matrix.det_transvection_of_ne _ _ hij,one_pow]
+  · have hji : j < i := lt_of_le_of_ne (le_of_not_gt h) (Ne.symm hij)
+    have ht : (Matrix.transvection j i c : Matrix (Fin 5) (Fin 5) K).transpose =
+        Matrix.transvection i j c := by
+      simp [Matrix.transvection,Matrix.transpose_add,Matrix.transpose_stdBasisMatrix]
+    rw [← ht,compound_transpose238,Matrix.det_transpose,
+      compound_upper238_det _ (upper j i hji),Matrix.det_transvection_of_ne _ _ (Ne.symm hij),one_pow]
+
+def compoundDet238Property {K : Type*} [Field K]
+    (A : Matrix (Fin 5) (Fin 5) K) : Prop :=
+  (compound237 A).det = A.det ^ (4 : ℕ)
+
+attribute [local irreducible] compoundDet238Property
+
+theorem compoundDet238Property_diagonal {K : Type*} [Field K] (D : Fin 5 → K) :
+    compoundDet238Property (Matrix.diagonal D) := by
+  unfold compoundDet238Property
+  exact compound_upper238_det (Matrix.diagonal D) (Matrix.blockTriangular_diagonal D)
+
+theorem compoundDet238Property_transvection {K : Type*} [Field K]
+    (t : Matrix.TransvectionStruct (Fin 5) K) : compoundDet238Property t.toMatrix := by
+  unfold compoundDet238Property
+  have hc := @compound_transvection_det238 K _ t.i t.j t.hij t.c
+  rw [t.det, one_pow]
+  simpa only [Matrix.TransvectionStruct.toMatrix] using hc
+
+theorem compoundDet238Property_mul {K : Type*} [Field K]
+    (M N : Matrix (Fin 5) (Fin 5) K)
+    (hM : compoundDet238Property M) (hN : compoundDet238Property N) :
+    compoundDet238Property (M * N) := by
+  unfold compoundDet238Property at hM hN ⊢
+  rw [compound_mul237, Matrix.det_mul, hM, hN, Matrix.det_mul, mul_pow]
+
+theorem compoundDet238Property_all {K : Type*} [Field K]
+    (A : Matrix (Fin 5) (Fin 5) K) : compoundDet238Property A := by
+  apply Matrix.diagonal_transvection_induction compoundDet238Property A
+  · intro D _
+    exact compoundDet238Property_diagonal D
+  · exact compoundDet238Property_transvection
+  · exact compoundDet238Property_mul
+
+theorem compound_det238 {K : Type*} [Field K] (A : Matrix (Fin 5) (Fin 5) K) :
+    (compound237 A).det = A.det ^ (4 : ℕ) := by
+  have h := compoundDet238Property_all A
+  unfold compoundDet238Property at h
+  exact h
+
+theorem compound_det238_one {K : Type*} [Field K] (A : Matrix (Fin 5) (Fin 5) K)
+    (hA : A.det = 1) : (compound237 A).det = 1 := by
+  rw [compound_det238, hA, one_pow]
+
+theorem compound_algebraic238 (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hL : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∀ s t, IsAlgebraic ℚ (compound237 L s t) := by
+  intro s t
+  exact ((hL _ _).mul (hL _ _)).sub ((hL _ _).mul (hL _ _))
+
+theorem compound_unit238 {K : Type*} [Field K] (A : Matrix (Fin 5) (Fin 5) K)
+    (hA : IsUnit A) : IsUnit (compound237 A) := by
+  obtain ⟨u,rfl⟩ := hA
+  apply isUnit_iff_exists.mpr
+  refine ⟨compound237 (↑u⁻¹),?_,?_⟩
+  · rw [← compound_mul237,Units.mul_inv,compound_one237]
+  · rw [← compound_mul237,Units.inv_mul,compound_one237]
+
+theorem compoundFrame_independent238 (u : Fin 5 → Fin 5 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j))) :
+    LinearIndependent ℝ (fun s => integerReal (wedge237 (u (lo237 s)) (u (hi237 s)))) := by
+  have he : (fun s => integerReal (wedge237 (u (lo237 s)) (u (hi237 s)))) =
+      compound237 (fun j i => (u j i : ℝ)) := by
+    funext s t
+    change ((u (lo237 s) (lo237 t)*u (hi237 s) (hi237 t)-
+      u (lo237 s) (hi237 t)*u (hi237 s) (lo237 t) : ℤ) : ℝ) = _
+    simp only [Int.cast_sub,Int.cast_mul,compound237]
+  rw [he]
+  exact Matrix.linearIndependent_rows_iff_isUnit.mpr
+    (compound_unit238 _ (Matrix.linearIndependent_rows_iff_isUnit.mp hu))
+
+end CompoundFeasibility.M238ScopedLiteral
+namespace CompoundFeasibility.M238ScopedLiteral
+open Exterior52_237
+
+def pairWeights238 (c : Fin 5 → ℝ) : Fin 10 → ℝ := fun s => c (lo237 s)+c (hi237 s)
+
+def directGroup238 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ) :
+    AddSubgroup (Fin 10 → ℤ) :=
+  sourceLattice10 (compound237 A2) (compound237 A3)
+    (fun s => Nat.ceil (JSP000334.qThreshold 2 Q (pairWeights238 c2 s)))
+    (fun s => Nat.ceil (JSP000334.qThreshold 3 Q (pairWeights238 c3 s)))
+
+def summedGroup238 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ) :
+    AddSubgroup (Fin 10 → ℤ) :=
+  sourceLattice10 (compound237 A2) (compound237 A3)
+    (fun s => Nat.ceil (JSP000334.qThreshold 2 Q (c2 (lo237 s)))+
+      Nat.ceil (JSP000334.qThreshold 2 Q (c2 (hi237 s))))
+    (fun s => Nat.ceil (JSP000334.qThreshold 3 Q (c3 (lo237 s)))+
+      Nat.ceil (JSP000334.qThreshold 3 Q (c3 (hi237 s))))
+
+theorem local_raw238 (p : ℕ) [Fact p.Prime] (A : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (hQ : 1 < Q) (c : Fin 5 → ℝ) (hc : ∀ i, c i ≤ 0) (z : Fin 10 → ℤ) :
+    z ∈ lattice10 p (compound237 A) (fun s => Nat.ceil (JSP000334.qThreshold p Q (pairWeights238 c s))) ↔
+      ∀ s, (padicNorm p ((compound237 A *ᵥ (fun t => (z t : ℚ))) s) : ℝ) ≤ Q^(pairWeights238 c s) := by
+  rw [lattice10_spec]
+  simp only [zpow_neg,zpow_natCast]
+  apply forall_congr'
+  intro s
+  exact (padic_rpow_ceil42 p Q _ hQ (add_nonpos (hc _) (hc _)) _).symm
+
+theorem direct_raw238 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (hQ : 1 < Q)
+    (c2 c3 : Fin 5 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0) (z : Fin 10 → ℤ) :
+    z ∈ directGroup238 A2 A3 Q c2 c3 ↔
+      (∀ s, (padicNorm 2 ((compound237 A2 *ᵥ (fun t => (z t : ℚ))) s) : ℝ) ≤ Q^(pairWeights238 c2 s)) ∧
+      (∀ s, (padicNorm 3 ((compound237 A3 *ᵥ (fun t => (z t : ℚ))) s) : ℝ) ≤ Q^(pairWeights238 c3 s)) := by
+  exact and_congr (local_raw238 2 A2 Q hQ c2 hc2 z) (local_raw238 3 A3 Q hQ c3 hc3 z)
+
+theorem local_summed_le238 (p : ℕ) [Fact p.Prime] (A : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c : Fin 5 → ℝ) :
+    lattice10 p (compound237 A) (fun s => Nat.ceil (JSP000334.qThreshold p Q (c (lo237 s)))+
+      Nat.ceil (JSP000334.qThreshold p Q (c (hi237 s)))) ≤
+    lattice10 p (compound237 A) (fun s => Nat.ceil (JSP000334.qThreshold p Q (pairWeights238 c s))) := by
+  intro z hz
+  simp only [lattice10,AddSubgroup.mem_iInf,AddSubgroup.mem_comap] at hz ⊢
+  intro s
+  apply normBall_antitone42 p _ _ _ (hz s)
+  rw [pairWeights238,qThreshold_add42]
+  exact Nat.ceil_add_le _ _
+
+theorem summed_le_direct238 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ) :
+    summedGroup238 A2 A3 Q c2 c3 ≤ directGroup238 A2 A3 Q c2 c3 := by
+  intro z hz
+  exact ⟨local_summed_le238 2 A2 Q c2 hz.1,local_summed_le238 3 A3 Q c3 hz.2⟩
+
+theorem local_wedge238 (p : ℕ) [Fact p.Prime] (A : Matrix (Fin 5) (Fin 5) ℚ)
+    (e : Fin 5 → ℕ) (x y : Fin 5 → ℤ) (hx : x ∈ lattice5 p A e) (hy : y ∈ lattice5 p A e) :
+    wedge237 x y ∈ lattice10 p (compound237 A) (fun s => e (lo237 s)+e (hi237 s)) := by
+  rw [lattice5_spec] at hx hy
+  rw [lattice10_spec]
+  simp only [zpow_neg,zpow_natCast] at hx hy ⊢
+  rw [wedge_cast237,wedge_transform237]
+  intro s
+  have hpos (i : Fin 5) : 0 ≤ ((p : ℚ)^e i)⁻¹ := by positivity
+  have h1 := mul_le_mul (hx (lo237 s)) (hy (hi237 s)) (padicNorm.nonneg _) (hpos _)
+  have h2 := mul_le_mul (hx (hi237 s)) (hy (lo237 s)) (padicNorm.nonneg _) (hpos _)
+  change padicNorm p (_-_) ≤ _
+  apply padicNorm.sub.trans
+  rw [padicNorm.mul,padicNorm.mul]
+  apply max_le
+  · simpa only [pow_add,mul_inv] using h1
+  · simpa only [pow_add,mul_inv,mul_comm] using h2
+
+theorem wedge_summed238 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (x y : originalSourceGroup5 A2 A3 Q c2 c3) :
+    wedge237 (x : Fin 5 → ℤ) (y : Fin 5 → ℤ) ∈ summedGroup238 A2 A3 Q c2 c3 := by
+  let e2 : Fin 5 → ℕ := fun i => Nat.ceil (JSP000334.qThreshold 2 Q (c2 i))
+  let e3 : Fin 5 → ℕ := fun i => Nat.ceil (JSP000334.qThreshold 3 Q (c3 i))
+  have hx2 : (x : Fin 5 → ℤ) ∈ lattice5 2 A2 e2 := x.property.1
+  have hy2 : (y : Fin 5 → ℤ) ∈ lattice5 2 A2 e2 := y.property.1
+  have hx3 : (x : Fin 5 → ℤ) ∈ lattice5 3 A3 e3 := x.property.2
+  have hy3 : (y : Fin 5 → ℤ) ∈ lattice5 3 A3 e3 := y.property.2
+  have h2 := local_wedge238 2 A2 e2 (x : Fin 5 → ℤ) (y : Fin 5 → ℤ) hx2 hy2
+  have h3 := local_wedge238 3 A3 e3 (x : Fin 5 → ℤ) (y : Fin 5 → ℤ) hx3 hy3
+  exact ⟨h2,h3⟩
+
+theorem wedge_direct238 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (x y : originalSourceGroup5 A2 A3 Q c2 c3) :
+    wedge237 (x : Fin 5 → ℤ) (y : Fin 5 → ℤ) ∈ directGroup238 A2 A3 Q c2 c3 :=
+  summed_le_direct238 A2 A3 Q c2 c3 (wedge_summed238 A2 A3 Q c2 c3 x y)
+
+theorem local_scale238 (p : ℕ) [hp : Fact p.Prime] (M : Matrix (Fin 10) (Fin 10) ℚ)
+    (a : Fin 5 → ℝ) (ha : ∀ i, 0 ≤ a i) (m : ℤ) (hm : padicNorm p (m : ℚ) ≤ (p : ℚ)⁻¹)
+    (z : Fin 10 → ℤ)
+    (hz : z ∈ lattice10 p M (fun s => Nat.ceil (a (lo237 s)+a (hi237 s)))) :
+    m • z ∈ lattice10 p M (fun s => Nat.ceil (a (lo237 s))+Nat.ceil (a (hi237 s))) := by
+  have hp0 : (0 : ℚ) < p := by exact_mod_cast hp.out.pos
+  have hz' := (lattice10_spec p M _ z).mp hz
+  simp only [zpow_neg,zpow_natCast] at hz'
+  apply (lattice10_spec p M _ (m • z)).mpr
+  intro s
+  rw [zpow_neg,zpow_natCast]
+  change padicNorm p (row10 M s (m • z)) ≤ _
+  have he : row10 M s (m • z) = (m : ℚ)*row10 M s z := by
+    simpa only [zsmul_eq_mul] using (row10 M s).map_zsmul z m
+  rw [he,padicNorm.mul]
+  have hd := (ceil_pair_prime_powers p hp.out.one_le (a (lo237 s)) (a (hi237 s)) (ha _) (ha _)).2
+  have hdQ : (p : ℚ)^(Nat.ceil (a (lo237 s))+Nat.ceil (a (hi237 s))) ≤
+      (p : ℚ)*(p : ℚ)^Nat.ceil (a (lo237 s)+a (hi237 s)) := by exact_mod_cast hd
+  have hfirst : padicNorm p (m : ℚ)*padicNorm p (row10 M s z) ≤
+      (p : ℚ)⁻¹*((p : ℚ)^Nat.ceil (a (lo237 s)+a (hi237 s)))⁻¹ :=
+    mul_le_mul hm (hz' s) (padicNorm.nonneg _) (inv_nonneg.mpr hp0.le)
+  have hsecond : ((p : ℚ)*(p : ℚ)^Nat.ceil (a (lo237 s)+a (hi237 s)))⁻¹ ≤
+      ((p : ℚ)^(Nat.ceil (a (lo237 s))+Nat.ceil (a (hi237 s))))⁻¹ :=
+    (inv_le_inv₀ (mul_pos hp0 (pow_pos hp0 _)) (pow_pos hp0 _)).mpr hdQ
+  exact hfirst.trans (by simpa only [mul_inv] using hsecond)
+
+theorem six_direct_summed238 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (hQ : 1 < Q)
+    (c2 c3 : Fin 5 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (z : Fin 10 → ℤ) (hz : z ∈ directGroup238 A2 A3 Q c2 c3) :
+    (6 : ℤ) • z ∈ summedGroup238 A2 A3 Q c2 c3 := by
+  have h2 : z ∈ lattice10 2 (compound237 A2) (fun s => Nat.ceil
+      (JSP000334.qThreshold 2 Q (c2 (lo237 s))+JSP000334.qThreshold 2 Q (c2 (hi237 s)))) := by
+    simpa only [pairWeights238,qThreshold_add42] using hz.1
+  have h3 : z ∈ lattice10 3 (compound237 A3) (fun s => Nat.ceil
+      (JSP000334.qThreshold 3 Q (c3 (lo237 s))+JSP000334.qThreshold 3 Q (c3 (hi237 s)))) := by
+    simpa only [pairWeights238,qThreshold_add42] using hz.2
+  exact ⟨local_scale238 2 (compound237 A2) _
+      (fun i => JSP000334.qThreshold_nonneg 2 (by decide) Q (c2 i) hQ (hc2 i))
+      6 six_norm2_42.le z h2,
+    local_scale238 3 (compound237 A3) _
+      (fun i => JSP000334.qThreshold_nonneg 3 (by decide) Q (c3 i) hQ (hc3 i))
+      6 six_norm3_42.le z h3⟩
+end CompoundFeasibility.M238ScopedLiteral
+namespace CompoundFeasibility.M238ScopedLiteral
+open Exterior52_237
+
+def normalizedWeights238 (c : Fin 5 → ℝ) : Fin 10 → ℝ := fun s => pairWeights238 c s/2
+
+theorem pairWeights_sum238 (c : Fin 5 → ℝ) :
+    (∑ s, pairWeights238 c s) = 4*∑ i, c i := by
+  simp [pairWeights238,lo237,hi237,Fin.sum_univ_succ]
+  ring
+
+theorem powered_gt_one238 (Q : ℝ) (hQ : 1 < Q) : 1 < Q^2 :=
+  one_lt_pow₀ hQ (by decide)
+
+theorem normalized_real_bound238 (c : Fin 5 → ℝ) (hc : ∀ i, |c i| ≤ 1) :
+    ∀ s, |normalizedWeights238 c s| ≤ 1 := by
+  intro s
+  change |(c (lo237 s)+c (hi237 s))/2| ≤ 1
+  rw [abs_div,abs_of_pos (show (0 : ℝ) < 2 by norm_num)]
+  apply (div_le_iff₀ (show (0 : ℝ) < 2 by norm_num)).mpr
+  have h := abs_add (c (lo237 s)) (c (hi237 s))
+  linarith [hc (lo237 s),hc (hi237 s)]
+
+theorem normalized_finite_bounds238 (c : Fin 5 → ℝ) (hc : ∀ i, -1 ≤ c i ∧ c i ≤ 0) :
+    ∀ s, -1 ≤ normalizedWeights238 c s ∧ normalizedWeights238 c s ≤ 0 := by
+  intro s
+  change -1 ≤ (c (lo237 s)+c (hi237 s))/2 ∧ (c (lo237 s)+c (hi237 s))/2 ≤ 0
+  constructor <;> linarith [(hc (lo237 s)).1,(hc (lo237 s)).2,(hc (hi237 s)).1,(hc (hi237 s)).2]
+
+theorem normalized_balance238 (c0 c2 c3 : Fin 5 → ℝ)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) :
+    (∑ s, (normalizedWeights238 c0 s+normalizedWeights238 c2 s+normalizedWeights238 c3 s)) = 0 := by
+  calc
+    _ = (∑ s, pairWeights238 (fun i => c0 i+c2 i+c3 i) s)/2 := by
+      rw [Finset.sum_div]
+      apply Finset.sum_congr rfl
+      intro s _
+      dsimp [normalizedWeights238,pairWeights238]
+      ring
+    _ = 0 := by rw [pairWeights_sum238,hb]; norm_num
+
+theorem powered_rpow238 (Q a b : ℝ) (hQ : 1 < Q) :
+    (Q^2)^((a+b)/2) = Q^(a+b) := by
+  rw [← Real.rpow_natCast,← Real.rpow_mul (zero_lt_one.trans hQ).le]
+  congr 1
+  ring
+
+theorem powered_threshold238 (p : ℕ) (Q a b : ℝ) :
+    JSP000334.qThreshold p (Q^2) ((a+b)/2) = JSP000334.qThreshold p Q (a+b) := by
+  unfold JSP000334.qThreshold
+  rw [Real.log_pow]
+  ring
+
+theorem powered_group238 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ) :
+    originalSourceGroup10 (compound237 A2) (compound237 A3) (Q^2)
+      (normalizedWeights238 c2) (normalizedWeights238 c3) = directGroup238 A2 A3 Q c2 c3 := by
+  unfold originalSourceGroup10 directGroup238 normalizedWeights238 pairWeights238
+  simp_rw [powered_threshold238]
+
+theorem powered_body238 (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 : Fin 5 → ℝ) (x : Fin 10 → ℝ) (r : ℝ) :
+    coordinateGauge10 (originalCoordinates10 (compound237 L) (compound_unit238 L hL)
+      (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0)) x ≤ r ↔
+      ∀ s, |(compound237 L *ᵥ x) s| ≤ r*Q^(pairWeights238 c0 s) := by
+  change ‖originalCoordinates10 (compound237 L) (compound_unit238 L hL)
+    (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0) x‖ ≤ r ↔ _
+  rw [originalCoordinates10_bounds]
+  simp only [normalizedWeights238,pairWeights238,powered_rpow238 Q _ _ hQ]
+
+end CompoundFeasibility.M238ScopedLiteral
+#print axioms CompoundFeasibility.M238ScopedLiteral.pair_bijective238
+#print axioms CompoundFeasibility.M238ScopedLiteral.pairEquiv238
+#print axioms CompoundFeasibility.M238ScopedLiteral.integer_wedge_casts238
+#print axioms CompoundFeasibility.M238ScopedLiteral.pair_order238
+#print axioms CompoundFeasibility.M238ScopedLiteral.compound_upper238
+#print axioms CompoundFeasibility.M238ScopedLiteral.compound_upper238_det
+#print axioms CompoundFeasibility.M238ScopedLiteral.compound_transpose238
+#print axioms CompoundFeasibility.M238ScopedLiteral.compound_transvection_det238
+#print axioms CompoundFeasibility.M238ScopedLiteral.compoundDet238Property
+#print axioms CompoundFeasibility.M238ScopedLiteral.compoundDet238Property_diagonal
+#print axioms CompoundFeasibility.M238ScopedLiteral.compoundDet238Property_transvection
+#print axioms CompoundFeasibility.M238ScopedLiteral.compoundDet238Property_mul
+#print axioms CompoundFeasibility.M238ScopedLiteral.compoundDet238Property_all
+#print axioms CompoundFeasibility.M238ScopedLiteral.compound_det238
+#print axioms CompoundFeasibility.M238ScopedLiteral.compound_det238_one
+#print axioms CompoundFeasibility.M238ScopedLiteral.compound_algebraic238
+#print axioms CompoundFeasibility.M238ScopedLiteral.compound_unit238
+#print axioms CompoundFeasibility.M238ScopedLiteral.compoundFrame_independent238
+#print axioms CompoundFeasibility.M238ScopedLiteral.pairWeights238
+#print axioms CompoundFeasibility.M238ScopedLiteral.directGroup238
+#print axioms CompoundFeasibility.M238ScopedLiteral.summedGroup238
+#print axioms CompoundFeasibility.M238ScopedLiteral.local_raw238
+#print axioms CompoundFeasibility.M238ScopedLiteral.direct_raw238
+#print axioms CompoundFeasibility.M238ScopedLiteral.local_summed_le238
+#print axioms CompoundFeasibility.M238ScopedLiteral.summed_le_direct238
+#print axioms CompoundFeasibility.M238ScopedLiteral.local_wedge238
+#print axioms CompoundFeasibility.M238ScopedLiteral.wedge_summed238
+#print axioms CompoundFeasibility.M238ScopedLiteral.wedge_direct238
+#print axioms CompoundFeasibility.M238ScopedLiteral.local_scale238
+#print axioms CompoundFeasibility.M238ScopedLiteral.six_direct_summed238
+#print axioms CompoundFeasibility.M238ScopedLiteral.normalizedWeights238
+#print axioms CompoundFeasibility.M238ScopedLiteral.pairWeights_sum238
+#print axioms CompoundFeasibility.M238ScopedLiteral.powered_gt_one238
+#print axioms CompoundFeasibility.M238ScopedLiteral.normalized_real_bound238
+#print axioms CompoundFeasibility.M238ScopedLiteral.normalized_finite_bounds238
+#print axioms CompoundFeasibility.M238ScopedLiteral.normalized_balance238
+#print axioms CompoundFeasibility.M238ScopedLiteral.powered_rpow238
+#print axioms CompoundFeasibility.M238ScopedLiteral.powered_threshold238
+#print axioms CompoundFeasibility.M238ScopedLiteral.powered_group238
+#print axioms CompoundFeasibility.M238ScopedLiteral.powered_body238

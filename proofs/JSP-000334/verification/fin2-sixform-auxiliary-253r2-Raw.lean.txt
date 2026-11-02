@@ -1,0 +1,159 @@
+import SubspaceBridge.BinaryAuxSourceIndex2
+import SubspaceBridge.BinaryAuxRational2
+
+open scoped BigOperators Classical Matrix
+namespace RawR2
+open JSP000334
+abbrev Vars (m : ℕ) := Fin m × Fin 2
+abbrev Grid {m : ℕ} (r : Fin m → ℕ) := (h : Fin m) → Fin (r h+1)
+abbrev Bad {m : ℕ} (r : Fin m → ℕ) (eta : ℝ) :=
+  {b : Grid r // (∑ h, ((b h).val : ℝ)/(r h : ℝ)) < (1/2-eta)*m}
+abbrev Equations {m : ℕ} (r : Fin m → ℕ) (eta : ℝ) := (Fin 3 × Fin 2) × Bad r eta
+
+def Homogeneous {m : ℕ} (r : Fin m → ℕ) (P : MvPolynomial (Vars m) ℤ) : Prop :=
+  ∀ e, P.coeff e ≠ 0 → ∀ h, e (h,0)+e (h,1) = r h
+
+noncomputable def Height {m : ℕ} (P : MvPolynomial (Vars m) ℤ) : ℕ :=
+  P.support.sup (fun e => (P.coeff e).natAbs)
+
+noncomputable def Derivative {m : ℕ} (J : Vars m →₀ ℕ) (P : MvPolynomial (Vars m) ℤ) :
+    MvPolynomial (Vars m) ℤ :=
+  P.sum (fun e c => MvPolynomial.monomial (e-J)
+    (c*(∏ u : Vars m, (Nat.choose (e u) (J u) : ℤ))))
+
+noncomputable def Chart {m : ℕ} (V : Fin m → Fin 2 → ℤ) (k : Fin m → Fin 2)
+    (u : Vars m) : MvPolynomial (Vars m) ℚ :=
+  if u.2=k u.1 then
+    MvPolynomial.C (-(V u.1 (k u.1).rev : ℚ)/(V u.1 (k u.1) : ℚ))*MvPolynomial.X (u.1,(k u.1).rev)
+  else MvPolynomial.X u
+
+noncomputable def Restriction {m : ℕ} (V : Fin m → Fin 2 → ℤ) (k : Fin m → Fin 2)
+    (P : MvPolynomial (Vars m) ℤ) : MvPolynomial (Vars m) ℚ :=
+  MvPolynomial.eval₂ (Int.castRingHom (MvPolynomial (Vars m) ℚ)) (Chart V k) P
+
+def Index {m : ℕ} (r : Fin m → ℕ) (V : Fin m → Fin 2 → ℤ)
+    (T : ℝ) (P : MvPolynomial (Vars m) ℤ) : Prop :=
+  ∀ J : Vars m →₀ ℕ, (∑ h, ((J (h,0) : ℝ)+(J (h,1) : ℝ))/(r h : ℝ)) < T →
+    ∀ k : Fin m → Fin 2, (∀ h, V h (k h) ≠ 0) → Restriction V k (Derivative J P) = 0
+
+theorem chart_eq {m : ℕ} (V : Fin m → Fin 2 → ℤ) (k : Fin m → Fin 2) (u : Vars m) :
+    Chart V k u = JSP000334.binaryKernelChart V k u := by
+  rcases u with ⟨h,j⟩
+  generalize hk : k h = q
+  fin_cases q <;> fin_cases j <;> simp [Chart,JSP000334.binaryKernelChart,hk,neg_div,map_neg,neg_mul]
+
+theorem restriction_eq {m : ℕ} (V : Fin m → Fin 2 → ℤ) (k : Fin m → Fin 2)
+    (P : MvPolynomial (Vars m) ℤ) : Restriction V k P = JSP000334.binaryKernelRestriction V k P := by
+  unfold Restriction JSP000334.binaryKernelRestriction
+  congr 1
+  funext u
+  exact chart_eq V k u
+
+theorem actual_block_dimension (r : ℕ) :
+    Fintype.card {b : Fin 2 → Fin (r+1) // ∑ j, (b j).val = r} = r+1 :=
+  JSP000334.binary_block_dimension r
+
+theorem six_count {m : ℕ} (r : Fin m → ℕ) (eta : ℝ) :
+    Fintype.card (Equations r eta) = 6*Fintype.card (Bad r eta) := by
+  simp [Equations,Fintype.card_prod]
+
+theorem strict_surplus {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (heta1 : eta < 1/2)
+    (hm : 4*(eta^2)⁻¹*Real.log 12 ≤ (m : ℝ)) :
+    Fintype.card (Grid r) = ∏ h, (r h+1) ∧
+      2*Fintype.card (Equations r eta) ≤ Fintype.card (Grid r) ∧
+      Fintype.card (Equations r eta) < Fintype.card (Grid r) := by
+  have he : Bad r eta ≃ JSP000334.BinaryAuxBad r eta :=
+    Equiv.subtypeEquivRight (fun b => (JSP000334.binary_aux_bad_iff r eta b).symm)
+  have hc : Fintype.card (Equations r eta) = Fintype.card (JSP000334.BinaryAuxEquations r eta) := by
+    rw [six_count,JSP000334.binary_aux_six_count,Fintype.card_congr he]
+  refine ⟨JSP000334.binary_aux_dimension r,?_⟩
+  rw [hc]
+  exact JSP000334.binary_aux_strict_surplus r hr eta heta heta1 hm
+
+theorem source_endpoint (L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : ∀ tau, Matrix.det (fun i j => (L tau i j : ℚ)) ≠ 0) :
+    ∃ D : ℝ, 1 ≤ D ∧ ∀ eta : ℝ, 0 < eta → eta < 1/2 →
+      ∀ m : ℕ, 4*(eta^2)⁻¹*Real.log 12 ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars m) ℤ,
+        P ≠ 0 ∧ Homogeneous r P ∧ (Height P : ℝ) ≤ D^(∑ h, r h) ∧
+        ∀ tau : Fin 3, ∀ i : Fin 2, Index r (fun _ => L tau i) ((1/2-eta)*m) P := by
+  obtain ⟨D,hD,hpoly⟩ := JSP000334.binary_auxiliary_integer_three_place L hL
+  refine ⟨D,hD,?_⟩
+  intro eta heta heta1 m hm r hr
+  obtain ⟨P,hn,hh,hheight,hindex⟩ := hpoly eta heta heta1 m hm r hr
+  refine ⟨P,hn,?_,hheight,?_⟩
+  · intro e he h
+    have hb := hh e (MvPolynomial.mem_support_iff.mpr he) h
+    simpa only [Fin.sum_univ_two] using hb
+  · intro tau i J hJ k hk
+    have hw : JSP000334.binarySourceDerivativeWeight r J < (1/2-eta)*m := by
+      simpa only [JSP000334.binarySourceDerivativeWeight,Fin.sum_univ_two] using hJ
+    have hz := hindex tau i J hw k hk
+    rw [restriction_eq]
+    exact hz
+
+noncomputable def IntegerMatrix (d : ℕ) (b c : ℤ) (k : Fin 2) : Matrix (Fin 2) (Fin 2) ℤ :=
+  fun i j => if i=0 then if j=k then (d : ℤ) else 0 else if j=0 then b else c
+
+theorem integer_matrix_eq (d : ℕ) (b c : ℤ) (k : Fin 2) :
+    IntegerMatrix d b c k = JSP000334.binaryIntegerRetained2 d b c k := by
+  ext i j
+  fin_cases k <;> fin_cases i <;> fin_cases j <;> rfl
+
+theorem rational_source_endpoint (B C : ℚ) (hB : B ≠ 0) (hC : C ≠ 0) (choice : Fin 3 → Fin 2) :
+    ∃ d : ℕ, 0 < d ∧ ∃ b c : ℤ,
+      (b : ℚ)=(d : ℚ)*B ∧ (c : ℚ)=(d : ℚ)*C ∧
+      (∀ tau, Matrix.det (fun i j => (IntegerMatrix d b c (choice tau) i j : ℚ)) ≠ 0) ∧
+      ∃ D : ℝ, 1 ≤ D ∧ ∀ eta : ℝ, 0 < eta → eta < 1/2 →
+        ∀ m : ℕ, 4*(eta^2)⁻¹*Real.log 12 ≤ (m : ℝ) →
+        ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+        ∃ P : MvPolynomial (Vars m) ℤ,
+          P ≠ 0 ∧ Homogeneous r P ∧ (Height P : ℝ) ≤ D^(∑ h, r h) ∧
+          ∀ tau : Fin 3, ∀ i : Fin 2,
+            Index r (fun _ => IntegerMatrix d b c (choice tau) i) ((1/2-eta)*m) P := by
+  obtain ⟨d,hd,b,c,hb,hc⟩ := JSP000334.binary_common_denominator B C
+  have hdet (tau : Fin 3) : Matrix.det (fun i j => (IntegerMatrix d b c (choice tau) i j : ℚ)) ≠ 0 := by
+    rw [integer_matrix_eq]
+    exact JSP000334.binary_integer_retained_det B C hB hC d hd b c hb hc (choice tau)
+  exact ⟨d,hd,b,c,hb,hc,hdet,source_endpoint (fun tau => IntegerMatrix d b c (choice tau)) hdet⟩
+
+def Norm (tau : Fin 3) (q : ℚ) : ℚ :=
+  if tau=0 then |q| else if tau=1 then padicNorm 2 q else padicNorm 3 q
+
+theorem denominator_factor (d : ℚ) (y : Fin 3 → Fin 2 → ℚ) :
+    (∏ tau : Fin 3, ∏ j : Fin 2, Norm tau (d*y tau j)) =
+      (∏ tau : Fin 3, Norm tau d)^2*(∏ tau : Fin 3, ∏ j : Fin 2, Norm tau (y tau j)) := by
+  have hn (tau : Fin 3) (q : ℚ) : Norm tau q = rationalPlaceNorm tau q := by fin_cases tau <;> rfl
+  simp_rw [hn]
+  rw [rationalPlaceNorm_product]
+  exact JSP000334.binary_denominator_norm_factor d y
+end RawR2
+
+#check RawR2.chart_eq
+#print axioms RawR2.chart_eq
+
+#check RawR2.restriction_eq
+#print axioms RawR2.restriction_eq
+
+#check RawR2.actual_block_dimension
+#print axioms RawR2.actual_block_dimension
+
+#check RawR2.six_count
+#print axioms RawR2.six_count
+
+#check RawR2.strict_surplus
+#print axioms RawR2.strict_surplus
+
+#check RawR2.source_endpoint
+#print axioms RawR2.source_endpoint
+
+#check RawR2.integer_matrix_eq
+#print axioms RawR2.integer_matrix_eq
+
+#check RawR2.rational_source_endpoint
+#print axioms RawR2.rational_source_endpoint
+
+#check RawR2.denominator_factor
+#print axioms RawR2.denominator_factor

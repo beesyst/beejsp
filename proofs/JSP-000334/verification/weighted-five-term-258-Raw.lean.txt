@@ -1,0 +1,495 @@
+import SubspaceBridge.WeightedDiagonalWeights4
+import SubspaceBridge.WeightedDiagonalPoint4
+import SubspaceBridge.WeightedFixedProductPoint4
+import SubspaceBridge.WeightedDiagonalFamily4
+import SubspaceBridge.WeightedFixedProductCover4
+import SubspaceBridge.WeightedPrimitiveInput4
+import SubspaceBridge.WeightedDiagonalReduction4
+import SubspaceBridge.WeightedDiagonalCoefficients4
+import SubspaceBridge.WeightedDiagonalTransport4
+import SubspaceBridge.WeightedFiveTermSource4
+import SubspaceBridge.WeightedFiveTermCover4
+import SubspaceBridge.WeightedFiveTermPairFibers4
+import SubspaceBridge.WeightedFiveTermThreeFibers4
+import SubspaceBridge.WeightedFiveTermFourFibers4
+import SubspaceBridge.WeightedFiveTermCoefficientFiber4
+import SubspaceBridge.WeightedFiveTermFiniteness4
+namespace Raw258
+open scoped Matrix BigOperators
+noncomputable section
+open JSP000334 CompoundFeasibility CompoundFeasibility.OriginalFlagAssembly4 CompoundFeasibility.OriginalShortPlane42
+
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {m : ℕ} (x : Fin m → ℚ) : Prop :=
+  ∀ I : Finset (Fin m),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Relations (G : Subgroup ℚˣ) (m : ℕ) : Set (Fin (m+1) → ℚ) :=
+  {x | x 0=1 ∧ (∀ i,∃ u : G,(u : ℚˣ).val=x i) ∧ (∑ i,x i=0) ∧ Nondeg x}
+def SourceSolution (A2 A3 : Matrix (Fin 4) (Fin 4) ℚ)
+    (L : Matrix (Fin 4) (Fin 4) ℝ) (c0 c2 c3 : Fin 4 → ℝ) (Q delta : ℝ) (x : Fin 4 → ℤ) : Prop :=
+  x≠0 ∧ 1<Q ∧ 0<delta ∧
+    (∀ i,|(L *ᵥ integerReal x) i|≤Q^(c0 i-delta)) ∧
+    (∀ i,(padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) : ℝ)≤Q^(c2 i)) ∧
+    (∀ i,(padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) : ℝ)≤Q^(c3 i))
+def Raw_retainedIntegerMatrix4 (k : Fin 4) : Matrix (Fin 4) (Fin 4) ℤ :=
+  fun i j => if i=k then 1 else if i=j then 1 else 0
+
+def Raw_PrimitiveFour (z : Fin 4 → ℤ) : Prop := ∃ c : Fin 4 → ℤ,∑ i,c i*z i=1
+
+def Raw_fourRetainedForm (k i : Fin 4) (y : Fin 4 → ℚ) : ℚ := if i=k then ∑ j,y j else y i
+
+def Raw_localFourHeight (tau : Fin 3) (y : Fin 4 → ℚ) : ℚ :=
+  max (rationalPlaceNorm tau (y 0)) (max (rationalPlaceNorm tau (y 1))
+    (max (rationalPlaceNorm tau (y 2)) (rationalPlaceNorm tau (y 3))))
+
+def Raw_fourHeight (y : Fin 4 → ℚ) : ℚ := ∏ tau : Fin 3,Raw_localFourHeight tau y
+
+def Raw_archFourHeight (z : Fin 4 → ℤ) : ℚ :=
+  max |(z 0 : ℚ)| (max |(z 1 : ℚ)| (max |(z 2 : ℚ)| |(z 3 : ℚ)|))
+
+def Raw_fourRetainedProduct (choice : Fin 3 → Fin 4) (y : Fin 4 → ℚ) : ℚ :=
+  ∏ tau : Fin 3,∏ i : Fin 4,rationalPlaceNorm tau (Raw_fourRetainedForm (choice tau) i y)
+
+def Raw_sourceWeightConditions4 (c : Fin 3 → Fin 4 → ℝ) : Prop :=
+  (∀ i, |c 0 i| ≤ 1) ∧ (∀ tau, tau ≠ 0 → ∀ i, -1 ≤ c tau i ∧ c tau i ≤ 0) ∧
+    (∑ tau : Fin 3, ∑ i : Fin 4, c tau i) = 0
+
+noncomputable def Raw_finiteWeightIndex4 (n : ℕ) (c : Fin 3 → Fin 4 → ℝ) (tau : Fin 3) (i : Fin 4) : ℤ :=
+  if tau = 0 then ⌊(n : ℝ)*((1-4/(n : ℝ))*c tau i)⌋
+  else ⌈(n : ℝ)*((1-4/(n : ℝ))*c tau i)⌉
+
+noncomputable def Raw_finiteWeightRaw4 (n : ℕ) (z : Fin 3 → Fin 4 → ℤ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  (z tau i : ℝ)/(n : ℝ)
+
+noncomputable def Raw_finiteWeightCandidate4 (n : ℕ) (z : Fin 3 → Fin 4 → ℤ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  if tau = 0 then Raw_finiteWeightRaw4 n z tau i - (∑ t : Fin 3, ∑ j : Fin 4, Raw_finiteWeightRaw4 n z t j)/4
+  else Raw_finiteWeightRaw4 n z tau i
+
+noncomputable def Raw_finiteWeightApprox4 (n : ℕ) (c : Fin 3 → Fin 4 → ℝ) : Fin 3 → Fin 4 → ℝ :=
+  Raw_finiteWeightCandidate4 n (Raw_finiteWeightIndex4 n c)
+
+noncomputable def Raw_finiteWeightCandidates4 (n : ℕ) : Set (Fin 3 → Fin 4 → ℝ) :=
+  (Raw_finiteWeightCandidate4 n '' {z : Fin 3 → Fin 4 → ℤ | ∀ tau i, -(n : ℤ) ≤ z tau i ∧ z tau i ≤ n}) ∩
+    {d | Raw_sourceWeightConditions4 d}
+
+noncomputable def Raw_sourceLogWeights4 (Q : ℝ) (W : Fin 3 → Fin 4 → ℝ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  Real.log (W tau i)/Real.log Q
+
+def Raw_allpoint_balanced_values4 (Q : ℝ) (a : Fin 3 → Fin 4 → ℝ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  if tau = 0 then a tau i*Q^((1 : ℝ)/32) else a tau i
+
+def Raw_allpoint_no_finite_cover4 (E : (Fin 4 → ℤ) → Prop) : Prop :=
+  ¬ ∃ F : Set (Submodule ℚ (Fin 4 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+    ∀ z, E z → ∃ P ∈ F, (fun i => (z i : ℚ)) ∈ P
+
+def Raw_retainedRationalMatrix4 (k : Fin 4) : Matrix (Fin 4) (Fin 4) ℚ :=
+  fun i j => (Raw_retainedIntegerMatrix4 k i j : ℚ)
+
+def Raw_retainedRealMatrix4 (k : Fin 4) : Matrix (Fin 4) (Fin 4) ℝ :=
+  fun i j => (Raw_retainedIntegerMatrix4 k i j : ℝ)
+
+noncomputable def Raw_allpoint_norms4 (choice : Fin 3 → Fin 4) (z : Fin 4 → ℤ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  rationalPlaceNorm tau (Raw_fourRetainedForm (choice tau) i (fun j => (z j : ℚ)))
+
+def Raw_allpointEligible4 (z : Fin 4 → ℤ) : Prop :=
+  Raw_PrimitiveFour z ∧ ∃ x : Fin 5 → ℚ,x∈Relations Group 4 ∧
+    ∃ s : Group,∀ i : Fin 4,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc
+
+def Product (q : ℚ) : ℚ := |q| *padicNorm 2 q*padicNorm 3 q
+def Pairs (A B C : ℚ) : Set (Group × Group) := {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+def WeightedFour (A B C D : ℚ) : Set (Group × Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=0 ∧
+    Nondeg ![A,B*((p.1 : ℚˣ) : ℚ),C*((p.2.1 : ℚˣ) : ℚ),D*((p.2.2 : ℚˣ) : ℚ)]}
+def Raw_weightedProductConstant4 (k : Fin 4 → ℚ) (a : ℚ) : ℚ :=
+  (∏ i,Product (k i))*Product a
+
+def Raw_weightedBalancedValues4 (H K : ℝ) (a : Fin 3 → Fin 4 → ℝ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  if tau=0 then a tau i*(H/K)^((1 : ℝ)/4) else a tau i
+
+def Raw_weightedProductBound4 (k : Fin 4 → ℚ) (a : ℚ) : ℚ :=
+  max 1 (max (Product (k 0))⁻¹
+    (max (Product (k 1))⁻¹ (max (Product (k 2))⁻¹ (max (Product (k 3))⁻¹ (Product a)⁻¹))))
+
+noncomputable def Raw_weightedProductCutoff4 (k : Fin 4 → ℚ) (a : ℚ) : ℝ :=
+  max 4 (max (4*(Raw_weightedProductBound4 k a : ℝ))
+    (max ((Raw_weightedProductConstant4 k a : ℝ)⁻¹) ((Raw_weightedProductConstant4 k a : ℝ)^5)))
+
+def Raw_weightedFixedProductQuadruples4 (k : Fin 4 → ℚ) (a : ℚ) (y : (Fin 4 → ℤ)) : Prop :=
+  Raw_PrimitiveFour y ∧ (∀ i,Product (y i : ℚ)=Product (k i)) ∧
+    Product (∑ i : Fin 4,(y i : ℚ))=Product a
+
+def Raw_weightedIntegerDiagonal4 (t : Fin 4 → ℤ) : Matrix (Fin 4) (Fin 4) ℚ :=
+  Matrix.diagonal (fun i => (t i : ℚ))
+
+def Raw_weightedDiagonalMap4 (t : Fin 4 → ℤ) : (Fin 4 → ℚ) →ₗ[ℚ] (Fin 4 → ℚ) :=
+  Matrix.toLin' (Raw_weightedIntegerDiagonal4 t)
+
+def Raw_weightedFiveTerms4 (A : ℚ) (B : Fin 4 → ℚ) (u : Fin 4 → Group) : Fin 5 → ℚ :=
+  Fin.cons A (fun i => B i*((u i : ℚˣ) : ℚ))
+
+def Raw_WeightedFiveTermSolutions (A : ℚ) (B : Fin 4 → ℚ) : Set (Fin 4 → Group) :=
+  {u | A+∑ i,B i*((u i : ℚˣ) : ℚ)=0 ∧ Nondeg (Raw_weightedFiveTerms4 A B u)}
+
+def Raw_weightedFiveCoefficientFiber4 (A : ℚ) (B b : Fin 4 → ℚ) : Set (Fin 4 → Group) :=
+  {u∈Raw_WeightedFiveTermSolutions A B | ∑ i,b i*((u i : ℚˣ) : ℚ)=0}
+
+def Raw_weightedFiveProperFiber4 (A : ℚ) (B : Fin 4 → ℚ)
+    (P : Submodule ℚ (Fin 4 → ℚ)) : Set (Fin 4 → Group) :=
+  {u∈Raw_WeightedFiveTermSolutions A B | (fun i => ((u i : ℚˣ) : ℚ))∈P}
+
+theorem source_weighted_fixed_product_height4 : ∀ (y : Fin 4 → ℤ) (hy : Raw_PrimitiveFour y)
+    (k : Fin 4 → ℚ) (a : ℚ)
+    (hc : ∀ i,Product (y i : ℚ)=Product (k i))
+    (hs : Product (∑ i : Fin 4,(y i : ℚ))=Product a),
+
+    ∃ choice : Fin 3 → Fin 4,
+      Raw_fourRetainedProduct choice (fun i => (y i : ℚ))*Raw_archFourHeight y=Raw_weightedProductConstant4 k a :=
+  @JSP000334.weighted_fixed_product_height4
+
+theorem source_weighted_balanced_weights4 : ∀ (H K C : ℝ) (hH : 4≤H) (hK : 0<K)
+    (hC : C≤H) (hKi : K⁻¹≤H) (hK5 : K^5≤H)
+    (a : Fin 3 → Fin 4 → ℝ) (ha : ∀ tau i,0<a tau i)
+    (hreal : ∀ i,a 0 i≤C*H)
+    (hfinite : ∀ tau,tau≠0 → ∀ i,a tau i≤1)
+    (hinv : ∀ tau i,(a tau i)⁻¹≤C*H)
+    (hprod : (∏ tau,∏ i,a tau i)*H=K),
+
+    let Q := H^8
+    let W := Raw_weightedBalancedValues4 H K a
+    1<Q ∧ Raw_sourceWeightConditions4 (Raw_sourceLogWeights4 Q W) ∧
+      (∀ tau i,Q^(Raw_sourceLogWeights4 Q W tau i)=W tau i) ∧
+      (∀ i,a 0 i≤Q^(Raw_sourceLogWeights4 Q W 0 i-(1 : ℝ)/40)) ∧
+      (∀ tau,tau≠0 → ∀ i,a tau i=Q^(Raw_sourceLogWeights4 Q W tau i)) :=
+  @JSP000334.weighted_balanced_weights4
+
+theorem source_weighted_integer_source_point4 : ∀ (y : Fin 4 → ℤ) (hy : Raw_PrimitiveFour y)
+    (choice : Fin 3 → Fin 4) (C K : ℝ) (hC4 : 4≤C) (hK : 0<K)
+    (hH : 4≤(Raw_archFourHeight y : ℝ)) (hC : C≤(Raw_archFourHeight y : ℝ))
+    (hKi : K⁻¹≤(Raw_archFourHeight y : ℝ)) (hK5 : K^5≤(Raw_archFourHeight y : ℝ))
+    (ha : ∀ tau i,0<(rationalPlaceNorm tau (Raw_fourRetainedForm (choice tau) i (fun j => (y j : ℚ))) : ℝ))
+    (hinv : ∀ tau i,((rationalPlaceNorm tau (Raw_fourRetainedForm (choice tau) i (fun j => (y j : ℚ))) : ℝ))⁻¹≤C*(Raw_archFourHeight y : ℝ))
+    (hprod : (Raw_fourRetainedProduct choice (fun j => (y j : ℚ)) : ℝ)*(Raw_archFourHeight y : ℝ)=K),
+
+    let Q := (Raw_archFourHeight y : ℝ)^8
+    ∃ d∈Raw_finiteWeightCandidates4 560,Raw_sourceWeightConditions4 d ∧
+      SourceSolution
+        (Raw_retainedRationalMatrix4 (choice 1)) (Raw_retainedRationalMatrix4 (choice 2))
+        (Raw_retainedRealMatrix4 (choice 0)) (d 0) (d 1) (d 2) Q ((1 : ℝ)/80) y :=
+  @JSP000334.weighted_integer_source_point4
+
+theorem source_weighted_fixed_product_point4 : ∀ (k : Fin 4 → ℚ) (a : ℚ)
+    (hk : ∀ i,k i≠0) (ha : a≠0) (y : Fin 4 → ℤ) (hy : Raw_PrimitiveFour y)
+    (hc : ∀ i,Product (y i : ℚ)=Product (k i))
+    (hs : Product (∑ i : Fin 4,(y i : ℚ))=Product a)
+    (hH : Raw_weightedProductCutoff4 k a≤(Raw_archFourHeight y : ℝ)),
+
+    let Q := (Raw_archFourHeight y : ℝ)^8
+    ∃ choice : Fin 3 → Fin 4,∃ d∈Raw_finiteWeightCandidates4 560,
+      Raw_sourceWeightConditions4 d ∧
+      SourceSolution
+        (Raw_retainedRationalMatrix4 (choice 1)) (Raw_retainedRationalMatrix4 (choice 2))
+        (Raw_retainedRealMatrix4 (choice 0)) (d 0) (d 1) (d 2) Q ((1 : ℝ)/80) y :=
+  @JSP000334.weighted_fixed_product_point4
+
+theorem source_weighted_integer_source_family4 : ∀ (Omega : Set ℝ) (hOmega : ¬BddAbove Omega)
+    (z : Omega → Fin 4 → ℤ)
+    (hp : ∀ q : Omega,∃ choice : Fin 3 → Fin 4,∃ d∈Raw_finiteWeightCandidates4 560,
+      Raw_sourceWeightConditions4 d ∧
+      SourceSolution
+        (Raw_retainedRationalMatrix4 (choice 1)) (Raw_retainedRationalMatrix4 (choice 2))
+        (Raw_retainedRealMatrix4 (choice 0)) (d 0) (d 1) (d 2) q.val ((1 : ℝ)/80) (z q)),
+
+    ∃ P : Submodule ℚ (Fin 4 → ℚ),P≠⊤ ∧ ∃ W : Set ℝ,W⊆Omega ∧ ¬BddAbove W ∧
+      ∀ q : Omega,q.val∈W → (fun i => (z q i : ℚ))∈P :=
+  @JSP000334.weighted_integer_source_family4
+
+theorem source_weighted_fixed_product_cover4 : ∀ (k : Fin 4 → ℚ) (a : ℚ) (hk : ∀ i,k i≠0) (ha : a≠0),
+
+    ∃ F : Set (Submodule ℚ (Fin 4 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ y : (Fin 4 → ℤ),Raw_weightedFixedProductQuadruples4 k a y → ∃ P∈F,(fun i => (y i : ℚ))∈P :=
+  @JSP000334.weighted_fixed_product_cover4
+
+theorem source_weighted_primitive_sunit_normalized4 : ∀ (x : Fin 4 → ℚ) (h0 : x 0=1)
+    (u1 u2 u3 : Group)
+    (hu1 : ((u1 : ℚˣ) : ℚ)=x 1) (hu2 : ((u2 : ℚˣ) : ℚ)=x 2)
+    (hu3 : ((u3 : ℚˣ) : ℚ)=x 3),
+
+    ∃ z : Fin 4 → ℤ,∃ s : Group,Raw_PrimitiveFour z ∧ z≠0 ∧
+      ∀ i : Fin 4,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i :=
+  @JSP000334.weighted_primitive_sunit_normalized4
+
+theorem source_weighted_primitive_sunit_coordinates4 : ∀ (u : Fin 4 → Group),
+
+    ∃ z : Fin 4 → ℤ,∃ s : Group,Raw_PrimitiveFour z ∧ (∀ i,z i≠0) ∧
+      ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ) :=
+  @JSP000334.weighted_primitive_sunit_coordinates4
+
+theorem source_weighted_diagonal_gcd_divides4 : ∀ (t z : Fin 4 → ℤ) (hz : Raw_PrimitiveFour z)
+    (g : ℤ) (hg : ∀ i,g∣t i*z i),
+ g∣∏ i,t i :=
+  @JSP000334.weighted_diagonal_gcd_divides4
+
+theorem source_weighted_diagonal_gcd_values_finite4 : ∀ (t : Fin 4 → ℤ) (ht : ∀ i,t i≠0),
+
+    {g : ℕ | 0<g ∧ (g : ℤ)∣∏ i,t i}.Finite :=
+  @JSP000334.weighted_diagonal_gcd_values_finite4
+
+theorem source_weighted_diagonal_invertible4 : ∀ (t : Fin 4 → ℤ) (ht : ∀ i,t i≠0),
+
+    IsUnit (Raw_weightedIntegerDiagonal4 t) :=
+  @JSP000334.weighted_diagonal_invertible4
+
+theorem source_weighted_diagonal_primitive4 : ∀ (t z : Fin 4 → ℤ) (ht : ∀ i,t i≠0)
+    (hz : Raw_PrimitiveFour z) (hzn : ∀ i,z i≠0),
+
+    ∃ g : ℕ,0<g ∧ (g : ℤ)∣(∏ i,t i) ∧ ∃ y : Fin 4 → ℤ,
+      Raw_PrimitiveFour y ∧ (∀ i,y i≠0) ∧ ∀ i,t i*z i=(g : ℤ)*y i :=
+  @JSP000334.weighted_diagonal_primitive4
+
+theorem source_weighted_coefficient_denominator4 : ∀ (B : Fin 4 → ℚ) (hB : ∀ i,B i≠0),
+
+    ∃ L : ℕ,0<L ∧ ∃ t : Fin 4 → ℤ,(∀ i,t i≠0) ∧
+      ∀ i,(t i : ℚ)=(L : ℚ)*B i :=
+  @JSP000334.weighted_coefficient_denominator4
+
+theorem source_weighted_diagonal_comap_proper4 : ∀ (t : Fin 4 → ℤ) (ht : ∀ i,t i≠0)
+    (P : Submodule ℚ (Fin 4 → ℚ)) (hP : P≠⊤),
+
+    P.comap (Raw_weightedDiagonalMap4 t)≠⊤ :=
+  @JSP000334.weighted_diagonal_comap_proper4
+
+theorem source_weighted_diagonal_original_mem4 : ∀ (t z y : Fin 4 → ℤ)
+    (g : ℕ) (u : Fin 4 → Group) (s : Group)
+    (hz : ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ))
+    (he : ∀ i,t i*z i=(g : ℤ)*y i)
+    (P : Submodule ℚ (Fin 4 → ℚ)) (hyP : (fun i => (y i : ℚ))∈P),
+
+    (fun i => ((u i : ℚˣ) : ℚ))∈P.comap (Raw_weightedDiagonalMap4 t) :=
+  @JSP000334.weighted_diagonal_original_mem4
+
+theorem source_weighted_original_product_input4 : ∀ (A : ℚ) (B : Fin 4 → ℚ) (L : ℕ) (t : Fin 4 → ℤ)
+    (ht : ∀ i,t i≠0) (hcoef : ∀ i,(t i : ℚ)=(L : ℚ)*B i)
+    (u : Fin 4 → Group) (hu : u∈Raw_WeightedFiveTermSolutions A B),
+
+    ∃ z : Fin 4 → ℤ,∃ s : Group,∃ g : ℕ,
+      0<g ∧ (g : ℤ)∣(∏ i,t i) ∧ ∃ y : Fin 4 → ℤ,
+      (∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ)) ∧
+      (∀ i,t i*z i=(g : ℤ)*y i) ∧
+      Raw_weightedFixedProductQuadruples4 (fun i => (t i : ℚ)/g) ((L : ℚ)*A/g) y :=
+  @JSP000334.weighted_original_product_input4
+
+theorem source_weighted_five_term_proper_cover4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0),
+
+    ∃ F : Set (Submodule ℚ (Fin 4 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ p∈Raw_WeightedFiveTermSolutions A B,
+        ∃ P∈F,(fun i => ((p i : ℚˣ) : ℚ))∈P :=
+  @JSP000334.weighted_five_term_proper_cover4
+
+theorem source_weighted_unit_injective4 : ∀ {u v : Group} (h : ((u : ℚˣ) : ℚ)=((v : ℚˣ) : ℚ)),
+ u=v :=
+  @JSP000334.weighted_unit_injective4
+
+theorem source_weighted_five_pair_01_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 1 : ℚˣ) : ℚ)=r*((u 0 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_pair_01_finite4
+
+theorem source_weighted_five_pair_02_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 2 : ℚˣ) : ℚ)=r*((u 0 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_pair_02_finite4
+
+theorem source_weighted_five_pair_03_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 3 : ℚˣ) : ℚ)=r*((u 0 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_pair_03_finite4
+
+theorem source_weighted_five_pair_12_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 2 : ℚˣ) : ℚ)=r*((u 1 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_pair_12_finite4
+
+theorem source_weighted_five_pair_13_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 3 : ℚˣ) : ℚ)=r*((u 1 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_pair_13_finite4
+
+theorem source_weighted_five_pair_23_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 3 : ℚˣ) : ℚ)=r*((u 2 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_pair_23_finite4
+
+theorem source_weighted_five_ratios_012_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r t : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 1 : ℚˣ) : ℚ)=r*((u 0 : ℚˣ) : ℚ) ∧
+      ((u 2 : ℚˣ) : ℚ)=t*((u 0 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_ratios_012_finite4
+
+theorem source_weighted_five_three_012_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (b c d : ℚ) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | b*((u 0 : ℚˣ) : ℚ)+c*((u 1 : ℚˣ) : ℚ)+d*((u 2 : ℚˣ) : ℚ)=0}.Finite :=
+  @JSP000334.weighted_five_three_012_finite4
+
+theorem source_weighted_five_ratios_013_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r t : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 1 : ℚˣ) : ℚ)=r*((u 0 : ℚˣ) : ℚ) ∧
+      ((u 3 : ℚˣ) : ℚ)=t*((u 0 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_ratios_013_finite4
+
+theorem source_weighted_five_three_013_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (b c d : ℚ) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | b*((u 0 : ℚˣ) : ℚ)+c*((u 1 : ℚˣ) : ℚ)+d*((u 3 : ℚˣ) : ℚ)=0}.Finite :=
+  @JSP000334.weighted_five_three_013_finite4
+
+theorem source_weighted_five_ratios_023_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r t : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 2 : ℚˣ) : ℚ)=r*((u 0 : ℚˣ) : ℚ) ∧
+      ((u 3 : ℚˣ) : ℚ)=t*((u 0 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_ratios_023_finite4
+
+theorem source_weighted_five_three_023_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (b c d : ℚ) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | b*((u 0 : ℚˣ) : ℚ)+c*((u 2 : ℚˣ) : ℚ)+d*((u 3 : ℚˣ) : ℚ)=0}.Finite :=
+  @JSP000334.weighted_five_three_023_finite4
+
+theorem source_weighted_five_ratios_123_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (r t : ℚ),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | ((u 2 : ℚˣ) : ℚ)=r*((u 1 : ℚˣ) : ℚ) ∧
+      ((u 3 : ℚˣ) : ℚ)=t*((u 1 : ℚˣ) : ℚ)}.Finite :=
+  @JSP000334.weighted_five_ratios_123_finite4
+
+theorem source_weighted_five_three_123_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (b c d : ℚ) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {u∈Raw_WeightedFiveTermSolutions A B | b*((u 1 : ℚˣ) : ℚ)+c*((u 2 : ℚˣ) : ℚ)+d*((u 3 : ℚˣ) : ℚ)=0}.Finite :=
+  @JSP000334.weighted_five_three_123_finite4
+
+theorem source_weighted_nondegenerate_scale4 : ∀ {n : ℕ} (x : Fin n → ℚ) (hx : Nondeg x)
+    (c : ℚ) (hc : c≠0),
+ Nondeg (fun i => c*x i) :=
+  @JSP000334.weighted_nondegenerate_scale4
+
+theorem source_weighted_five_good_four_finite4 : ∀ (A : ℚ) (B b : Fin 4 → ℚ)
+    (hA : A≠0) (hb : ∀ i,b i≠0),
+
+    {u∈Raw_weightedFiveCoefficientFiber4 A B b |
+      Nondeg (fun i => b i*((u i : ℚˣ) : ℚ))}.Finite :=
+  @JSP000334.weighted_five_good_four_finite4
+
+theorem source_weighted_five_four_finite4 : ∀ (A : ℚ) (B b : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (hb : ∀ i,b i≠0),
+
+    (Raw_weightedFiveCoefficientFiber4 A B b).Finite :=
+  @JSP000334.weighted_five_four_finite4
+
+theorem source_weighted_five_coefficient_finite4 : ∀ (A : ℚ) (B b : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (hb : ∃ i,b i≠0),
+
+    (Raw_weightedFiveCoefficientFiber4 A B b).Finite :=
+  @JSP000334.weighted_five_coefficient_finite4
+
+theorem source_weighted_five_proper_fiber_finite4 : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0) (P : Submodule ℚ (Fin 4 → ℚ)) (hP : P≠⊤),
+
+    (Raw_weightedFiveProperFiber4 A B P).Finite :=
+  @JSP000334.weighted_five_proper_fiber_finite4
+
+theorem source_weighted_five_term_finite : ∀ (A : ℚ) (B : Fin 4 → ℚ)
+    (hA : A≠0) (hB : ∀ i,B i≠0),
+
+    (Raw_WeightedFiveTermSolutions A B).Finite :=
+  @JSP000334.weighted_five_term_finite
+
+end
+end Raw258
+#check Raw258.source_weighted_fixed_product_height4
+#print axioms Raw258.source_weighted_fixed_product_height4
+#check Raw258.source_weighted_balanced_weights4
+#print axioms Raw258.source_weighted_balanced_weights4
+#check Raw258.source_weighted_integer_source_point4
+#print axioms Raw258.source_weighted_integer_source_point4
+#check Raw258.source_weighted_fixed_product_point4
+#print axioms Raw258.source_weighted_fixed_product_point4
+#check Raw258.source_weighted_integer_source_family4
+#print axioms Raw258.source_weighted_integer_source_family4
+#check Raw258.source_weighted_fixed_product_cover4
+#print axioms Raw258.source_weighted_fixed_product_cover4
+#check Raw258.source_weighted_primitive_sunit_normalized4
+#print axioms Raw258.source_weighted_primitive_sunit_normalized4
+#check Raw258.source_weighted_primitive_sunit_coordinates4
+#print axioms Raw258.source_weighted_primitive_sunit_coordinates4
+#check Raw258.source_weighted_diagonal_gcd_divides4
+#print axioms Raw258.source_weighted_diagonal_gcd_divides4
+#check Raw258.source_weighted_diagonal_gcd_values_finite4
+#print axioms Raw258.source_weighted_diagonal_gcd_values_finite4
+#check Raw258.source_weighted_diagonal_invertible4
+#print axioms Raw258.source_weighted_diagonal_invertible4
+#check Raw258.source_weighted_diagonal_primitive4
+#print axioms Raw258.source_weighted_diagonal_primitive4
+#check Raw258.source_weighted_coefficient_denominator4
+#print axioms Raw258.source_weighted_coefficient_denominator4
+#check Raw258.source_weighted_diagonal_comap_proper4
+#print axioms Raw258.source_weighted_diagonal_comap_proper4
+#check Raw258.source_weighted_diagonal_original_mem4
+#print axioms Raw258.source_weighted_diagonal_original_mem4
+#check Raw258.source_weighted_original_product_input4
+#print axioms Raw258.source_weighted_original_product_input4
+#check Raw258.source_weighted_five_term_proper_cover4
+#print axioms Raw258.source_weighted_five_term_proper_cover4
+#check Raw258.source_weighted_unit_injective4
+#print axioms Raw258.source_weighted_unit_injective4
+#check Raw258.source_weighted_five_pair_01_finite4
+#print axioms Raw258.source_weighted_five_pair_01_finite4
+#check Raw258.source_weighted_five_pair_02_finite4
+#print axioms Raw258.source_weighted_five_pair_02_finite4
+#check Raw258.source_weighted_five_pair_03_finite4
+#print axioms Raw258.source_weighted_five_pair_03_finite4
+#check Raw258.source_weighted_five_pair_12_finite4
+#print axioms Raw258.source_weighted_five_pair_12_finite4
+#check Raw258.source_weighted_five_pair_13_finite4
+#print axioms Raw258.source_weighted_five_pair_13_finite4
+#check Raw258.source_weighted_five_pair_23_finite4
+#print axioms Raw258.source_weighted_five_pair_23_finite4
+#check Raw258.source_weighted_five_ratios_012_finite4
+#print axioms Raw258.source_weighted_five_ratios_012_finite4
+#check Raw258.source_weighted_five_three_012_finite4
+#print axioms Raw258.source_weighted_five_three_012_finite4
+#check Raw258.source_weighted_five_ratios_013_finite4
+#print axioms Raw258.source_weighted_five_ratios_013_finite4
+#check Raw258.source_weighted_five_three_013_finite4
+#print axioms Raw258.source_weighted_five_three_013_finite4
+#check Raw258.source_weighted_five_ratios_023_finite4
+#print axioms Raw258.source_weighted_five_ratios_023_finite4
+#check Raw258.source_weighted_five_three_023_finite4
+#print axioms Raw258.source_weighted_five_three_023_finite4
+#check Raw258.source_weighted_five_ratios_123_finite4
+#print axioms Raw258.source_weighted_five_ratios_123_finite4
+#check Raw258.source_weighted_five_three_123_finite4
+#print axioms Raw258.source_weighted_five_three_123_finite4
+#check Raw258.source_weighted_nondegenerate_scale4
+#print axioms Raw258.source_weighted_nondegenerate_scale4
+#check Raw258.source_weighted_five_good_four_finite4
+#print axioms Raw258.source_weighted_five_good_four_finite4
+#check Raw258.source_weighted_five_four_finite4
+#print axioms Raw258.source_weighted_five_four_finite4
+#check Raw258.source_weighted_five_coefficient_finite4
+#print axioms Raw258.source_weighted_five_coefficient_finite4
+#check Raw258.source_weighted_five_proper_fiber_finite4
+#print axioms Raw258.source_weighted_five_proper_fiber_finite4
+#check Raw258.source_weighted_five_term_finite
+#print axioms Raw258.source_weighted_five_term_finite

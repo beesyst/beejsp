@@ -1,0 +1,73 @@
+import SubspaceBridge.SourceOriginalSatz215
+import verification.SourceProductBridge216
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M215SourceContract
+open SourceOriginalVariable10 SourceOriginalSatz212 OriginalDual10 SourceOriginalDual10 SourceOriginalBounds215
+
+theorem omitted_exponent (p : ℝ) (hp : p ≠ 0) (f : Fin 10 → ℤ) (i : Fin 10) :
+    (∏ k : Fin 9, p^(f (i.succAbove k))) = p^(∑ k : Fin 9, f (i.succAbove k)) := by
+  have h (s : Finset (Fin 9)) :
+      (∏ k ∈ s, p^(f (i.succAbove k))) = p^(∑ k ∈ s, f (i.succAbove k)) := by
+    induction s using Finset.induction_on with
+    | empty => simp
+    | @insert a s ha ih => rw [Finset.prod_insert ha,Finset.sum_insert ha,ih,zpow_add₀ hp]
+  exact h Finset.univ
+
+theorem source_constant : (Nat.factorial 9 : ℝ) = 362880 := by norm_num [Nat.factorial]
+
+theorem literal_satz41_fin10_two_places
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta)
+    (S0 : Finset (Fin 3 → Fin 10)) :
+    ∃ Q0 : ℝ, 0 < Q0 ∧ ∀ (Q : ℝ) (hQ : 1 < Q), Q0 < Q →
+      ∀ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+      let G := originalLattice212 D
+      let J := originalIndex212 D
+      let d := ZLattice.covolume (integerRealImage G)
+      let v := lastDual10 (fun j i => (D.u j i : ℚ))
+        (integer_frame_rational_independent10 D.u D.independent)
+      (∀ x, x ∈ G ↔
+        (∀ i, padicNorm 2 ((A2 *ᵥ (fun k => (x k : ℚ))) i) ≤ (2 : ℚ)^D.f2 i) ∧
+        (∀ i, padicNorm 3 ((A3 *ᵥ (fun k => (x k : ℚ))) i) ≤ (3 : ℚ)^D.f3 i)) ∧
+      0 < J ∧ 0 < d ∧
+      J * G.index = (Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det.natAbs ∧
+      |((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det : ℝ)| = (J : ℝ)*d ∧
+      d = (G.index : ℝ) ∧ ((J*G.index : ℕ) : ℝ) = (J : ℝ)*d ∧
+      (∀ i : Fin 10,
+        ‖∑ k, ((J : ℝ)*d*(v k : ℝ))*L⁻¹.transpose i k‖ ≤
+          (Nat.factorial 9 : ℝ)*(D.A i)⁻¹*d*Q^(-delta*(10-1)) ∧
+        ‖∑ k, (((J*G.index : ℕ) : ℚ_[2])*(v k : ℚ_[2]))*
+          (A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose i k‖ ≤
+          (2 : ℝ)^(∑ k : Fin 9, D.f2 (i.succAbove k)) ∧
+        ‖∑ k, (((J*G.index : ℕ) : ℚ_[3])*(v k : ℚ_[3]))*
+          (A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose i k‖ ≤
+          (3 : ℝ)^(∑ k : Fin 9, D.f3 (i.succAbove k))) ∧
+      ∀ s : Fin 3 → Fin 10, s ∈ S0 →
+        |(L⁻¹.transpose *ᵥ (fun k => (v k : ℝ))) (s 0)| *
+        ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (v k : ℚ_[2]))) (s 1)‖ *
+        ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (v k : ℚ_[3]))) (s 2)‖ = 0 := by
+  obtain ⟨Q0,hQ0,h⟩ := original_satz41_fin10_two_places215 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  refine ⟨Q0,hQ0,?_⟩
+  intro Q hQ hlarge D
+  dsimp only
+  obtain ⟨_hG,⟨hJ,hpos,hN,hdet,hdidx,hscale,hbounds⟩,hzero⟩ := h Q hQ hlarge D
+  refine ⟨original_lattice_mem212 D,hJ,hpos,hN,hdet,hdidx,hscale,?_,?_⟩
+  · intro i
+    obtain ⟨hr,h2b,h3b⟩ := hbounds i
+    have he : -delta*((10 : ℝ)-1) = -9*delta := by ring
+    rw [source_constant,he]
+    rw [omitted_exponent 2 (by norm_num)] at h2b
+    rw [omitted_exponent 3 (by norm_num)] at h3b
+    exact ⟨hr,h2b,h3b⟩
+  · intro s hs
+    exact (M216ProductBridge.data_product_expanded216 D s).symm.trans (hzero s hs)
+
+end CompoundFeasibility.M215SourceContract
+#print CompoundFeasibility.M215SourceContract.omitted_exponent
+#print axioms CompoundFeasibility.M215SourceContract.omitted_exponent
+#print CompoundFeasibility.M215SourceContract.source_constant
+#print axioms CompoundFeasibility.M215SourceContract.source_constant
+#print CompoundFeasibility.M215SourceContract.literal_satz41_fin10_two_places
+#print axioms CompoundFeasibility.M215SourceContract.literal_satz41_fin10_two_places

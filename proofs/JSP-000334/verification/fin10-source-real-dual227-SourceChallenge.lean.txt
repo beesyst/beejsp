@@ -1,0 +1,23 @@
+import SubspaceBridge.SourceRealIndependence227
+open scoped BigOperators Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.SourceSecondMinimum227
+  CompoundFeasibility.SourceDualGeometry219
+namespace M227SourceChallenge
+
+theorem original_basis_real_cast (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (q : ℝ) (c2 c3 : Fin 10 → ℝ) :
+    let G := originalSourceGroup10 A2 A3 q c2 c3
+    let c : Basis (Fin 10) ℤ G := (sourceLattice10_has_basis A2 A3
+      (fun i => Nat.ceil (JSP000334.qThreshold 2 q (c2 i)))
+      (fun i => Nat.ceil (JSP000334.qThreshold 3 q (c3 i)))).some
+    LinearIndependent ℝ (fun j i => ((c j : Fin 10 → ℤ) i : ℝ)) := by
+  dsimp only
+  have hq := original_basis_independent220 A2 A3 q c2 c3
+    (sourceLattice10_has_basis A2 A3 _ _).some
+  simpa only [Rat.cast_intCast] using rational_real_independent227 _ hq
+
+end M227SourceChallenge
+#check M227SourceChallenge.original_basis_real_cast
+#print M227SourceChallenge.original_basis_real_cast
+#print axioms M227SourceChallenge.original_basis_real_cast

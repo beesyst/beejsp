@@ -1,0 +1,106 @@
+import SubspaceBridge.AllPointSourceExtraction5
+namespace Raw257
+open CompoundFeasibility CompoundFeasibility.OriginalFlagAssembly5
+open scoped BigOperators Classical Matrix
+noncomputable section
+def Gauge (e : (Fin 5 → ℝ) ≃ₗ[ℝ] (Fin 5 → ℝ)) (x : Fin 5 → ℝ) : ℝ := ‖e x‖
+def LatticeSpan (b : Basis (Fin 5) ℝ (Fin 5 → ℝ)) : Submodule ℤ (Fin 5 → ℝ) := Submodule.span ℤ (Set.range b)
+def Radius (b : Basis (Fin 5) ℝ (Fin 5 → ℝ)) (e : (Fin 5 → ℝ) ≃ₗ[ℝ] (Fin 5 → ℝ)) (k : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (k.val+1) → Fin 5 → ℝ,LinearIndependent ℝ u ∧ (∀ i,u i∈LatticeSpan b) ∧ ∀ i,Gauge e (u i)≤r}
+def Flag (u : Fin 5 → Fin 5 → ℝ) (k : Fin 5) : Submodule ℝ (Fin 5 → ℝ) :=
+  Submodule.span ℝ (Set.range (fun i : Fin k.val => u (Fin.castLE (by omega) i)))
+def RationalFlag (j : Fin 4) (u : Fin 5 → Fin 5 → ℤ) : Submodule ℚ (Fin 5 → ℚ) :=
+  Submodule.span ℚ (Set.range (fun i : Fin (j.val+1) => fun k => (u (Fin.castLE (by omega) i) k : ℚ)))
+def Row (A : Matrix (Fin 5) (Fin 5) ℚ) (i : Fin 5) : (Fin 5 → ℤ) →+ ℚ where
+  toFun x := (A *ᵥ (fun j => (x j : ℚ))) i
+  map_zero' := by change (A *ᵥ (0 : Fin 5 → ℚ)) i=0; rw [Matrix.mulVec_zero]; rfl
+  map_add' x y := by
+    simp only [Pi.add_apply,Int.cast_add]
+    change (A *ᵥ ((fun j => (x j : ℚ))+(fun j => (y j : ℚ)))) i=_
+    rw [Matrix.mulVec_add];rfl
+def Local (p : ℕ) [Fact p.Prime] (A : Matrix (Fin 5) (Fin 5) ℚ) (e : Fin 5 → ℕ) : AddSubgroup (Fin 5 → ℤ) :=
+  ⨅ i,(normBall p (e i)).comap (Row A i)
+def Group (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ) : AddSubgroup (Fin 5 → ℤ) :=
+  Local 2 A2 (fun i => Nat.ceil (-c2 i*Real.log Q/Real.log 2)) ⊓ Local 3 A3 (fun i => Nat.ceil (-c3 i*Real.log Q/Real.log 3))
+def Minimum (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1<Q) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (j.val+1) → Fin 5 → ℝ,LinearIndependent ℝ u ∧
+    (∀ i,u i∈integerRealImage (Group A2 A3 Q c2 c3)) ∧
+    ∀ i,Gauge (originalCoordinates5 L hL Q hQ c0) (u i)≤r}
+def Functional (f : Module.Dual ℚ (Fin 5 → ℚ)) : Module.Dual ℝ (Fin 5 → ℝ) :=
+  ∑ i : Fin 5,(f (Pi.single i 1) : ℝ) • LinearMap.proj i
+theorem source_successiveRadius5_le_family : ∀ (b : Basis (Fin 5) ℝ (Fin 5 → ℝ))
+    (e : (Fin 5 → ℝ) ≃ₗ[ℝ] (Fin 5 → ℝ)) (k : Fin 5)
+    (u : Fin (k.val + 1) → (Fin 5 → ℝ)) (hu : LinearIndependent ℝ u)
+    (huL : ∀ i, u i ∈ LatticeSpan b) (r : ℝ)
+    (hr : ∀ i, Gauge e (u i) ≤ r),
+
+    Radius b e k ≤ r :=
+  @JSP000334.successiveRadius5_le_family
+
+theorem source_lattice5Span_short_mem_minimaFlag : ∀ (b : Basis (Fin 5) ℝ (Fin 5 → ℝ))
+    (e : (Fin 5 → ℝ) ≃ₗ[ℝ] (Fin 5 → ℝ)) (v : Fin 5 → (Fin 5 → ℝ))
+    (hv : LinearIndependent ℝ v) (hvL : ∀ i, v i ∈ LatticeSpan b)
+    (hvr : ∀ i, Gauge e (v i) = Radius b e i)
+    (k : Fin 5) (hgap : ∀ i : Fin 5, i < k →
+      Radius b e i < Radius b e k)
+    (x : (Fin 5 → ℝ)) (hx : x ∈ LatticeSpan b)
+    (hxr : Gauge e x < Radius b e k),
+
+    x ∈ Flag v k :=
+  @JSP000334.lattice5Span_short_mem_minimaFlag
+
+theorem source_allpoint_rational_functional5_cast : ∀ (f : Module.Dual ℚ (Fin 5 → ℚ)) (x : Fin 5 → ℚ),
+
+    Functional f (fun i => (x i : ℝ)) = (f x : ℝ) :=
+  @JSP000334.allpoint_rational_functional5_cast
+
+theorem source_allpoint_rational_flag5 : ∀ (w : Fin 5 → Fin 5 → ℤ)
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j))) (j : Fin 4) (z : Fin 5 → ℤ)
+    (hz : integerReal z ∈ Flag (fun j => integerReal (w j)) j.succ),
+
+    (fun i => (z i : ℚ)) ∈ RationalFlag j w :=
+  @JSP000334.allpoint_rational_flag5
+
+theorem source_allpoint_source_short_rational5 : ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1<Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 4)
+    (u : Fin 5 → Group A2 A3 Q c2 c3)
+    (hu : (LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧ ∀ i,Gauge (originalCoordinates5 L hL Q hQ c0) (integerReal (u i : Fin 5 → ℤ))=Minimum A2 A3 L hL Q hQ c0 c2 c3 i))
+    (hgap : ∀ i : Fin 5,i<j.succ → Minimum A2 A3 L hL Q hQ c0 c2 c3 i<
+      Minimum A2 A3 L hL Q hQ c0 c2 c3 j.succ)
+    (z : Group A2 A3 Q c2 c3)
+    (hz : Gauge (originalCoordinates5 L hL Q hQ c0) (integerReal (z : Fin 5 → ℤ))<
+      Minimum A2 A3 L hL Q hQ c0 c2 c3 j.succ),
+
+    (fun i => ((z : Fin 5 → ℤ) i : ℚ)) ∈ RationalFlag j (fun j => (u j : Fin 5 → ℤ)) :=
+  @JSP000334.allpoint_source_short_rational5
+
+theorem source_allpoint_rank_scalar5 : ∀ (a b c d e g t q C : ℝ)
+    (ha : 0<a) (hb : 0<b) (hc : 0<c) (hd : 0<d) (he : 0<e)
+    (ht : 0<t) (hq : 1≤q) (hab : a≤b) (hbc : b≤c) (hcd : c≤d) (hde : d≤e)
+    (hag : a≤g) (hgt : g≤t) (hp : C≤a*b*c*d*e) (hcut : t^5*q^20<C),
+
+    (d*q<e ∧ g<e) ∨ (c*q<d ∧ g<d) ∨ (b*q<c ∧ g<c) ∨ (a*q<b ∧ g<b) :=
+  @JSP000334.allpoint_rank_scalar5
+
+theorem source_allpoint_source_unit5 : ∀ {K : Type*} [Field K] (M : Matrix (Fin 5) (Fin 5) K) (hM : M.det=1),
+ IsUnit M :=
+  @JSP000334.allpoint_source_unit5
+
+end
+end Raw257
+#check Raw257.source_successiveRadius5_le_family
+#print axioms Raw257.source_successiveRadius5_le_family
+#check Raw257.source_lattice5Span_short_mem_minimaFlag
+#print axioms Raw257.source_lattice5Span_short_mem_minimaFlag
+#check Raw257.source_allpoint_rational_functional5_cast
+#print axioms Raw257.source_allpoint_rational_functional5_cast
+#check Raw257.source_allpoint_rational_flag5
+#print axioms Raw257.source_allpoint_rational_flag5
+#check Raw257.source_allpoint_source_short_rational5
+#print axioms Raw257.source_allpoint_source_short_rational5
+#check Raw257.source_allpoint_rank_scalar5
+#print axioms Raw257.source_allpoint_rank_scalar5
+#check Raw257.source_allpoint_source_unit5
+#print axioms Raw257.source_allpoint_source_unit5

@@ -1,0 +1,1475 @@
+import SubspaceBridge.CofactorSourceVanishing3
+import SubspaceBridge.OriginalPlaneTransport3
+import Mathlib.LinearAlgebra.CrossProduct
+open JSP000334
+namespace Literal252R3
+open scoped BigOperators Matrix
+open MeasureTheory
+namespace JSP000334
+noncomputable section
+
+noncomputable def cofactor_sourceDualBody3 (k : Fin 3) (D : ℝ) (a : Fin 3 → ℝ) : Set RealTriple :=
+  {x | ∀ i, |∑ j : Fin 3, (cofactorRealMatrix3 k)⁻¹ j i * x j| ≤ D / a i}
+
+noncomputable def cofactor_sourceDualCoordinates3 (k : Fin 3) (D : ℝ) (a : Fin 3 → ℝ)
+    (hD : 0 < D) (ha : ∀ i, 0 < a i) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3 (cofactorDualRealCoordinates3 k) (fun i => D / a i)
+    (fun i => div_pos hD (ha i))
+
+theorem cofactor_sourceDualRealCoordinates3_abs_det (k : Fin 3) :
+    |LinearMap.det (cofactorDualRealCoordinates3 k).toLinearMap| = 1 := by
+  change |LinearMap.det (Matrix.toLin' (cofactorRealMatrix3 k)⁻¹.transpose)| = 1
+  rw [LinearMap.det_toLin', Matrix.det_transpose, Matrix.det_nonsing_inv,
+    cofactorRealMatrix3_det]
+  norm_num
+
+theorem cofactor_sourceDualBody3_eq_parallelepiped (k : Fin 3) (D : ℝ) (a : Fin 3 → ℝ)
+    (hD : 0 < D) (ha : ∀ i, 0 < a i) :
+    cofactor_sourceDualBody3 k D a = parallelepipedBody3 (cofactor_sourceDualCoordinates3 k D a hD ha) := by
+  exact archBody3_eq_parallelepiped (cofactorDualRealCoordinates3 k)
+    (fun i => D / a i) (fun i => div_pos hD (ha i))
+
+theorem cofactor_sourceDualBody3_volume (k : Fin 3) (D : ℝ) (a : Fin 3 → ℝ)
+    (hD : 0 < D) (ha : ∀ i, 0 < a i) :
+    volume.real (cofactor_sourceDualBody3 k D a) = 8 * D ^ 3 / ∏ i, a i := by
+  change volume.real (archBody3 (cofactorDualRealCoordinates3 k) (fun i => D / a i)) = _
+  rw [archBody3_volume _ _ (fun i => div_pos hD (ha i)),
+    cofactor_sourceDualRealCoordinates3_abs_det, div_one, Finset.prod_div_distrib]
+  simp [Fin.prod_univ_succ, div_eq_mul_inv, pow_succ, mul_assoc]
+
+theorem cofactor_sourceDual_frame_gauge_bound3 (k : Fin 3) (D t s : ℝ)
+    (a : Fin 3 → ℝ) (hD : 0 < D) (ha : ∀ i, 0 < a i)
+    (w : Fin 3 → IntegerTriple) (j : Fin 3)
+    (h : ∀ i, |t * dualFrameRealLocalValue3 (cofactorRealMatrix3 k) w j i| ≤
+      6 * D * (a i)⁻¹ * s⁻¹) :
+    coordinateGauge3 (cofactor_sourceDualCoordinates3 k D a hD ha)
+      (fun i => t * (dualFrameVector3 w j i : ℝ)) ≤ 6 * s⁻¹ := by
+  change ‖cofactor_sourceDualCoordinates3 k D a hD ha _‖ ≤ _
+  rw [pi_norm_le_iff_of_nonempty]
+  intro i
+  change |(∑ l : Fin 3, (cofactorRealMatrix3 k)⁻¹ l i *
+    (t * (dualFrameVector3 w j l : ℝ))) / (D / a i)| ≤ _
+  have he : (∑ l : Fin 3, (cofactorRealMatrix3 k)⁻¹ l i *
+      (t * (dualFrameVector3 w j l : ℝ))) =
+      t * dualFrameRealLocalValue3 (cofactorRealMatrix3 k) w j i := by
+    simp only [zero_add, dualFrameRealLocalValue3, Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro l _
+    ring
+  rw [he, abs_div, abs_of_pos (div_pos hD (ha i)), div_le_iff₀ (div_pos hD (ha i))]
+  simpa [div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using h i
+
+theorem cofactor_sourceDual_minima_upper3 (G : AddSubgroup IntegerTriple)
+    (c : Basis (Fin 3) ℤ G)
+    (hc : LinearIndependent ℝ (fun j => integerTripleReal3 (c j : IntegerTriple)))
+    (hD : G.index ≠ 0) (u : Fin 3 → G)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple)
+    (k : Fin 3) (a : Fin 3 → ℝ) (ha : ∀ i, 0 < a i)
+    (hpoint : ∀ j i, |∑ l : Fin 3, cofactorRealMatrix3 k i l *
+      ((u j : IntegerTriple) l : ℝ)| ≤ successiveRadius3 B e j * a i)
+    (hprod : (∏ j, successiveRadius3 B e j) * (∏ i, a i) ≤ (G.index : ℝ))
+    (i : Fin 3) :
+    successiveRadius3 (sourceDualBasis3 G c hc hD)
+      (cofactor_sourceDualCoordinates3 k G.index a (by exact_mod_cast Nat.pos_of_ne_zero hD) ha) i ≤
+      6 / successiveRadius3 B e i.rev := by
+  let w := fun j => (u j : IntegerTriple)
+  let t : ℝ := ((dualFrameRelativeIndex3 G u * G.index : ℕ) : ℝ)
+  let v : Fin 3 → RealTriple := fun j l => t * (dualFrameVector3 w j l : ℝ)
+  have ht : t ≠ 0 := by
+    dsimp [t]
+    exact_mod_cast mul_ne_zero (Nat.ne_of_gt (dualFrameRelativeIndex3_pos G c u hu)) hD
+  have hv := (dualFrameVector3_real_independent w hu).units_smul (fun _ => Units.mk0 t ht)
+  change LinearIndependent ℝ (fun j => t • rationalTripleReal3 (dualFrameVector3 w j)) at hv
+  have hv' : LinearIndependent ℝ v := hv
+  have hL : ∀ j, v j ∈ lattice3 (sourceDualBasis3 G c hc hD) := by
+    intro j
+    rw [sourceDualBasis3_lattice]
+    refine ⟨_, dualFrameVector3_source_basis_mem G c
+      (dualFrameMatrix3_rational_independent _ hc) u
+      (dualFrameMatrix3_rational_independent _ hu) j, ?_⟩
+    ext l
+    simp [v, t, w, rationalTripleReal3]
+  obtain ⟨_, _, _, hs, _, _⟩ := exists_successive_minima3 B e
+  apply successiveRadius3_reverse_family _ _ _ hs (successiveRadius3_monotone B e) v hv' hL
+  intro j
+  rw [div_eq_mul_inv]
+  apply cofactor_sourceDual_frame_gauge_bound3 k G.index t (successiveRadius3 B e j) a _ ha w j
+  intro l
+  exact dualFrame3_source_real_bound G c u hu (cofactorRealMatrix3 k)
+    (by rw [cofactorRealMatrix3_det]; norm_num)
+    _ a hs ha hpoint hprod l j
+
+theorem cofactor_sourceDual_minima_product_lower3 (G : AddSubgroup IntegerTriple)
+    (c : Basis (Fin 3) ℤ G)
+    (hc : LinearIndependent ℝ (fun j => integerTripleReal3 (c j : IntegerTriple)))
+    (hD : G.index ≠ 0) (k : Fin 3) (a : Fin 3 → ℝ) (ha : ∀ i, 0 < a i) :
+    (∏ i, a i) / (6 * (G.index : ℝ)) ≤
+      ∏ j, successiveRadius3 (sourceDualBasis3 G c hc hD)
+        (cofactor_sourceDualCoordinates3 k G.index a (by exact_mod_cast Nat.pos_of_ne_zero hD) ha) j := by
+  have hp : (0 : ℝ) < G.index := by exact_mod_cast Nat.pos_of_ne_zero hD
+  have hP : 0 < ∏ i, a i := Finset.prod_pos (fun i _ => ha i)
+  have h := successive_minima3_parallelepiped_volume_lower (sourceDualBasis3 G c hc hD)
+    (cofactor_sourceDualCoordinates3 k G.index a hp ha)
+  rw [sourceDualBasis3_covolume,
+    ← cofactor_sourceDualBody3_eq_parallelepiped k G.index a hp ha,
+    cofactor_sourceDualBody3_volume k G.index a hp ha] at h
+  apply (div_le_iff₀ (mul_pos (by norm_num) hp)).mpr
+  have hh := (le_div_iff₀ hP).mp (show (8 / 6 : ℝ) * (G.index : ℝ) ^ 2 ≤
+    (∏ j, successiveRadius3 (sourceDualBasis3 G c hc hD)
+      (cofactor_sourceDualCoordinates3 k G.index a hp ha) j) * (8 * (G.index : ℝ) ^ 3) / (∏ i, a i) by
+        simpa [mul_div_assoc] using h)
+  nlinarith [sq_pos_of_pos hp]
+
+theorem cofactor_sourceDual_minima_product_upper3 (G : AddSubgroup IntegerTriple)
+    (c : Basis (Fin 3) ℤ G)
+    (hc : LinearIndependent ℝ (fun j => integerTripleReal3 (c j : IntegerTriple)))
+    (hD : G.index ≠ 0) (k : Fin 3) (a : Fin 3 → ℝ) (ha : ∀ i, 0 < a i) :
+    (∏ j, successiveRadius3 (sourceDualBasis3 G c hc hD)
+      (cofactor_sourceDualCoordinates3 k G.index a (by exact_mod_cast Nat.pos_of_ne_zero hD) ha) j) ≤
+        (∏ i, a i) / (G.index : ℝ) := by
+  have hp : (0 : ℝ) < G.index := by exact_mod_cast Nat.pos_of_ne_zero hD
+  have hP : 0 < ∏ i, a i := Finset.prod_pos (fun i _ => ha i)
+  have h := successive_minima3_parallelepiped_volume_upper (sourceDualBasis3 G c hc hD)
+    (cofactor_sourceDualCoordinates3 k G.index a hp ha)
+  rw [sourceDualBasis3_covolume,
+    ← cofactor_sourceDualBody3_eq_parallelepiped k G.index a hp ha,
+    cofactor_sourceDualBody3_volume k G.index a hp ha] at h
+  apply (le_div_iff₀ hp).mpr
+  have hh := (div_le_iff₀ hP).mp (show
+    ((∏ j, successiveRadius3 (sourceDualBasis3 G c hc hD)
+      (cofactor_sourceDualCoordinates3 k G.index a hp ha) j) * (8 * (G.index : ℝ) ^ 3)) /
+      (∏ i, a i) ≤ 8 * (G.index : ℝ) ^ 2 by simpa [mul_div_assoc] using h)
+  nlinarith [sq_pos_of_pos hp]
+
+theorem cofactor_sourceDual_minima_transference3 (G : AddSubgroup IntegerTriple)
+    (c : Basis (Fin 3) ℤ G)
+    (hc : LinearIndependent ℝ (fun j => integerTripleReal3 (c j : IntegerTriple)))
+    (hD : G.index ≠ 0) (u : Fin 3 → G)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple)
+    (hcov : ZLattice.covolume (lattice3 B) = (G.index : ℝ))
+    (k : Fin 3) (a : Fin 3 → ℝ) (ha : ∀ i, 0 < a i)
+    (hvol : volume.real (parallelepipedBody3 e) = 8 * ∏ i, a i)
+    (hpoint : ∀ j i, |∑ l : Fin 3, cofactorRealMatrix3 k i l *
+      ((u j : IntegerTriple) l : ℝ)| ≤ successiveRadius3 B e j * a i)
+    (hprod : (∏ j, successiveRadius3 B e j) * (∏ i, a i) ≤ (G.index : ℝ)) (i : Fin 3) :
+    1 / (1296 * successiveRadius3 B e i.rev) ≤
+      successiveRadius3 (sourceDualBasis3 G c hc hD)
+        (cofactor_sourceDualCoordinates3 k G.index a (by exact_mod_cast Nat.pos_of_ne_zero hD) ha) i ∧
+    successiveRadius3 (sourceDualBasis3 G c hc hD)
+      (cofactor_sourceDualCoordinates3 k G.index a (by exact_mod_cast Nat.pos_of_ne_zero hD) ha) i ≤
+        6 / successiveRadius3 B e i.rev := by
+  have hp : (0 : ℝ) < G.index := by exact_mod_cast Nat.pos_of_ne_zero hD
+  let s := successiveRadius3 B e
+  let t := successiveRadius3 (sourceDualBasis3 G c hc hD)
+    (cofactor_sourceDualCoordinates3 k G.index a hp ha)
+  obtain ⟨_, _, _, hs, _, _⟩ := exists_successive_minima3 B e
+  obtain ⟨_, _, _, ht, _, _⟩ := exists_successive_minima3 (sourceDualBasis3 G c hc hD)
+    (cofactor_sourceDualCoordinates3 k G.index a hp ha)
+  have hP : 0 < ∏ i, a i := Finset.prod_pos (fun i _ => ha i)
+  have hupper : ∀ j, t j ≤ 6 / s j.rev :=
+    cofactor_sourceDual_minima_upper3 G c hc hD u hu B e k a ha hpoint hprod
+  refine ⟨?_, hupper i⟩
+  have hl := source_minima_product_lower3 B e G.index (∏ i, a i) hP hvol hcov
+  have hlstar := cofactor_sourceDual_minima_product_lower3 G c hc hD k a ha
+  have hpair := mul_le_mul hl hlstar (le_of_lt (div_pos hP (mul_pos (by norm_num) hp)))
+    (Finset.prod_nonneg (fun j _ => (hs j).le))
+  have hcancel : (G.index : ℝ) / (6 * ∏ i, a i) * ((∏ i, a i) / (6 * G.index)) = 1 / 36 := by
+    field_simp
+    ring
+  rw [hcancel] at hpair
+  have hbound := ternary_transference_product_lower3 s t hs ht
+    (fun j => (le_div_iff₀ (hs _)).mp (hupper j)) hpair i
+  apply (div_le_iff₀ (mul_pos (by norm_num) (hs i.rev))).mpr
+  nlinarith
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+open MeasureTheory
+namespace JSP000334
+noncomputable section
+
+theorem cofactor_sourceDual_integer_pairing3 (k : Fin 3) (x v : IntegerTriple) :
+    (∑ j : Fin 3, x j * v j) =
+      ∑ i : Fin 3, (cofactorIntegerMatrix3 k *ᵥ x) i * cofactorDualInt3 k v i := by
+  fin_cases k <;>
+    norm_num [cofactorIntegerMatrix3_table,cofactorOriginalMatrix3_table,cofactorDualInt3,
+      Matrix.mulVec,dotProduct,Fin.sum_univ_three,
+      Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons] <;> ring
+
+theorem cofactor_sourceDual_complementary_divisibility3 (p : ℕ) (k : Fin 3) (a : Fin 3 → ℕ)
+    (x v : IntegerTriple)
+    (hx : ∀ i, (p : ℤ) ^ a i ∣ (cofactorIntegerMatrix3 k *ᵥ x) i)
+    (hv : ∀ i, (p : ℤ) ^ (∑ j, a j - a i) ∣ cofactorDualInt3 k v i) :
+    (p : ℤ) ^ (∑ j, a j) ∣ ∑ j : Fin 3, x j * v j := by
+  rw [cofactor_sourceDual_integer_pairing3 k x v]
+  apply Finset.dvd_sum
+  intro i _
+  have hi : a i ≤ ∑ j, a j := Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_univ i)
+  have h := mul_dvd_mul (hx i) (hv i)
+  rwa [← pow_add, Nat.add_sub_of_le hi] at h
+
+theorem cofactor_sourceDual_complementary_mem3 (k₂ k₃ : Fin 3) (a b : Fin 3 → ℕ)
+    (c : Basis (Fin 3) ℤ (mixedCongruence3 (cofactorIntegerMatrix3 k₂)
+      (cofactorIntegerMatrix3 k₃) a b))
+    (hc : LinearIndependent ℚ (fun j : Fin 3 => fun i : Fin 3 => ((c j : IntegerTriple) i : ℚ)))
+    (v : IntegerTriple)
+    (h₂ : ∀ i, (2 : ℤ) ^ (∑ j, a j - a i) ∣ cofactorDualInt3 k₂ v i)
+    (h₃ : ∀ i, (3 : ℤ) ^ (∑ j, b j - b i) ∣ cofactorDualInt3 k₃ v i) :
+    (fun i => (v i : ℚ)) ∈ dualFrameSourceBasisLattice3
+      (mixedCongruence3 (cofactorIntegerMatrix3 k₂) (cofactorIntegerMatrix3 k₃) a b) c := by
+  let G := mixedCongruence3 (cofactorIntegerMatrix3 k₂) (cofactorIntegerMatrix3 k₃) a b
+  have hD : G.index = 2 ^ (∑ i, a i) * 3 ^ (∑ i, b i) :=
+    mixedCongruence3_index _ _ (cofactorIntegerMatrix3_isUnit _) (cofactorIntegerMatrix3_isUnit _) a b
+  have hDnz : (G.index : ℚ) ≠ 0 := by rw [hD]; positivity
+  apply dualFrameSourceLattice3_subset_basis G c hc
+  refine ⟨fun i => (v i : ℚ) / G.index, ?_, ?_⟩
+  · intro x
+    have hx := (mem_mixedCongruence3 _ _ a b (x : IntegerTriple)).mp x.property
+    have hd₂ := cofactor_sourceDual_complementary_divisibility3 2 k₂ a x v hx.1 h₂
+    have hd₃ := cofactor_sourceDual_complementary_divisibility3 3 k₃ b x v hx.2 h₃
+    have hcop : IsCoprime ((2 : ℤ) ^ (∑ i, a i)) ((3 : ℤ) ^ (∑ i, b i)) :=
+      IsCoprime.pow (show IsCoprime (2 : ℤ) 3 from ⟨-1,1,by norm_num⟩)
+    obtain ⟨z,hz⟩ := hcop.mul_dvd hd₂ hd₃
+    refine ⟨z, ?_⟩
+    have hcast : (∑ i : Fin 3, ((x : IntegerTriple) i : ℚ) * (v i : ℚ)) =
+        (G.index : ℚ) * (z : ℚ) := by
+      rw [hD]
+      exact_mod_cast hz
+    simp_rw [← mul_div_assoc]
+    rw [← Finset.sum_div, hcast]
+    field_simp [hDnz]
+  · ext i
+    exact mul_div_cancel₀ (v i : ℚ) hDnz
+
+def cofactor_sourceDualSupport3 (k : Fin 3) (v : IntegerTriple) : Finset (Fin 3) :=
+  Finset.univ.filter (fun i => cofactorDualInt3 k v i ≠ 0)
+
+theorem cofactor_sourceDualSupport3_nonempty (k : Fin 3) (v : IntegerTriple) (hv : v ≠ 0) :
+    (cofactor_sourceDualSupport3 k v).Nonempty := by
+  by_contra hh
+  have hz (i : Fin 3) : cofactorDualInt3 k v i = 0 := by
+    by_contra hi
+    exact hh ⟨i,by simp [cofactor_sourceDualSupport3,hi]⟩
+  apply hv
+  ext l
+  have h := cofactorDualInt3_reconstruct k v l
+  simp_rw [hz,Int.cast_zero,mul_zero,Finset.sum_const_zero] at h
+  exact_mod_cast h
+
+noncomputable def cofactor_sourceDualFloorMin3 (p : ℕ) (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ)
+    (v : IntegerTriple) (hv : v ≠ 0) : ℤ :=
+  ((cofactor_sourceDualSupport3 k v).image (fun i => Int.floor ((Real.log Q/Real.log p)*
+    (c (i.succAbove 0)+c (i.succAbove 1))))).min' ((cofactor_sourceDualSupport3_nonempty k v hv).image _)
+
+theorem cofactor_sourceDualFloorMin3_le (p : ℕ) (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ)
+    (v : IntegerTriple) (hv : v ≠ 0) (i : Fin 3) (hi : cofactorDualInt3 k v i ≠ 0) :
+    cofactor_sourceDualFloorMin3 p k Q c v hv ≤ Int.floor ((Real.log Q/Real.log p)*
+      (c (i.succAbove 0)+c (i.succAbove 1))) := by
+  exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨i,by simp [cofactor_sourceDualSupport3,hi],rfl⟩)
+
+theorem cofactor_sourceDualInt_smul3 (k : Fin 3) (t : ℤ) (v : IntegerTriple) (i : Fin 3) :
+    cofactorDualInt3 k (t • v) i = t * cofactorDualInt3 k v i := by
+  simp only [cofactorDualInt3]
+  split_ifs <;> rw [Matrix.mulVec_smul] <;> simp [Pi.smul_apply,smul_eq_mul]
+
+theorem cofactor_sourceDual_rescale_mem3 (k₂ k₃ : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (v : IntegerTriple) (hv : v ≠ 0)
+    (c : Basis (Fin 3) ℤ (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃))
+    (hc : LinearIndependent ℚ (fun j : Fin 3 => fun i : Fin 3 => ((c j : IntegerTriple) i : ℚ))) :
+    let t : ℤ := 2 ^ (2-cofactor_sourceDualFloorMin3 2 k₂ Q c₂ v hv).toNat *
+      3 ^ (2-cofactor_sourceDualFloorMin3 3 k₃ Q c₃ v hv).toNat
+    t ≠ 0 ∧ (fun i => ((t • v) i : ℚ)) ∈
+      dualFrameSourceBasisLattice3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) c := by
+  intro t
+  have ht : t ≠ 0 := by dsimp [t]; positivity
+  refine ⟨ht,?_⟩
+  apply cofactor_sourceDual_complementary_mem3 k₂ k₃
+    (fun i => Nat.ceil (-c₂ i*Real.log Q/Real.log 2))
+    (fun i => Nat.ceil (-c₃ i*Real.log Q/Real.log 3)) c hc (t • v)
+  · intro i
+    rw [cofactor_sourceDualInt_smul3]
+    by_cases hi : cofactorDualInt3 k₂ v i = 0
+    · rw [hi,mul_zero]; exact dvd_zero _
+    · have hb := sourceDual_floor_bound3 2 (by decide) Q hQ c₂ hc₂ i
+      have hm := Int.toNat_le_toNat (sub_le_sub_left (cofactor_sourceDualFloorMin3_le 2 k₂ Q c₂ v hv i hi) 2)
+      have hd : (2 : ℤ) ^ ((∑ j, Nat.ceil (-c₂ j*Real.log Q/Real.log 2))-
+          Nat.ceil (-c₂ i*Real.log Q/Real.log 2)) ∣ t := by
+        exact dvd_mul_of_dvd_left (pow_dvd_pow _ (hb.trans hm)) _
+      exact dvd_mul_of_dvd_left hd _
+  · intro i
+    rw [cofactor_sourceDualInt_smul3]
+    by_cases hi : cofactorDualInt3 k₃ v i = 0
+    · rw [hi,mul_zero]; exact dvd_zero _
+    · have hb := sourceDual_floor_bound3 3 (by decide) Q hQ c₃ hc₃ i
+      have hm := Int.toNat_le_toNat (sub_le_sub_left (cofactor_sourceDualFloorMin3_le 3 k₃ Q c₃ v hv i hi) 2)
+      have hd : (3 : ℤ) ^ ((∑ j, Nat.ceil (-c₃ j*Real.log Q/Real.log 3))-
+          Nat.ceil (-c₃ i*Real.log Q/Real.log 3)) ∣ t := by
+        exact dvd_mul_of_dvd_right (pow_dvd_pow _ (hb.trans hm)) _
+      exact dvd_mul_of_dvd_left hd _
+
+theorem cofactor_sourceRealLogWeights3_coordinates (k : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (A c₂ c₃ : Fin 3 → ℝ) (hA : ∀ i, 0 < A i) :
+    cofactorSourceCoordinates3 k Q (sourceRealLogWeights3 Q A c₂ c₃ 0) hQ =
+      archCoordinates3 (cofactorRealCoordinates3 k) A hA := by
+  ext x i
+  change cofactorRealCoordinates3 k x i/Q^(Real.log (A i)/Real.log Q) = _
+  have he : Q^(Real.log (A i)/Real.log Q) = A i := by
+    rw [Real.rpow_def_of_pos (by linarith : 0 < Q),mul_div_cancel₀ _ (Real.log_pos hQ).ne',
+      Real.exp_log (hA i)]
+  rw [he]
+  rfl
+
+theorem cofactor_sourceReal_uniform_selected_vanishing3 (k₀ k₂ k₃ : Fin 3)
+    (S : Set (Fin 3 → Fin 3)) (hS : S.Nonempty) (delta : ℝ) (hd : 0 < delta) :
+    ∃ Q0 : ℝ, 1 ≤ Q0 ∧ ∀ Q : ℝ, Q0 < Q → ∀ hQ : 1 < Q,
+      ∀ (A c₂ c₃ : Fin 3 → ℝ) (hA : ∀ i, 0 < A i),
+      (∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) → (∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0) →
+      (∀ i, A i < Q ∧ (A i)⁻¹ < Q) →
+      (∏ i, A i*Q^(c₂ i)*Q^(c₃ i)) = 1 →
+      S ⊆ sourceTupleSet3 Q delta A c₂ c₃ →
+      ∀ (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃),
+      lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 →
+      LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) →
+      (∀ j, coordinateGauge3 (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA)
+        (integerTripleReal3 (u j : IntegerTriple)) =
+        successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) j) →
+      successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) 1 < Q^(-delta) →
+      ∀ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s
+        (fun i => (((dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u *
+          (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+          dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i)) = 0 := by
+  obtain ⟨Q0,hQ0,hzero⟩ := cofactor_uniform_selected_vanishing3 k₀ k₂ k₃ S hS delta hd
+  refine ⟨Q0,hQ0,?_⟩
+  intro Q hcutQ hQ A c₂ c₃ hA hc₂ hc₃ hcut hnorm hSsub
+  let c := sourceRealLogWeights3 Q A c₂ c₃
+  have hc := sourceRealLogWeights3_conditions Q hQ A c₂ c₃ hA hc₂ hc₃ hcut hnorm
+  have ht (s : Fin 3 → Fin 3) (hs : s ∈ S) : -delta/2 ≤ c 0 (s 0)+c 1 (s 1)+c 2 (s 2) := by
+    let W : Fin 3 → Fin 3 → ℝ := ![A,fun i => Q^(c₂ i),fun i => Q^(c₃ i)]
+    have hW : ∀ tau i, 0 < W tau i := by
+      intro tau i
+      fin_cases tau
+      · exact hA i
+      · exact Real.rpow_pos_of_pos (by linarith) _
+      · exact Real.rpow_pos_of_pos (by linarith) _
+    have h := sourceWeight48_log3 Q delta hQ W hW s (hSsub hs)
+    have he : sourceLogWeights3 Q W = c := by
+      ext tau i
+      fin_cases tau
+      · rfl
+      · change Real.log (Q^(c₂ i))/Real.log Q = c₂ i
+        rw [Real.log_rpow (by linarith : 0 < Q),mul_div_cancel_right₀ _ (Real.log_pos hQ).ne']
+      · change Real.log (Q^(c₃ i))/Real.log Q = c₃ i
+        rw [Real.log_rpow (by linarith : 0 < Q),mul_div_cancel_right₀ _ (Real.log_pos hQ).ne']
+    rwa [he] at h
+  have hz := hzero Q hcutQ hQ c hc ht
+  rw [cofactor_sourceRealLogWeights3_coordinates k₀ Q hQ A c₂ c₃ hA] at hz
+  intro B u hB hu hatt hsmall s hs
+  have h := hz B u hB hu hatt hsmall s hs
+  rw [cofactorSelectedProduct3_scale,h,mul_zero]
+
+theorem cofactor_sourceDual_rescale_real_bound3 (k₂ k₃ : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (v : IntegerTriple) (hv : v ≠ 0) :
+    ∃ i₂ ∈ cofactor_sourceDualSupport3 k₂ v, ∃ i₃ ∈ cofactor_sourceDualSupport3 k₃ v,
+      let t : ℤ := 2 ^ (2-cofactor_sourceDualFloorMin3 2 k₂ Q c₂ v hv).toNat *
+        3 ^ (2-cofactor_sourceDualFloorMin3 3 k₃ Q c₃ v hv).toNat
+      (t : ℝ) ≤ 216*Q^(-(c₂ (i₂.succAbove 0)+c₂ (i₂.succAbove 1)+
+        c₃ (i₃.succAbove 0)+c₃ (i₃.succAbove 1))) := by
+  obtain ⟨i₂,hi₂,hg₂⟩ := Finset.mem_image.mp
+    (Finset.min'_mem ((cofactor_sourceDualSupport3 k₂ v).image (fun i => Int.floor
+      ((Real.log Q/Real.log 2)*(c₂ (i.succAbove 0)+c₂ (i.succAbove 1)))))
+      ((cofactor_sourceDualSupport3_nonempty k₂ v hv).image _))
+  obtain ⟨i₃,hi₃,hg₃⟩ := Finset.mem_image.mp
+    (Finset.min'_mem ((cofactor_sourceDualSupport3 k₃ v).image (fun i => Int.floor
+      ((Real.log Q/Real.log 3)*(c₃ (i.succAbove 0)+c₃ (i.succAbove 1)))))
+      ((cofactor_sourceDualSupport3_nonempty k₃ v hv).image _))
+  refine ⟨i₂,hi₂,i₃,hi₃,?_⟩
+  intro t
+  have h2 := sourceDual_floor_real_bound3 2 (by decide) Q hQ
+    (c₂ (i₂.succAbove 0)+c₂ (i₂.succAbove 1)) (by linarith [hc₂ (i₂.succAbove 0),hc₂ (i₂.succAbove 1)])
+  have h3 := sourceDual_floor_real_bound3 3 (by decide) Q hQ
+    (c₃ (i₃.succAbove 0)+c₃ (i₃.succAbove 1)) (by linarith [hc₃ (i₃.succAbove 0),hc₃ (i₃.succAbove 1)])
+  change Int.floor _ = cofactor_sourceDualFloorMin3 2 k₂ Q c₂ v hv at hg₂
+  change Int.floor _ = cofactor_sourceDualFloorMin3 3 k₃ Q c₃ v hv at hg₃
+  norm_num only [Nat.cast_ofNat] at h2 h3
+  rw [hg₂] at h2
+  rw [hg₃] at h3
+  have h := mul_le_mul h2 h3 (by positivity) (by positivity)
+  push_cast [t]
+  convert h using 1
+  rw [show -(c₂ (i₂.succAbove 0)+c₂ (i₂.succAbove 1)+c₃ (i₃.succAbove 0)+c₃ (i₃.succAbove 1)) =
+      -(c₂ (i₂.succAbove 0)+c₂ (i₂.succAbove 1)) + -(c₃ (i₃.succAbove 0)+c₃ (i₃.succAbove 1)) by ring,
+    Real.rpow_add (by linarith : 0 < Q)]
+  ring
+
+theorem cofactor_sourceReal_width_geometry3 (k₀ k₂ k₃ : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (A : Fin 3 → ℝ) (hA : ∀ i, 0 < A i)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hatt : ∀ j, coordinateGauge3 (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+      successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) j) :
+    let e := archCoordinates3 (cofactorRealCoordinates3 k₀) A hA
+    ZLattice.covolume (lattice3 B) = ((cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℝ) ∧
+    volume.real (parallelepipedBody3 e) = 8*∏ i, A i ∧
+    (∀ j i, |∑ l : Fin 3, cofactorRealMatrix3 k₀ i l*((u j : IntegerTriple) l : ℝ)| ≤
+      successiveRadius3 B e j*A i) ∧
+    (∏ j, successiveRadius3 B e j)*(∏ i, A i) ≤
+      ((cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℝ) := by
+  intro e
+  have hcov : ZLattice.covolume (lattice3 B) =
+      ((cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℝ) := by
+    rw [hB,(cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.1]
+    exact (cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.2
+  have hvol : volume.real (parallelepipedBody3 e) = 8*∏ i, A i := by
+    rw [← archBody3_eq_parallelepiped _ _ hA,archBody3_volume _ _ hA,cofactorRealCoordinates3_abs_det,div_one]
+  refine ⟨hcov,hvol,?_,?_⟩
+  · intro j i
+    have hh : |e (integerTripleReal3 (u j : IntegerTriple)) i| ≤
+        coordinateGauge3 e (integerTripleReal3 (u j : IntegerTriple)) := by
+      simpa only [coordinateGauge3,Real.norm_eq_abs] using
+        norm_le_pi_norm (e (integerTripleReal3 (u j : IntegerTriple))) i
+    change |(∑ l : Fin 3, cofactorRealMatrix3 k₀ i l*((u j : IntegerTriple) l : ℝ))/A i| ≤ _ at hh
+    rw [abs_div,abs_of_pos (hA i),div_le_iff₀ (hA i),hatt] at hh
+    exact hh
+  · have h := successive_minima3_parallelepiped_volume_upper B e
+    rw [hvol,hcov] at h
+    nlinarith
+
+theorem cofactor_sourceReal_dual_second_gt_one3 (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ) (hQ : 1 < Q)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (A : Fin 3 → ℝ) (hA : ∀ i, 0 < A i)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+      successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) j)
+    (hsmall : successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) 1 < Q^(-delta))
+    (hlarge : 1296 < Q^delta)
+    (c : Basis (Fin 3) ℤ (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃))
+    (hc : LinearIndependent ℝ (fun j => integerTripleReal3 (c j : IntegerTriple)))
+    (hD : (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index ≠ 0) :
+    1 < successiveRadius3 (sourceDualBasis3 _ c hc hD)
+      (cofactor_sourceDualCoordinates3 k₀ (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index A
+        (by exact_mod_cast Nat.pos_of_ne_zero hD) hA) 1 := by
+  obtain ⟨hcov,hvol,hpoint,hprod⟩ := cofactor_sourceReal_width_geometry3 k₀ k₂ k₃ Q hQ c₂ c₃ hc₂ hc₃ A hA B u hB hatt
+  have h := (cofactor_sourceDual_minima_transference3 _ c hc hD u hu B _ hcov k₀ A hA hvol hpoint hprod 1).1
+  have hr : (1 : Fin 3).rev = 1 := rfl
+  rw [hr] at h
+  obtain ⟨_,_,_,hpos,_,_⟩ := exists_successive_minima3 B
+    (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA)
+  exact sourceDual_second_minimum_gt_one3 Q delta _ _ hQ (hpos 1) hsmall hlarge h
+
+theorem cofactor_sourceReal_index_lower3 (k₂ k₃ : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0) :
+    Q^(-(∑ i, (c₂ i+c₃ i))) ≤ ((cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℝ) := by
+  rw [(cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.1,
+    qCongruenceIndex3_factorization Q c₂ c₃ hQ]
+  have he : (∏ i, Q^(-c₂ i)*Q^(-c₃ i)) = Q^(-(∑ i, (c₂ i+c₃ i))) := by
+    simp_rw [← Real.rpow_add (by linarith : 0 < Q)]
+    rw [← Real.rpow_sum_of_pos (by linarith : 0 < Q) _ Finset.univ]
+    congr 1
+    simp only [Finset.sum_add_distrib,Finset.sum_neg_distrib]
+    ring
+  rw [he]
+  exact le_mul_of_one_le_right (Real.rpow_pos_of_pos (by linarith) _).le
+    (qRoundingFactor3_bounds Q c₂ c₃ hQ hc₂ hc₃).1
+
+theorem cofactor_sourceDual_two_case_body3 (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ) (hQ : 1 < Q)
+    (A c₂ c₃ : Fin 3 → ℝ) (hA : ∀ i, 0 < A i)
+    (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (S : Set (Fin 3 → Fin 3)) (hS : S = sourceTupleSet3 Q delta A c₂ c₃)
+    (v : IntegerTriple) (hv : v ≠ 0)
+    (hzero : ∀ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s (fun i => (v i : ℚ)) = 0)
+    (hlarge : ∀ i, 216*|(cofactorDualInt3 k₀ v i : ℝ)| ≤ Q^(delta/2)) :
+    let t : ℤ := 2 ^ (2-cofactor_sourceDualFloorMin3 2 k₂ Q c₂ v hv).toNat *
+      3 ^ (2-cofactor_sourceDualFloorMin3 3 k₃ Q c₃ v hv).toNat
+    integerTripleReal3 (t • v) ∈ cofactor_sourceDualBody3 k₀ (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index A := by
+  classical
+  letI : Fact (Nat.Prime 2) := ⟨by decide⟩
+  letI : Fact (Nat.Prime 3) := ⟨by decide⟩
+  intro t i
+  have ht : (0 : ℝ) < t := by dsimp [t]; positivity
+  change |cofactorDualRealCoordinates3 k₀ (integerTripleReal3 (t • v)) i| ≤ _
+  rw [cofactorDualInt3_real_value,cofactor_sourceDualInt_smul3,Int.cast_mul]
+  by_cases hcase : ∃ s ∈ S, s 0 = i ∧ s 1 ∈ cofactor_sourceDualSupport3 k₂ v ∧ s 2 ∈ cofactor_sourceDualSupport3 k₃ v
+  · obtain ⟨s,hs,hs0,hs2,hs3⟩ := hcase
+    have h2 : (padicNorm 2 (cofactorDualInt3 k₂ v (s 1) : ℚ) : ℝ) ≠ 0 := by
+      have hh : (cofactorDualInt3 k₂ v (s 1) : ℚ) ≠ 0 := by
+        exact_mod_cast (Finset.mem_filter.mp hs2).2
+      exact_mod_cast padicNorm.nonzero hh
+    have h3 : (padicNorm 3 (cofactorDualInt3 k₃ v (s 2) : ℚ) : ℝ) ≠ 0 := by
+      have hh : (cofactorDualInt3 k₃ v (s 2) : ℚ) ≠ 0 := by
+        exact_mod_cast (Finset.mem_filter.mp hs3).2
+      exact_mod_cast padicNorm.nonzero hh
+    have hz := hzero s hs
+    simp only [cofactorSelectedProduct3,cofactorDualInt3_value,Rat.cast_intCast,hs0] at hz
+    have hf := (mul_eq_zero.mp ((mul_eq_zero.mp hz).resolve_right h3)).resolve_right h2
+    rw [abs_eq_zero.mp hf,mul_zero,abs_zero]
+    exact div_nonneg (Nat.cast_nonneg _) (hA i).le
+  · obtain ⟨i₂,hi₂,i₃,hi₃,hbound⟩ := cofactor_sourceDual_rescale_real_bound3 k₂ k₃ Q hQ c₂ c₃ hc₂ hc₃ v hv
+    have hnot : ![i,i₂,i₃] ∉ S := by
+      intro hs
+      exact hcase ⟨![i,i₂,i₃],hs,rfl,hi₂,hi₃⟩
+    have hlt : A i*Q^(c₂ i₂)*Q^(c₃ i₃)*Q^(delta/2) < 1 := by
+      apply lt_of_not_ge
+      intro hh
+      apply hnot
+      rw [hS]
+      exact hh
+    have hp : 0 < Q := by linarith
+    let R := Q^(-(∑ j, (c₂ j+c₃ j)))
+    have hR : 0 < R := Real.rpow_pos_of_pos hp _
+    have hD := cofactor_sourceReal_index_lower3 k₂ k₃ Q hQ c₂ c₃ hc₂ hc₃
+    have he : Q^(-(c₂ (i₂.succAbove 0)+c₂ (i₂.succAbove 1)+
+        c₃ (i₃.succAbove 0)+c₃ (i₃.succAbove 1))) = R*Q^(c₂ i₂)*Q^(c₃ i₃) := by
+      rw [sourceDual_complement_exponent3,Real.rpow_add hp,Real.rpow_add hp]
+    rw [he] at hbound
+    change (t : ℝ) ≤ 216*(R*Q^(c₂ i₂)*Q^(c₃ i₃)) at hbound
+    have hAi := hA i
+    have hp2 := Real.rpow_pos_of_pos hp (c₂ i₂)
+    have hp3 := Real.rpow_pos_of_pos hp (c₃ i₃)
+    have hscale : A i*|(t : ℝ)*(cofactorDualInt3 k₀ v i : ℝ)| ≤
+        (216*|(cofactorDualInt3 k₀ v i : ℝ)|)*R*(A i*Q^(c₂ i₂)*Q^(c₃ i₃)) := by
+      rw [abs_mul,abs_of_pos ht]
+      calc
+        _ ≤ A i*(216*(R*Q^(c₂ i₂)*Q^(c₃ i₃)))*|(cofactorDualInt3 k₀ v i : ℝ)| := by
+          simpa only [mul_assoc] using mul_le_mul_of_nonneg_right
+            (mul_le_mul_of_nonneg_left hbound (hA i).le) (abs_nonneg (cofactorDualInt3 k₀ v i : ℝ))
+        _ = _ := by ring
+    have hlarge' := mul_le_mul_of_nonneg_right (hlarge i)
+      (show 0 ≤ R*(A i*Q^(c₂ i₂)*Q^(c₃ i₃)) by positivity)
+    have hmul : A i*|(t : ℝ)*(cofactorDualInt3 k₀ v i : ℝ)| ≤
+        ((cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℝ) := by
+      have hh := mul_lt_mul_of_pos_left hlt hR
+      nlinarith [hscale,hlarge']
+    exact (le_div_iff₀ (hA i)).mpr (by nlinarith [hmul])
+
+theorem cofactor_sourceReal_last_dual_body3 (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ) (hQ : 1 < Q)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (A : Fin 3 → ℝ) (hA : ∀ i, 0 < A i)
+    (hnorm : (∏ i, A i*Q^(c₂ i)*Q^(c₃ i)) = 1)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+      successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) j)
+    (hsmall : successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) 1 < Q^(-delta))
+    (hlarge : 1296 < Q^delta)
+    (c : Basis (Fin 3) ℤ (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃)) :
+    rationalTripleReal3 (fun i => (((dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u *
+      (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+        dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i)) ∈
+      cofactor_sourceDualBody3 k₀ (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index A := by
+  let G := cofactorSourceLattice3 k₂ k₃ Q c₂ c₃
+  let e := archCoordinates3 (cofactorRealCoordinates3 k₀) A hA
+  let s := successiveRadius3 B e
+  have hp : 0 < Q := by linarith
+  have hD : (0 : ℝ) < G.index := by
+    rw [(cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.1]
+    unfold qCongruenceIndex3
+    positivity
+  obtain ⟨hcov,hvol,hpoint,hprod⟩ := cofactor_sourceReal_width_geometry3 k₀ k₂ k₃ Q hQ c₂ c₃ hc₂ hc₃ A hA B u hB hatt
+  obtain ⟨_,_,_,hs,hmon,_⟩ := exists_successive_minima3 B e
+  have hP : 0 < ∏ i, A i := Finset.prod_pos (fun i _ => hA i)
+  have hPD : (∏ i, A i) ≤ (G.index : ℝ) := by
+    rw [sourceReal_width_product3 Q hQ A c₂ c₃ hnorm]
+    exact cofactor_sourceReal_index_lower3 k₂ k₃ Q hQ c₂ c₃ hc₂ hc₃
+  have hlower := source_minima_product_lower3 B e G.index (∏ i, A i) hP hvol hcov
+  have hlower' : (1 : ℝ)/6 ≤ ∏ i, s i := by
+    have hh := (div_le_iff₀ (mul_pos (by norm_num : (0 : ℝ) < 6) hP)).mp hlower
+    dsimp [s]
+    nlinarith
+  have hexp : Q^(-delta)*Q^delta = 1 := by rw [← Real.rpow_add hp,neg_add_cancel,Real.rpow_zero]
+  have hsm : s 1 < 1/1296 := by
+    have hh := mul_lt_mul_of_pos_right hsmall (Real.rpow_pos_of_pos hp delta)
+    rw [hexp] at hh
+    have hs1 : 0 < s 1 := hs 1
+    nlinarith
+  have hlast : 6 < s 2 := by
+    by_contra h
+    have hh : s 2 ≤ 6 := le_of_not_gt h
+    have h01 : s 0*s 1 ≤ (s 1)^2 := by nlinarith [hmon.1,hs 1]
+    have h012 := mul_le_mul h01 hh (hs 2).le (sq_nonneg (s 1))
+    rw [Fin.prod_univ_three] at hlower'
+    have hsq := mul_nonneg (hs 1).le (sub_nonneg.mpr hsm.le)
+    nlinarith [hs 1]
+  have hr := dualFrame3_source_real_bound G c u hu (cofactorRealMatrix3 k₀)
+    (by rw [cofactorRealMatrix3_det]; norm_num) s A hs hA hpoint hprod
+  have hg := cofactor_sourceDual_frame_gauge_bound3 k₀ G.index
+    (((dualFrameRelativeIndex3 G u*G.index : ℕ) : ℝ)) (s 2) A hD hA
+    (fun j => (u j : IntegerTriple)) 2 (fun i => hr i 2)
+  rw [cofactor_sourceDualBody3_eq_parallelepiped k₀ G.index A hD hA,mem_parallelepipedBody3_iff]
+  have he : rationalTripleReal3 (fun i => (((dualFrameRelativeIndex3 G u*G.index : ℕ) : ℚ)*
+      dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i)) =
+      fun i => (((dualFrameRelativeIndex3 G u*G.index : ℕ) : ℝ))*
+        (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i : ℝ) := by
+    ext i
+    simp [rationalTripleReal3]
+  rw [he]
+  apply hg.trans
+  rw [← div_eq_mul_inv]
+  exact (div_le_one (hs 2)).mpr hlast.le
+
+theorem cofactor_sourceDual_power_cutoff3 (delta : ℝ) (hd : 0 < delta)
+    (k : Fin 3) (v : IntegerTriple) :
+    ∃ B : ℝ, ∀ Q : ℝ, B < Q → 1 < Q →
+      1296 < Q^delta ∧ ∀ i, 216*|(cofactorDualInt3 k v i : ℝ)| ≤ Q^(delta/2) := by
+  let C := 1296 + ∑ i : Fin 3, 216*|(cofactorDualInt3 k v i : ℝ)|
+  obtain ⟨B,hB⟩ := Filter.eventually_atTop.mp
+    ((tendsto_rpow_atTop (show 0 < delta/2 by linarith)).eventually
+      (Filter.eventually_gt_atTop C))
+  refine ⟨B,?_⟩
+  intro Q hBQ hQ
+  have hc := hB Q hBQ.le
+  have hsum : 0 ≤ ∑ i : Fin 3, 216*|(cofactorDualInt3 k v i : ℝ)| := by positivity
+  have hmono : Q^(delta/2) ≤ Q^delta :=
+    Real.rpow_le_rpow_of_exponent_le hQ.le (by linarith)
+  refine ⟨by dsimp [C] at hc; linarith,?_⟩
+  intro i
+  have hi : 216*|(cofactorDualInt3 k v i : ℝ)| ≤
+      ∑ j : Fin 3, 216*|(cofactorDualInt3 k v j : ℝ)| :=
+    Finset.single_le_sum (f := fun j => (216 : ℝ)*|(cofactorDualInt3 k v j : ℝ)|) (fun _ _ => by positivity) (Finset.mem_univ i)
+  dsimp [C] at hc
+  linarith
+
+theorem cofactor_sourceReal_fixed_reference_line3 (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ) (hQ : 1 < Q)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (A : Fin 3 → ℝ) (hA : ∀ i, 0 < A i)
+    (hnorm : (∏ i, A i*Q^(c₂ i)*Q^(c₃ i)) = 1)
+    (S : Set (Fin 3 → Fin 3)) (hS : S = sourceTupleSet3 Q delta A c₂ c₃)
+    (v : IntegerTriple) (hv : v ≠ 0)
+    (hzero : ∀ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s (fun i => (v i : ℚ)) = 0)
+    (hlarge : 1296 < Q^delta)
+    (hcoeff : ∀ i, 216*|(cofactorDualInt3 k₀ v i : ℝ)| ≤ Q^(delta/2))
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+      successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) j)
+    (hsmall : successiveRadius3 B (archCoordinates3 (cofactorRealCoordinates3 k₀) A hA) 1 < Q^(-delta)) :
+    Submodule.span ℚ {dualFrameVector3 (fun j => (u j : IntegerTriple)) 2} =
+      Submodule.span ℚ {fun i => (v i : ℚ)} := by
+  classical
+  let G := cofactorSourceLattice3 k₂ k₃ Q c₂ c₃
+  obtain ⟨c⟩ : Nonempty (Basis (Fin 3) ℤ G) := mixedCongruence3_has_basis _ _ _ _
+  have hc := mixedCongruence3_basis_real_independent _ _ (cofactorIntegerMatrix3_isUnit k₂)
+    (cofactorIntegerMatrix3_isUnit k₃) _ _ c
+  have hcQ := dualFrameMatrix3_rational_independent (fun j => (c j : IntegerTriple)) hc
+  have huQ := dualFrameMatrix3_rational_independent (fun j => (u j : IntegerTriple)) hu
+  have hD : G.index ≠ 0 := by
+    rw [(cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.1]
+    unfold qCongruenceIndex3
+    positivity
+  have hpD : (0 : ℝ) < G.index := by exact_mod_cast Nat.pos_of_ne_zero hD
+  let q : ℚ := ((dualFrameRelativeIndex3 G u*G.index : ℕ) : ℚ)
+  have hq : q ≠ 0 := by
+    dsimp [q]
+    exact_mod_cast mul_ne_zero (Nat.ne_of_gt (dualFrameRelativeIndex3_pos G c u hu)) hD
+  let x : Fin 3 → ℚ := fun i => q*dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i
+  obtain ⟨z,hz,hxz⟩ := source_scaled_last_dual_nonzero3 G c u hu
+  have hx : x ≠ 0 := by
+    rw [show x = fun i => (z i : ℚ) from hxz]
+    intro h
+    apply hz
+    ext i
+    have hh := congrFun h i
+    change (z i : ℚ) = 0 at hh
+    exact_mod_cast hh
+  let t : ℤ := 2 ^ (2-cofactor_sourceDualFloorMin3 2 k₂ Q c₂ v hv).toNat *
+    3 ^ (2-cofactor_sourceDualFloorMin3 3 k₃ Q c₃ v hv).toNat
+  let y : Fin 3 → ℚ := fun i => ((t • v) i : ℚ)
+  obtain ⟨ht,hyL⟩ := cofactor_sourceDual_rescale_mem3 k₂ k₃ Q hQ c₂ c₃ hc₂ hc₃ v hv c hcQ
+  have hy : y ≠ 0 := by
+    intro h
+    apply hv
+    ext i
+    have hh := congrFun h i
+    have hmul : (t : ℚ)*(v i : ℚ) = 0 := by
+      simpa only [y,Pi.smul_apply,smul_eq_mul,Int.cast_mul,Pi.zero_apply] using hh
+    have htQ : (t : ℚ) ≠ 0 := by dsimp [t]; exact_mod_cast ht
+    exact_mod_cast (mul_eq_zero.mp hmul).resolve_left htQ
+  have hxL := dualFrameVector3_source_basis_mem G c hcQ u huQ 2
+  have hxB := cofactor_sourceReal_last_dual_body3 k₀ k₂ k₃ Q delta hQ c₂ c₃ hc₂ hc₃ A hA hnorm B u hB hu hatt hsmall hlarge c
+  have hyB := cofactor_sourceDual_two_case_body3 k₀ k₂ k₃ Q delta hQ A c₂ c₃ hA hc₂ hc₃ S hS v hv hzero hcoeff
+  have hsep := cofactor_sourceReal_dual_second_gt_one3 k₀ k₂ k₃ Q delta hQ c₂ c₃ hc₂ hc₃ A hA B u hB hu hatt hsmall hlarge c hc hD
+  let Bs := sourceDualBasis3 G c hc hD
+  let es := cofactor_sourceDualCoordinates3 k₀ G.index A hpD hA
+  have hxL' : rationalTripleReal3 x ∈ lattice3 Bs := by
+    rw [sourceDualBasis3_lattice]
+    exact ⟨x,hxL,rfl⟩
+  have hyL' : rationalTripleReal3 y ∈ lattice3 Bs := by
+    rw [sourceDualBasis3_lattice]
+    exact ⟨y,hyL,rfl⟩
+  have hxB' : rationalTripleReal3 x ∈ parallelepipedBody3 es := by
+    rw [← cofactor_sourceDualBody3_eq_parallelepiped]
+    exact hxB
+  have hyB' : rationalTripleReal3 y ∈ parallelepipedBody3 es := by
+    rw [← cofactor_sourceDualBody3_eq_parallelepiped]
+    exact hyB
+  obtain ⟨r,hr⟩ := sourceDual_body_proportional3 Bs es hsep x y hy hxL' hyL' hxB' hyB'
+  have hrnz : r ≠ 0 := by intro h; apply hx; rw [hr,h,zero_smul]
+  have htQ : (t : ℚ) ≠ 0 := by dsimp [t]; exact_mod_cast ht
+  have hyEq : y = (t : ℚ) • (fun i => (v i : ℚ)) := by ext i; simp [y,Pi.smul_apply,smul_eq_mul]
+  change Submodule.span ℚ {dualFrameVector3 (fun j => (u j : IntegerTriple)) 2} = _
+  calc
+    _ = Submodule.span ℚ {x} := (Submodule.span_singleton_smul_eq (isUnit_iff_ne_zero.mpr hq) _).symm
+    _ = Submodule.span ℚ {y} := by rw [hr,Submodule.span_singleton_smul_eq (isUnit_iff_ne_zero.mpr hrnz)]
+    _ = _ := by rw [hyEq,Submodule.span_singleton_smul_eq (isUnit_iff_ne_zero.mpr htQ)]
+
+theorem cofactor_source_fixed_dual_direction3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0)
+    (hc₃ : ∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega)
+    (A : ℝ → Fin 3 → ℝ) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (hA : ∀ Q ∈ Omega, ∀ i, 0 < A Q i)
+    (hcut : ∀ Q ∈ Omega, ∀ i, A Q i < Q ∧ (A Q i)⁻¹ < Q)
+    (hnorm : ∀ Q ∈ Omega, (∏ i, A Q i*Q^(c₂ i)*Q^(c₃ i)) = 1)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → cofactorSourceLattice3 k₂ k₃ Q.val c₂ c₃)
+    (hB : ∀ Q : Omega, lattice3 (B Q) =
+      (cofactorSourceLattice3 k₂ k₃ Q.val c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (archCoordinates3 (cofactorRealCoordinates3 k₀) (A Q.val) (hA Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      successiveRadius3 (B Q)
+        (archCoordinates3 (cofactorRealCoordinates3 k₀) (A Q.val) (hA Q.val Q.property)) j)
+    (hsmall : ∀ Q : Omega, successiveRadius3 (B Q)
+      (archCoordinates3 (cofactorRealCoordinates3 k₀) (A Q.val) (hA Q.val Q.property)) 1 < Q.val^(-delta)) :
+    ∃ v : IntegerTriple, v ≠ 0 ∧ ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+      ∀ Q : Omega, Q.val ∈ U →
+        Submodule.span ℚ {dualFrameVector3 (fun j => (u Q j : IntegerTriple)) 2} =
+          Submodule.span ℚ {fun i => (v i : ℚ)} := by
+  classical
+  obtain ⟨S,hS,U,hUOmega,hU,hpattern⟩ := sourceTupleSet3_unbounded_selection Omega hOmega delta A c₂ c₃
+    (fun Q hm => sourceTupleSet3_nonempty Q delta (hQ Q hm) hd (A Q) c₂ c₃ (hA Q hm) (hnorm Q hm))
+  obtain ⟨Q0,hQ0,hzero⟩ := cofactor_sourceReal_uniform_selected_vanishing3 k₀ k₂ k₃ S hS delta hd
+  obtain ⟨Q1,hQ1,hQ1cut⟩ := not_bddAbove_iff'.mp hU Q0
+  let q1 : Omega := ⟨Q1,hUOmega hQ1⟩
+  let G1 := cofactorSourceLattice3 k₂ k₃ Q1 c₂ c₃
+  obtain ⟨c1⟩ : Nonempty (Basis (Fin 3) ℤ G1) := mixedCongruence3_has_basis _ _ _ _
+  obtain ⟨v,hv,hveq⟩ := source_scaled_last_dual_nonzero3 G1 c1 (u q1) (hu q1)
+  have hvzero : ∀ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s (fun i => (v i : ℚ)) = 0 := by
+    intro s hs
+    rw [← hveq]
+    exact hzero Q1 (lt_of_not_ge hQ1cut) (hQ Q1 q1.property) (A Q1) c₂ c₃ (hA Q1 q1.property)
+      hc₂ hc₃ (hcut Q1 q1.property) (hnorm Q1 q1.property)
+      (by rw [hpattern Q1 hQ1]) (B q1) (u q1) (hB q1) (hu q1) (hatt q1) (hsmall q1) s hs
+  obtain ⟨C,hC⟩ := cofactor_sourceDual_power_cutoff3 delta hd k₀ v
+  refine ⟨v,hv,{Q | Q ∈ U ∧ C < Q},fun _ h => hUOmega h.1,sourceDual_unbounded_tail3 U hU C,?_⟩
+  intro Q hQU
+  obtain ⟨hlarge,hcoeff⟩ := hC Q.val hQU.2 (hQ Q.val Q.property)
+  exact cofactor_sourceReal_fixed_reference_line3 k₀ k₂ k₃ Q.val delta (hQ Q.val Q.property) c₂ c₃
+    (fun i => (hc₂ i).2) (fun i => (hc₃ i).2) (A Q.val) (hA Q.val Q.property)
+    (hnorm Q.val Q.property) S (hpattern Q.val hQU.1).symm v hv hvzero hlarge hcoeff
+    (B Q) (u Q) (hB Q) (hu Q) (hatt Q) (hsmall Q)
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+theorem cofactor_compound_reverse_product3 (p mu : Fin 3 → ℝ)
+    (hp : ∀ i, 0 < p i) (hm : ∀ i, 0 < mu i)
+    (hpp : ∏ i, p i ≤ (216 : ℝ)^2)
+    (hmp : (1 : ℝ)/6 ≤ ∏ i, mu i)
+    (hf : ∀ i, mu i ≤ 2*p i) :
+    ∀ i, p i / 1119744 ≤ mu i := by
+  classical
+  let a : Fin 3 → ℝ := fun i => mu i / p i
+  have ha : ∀ i, 0 < a i := fun i => div_pos (hm i) (hp i)
+  have hu (i : Fin 3) : a i ≤ 2 := (div_le_iff₀ (hp i)).mpr (by simpa [mul_comm] using hf i)
+  have hP : 0 < ∏ i, p i := Finset.prod_pos (fun i _ => hp i)
+  have hprod : (1 : ℝ)/279936 ≤ ∏ i, a i := by
+    simp only [a,Finset.prod_div_distrib]
+    apply (le_div_iff₀ hP).mpr
+    nlinarith
+  intro k
+  have hc : (Finset.univ.erase k : Finset (Fin 3)).card = 2 := by simp
+  have hother : (∏ i ∈ Finset.univ.erase k, a i) ≤ 4 := by
+    calc
+      _ ≤ ∏ _i ∈ Finset.univ.erase k, (2 : ℝ) :=
+        Finset.prod_le_prod (fun i _ => (ha i).le) (fun i _ => hu i)
+      _ = 4 := by norm_num [Finset.prod_const,hc]
+  have hmul := mul_le_mul_of_nonneg_left hother (ha k).le
+  rw [Finset.mul_prod_erase Finset.univ a (Finset.mem_univ k)] at hmul
+  have hh : (1 : ℝ)/1119744 ≤ a k := by linarith
+  have hh' := (le_div_iff₀ (hp k)).mp hh
+  nlinarith
+
+def hodgeWedge3 {R : Type*} [CommRing R] (x y : Fin 3 → R) : Fin 3 → R :=
+  ![x 1*y 2-x 2*y 1,x 2*y 0-x 0*y 2,x 0*y 1-x 1*y 0]
+
+theorem hodgeWedge3_matrix {R : Type*} [CommRing R]
+    (A : Matrix (Fin 3) (Fin 3) R) (x y : Fin 3 → R) :
+    hodgeWedge3 (A *ᵥ x) (A *ᵥ y) = A.adjugate.transpose *ᵥ hodgeWedge3 x y := by
+  ext i
+  fin_cases i <;>
+    simp [hodgeWedge3,Matrix.mulVec,dotProduct,Fin.sum_univ_three,
+      Matrix.adjugate_fin_three,Matrix.transpose_apply,
+      Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons] <;> ring
+
+def hodgeFrame3 {R : Type*} [CommRing R] (u : Fin 3 → Fin 3 → R) : Fin 3 → Fin 3 → R :=
+  ![hodgeWedge3 (u 0) (u 1),hodgeWedge3 (u 0) (u 2),hodgeWedge3 (u 1) (u 2)]
+
+theorem hodgeFrame3_det {R : Type*} [CommRing R] (u : Matrix (Fin 3) (Fin 3) R) :
+    Matrix.det (hodgeFrame3 u) = u.det^2 := by
+  simp [hodgeFrame3,hodgeWedge3,Matrix.det_fin_three,
+    Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons]
+  ring
+
+theorem hodgeFrame3_independent {K : Type*} [Field K] (u : Fin 3 → Fin 3 → K)
+    (hu : LinearIndependent K u) : LinearIndependent K (hodgeFrame3 u) := by
+  apply Matrix.linearIndependent_rows_iff_isUnit.mpr
+  apply (Matrix.isUnit_iff_isUnit_det _).mpr
+  change IsUnit (Matrix.det (hodgeFrame3 u))
+  rw [hodgeFrame3_det (u : Matrix (Fin 3) (Fin 3) K)]
+  exact isUnit_iff_ne_zero.mpr (pow_ne_zero _
+    (isUnit_iff_ne_zero.mp ((Matrix.isUnit_iff_isUnit_det _).mp
+      (Matrix.linearIndependent_rows_iff_isUnit.mp hu))))
+
+theorem hodgeWedge3_map {R S : Type*} [CommRing R] [CommRing S]
+    (f : R →+* S) (x y : Fin 3 → R) :
+    (fun i => f (hodgeWedge3 x y i)) = hodgeWedge3 (fun i => f (x i)) (fun i => f (y i)) := by
+  ext i
+  fin_cases i <;> simp [hodgeWedge3,Matrix.cons_val_one,Matrix.cons_val_two]
+
+theorem hodgeFrame3_map {R S : Type*} [CommRing R] [CommRing S]
+    (f : R →+* S) (u : Fin 3 → Fin 3 → R) :
+    (fun j i => f (hodgeFrame3 u j i)) = hodgeFrame3 (fun j i => f (u j i)) := by
+  ext j i
+  fin_cases j <;> fin_cases i <;> simp [hodgeFrame3,hodgeWedge3,Matrix.cons_val_one,Matrix.cons_val_two]
+
+def pairWeights3 (c : Fin 3 → ℝ) (i : Fin 3) : ℝ :=
+  (c (i.succAbove 0)+c (i.succAbove 1))/2
+
+theorem pairWeights3_bounds (c0 c2 c3 : Fin 3 → ℝ)
+    (h0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0) :
+    (∀ i, -1 ≤ pairWeights3 c0 i ∧ pairWeights3 c0 i ≤ 1) ∧
+    (∀ i, -1 ≤ pairWeights3 c2 i ∧ pairWeights3 c2 i ≤ 0) ∧
+    (∀ i, -1 ≤ pairWeights3 c3 i ∧ pairWeights3 c3 i ≤ 0) ∧
+    (∑ i, (pairWeights3 c0 i+pairWeights3 c2 i+pairWeights3 c3 i)) = 0 := by
+  refine ⟨fun i => ?_,fun i => ?_,fun i => ?_,?_⟩
+  · dsimp [pairWeights3]; constructor <;> linarith [(h0 (i.succAbove 0)).1,(h0 (i.succAbove 1)).1,(h0 (i.succAbove 0)).2,(h0 (i.succAbove 1)).2]
+  · dsimp [pairWeights3]; constructor <;> linarith [(h2 (i.succAbove 0)).1,(h2 (i.succAbove 1)).1,(h2 (i.succAbove 0)).2,(h2 (i.succAbove 1)).2]
+  · dsimp [pairWeights3]; constructor <;> linarith [(h3 (i.succAbove 0)).1,(h3 (i.succAbove 1)).1,(h3 (i.succAbove 0)).2,(h3 (i.succAbove 1)).2]
+  · simp [pairWeights3,Fin.sum_univ_three,Fin.succAbove] at hb ⊢
+    linarith
+
+theorem pairWeights3_power (Q : ℝ) (hQ : 0 < Q) (c : Fin 3 → ℝ) (i : Fin 3) :
+    (Q^2) ^ pairWeights3 c i = Q ^ (c (i.succAbove 0)+c (i.succAbove 1)) := by
+  rw [← Real.rpow_natCast,← Real.rpow_mul hQ.le]
+  congr 1
+  dsimp [pairWeights3]
+  ring
+
+theorem hodgeWedge3_padic_bound (p : ℕ) [Fact p.Prime]
+    (x y : Fin 3 → ℚ) (t : Fin 3 → ℝ) (ht : ∀ i, 0 ≤ t i)
+    (hx : ∀ i, (padicNorm p (x i) : ℝ) ≤ t i)
+    (hy : ∀ i, (padicNorm p (y i) : ℝ) ≤ t i) (i : Fin 3) :
+    (padicNorm p (hodgeWedge3 x y i) : ℝ) ≤ t (i.succAbove 0)*t (i.succAbove 1) := by
+  fin_cases i
+  · simpa [hodgeWedge3,Fin.succAbove,mul_comm] using
+      conditional_padic_minor_bound3 p (x 1) (y 2) (y 1) (x 2) (t 1) (t 2)
+        (ht 1) (hx 1) (hy 2) (hy 1) (hx 2)
+  · have h := conditional_padic_minor_bound3 p (x 0) (y 2) (y 0) (x 2) (t 0) (t 2)
+        (ht 0) (hx 0) (hy 2) (hy 0) (hx 2)
+    have he : hodgeWedge3 x y 1 = -(x 0*y 2-y 0*x 2) := by
+      simp [hodgeWedge3]; ring
+    change (padicNorm p (hodgeWedge3 x y 1) : ℝ) ≤ t 0*t 2
+    rw [he,padicNorm.neg]
+    simpa [Fin.succAbove] using h
+  · simpa [hodgeWedge3,Fin.succAbove,mul_comm] using
+      conditional_padic_minor_bound3 p (x 0) (y 1) (y 0) (x 1) (t 0) (t 1)
+        (ht 0) (hx 0) (hy 1) (hy 0) (hx 1)
+
+theorem pairWeights3_Q_squared (Q : ℝ) (hQ : 1 < Q) : 1 < Q^2 := by
+  nlinarith
+
+theorem hodgeWedge3_source_mem (k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c2 c3 : Fin 3 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (x y : qSourceLattice3 k2 k3 Q c2 c3) :
+    hodgeWedge3 (x : IntegerTriple) (y : IntegerTriple) ∈
+      cofactorSourceLattice3 k2 k3 (Q^2) (pairWeights3 c2) (pairWeights3 c3) := by
+  have hp : 0 < Q := lt_trans zero_lt_one hQ
+  have hpc (c : Fin 3 → ℝ) (hc : ∀ i, c i ≤ 0) (i : Fin 3) : pairWeights3 c i ≤ 0 := by
+    dsimp [pairWeights3]; linarith [hc (i.succAbove 0),hc (i.succAbove 1)]
+  apply ((cofactorSourceLattice3_spec k2 k3 (Q^2) (pairWeights3 c2) (pairWeights3 c3)
+    (pairWeights3_Q_squared Q hQ) (hpc c2 hc2) (hpc c3 hc3)).1 _).mpr
+  have hx := ((qSourceLattice3_spec k2 k3 Q c2 c3 hQ hc2 hc3).1 _).mp x.property
+  have hy := ((qSourceLattice3_spec k2 k3 Q c2 c3 hQ hc2 hc3).1 _).mp y.property
+  have hid (k : Fin 3) (i : Fin 3) :
+      cofactorForms3 k i (fun j => ((hodgeWedge3 (x : IntegerTriple) (y : IntegerTriple) j : ℤ) : ℚ)) =
+      hodgeWedge3 (fun j => threeCoordinateSumForms k j (fun l => ((x : IntegerTriple) l : ℚ)))
+        (fun j => threeCoordinateSumForms k j (fun l => ((y : IntegerTriple) l : ℚ))) i := by
+    have h := congrFun (hodgeWedge3_matrix (retainedIntegerMatrix3 k) (x : IntegerTriple) (y : IntegerTriple)) i
+    have hQcast := congrArg (fun z : ℤ => (z : ℚ)) h
+    change ((hodgeWedge3 (retainedIntegerMatrix3 k *ᵥ (x : IntegerTriple))
+      (retainedIntegerMatrix3 k *ᵥ (y : IntegerTriple)) i : ℤ) : ℚ) =
+      (((cofactorIntegerMatrix3 k *ᵥ hodgeWedge3 (x : IntegerTriple) (y : IntegerTriple)) i : ℤ) : ℚ) at hQcast
+    rw [cofactorIntegerMatrix3_apply] at hQcast
+    have hm := congrFun (hodgeWedge3_map (Int.castRingHom ℚ)
+      (retainedIntegerMatrix3 k *ᵥ (x : IntegerTriple)) (retainedIntegerMatrix3 k *ᵥ (y : IntegerTriple))) i
+    change ((hodgeWedge3 (retainedIntegerMatrix3 k *ᵥ (x : IntegerTriple))
+      (retainedIntegerMatrix3 k *ᵥ (y : IntegerTriple)) i : ℤ) : ℚ) =
+      hodgeWedge3 (fun j => ((retainedIntegerMatrix3 k *ᵥ (x : IntegerTriple)) j : ℚ))
+        (fun j => ((retainedIntegerMatrix3 k *ᵥ (y : IntegerTriple)) j : ℚ)) i at hm
+    simp only [retainedIntegerMatrix3_apply] at hm
+    exact hQcast.symm.trans hm
+  constructor
+  · intro i
+    rw [hid,pairWeights3_power Q hp,Real.rpow_add hp]
+    exact hodgeWedge3_padic_bound 2 _ _ (fun i => Q^c2 i)
+      (fun i => (Real.rpow_pos_of_pos hp _).le) hx.1 hy.1 i
+  · intro i
+    rw [hid,pairWeights3_power Q hp,Real.rpow_add hp]
+    exact hodgeWedge3_padic_bound 3 _ _ (fun i => Q^c3 i)
+      (fun i => (Real.rpow_pos_of_pos hp _).le) hx.2 hy.2 i
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+theorem hodge_real_minor_bound3 (a b c d r s t u : ℝ)
+    (hr : 0 ≤ r) (hs : 0 ≤ s) (ht : 0 ≤ t) (hu : 0 ≤ u)
+    (ha : |a| ≤ r*t) (hb : |b| ≤ r*u) (hc : |c| ≤ s*t) (hd : |d| ≤ s*u) :
+    |a*d-b*c| ≤ 2*r*s*t*u := by
+  calc
+    _ ≤ |a*d| + |b*c| := abs_sub _ _
+    _ = |a| * |d| + |b| * |c| := by rw [abs_mul,abs_mul]
+    _ ≤ (r*t)*(s*u)+(r*u)*(s*t) := add_le_add
+      (mul_le_mul ha hd (abs_nonneg _) (mul_nonneg hr ht))
+      (mul_le_mul hb hc (abs_nonneg _) (mul_nonneg hr hu))
+    _ = _ := by ring
+
+theorem hodgeWedge3_real_bound (x y t : Fin 3 → ℝ) (r s : ℝ)
+    (hr : 0 ≤ r) (hs : 0 ≤ s) (ht : ∀ i, 0 ≤ t i)
+    (hx : ∀ i, |x i| ≤ r*t i) (hy : ∀ i, |y i| ≤ s*t i) (i : Fin 3) :
+    |hodgeWedge3 x y i| ≤ 2*r*s*t (i.succAbove 0)*t (i.succAbove 1) := by
+  fin_cases i
+  · simpa [hodgeWedge3,Fin.succAbove] using hodge_real_minor_bound3
+      (x 1) (x 2) (y 1) (y 2) r s (t 1) (t 2) hr hs (ht 1) (ht 2)
+        (hx 1) (hx 2) (hy 1) (hy 2)
+  · change |hodgeWedge3 x y 1| ≤ 2*r*s*t 0*t 2
+    have he : |hodgeWedge3 x y 1| = |x 0*y 2-x 2*y 0| := by
+      simpa [hodgeWedge3] using abs_sub_comm (x 2*y 0) (x 0*y 2)
+    rw [he]
+    exact hodge_real_minor_bound3 (x 0) (x 2) (y 0) (y 2) r s (t 0) (t 2)
+      hr hs (ht 0) (ht 2) (hx 0) (hx 2) (hy 0) (hy 2)
+  · simpa [hodgeWedge3,Fin.succAbove] using hodge_real_minor_bound3
+      (x 0) (x 1) (y 0) (y 1) r s (t 0) (t 1) hr hs (ht 0) (ht 1)
+        (hx 0) (hx 1) (hy 0) (hy 1)
+
+theorem cofactorRealMatrix3_adjugate (k : Fin 3) :
+    (retainedRealMatrix3 k).adjugate.transpose = cofactorRealMatrix3 k := by
+  unfold retainedRealMatrix3 cofactorRealMatrix3 cofactorIntegerMatrix3
+  have h : ((retainedIntegerMatrix3 k).adjugate).map (Int.castRingHom ℝ) =
+      ((retainedIntegerMatrix3 k).map (Int.castRingHom ℝ)).adjugate :=
+    (Int.castRingHom ℝ).map_adjugate (retainedIntegerMatrix3 k)
+  exact congrArg Matrix.transpose h.symm
+
+theorem hodgeWedge3_source_gauge (k : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c : Fin 3 → ℝ) (x y : IntegerTriple) :
+    coordinateGauge3 (cofactorSourceCoordinates3 k (Q^2) (pairWeights3 c) (pairWeights3_Q_squared Q hQ))
+      (integerTripleReal3 (hodgeWedge3 x y)) ≤
+      2*coordinateGauge3 (qSourceCoordinates3 k Q c hQ) (integerTripleReal3 x)*
+        coordinateGauge3 (qSourceCoordinates3 k Q c hQ) (integerTripleReal3 y) := by
+  let r := coordinateGauge3 (qSourceCoordinates3 k Q c hQ) (integerTripleReal3 x)
+  let s := coordinateGauge3 (qSourceCoordinates3 k Q c hQ) (integerTripleReal3 y)
+  have hp : 0 < Q := lt_trans zero_lt_one hQ
+  have hr : 0 ≤ r := norm_nonneg _
+  have hs : 0 ≤ s := norm_nonneg _
+  have hm := hodgeWedge3_matrix (retainedRealMatrix3 k) (integerTripleReal3 x) (integerTripleReal3 y)
+  rw [cofactorRealMatrix3_adjugate] at hm
+  have hw : hodgeWedge3 (integerTripleReal3 x) (integerTripleReal3 y) =
+      integerTripleReal3 (hodgeWedge3 x y) := (hodgeWedge3_map (Int.castRingHom ℝ) x y).symm
+  rw [hw] at hm
+  apply (pi_norm_le_iff_of_nonempty _).mpr
+  intro i
+  change |(cofactorRealMatrix3 k *ᵥ integerTripleReal3 (hodgeWedge3 x y)) i /
+    (Q^2) ^ pairWeights3 c i| ≤ 2*r*s
+  rw [abs_div,abs_of_pos (Real.rpow_pos_of_pos (by positivity : 0 < Q^2) _),
+    div_le_iff₀ (Real.rpow_pos_of_pos (by positivity : 0 < Q^2) _),
+    pairWeights3_power Q hp,Real.rpow_add hp,← hm]
+  have hh := hodgeWedge3_real_bound (retainedRealMatrix3 k *ᵥ integerTripleReal3 x)
+    (retainedRealMatrix3 k *ᵥ integerTripleReal3 y) (fun i => Q^c i) r s hr hs
+    (fun i => (Real.rpow_pos_of_pos hp _).le)
+    (qSource_arch_bound k Q c hQ (integerTripleReal3 x))
+    (qSource_arch_bound k Q c hQ (integerTripleReal3 y)) i
+  simpa only [mul_assoc] using hh
+
+theorem cofactor_pair_ceiling_bounds3 (x y : ℝ) (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    Nat.ceil (x+y) ≤ Nat.ceil x+Nat.ceil y ∧
+      Nat.ceil x+Nat.ceil y ≤ Nat.ceil (x+y)+1 := by
+  refine ⟨Nat.ceil_add_le x y,?_⟩
+  have h1 := Nat.ceil_lt_add_one hx
+  have h2 := Nat.ceil_lt_add_one hy
+  have h3 := Nat.le_ceil (x+y)
+  have h : (Nat.ceil x : ℝ)+(Nat.ceil y : ℝ) < (Nat.ceil (x+y) : ℝ)+2 := by linarith
+  have hn : Nat.ceil x+Nat.ceil y < Nat.ceil (x+y)+2 := by exact_mod_cast h
+  omega
+
+theorem hodgeFrame3_original_first_line (u : Fin 3 → IntegerTriple)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j))) :
+    Submodule.span ℚ {fun i => (u 0 i : ℚ)} =
+      Submodule.span ℚ {dualFrameVector3 (hodgeFrame3 u) 2} := by
+  have hwcast : (fun j => integerTripleReal3 (hodgeFrame3 u j)) =
+      hodgeFrame3 (fun j => integerTripleReal3 (u j)) := hodgeFrame3_map (Int.castRingHom ℝ) u
+  have hwr : LinearIndependent ℝ (fun j => integerTripleReal3 (hodgeFrame3 u j)) := by
+    rw [hwcast]
+    exact hodgeFrame3_independent _ hu
+  have hwq := dualFrameMatrix3_rational_independent (hodgeFrame3 u) hwr
+  have huq := dualFrameMatrix3_rational_independent u hu
+  apply originalPlane_annihilator_line3 (hodgeFrame3 u) hwq (fun i => (u 0 i : ℚ)) (huq.ne_zero 0)
+  · norm_num [originalPlanePairing3,hodgeFrame3,hodgeWedge3,Fin.sum_univ_three,
+      Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons]
+    ring
+  · norm_num [originalPlanePairing3,hodgeFrame3,hodgeWedge3,Fin.sum_univ_three,
+      Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons]
+    ring
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+open MeasureTheory
+namespace JSP000334
+noncomputable section
+
+def pairProducts3 (l : Fin 3 → ℝ) : Fin 3 → ℝ :=
+  ![l 0*l 1,l 0*l 2,l 1*l 2]
+
+theorem pairProducts3_positive (l : Fin 3 → ℝ) (hl : ∀ i, 0 < l i) :
+    ∀ i, 0 < pairProducts3 l i := by
+  intro i
+  have h0 := hl 0
+  have h1 := hl 1
+  have h2 := hl 2
+  fin_cases i <;> simp [pairProducts3] <;> positivity
+
+theorem pairProducts3_product (l : Fin 3 → ℝ) :
+    (∏ i, pairProducts3 l i) = (∏ i, l i)^2 := by
+  simp [pairProducts3,Fin.prod_univ_three]
+  ring
+
+theorem pairProducts3_monotone (l : Fin 3 → ℝ) (hl : ∀ i, 0 < l i)
+    (h01 : l 0 ≤ l 1) (h12 : l 1 ≤ l 2) : Monotone (pairProducts3 l) := by
+  intro i j hij
+  have hijN : i.val ≤ j.val := hij
+  fin_cases i <;> fin_cases j <;>
+    norm_num [pairProducts3] at hijN ⊢ <;> nlinarith [hl 0,hl 1,hl 2]
+
+theorem cofactor_product_bounds3 (k0 k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 3 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (hB : lattice3 B = (cofactorSourceLattice3 k2 k3 Q c2 c3).toIntSubmodule.map integerTripleReal3) :
+    (1 : ℝ)/6 ≤ ∏ i, successiveRadius3 B (cofactorSourceCoordinates3 k0 Q c0 hQ) i ∧
+      (∏ i, successiveRadius3 B (cofactorSourceCoordinates3 k0 Q c0 hQ) i) < 216 := by
+  let P := ∏ i, Q ^ c0 i
+  have hP : 0 < P := Finset.prod_pos (fun i _ => Real.rpow_pos_of_pos (by linarith) _)
+  have hcov : ZLattice.covolume (lattice3 B) =
+      ((cofactorSourceLattice3 k2 k3 Q c2 c3).index : ℝ) := by
+    rw [hB]
+    have h := cofactorSourceLattice3_spec k2 k3 Q c2 c3 hQ hc2 hc3
+    rw [h.2.2.1]
+    exact h.2.2.2
+  have hvol : volume.real (parallelepipedBody3 (cofactorSourceCoordinates3 k0 Q c0 hQ)) = 8*P := by
+    rw [← cofactorSourceBody3_eq_parallelepiped k0 Q c0 hQ,cofactorSourceBody3_volume k0 Q c0 hQ]
+  have hi : ((cofactorSourceLattice3 k2 k3 Q c2 c3).index : ℝ) = P*qRoundingFactor3 Q c2 c3 := by
+    rw [(cofactorSourceLattice3_spec k2 k3 Q c2 c3 hQ hc2 hc3).2.2.1,
+      qCongruenceIndex3_balanced Q c0 c2 c3 hQ hb]
+  have hlower := source_minima_product_lower3 B (cofactorSourceCoordinates3 k0 Q c0 hQ)
+    ((cofactorSourceLattice3 k2 k3 Q c2 c3).index : ℝ) P hP hvol hcov
+  have hupper := successive_minima3_parallelepiped_volume_upper B (cofactorSourceCoordinates3 k0 Q c0 hQ)
+  rw [hvol,hcov,hi] at hupper
+  rw [hi] at hlower
+  have hR := qRoundingFactor3_bounds Q c2 c3 hQ hc2 hc3
+  have hlow' : qRoundingFactor3 Q c2 c3 / 6 ≤
+      ∏ i, successiveRadius3 B (cofactorSourceCoordinates3 k0 Q c0 hQ) i := by
+    have he : P*qRoundingFactor3 Q c2 c3/(6*P) = qRoundingFactor3 Q c2 c3/6 := by field_simp <;> ring
+    rwa [he] at hlower
+  refine ⟨by linarith,?_⟩
+  have hup : (∏ i, successiveRadius3 B (cofactorSourceCoordinates3 k0 Q c0 hQ) i) ≤ qRoundingFactor3 Q c2 c3 := by nlinarith
+  exact hup.trans_lt hR.2
+
+theorem hodgeFrame3_forward_bounds (k0 k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 3 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → qSourceLattice3 k2 k3 Q c2 c3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (qSourceCoordinates3 k0 Q c0 hQ) (integerTripleReal3 (u j : IntegerTriple)) =
+      successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) j)
+    (D : Basis (Fin 3) ℝ RealTriple)
+    (hD : lattice3 D = (cofactorSourceLattice3 k2 k3 (Q^2) (pairWeights3 c2) (pairWeights3 c3)).toIntSubmodule.map integerTripleReal3) :
+    ∀ i, successiveRadius3 D (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ)) i ≤
+      2*pairProducts3 (successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ)) i := by
+  let l := successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ)
+  let w := hodgeFrame3 (fun j => (u j : IntegerTriple))
+  let e := cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ)
+  have hwcast : (fun j => integerTripleReal3 (w j)) =
+      hodgeFrame3 (fun j => integerTripleReal3 (u j : IntegerTriple)) :=
+    hodgeFrame3_map (Int.castRingHom ℝ) (fun j => (u j : IntegerTriple))
+  have hw := hodgeFrame3_independent (fun j => integerTripleReal3 (u j : IntegerTriple)) hu
+  rw [← hwcast] at hw
+  have hwmem (j : Fin 3) : integerTripleReal3 (w j) ∈ lattice3 D := by
+    rw [hD]
+    apply Submodule.mem_map.mpr
+    refine ⟨w j,?_,rfl⟩
+    fin_cases j
+    · exact hodgeWedge3_source_mem k2 k3 Q hQ c2 c3 hc2 hc3 (u 0) (u 1)
+    · exact hodgeWedge3_source_mem k2 k3 Q hQ c2 c3 hc2 hc3 (u 0) (u 2)
+    · exact hodgeWedge3_source_mem k2 k3 Q hQ c2 c3 hc2 hc3 (u 1) (u 2)
+  have hwg (j : Fin 3) : coordinateGauge3 e (integerTripleReal3 (w j)) ≤ 2*pairProducts3 l j := by
+    fin_cases j
+    · simpa [w,hodgeFrame3,pairProducts3,l,e,hatt,mul_assoc] using hodgeWedge3_source_gauge k0 Q hQ c0 (u 0) (u 1)
+    · simpa [w,hodgeFrame3,pairProducts3,l,e,hatt,mul_assoc] using hodgeWedge3_source_gauge k0 Q hQ c0 (u 0) (u 2)
+    · simpa [w,hodgeFrame3,pairProducts3,l,e,hatt,mul_assoc] using hodgeWedge3_source_gauge k0 Q hQ c0 (u 1) (u 2)
+  obtain ⟨_,_,_,hl,ho,_⟩ := exists_successive_minima3 B (qSourceCoordinates3 k0 Q c0 hQ)
+  intro i
+  let f : Fin (i.val+1) → Fin 3 := Fin.castLE (by omega)
+  apply successiveRadius3_le_family D e i (fun j => integerTripleReal3 (w (f j)))
+    (hw.comp f (Fin.castLE_injective _)) (fun j => hwmem (f j))
+  intro j
+  apply (hwg (f j)).trans
+  apply mul_le_mul_of_nonneg_left _ (by norm_num : (0 : ℝ) ≤ 2)
+  apply pairProducts3_monotone l hl ho.1 ho.2
+  change j.val ≤ i.val
+  omega
+
+theorem source_exterior_square_comparison3 (k0 k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → qSourceLattice3 k2 k3 Q c2 c3)
+    (hB : lattice3 B = (qSourceLattice3 k2 k3 Q c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (qSourceCoordinates3 k0 Q c0 hQ) (integerTripleReal3 (u j : IntegerTriple)) =
+      successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) j)
+    (D : Basis (Fin 3) ℝ RealTriple)
+    (hD : lattice3 D = (cofactorSourceLattice3 k2 k3 (Q^2) (pairWeights3 c2) (pairWeights3 c3)).toIntSubmodule.map integerTripleReal3) :
+    ∀ i, pairProducts3 (successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ)) i / 1119744 ≤
+      successiveRadius3 D (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ)) i ∧
+      successiveRadius3 D (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ)) i ≤
+        1119744*pairProducts3 (successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ)) i := by
+  let l := successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ)
+  let m := successiveRadius3 D (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ))
+  obtain ⟨_,_,_,hl,_,_⟩ := exists_successive_minima3 B (qSourceCoordinates3 k0 Q c0 hQ)
+  obtain ⟨_,_,_,hm,_,_⟩ := exists_successive_minima3 D
+    (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ))
+  obtain ⟨h0,h2,h3,hbalance⟩ := pairWeights3_bounds c0 c2 c3 hc0 hc2 hc3 hb
+  have hmp := (cofactor_product_bounds3 k0 k2 k3 (Q^2) (pairWeights3_Q_squared Q hQ)
+    (pairWeights3 c0) (pairWeights3 c2) (pairWeights3 c3) (fun i => (h2 i).2)
+    (fun i => (h3 i).2) hbalance D hD).1
+  have hlp := (gap_source_product3 k0 k2 k3 Q c0 c2 c3 hQ (fun i => (hc2 i).2)
+    (fun i => (hc3 i).2) hb B u hB hatt).2
+  have hpp : (∏ i, pairProducts3 l i) ≤ (216 : ℝ)^2 := by
+    rw [pairProducts3_product]
+    have hn : 0 ≤ ∏ i, l i := Finset.prod_nonneg (fun i _ => (hl i).le)
+    nlinarith
+  have hf := hodgeFrame3_forward_bounds k0 k2 k3 Q hQ c0 c2 c3
+    (fun i => (hc2 i).2) (fun i => (hc3 i).2) B u hu hatt D hD
+  have hr := cofactor_compound_reverse_product3 (pairProducts3 l) m
+    (pairProducts3_positive l hl) hm hpp hmp hf
+  intro i
+  refine ⟨hr i,?_⟩
+  apply (hf i).trans
+  have hp := (pairProducts3_positive l hl i).le
+  nlinarith
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+theorem exterior_square_cutoff3 (delta : ℝ) (hd : 0 < delta) :
+    ∃ C : ℝ, 1 ≤ C ∧ ∀ Q : ℝ, C < Q → (1119744 : ℝ)^2 < Q^(delta/2) := by
+  obtain ⟨C,hC⟩ := Filter.eventually_atTop.mp
+    ((tendsto_rpow_atTop (show 0 < delta/2 by linarith)).eventually
+      (Filter.eventually_gt_atTop ((1119744 : ℝ)^2)))
+  exact ⟨max 1 C,le_max_left _ _,fun Q h => hC Q (lt_of_le_of_lt (le_max_right _ _) h).le⟩
+
+theorem exterior_square_gap_scalar3 (a b c m n Q delta : ℝ)
+    (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hn : 0 < n)
+    (hQ : 1 < Q) (hd : 0 < delta)
+    (hlo : b*c/1119744 ≤ n) (hhi : m ≤ 1119744*(a*c))
+    (hgap : a < b*Q^(-delta)) (hcut : (1119744 : ℝ)^2 < Q^(delta/2)) :
+    m < n*(Q^2)^(-delta/4) ∧ 2*a*c < n := by
+  have hp : 0 < Q := lt_trans zero_lt_one hQ
+  have hneg := Real.rpow_pos_of_pos hp (-delta)
+  have hbc : b*c ≤ 1119744*n := by
+    have h := (div_le_iff₀ (by norm_num : (0 : ℝ) < 1119744)).mp hlo
+    nlinarith
+  have hprod : a*c < (b*c)*Q^(-delta) := by
+    have h := mul_lt_mul_of_pos_right hgap hc
+    nlinarith
+  have hpow : (Q^2)^(-delta/4) = Q^(-delta/2) := by
+    rw [← Real.rpow_natCast,← Real.rpow_mul hp.le]
+    congr 1
+    ring
+  have hfactor : (1119744 : ℝ)^2*Q^(-delta) < Q^(-delta/2) := by
+    calc
+      _ < Q^(delta/2)*Q^(-delta) := mul_lt_mul_of_pos_right hcut hneg
+      _ = _ := by rw [← Real.rpow_add hp]; congr 1; ring
+  have hsep : (2*1119744 : ℝ)*Q^(-delta) < 1 := by
+    have hmono : Q^(delta/2) ≤ Q^delta := Real.rpow_le_rpow_of_exponent_le hQ.le (by linarith)
+    have hnum : (2*1119744 : ℝ) < Q^delta := by nlinarith
+    have hh := mul_lt_mul_of_pos_right hnum hneg
+    rw [← Real.rpow_add hp,add_neg_cancel,Real.rpow_zero] at hh
+    exact hh
+  constructor
+  · rw [hpow]
+    calc
+      m ≤ 1119744*(a*c) := hhi
+      _ < 1119744*((b*c)*Q^(-delta)) := mul_lt_mul_of_pos_left hprod (by norm_num)
+      _ ≤ 1119744*((1119744*n)*Q^(-delta)) :=
+        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hbc hneg.le) (by norm_num)
+      _ = n*((1119744 : ℝ)^2*Q^(-delta)) := by ring
+      _ < n*Q^(-delta/2) := mul_lt_mul_of_pos_left hfactor hn
+  · calc
+      2*a*c = 2*(a*c) := by ring
+      _ < 2*((b*c)*Q^(-delta)) := mul_lt_mul_of_pos_left hprod (by norm_num)
+      _ ≤ 2*((1119744*n)*Q^(-delta)) :=
+        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hbc hneg.le) (by norm_num)
+      _ = n*((2*1119744 : ℝ)*Q^(-delta)) := by ring
+      _ < n*1 := mul_lt_mul_of_pos_left hsep hn
+      _ = n := mul_one _
+
+theorem hodgeFrame3_source_gauges (k : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c : Fin 3 → ℝ) (u : Fin 3 → IntegerTriple) (l : Fin 3 → ℝ)
+    (hatt : ∀ j, coordinateGauge3 (qSourceCoordinates3 k Q c hQ) (integerTripleReal3 (u j)) = l j) :
+    ∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k (Q^2) (pairWeights3 c) (pairWeights3_Q_squared Q hQ))
+      (integerTripleReal3 (hodgeFrame3 u j)) ≤ 2*pairProducts3 l j := by
+  intro j
+  fin_cases j
+  · simpa [hodgeFrame3,pairProducts3,hatt,mul_assoc] using hodgeWedge3_source_gauge k Q hQ c (u 0) (u 1)
+  · simpa [hodgeFrame3,pairProducts3,hatt,mul_assoc] using hodgeWedge3_source_gauge k Q hQ c (u 0) (u 2)
+  · simpa [hodgeFrame3,pairProducts3,hatt,mul_assoc] using hodgeWedge3_source_gauge k Q hQ c (u 1) (u 2)
+
+theorem source_exterior_square_gap_plane3 (k0 k2 k3 : Fin 3) (Q delta : ℝ)
+    (hQ : 1 < Q) (hd : 0 < delta)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → qSourceLattice3 k2 k3 Q c2 c3)
+    (hB : lattice3 B = (qSourceLattice3 k2 k3 Q c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (qSourceCoordinates3 k0 Q c0 hQ) (integerTripleReal3 (u j : IntegerTriple)) =
+      successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) j)
+    (hgap : successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) 0 <
+      successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) 1*Q^(-delta))
+    (D : Basis (Fin 3) ℝ RealTriple)
+    (v : Fin 3 → cofactorSourceLattice3 k2 k3 (Q^2) (pairWeights3 c2) (pairWeights3 c3))
+    (hD : lattice3 D = (cofactorSourceLattice3 k2 k3 (Q^2) (pairWeights3 c2) (pairWeights3 c3)).toIntSubmodule.map integerTripleReal3)
+    (hv : LinearIndependent ℝ (fun j => integerTripleReal3 (v j : IntegerTriple)))
+    (hav : ∀ j, coordinateGauge3
+      (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ))
+      (integerTripleReal3 (v j : IntegerTriple)) = successiveRadius3 D
+      (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ)) j)
+    (hcut : (1119744 : ℝ)^2 < Q^(delta/2)) :
+    successiveRadius3 D (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ)) 1 <
+      successiveRadius3 D (cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ)) 2*(Q^2)^(-delta/4) ∧
+    Submodule.span ℚ {fun i => ((u 0 : IntegerTriple) i : ℚ)} =
+      Submodule.span ℚ {dualFrameVector3 (fun j => (v j : IntegerTriple)) 2} := by
+  let l := successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ)
+  let e := cofactorSourceCoordinates3 k0 (Q^2) (pairWeights3 c0) (pairWeights3_Q_squared Q hQ)
+  let m := successiveRadius3 D e
+  obtain ⟨_,_,_,hl,ho,_⟩ := exists_successive_minima3 B (qSourceCoordinates3 k0 Q c0 hQ)
+  obtain ⟨_,_,_,hm,hmo,_⟩ := exists_successive_minima3 D e
+  have hcmp := source_exterior_square_comparison3 k0 k2 k3 Q hQ c0 c2 c3 hc0 hc2 hc3 hb B u hB hu hatt D hD
+  have hlo : l 1*l 2/1119744 ≤ m 2 := by simpa [l,m,e,pairProducts3,Matrix.cons_val_two] using (hcmp 2).1
+  have hhi : m 1 ≤ 1119744*(l 0*l 2) := by simpa [l,m,e,pairProducts3] using (hcmp 1).2
+  have hg := exterior_square_gap_scalar3 (l 0) (l 1) (l 2) (m 1) (m 2) Q delta
+    (hl 0) (hl 1) (hl 2) (hm 2) hQ hd hlo hhi hgap hcut
+  refine ⟨hg.1,?_⟩
+  have hp : (Q^2)^(-delta/4) < 1 :=
+    Real.rpow_lt_one_of_one_lt_of_neg (pairWeights3_Q_squared Q hQ) (by linarith)
+  have hm12 : m 1 < m 2 := hg.1.trans (by nlinarith [hm 2])
+  let w := hodgeFrame3 (fun j => (u j : IntegerTriple))
+  have hwcast : (fun j => integerTripleReal3 (w j)) =
+      hodgeFrame3 (fun j => integerTripleReal3 (u j : IntegerTriple)) :=
+    hodgeFrame3_map (Int.castRingHom ℝ) (fun j => (u j : IntegerTriple))
+  have hwr : LinearIndependent ℝ (fun j => integerTripleReal3 (w j)) := by
+    rw [hwcast]
+    exact hodgeFrame3_independent _ hu
+  have hvmem (j : Fin 3) : integerTripleReal3 (v j : IntegerTriple) ∈ lattice3 D := by
+    rw [hD]
+    exact Submodule.mem_map.mpr ⟨(v j : IntegerTriple),(v j).property,rfl⟩
+  have hwmem (j : Fin 3) : integerTripleReal3 (w j) ∈ lattice3 D := by
+    rw [hD]
+    apply Submodule.mem_map.mpr
+    refine ⟨w j,?_,rfl⟩
+    fin_cases j
+    · exact hodgeWedge3_source_mem k2 k3 Q hQ c2 c3 (fun i => (hc2 i).2) (fun i => (hc3 i).2) (u 0) (u 1)
+    · exact hodgeWedge3_source_mem k2 k3 Q hQ c2 c3 (fun i => (hc2 i).2) (fun i => (hc3 i).2) (u 0) (u 2)
+    · exact hodgeWedge3_source_mem k2 k3 Q hQ c2 c3 (fun i => (hc2 i).2) (fun i => (hc3 i).2) (u 1) (u 2)
+  have hle : minimaFlag3 (fun j => integerTripleReal3 (w j)) 2 ≤
+      minimaFlag3 (fun j => integerTripleReal3 (v j : IntegerTriple)) 2 := by
+    apply Submodule.span_le.mpr
+    rintro _ ⟨j,rfl⟩
+    let idx : Fin 3 := Fin.castLE (by decide) j
+    have hgauge := hodgeFrame3_source_gauges k0 Q hQ c0 (fun j => (u j : IntegerTriple)) l hatt idx
+    have hidx : idx ≤ 1 := by change j.val ≤ 1; omega
+    have hpmono := pairProducts3_monotone l hl ho.1 ho.2 hidx
+    have hgb : coordinateGauge3 e (integerTripleReal3 (w idx)) ≤ 2*l 0*l 2 := by
+      have hh := hgauge.trans (mul_le_mul_of_nonneg_left hpmono (by norm_num : (0 : ℝ) ≤ 2))
+      simpa only [pairProducts3,Matrix.cons_val_one,mul_assoc] using hh
+    apply lattice3_short_mem_minimaFlag D e (fun j => integerTripleReal3 (v j : IntegerTriple))
+      hv hvmem hav 2
+    · intro i hi
+      exact (successiveRadius3_monotone D e (show i ≤ 1 by omega)).trans_lt hm12
+    · exact hwmem idx
+    · exact hgb.trans_lt hg.2
+  have heq : minimaFlag3 (fun j => integerTripleReal3 (w j)) 2 =
+      minimaFlag3 (fun j => integerTripleReal3 (v j : IntegerTriple)) 2 :=
+    Submodule.eq_of_le_of_finrank_eq hle (by rw [minimaFlag3_finrank _ hwr,minimaFlag3_finrank _ hv])
+  have hdual := originalPlane_real_to_rational_dual3 (fun j => (v j : IntegerTriple)) w hv hwr heq
+  exact (hodgeFrame3_original_first_line (fun j => (u j : IntegerTriple)) hu).trans hdual
+
+end
+end JSP000334
+
+end Literal252R3
+#check Literal252R3.JSP000334.cofactor_sourceDualBody3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualBody3
+#check Literal252R3.JSP000334.cofactor_sourceDualCoordinates3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualCoordinates3
+#check Literal252R3.JSP000334.cofactor_sourceDualRealCoordinates3_abs_det
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualRealCoordinates3_abs_det
+#check Literal252R3.JSP000334.cofactor_sourceDualBody3_eq_parallelepiped
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualBody3_eq_parallelepiped
+#check Literal252R3.JSP000334.cofactor_sourceDualBody3_volume
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualBody3_volume
+#check Literal252R3.JSP000334.cofactor_sourceDual_frame_gauge_bound3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_frame_gauge_bound3
+#check Literal252R3.JSP000334.cofactor_sourceDual_minima_upper3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_minima_upper3
+#check Literal252R3.JSP000334.cofactor_sourceDual_minima_product_lower3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_minima_product_lower3
+#check Literal252R3.JSP000334.cofactor_sourceDual_minima_product_upper3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_minima_product_upper3
+#check Literal252R3.JSP000334.cofactor_sourceDual_minima_transference3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_minima_transference3
+#check Literal252R3.JSP000334.cofactor_sourceDual_integer_pairing3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_integer_pairing3
+#check Literal252R3.JSP000334.cofactor_sourceDual_complementary_divisibility3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_complementary_divisibility3
+#check Literal252R3.JSP000334.cofactor_sourceDual_complementary_mem3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_complementary_mem3
+#check Literal252R3.JSP000334.cofactor_sourceDualSupport3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualSupport3
+#check Literal252R3.JSP000334.cofactor_sourceDualSupport3_nonempty
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualSupport3_nonempty
+#check Literal252R3.JSP000334.cofactor_sourceDualFloorMin3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualFloorMin3
+#check Literal252R3.JSP000334.cofactor_sourceDualFloorMin3_le
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualFloorMin3_le
+#check Literal252R3.JSP000334.cofactor_sourceDualInt_smul3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDualInt_smul3
+#check Literal252R3.JSP000334.cofactor_sourceDual_rescale_mem3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_rescale_mem3
+#check Literal252R3.JSP000334.cofactor_sourceRealLogWeights3_coordinates
+#print axioms Literal252R3.JSP000334.cofactor_sourceRealLogWeights3_coordinates
+#check Literal252R3.JSP000334.cofactor_sourceReal_uniform_selected_vanishing3
+#print axioms Literal252R3.JSP000334.cofactor_sourceReal_uniform_selected_vanishing3
+#check Literal252R3.JSP000334.cofactor_sourceDual_rescale_real_bound3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_rescale_real_bound3
+#check Literal252R3.JSP000334.cofactor_sourceReal_width_geometry3
+#print axioms Literal252R3.JSP000334.cofactor_sourceReal_width_geometry3
+#check Literal252R3.JSP000334.cofactor_sourceReal_dual_second_gt_one3
+#print axioms Literal252R3.JSP000334.cofactor_sourceReal_dual_second_gt_one3
+#check Literal252R3.JSP000334.cofactor_sourceReal_index_lower3
+#print axioms Literal252R3.JSP000334.cofactor_sourceReal_index_lower3
+#check Literal252R3.JSP000334.cofactor_sourceDual_two_case_body3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_two_case_body3
+#check Literal252R3.JSP000334.cofactor_sourceReal_last_dual_body3
+#print axioms Literal252R3.JSP000334.cofactor_sourceReal_last_dual_body3
+#check Literal252R3.JSP000334.cofactor_sourceDual_power_cutoff3
+#print axioms Literal252R3.JSP000334.cofactor_sourceDual_power_cutoff3
+#check Literal252R3.JSP000334.cofactor_sourceReal_fixed_reference_line3
+#print axioms Literal252R3.JSP000334.cofactor_sourceReal_fixed_reference_line3
+#check Literal252R3.JSP000334.cofactor_source_fixed_dual_direction3
+#print axioms Literal252R3.JSP000334.cofactor_source_fixed_dual_direction3
+#check Literal252R3.JSP000334.cofactor_compound_reverse_product3
+#print axioms Literal252R3.JSP000334.cofactor_compound_reverse_product3
+#check Literal252R3.JSP000334.hodgeWedge3
+#print axioms Literal252R3.JSP000334.hodgeWedge3
+#check Literal252R3.JSP000334.hodgeWedge3_matrix
+#print axioms Literal252R3.JSP000334.hodgeWedge3_matrix
+#check Literal252R3.JSP000334.hodgeFrame3
+#print axioms Literal252R3.JSP000334.hodgeFrame3
+#check Literal252R3.JSP000334.hodgeFrame3_det
+#print axioms Literal252R3.JSP000334.hodgeFrame3_det
+#check Literal252R3.JSP000334.hodgeFrame3_independent
+#print axioms Literal252R3.JSP000334.hodgeFrame3_independent
+#check Literal252R3.JSP000334.hodgeWedge3_map
+#print axioms Literal252R3.JSP000334.hodgeWedge3_map
+#check Literal252R3.JSP000334.hodgeFrame3_map
+#print axioms Literal252R3.JSP000334.hodgeFrame3_map
+#check Literal252R3.JSP000334.pairWeights3
+#print axioms Literal252R3.JSP000334.pairWeights3
+#check Literal252R3.JSP000334.pairWeights3_bounds
+#print axioms Literal252R3.JSP000334.pairWeights3_bounds
+#check Literal252R3.JSP000334.pairWeights3_power
+#print axioms Literal252R3.JSP000334.pairWeights3_power
+#check Literal252R3.JSP000334.hodgeWedge3_padic_bound
+#print axioms Literal252R3.JSP000334.hodgeWedge3_padic_bound
+#check Literal252R3.JSP000334.pairWeights3_Q_squared
+#print axioms Literal252R3.JSP000334.pairWeights3_Q_squared
+#check Literal252R3.JSP000334.hodgeWedge3_source_mem
+#print axioms Literal252R3.JSP000334.hodgeWedge3_source_mem
+#check Literal252R3.JSP000334.hodge_real_minor_bound3
+#print axioms Literal252R3.JSP000334.hodge_real_minor_bound3
+#check Literal252R3.JSP000334.hodgeWedge3_real_bound
+#print axioms Literal252R3.JSP000334.hodgeWedge3_real_bound
+#check Literal252R3.JSP000334.cofactorRealMatrix3_adjugate
+#print axioms Literal252R3.JSP000334.cofactorRealMatrix3_adjugate
+#check Literal252R3.JSP000334.hodgeWedge3_source_gauge
+#print axioms Literal252R3.JSP000334.hodgeWedge3_source_gauge
+#check Literal252R3.JSP000334.cofactor_pair_ceiling_bounds3
+#print axioms Literal252R3.JSP000334.cofactor_pair_ceiling_bounds3
+#check Literal252R3.JSP000334.hodgeFrame3_original_first_line
+#print axioms Literal252R3.JSP000334.hodgeFrame3_original_first_line
+#check Literal252R3.JSP000334.pairProducts3
+#print axioms Literal252R3.JSP000334.pairProducts3
+#check Literal252R3.JSP000334.pairProducts3_positive
+#print axioms Literal252R3.JSP000334.pairProducts3_positive
+#check Literal252R3.JSP000334.pairProducts3_product
+#print axioms Literal252R3.JSP000334.pairProducts3_product
+#check Literal252R3.JSP000334.pairProducts3_monotone
+#print axioms Literal252R3.JSP000334.pairProducts3_monotone
+#check Literal252R3.JSP000334.cofactor_product_bounds3
+#print axioms Literal252R3.JSP000334.cofactor_product_bounds3
+#check Literal252R3.JSP000334.hodgeFrame3_forward_bounds
+#print axioms Literal252R3.JSP000334.hodgeFrame3_forward_bounds
+#check Literal252R3.JSP000334.source_exterior_square_comparison3
+#print axioms Literal252R3.JSP000334.source_exterior_square_comparison3
+#check Literal252R3.JSP000334.exterior_square_cutoff3
+#print axioms Literal252R3.JSP000334.exterior_square_cutoff3
+#check Literal252R3.JSP000334.exterior_square_gap_scalar3
+#print axioms Literal252R3.JSP000334.exterior_square_gap_scalar3
+#check Literal252R3.JSP000334.hodgeFrame3_source_gauges
+#print axioms Literal252R3.JSP000334.hodgeFrame3_source_gauges
+#check Literal252R3.JSP000334.source_exterior_square_gap_plane3
+#print axioms Literal252R3.JSP000334.source_exterior_square_gap_plane3

@@ -1,0 +1,17 @@
+import SubspaceBridge.SourceSchmidtBudgetNumeric10
+noncomputable section
+namespace M204ThresholdSigns
+example (m : ℕ) (alpha w C D eta : ℝ) (ha : 0 < alpha) (hw : 0 < w)
+    (hC : 0 < C) (hD : 1 ≤ D) :
+    0 < alpha*w*C/9 ∧ 0 < (2 : ℝ)^(27*(m : ℝ)/(alpha*w*C)) ∧
+      0 < D^(9*(m : ℝ)*(1+eta)/(alpha*w*C)) := by
+  have hDp : 0 < D := zero_lt_one.trans_le hD
+  exact ⟨by positivity,Real.rpow_pos_of_pos (by norm_num) _,Real.rpow_pos_of_pos hDp _⟩
+example (m : ℕ) (alpha w C : ℝ) (ha : 0 < alpha) (hw : 0 < w) (hC : 0 < C) :
+    (27*(m : ℝ)/(alpha*w*C))*(alpha*w*C/9) = 3*(m : ℝ) := by
+  field_simp
+  <;> ring
+example (alpha w C R : ℝ) (ha : 0 < alpha) (hw : 0 < w) (hC : 0 < C) :
+    (9*R/(alpha*w*C))*(alpha*w*C/9) = R := by
+  field_simp
+end M204ThresholdSigns

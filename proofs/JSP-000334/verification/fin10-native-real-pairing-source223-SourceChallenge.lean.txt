@@ -1,0 +1,35 @@
+import SubspaceBridge.SourceNativeRealPairing223
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M223SourceChallenge
+open CompoundFeasibility SourceDualAnnihilation222 SourceSatz51Entry218
+
+theorem actual_source_native223
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L)
+    (q : ℝ) (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ) (delta : ℝ)
+    (_D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (x z : Fin 10 → ℝ) :
+    (∑ i, x i * z i) = ∑ i, (L *ᵥ x) i * (L⁻¹.transpose *ᵥ z) i := by
+  exact native_real_pairing223 L
+    (isUnit_iff_ne_zero.mp ((Matrix.isUnit_iff_isUnit_det _).mp hL)) x z
+
+theorem actual_source_bound223
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L)
+    (q : ℝ) (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ) (delta : ℝ)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (x z : Fin 10 → ℝ) (s r : ℝ) (hs : 0 ≤ s)
+    (hx : ∀ i, |(L *ᵥ x) i| ≤ s * A i)
+    (hz : dualGauge222 L hL
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive z ≤ r) :
+    |∑ i, x i * z i| ≤ 10 * r *
+      ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) * s := by
+  exact real_pairing_bound222 L hL _ (ZLattice.covolume_pos _ MeasureTheory.volume)
+    A D.positive x z s r hs hx hz
+
+end M223SourceChallenge
+#check M223SourceChallenge.actual_source_native223
+#print M223SourceChallenge.actual_source_native223
+#print axioms M223SourceChallenge.actual_source_native223
+#check M223SourceChallenge.actual_source_bound223
+#print M223SourceChallenge.actual_source_bound223
+#print axioms M223SourceChallenge.actual_source_bound223

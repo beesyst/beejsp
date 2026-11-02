@@ -1,0 +1,372 @@
+import Mathlib.LinearAlgebra.Matrix.ToLin
+import SubspaceBridge.OriginalDual10
+import SubspaceBridge.SourceOriginalData10
+import SubspaceBridge.SourceSelectedNormalTransport10
+import SubspaceBridge.SourceOriginalCounterexampleExtraction10
+namespace CompoundFeasibility.M209LiteralDual10
+
+theorem scalar_nonzero_iff (K : Type*) [Field K] (d x y : K)
+    (hd : d ≠ 0) (hxy : x = d*y) : x ≠ 0 ↔ y ≠ 0 := by
+  subst x
+  constructor
+  · intro h
+    exact (mul_ne_zero_iff.mp h).2
+  · intro hy
+    exact mul_ne_zero hd hy
+
+theorem linear_row_nonzero_iff (K : Type*) [Field K] (I : Type*)
+    (d : K) (x y : I → K) (F : (I → K) →ₗ[K] K)
+    (hd : d ≠ 0) (hxy : ∀ i, x i = d*y i) : F x ≠ 0 ↔ F y ≠ 0 := by
+  have hv : x = d • y := funext hxy
+  have he : F x = d*F y := by rw [hv,map_smul,smul_eq_mul]
+  exact scalar_nonzero_iff K d (F x) (F y) hd he
+
+end CompoundFeasibility.M209LiteralDual10
+
+open scoped BigOperators Matrix
+namespace CompoundFeasibility.M209LiteralDual10
+open OriginalDual10
+noncomputable section
+
+def rowLinear (K : Type*) [Field K] (I : Type*) [Fintype I] (r : I → K) :
+    (I → K) →ₗ[K] K where
+  toFun x := ∑ i, r i*x i
+  map_add' x y := by simp only [Pi.add_apply,mul_add,Finset.sum_add_distrib]
+  map_smul' c x := by
+    simp only [Pi.smul_apply,smul_eq_mul,Finset.mul_sum,RingHom.id_apply]
+    apply Finset.sum_congr rfl
+    intro i _
+    ring
+
+theorem matrix_row_linear_apply (K : Type*) [Field K] (I : Type*) [Fintype I]
+    (B : Matrix I I K) (i : I) (x : I → K) :
+    rowLinear K I (fun k => B k i) x = (B.transpose *ᵥ x) i := rfl
+
+theorem original_cofactor_pointwise {n : ℕ} (K : Type*) [Field K] [CharZero K]
+    (u : Fin (n+1) → Fin (n+1) → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) :
+    ∀ i, (integerLastDual10 u i : K) = ((Matrix.det u : ℤ) : K)*
+      (lastDual10 (fun j i => (u j i : ℚ)) hu i : K) :=
+  cofactor_dual_cast10 u hu
+
+theorem original_cofactor_linear_nonzero {n : ℕ} (K : Type*) [Field K] [CharZero K]
+    (u : Fin (n+1) → Fin (n+1) → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ)))
+    (F : (Fin (n+1) → K) →ₗ[K] K) :
+    F (fun i => (integerLastDual10 u i : K)) ≠ 0 ↔
+      F (fun i => (lastDual10 (fun j i => (u j i : ℚ)) hu i : K)) ≠ 0 := by
+  have hd : ((Matrix.det u : ℤ) : K) ≠ 0 := by
+    exact_mod_cast integerFrame10_det_ne_zero u hu
+  exact linear_row_nonzero_iff K (Fin (n+1)) _ _ _ F hd (original_cofactor_pointwise K u hu)
+
+theorem original_cofactor_matrix_nonzero {n : ℕ} (K : Type*) [Field K] [CharZero K]
+    (B : Matrix (Fin (n+1)) (Fin (n+1)) K)
+    (u : Fin (n+1) → Fin (n+1) → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (i : Fin (n+1)) :
+    (B.transpose *ᵥ (fun k => (integerLastDual10 u k : K))) i ≠ 0 ↔
+      (B.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : K))) i ≠ 0 := by
+  exact original_cofactor_linear_nonzero K u hu (rowLinear K _ (fun k => B k i))
+
+end
+end CompoundFeasibility.M209LiteralDual10
+
+open scoped Matrix
+namespace CompoundFeasibility.M209LiteralDual10
+open OriginalDual10
+noncomputable section
+
+theorem original_real_row_nonzero10
+    (r : Fin 10 → ℝ) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) :
+    rowLinear ℝ (Fin 10) r (fun k => (integerLastDual10 u k : ℝ)) ≠ 0 ↔
+      rowLinear ℝ (Fin 10) r (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ)) ≠ 0 := by
+  exact original_cofactor_linear_nonzero (n := 9) ℝ u hu (rowLinear ℝ (Fin 10) r)
+
+theorem original_real_nonzero10 (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (i : Fin 10) :
+    (L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 u k : ℝ))) i ≠ 0 ↔
+      (L⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ))) i ≠ 0 := by
+  exact original_real_row_nonzero10 (fun k => L⁻¹ k i) u hu
+
+
+end
+end CompoundFeasibility.M209LiteralDual10
+
+open scoped Matrix
+namespace CompoundFeasibility.M209LiteralDual10
+open OriginalDual10
+noncomputable section
+
+theorem original_p2_row_nonzero10
+    (r : Fin 10 → ℚ_[2]) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) :
+    rowLinear ℚ_[2] (Fin 10) r (fun k => (integerLastDual10 u k : ℚ_[2])) ≠ 0 ↔
+      rowLinear ℚ_[2] (Fin 10) r (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2])) ≠ 0 := by
+  exact original_cofactor_linear_nonzero (n := 9) ℚ_[2] u hu (rowLinear ℚ_[2] (Fin 10) r)
+
+theorem original_p2_nonzero10 (A : Matrix (Fin 10) (Fin 10) ℚ)
+    (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (i : Fin 10) :
+    ((A.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 u k : ℚ_[2]))) i ≠ 0 ↔
+      ((A.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2]))) i ≠ 0 := by
+  exact original_p2_row_nonzero10 (fun k => (A.map (algebraMap ℚ ℚ_[2]))⁻¹ k i) u hu
+
+end
+end CompoundFeasibility.M209LiteralDual10
+
+open scoped Matrix
+namespace CompoundFeasibility.M209LiteralDual10
+open OriginalDual10
+noncomputable section
+
+theorem original_p3_row_nonzero10
+    (r : Fin 10 → ℚ_[3]) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) :
+    rowLinear ℚ_[3] (Fin 10) r (fun k => (integerLastDual10 u k : ℚ_[3])) ≠ 0 ↔
+      rowLinear ℚ_[3] (Fin 10) r (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3])) ≠ 0 := by
+  exact original_cofactor_linear_nonzero (n := 9) ℚ_[3] u hu (rowLinear ℚ_[3] (Fin 10) r)
+
+theorem original_p3_nonzero10 (A : Matrix (Fin 10) (Fin 10) ℚ)
+    (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (i : Fin 10) :
+    ((A.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 u k : ℚ_[3]))) i ≠ 0 ↔
+      ((A.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3]))) i ≠ 0 := by
+  exact original_p3_row_nonzero10 (fun k => (A.map (algebraMap ℚ ℚ_[3]))⁻¹ k i) u hu
+
+end
+end CompoundFeasibility.M209LiteralDual10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M209LiteralDual10
+open OriginalDual10 SourceSelectedSet10 SourceSelectedUpper10 SourceGlobalSelected10 SourceOriginalVariable10
+noncomputable section
+
+def originalRationalDualProduct10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (s : MixedIndex10) : ℝ :=
+  |(L⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ))) (s 0)| *
+    ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+      (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2]))) (s 1)‖ *
+    ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+      (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3]))) (s 2)‖
+
+theorem original_rational_product_nonzero_iff (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (s : MixedIndex10) :
+    originalRationalDualProduct10 A2 A3 L u hu s ≠ 0 ↔
+      mixedProduct10 A2 A3 L (integerLastDual10 u) s ≠ 0 := by
+  have hp : originalRationalDualProduct10 A2 A3 L u hu s ≠ 0 ↔
+      (L⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ))) (s 0) ≠ 0 ∧
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2]))) (s 1) ≠ 0 ∧
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3]))) (s 2) ≠ 0 := by
+    simp only [originalRationalDualProduct10,mul_ne_zero_iff,abs_ne_zero,norm_ne_zero_iff,and_assoc]
+  constructor
+  · intro h
+    obtain ⟨h0,h2,h3⟩ := hp.mp h
+    exact (mixedProduct10_ne_zero_iff A2 A3 L (integerLastDual10 u) s).mpr
+      ⟨(original_real_nonzero10 L u hu (s 0)).mpr h0,
+       (original_p2_nonzero10 A2 u hu (s 1)).mpr h2,
+       (original_p3_nonzero10 A3 u hu (s 2)).mpr h3⟩
+  · intro h
+    obtain ⟨h0,h2,h3⟩ := (mixedProduct10_ne_zero_iff A2 A3 L (integerLastDual10 u) s).mp h
+    exact hp.mpr ⟨(original_real_nonzero10 L u hu (s 0)).mp h0,
+      (original_p2_nonzero10 A2 u hu (s 1)).mp h2,
+      (original_p3_nonzero10 A3 u hu (s 2)).mp h3⟩
+
+theorem integer_frame_rational_independent10 (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j))) :
+    LinearIndependent ℚ (fun j i => (u j i : ℚ)) := by
+  let f : (Fin 10 → ℚ) →ₗ[ℚ] (Fin 10 → ℝ) :=
+    LinearMap.pi (fun i => (Algebra.linearMap ℚ ℝ).comp (LinearMap.proj i))
+  apply LinearIndependent.of_comp f
+  convert hu.restrict_scalars' ℚ using 1
+
+def dataRationalDualProduct10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset MixedIndex10}
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (s : MixedIndex10) : ℝ :=
+  originalRationalDualProduct10 A2 A3 L D.u
+    (integer_frame_rational_independent10 D.u D.independent) s
+
+theorem data_rational_product_nonzero_iff
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset MixedIndex10}
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (s : MixedIndex10) :
+    dataRationalDualProduct10 D s ≠ 0 ↔ mixedProduct10 A2 A3 L (integerLastDual10 D.u) s ≠ 0 :=
+  original_rational_product_nonzero_iff A2 A3 L D.u
+    (integer_frame_rational_independent10 D.u D.independent) s
+
+end
+end CompoundFeasibility.M209LiteralDual10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M209LiteralDual10
+open OriginalDual10 SourceSelectedSet10 SourceSelectedUpper10 SourceOriginalVariable10
+noncomputable section
+
+theorem rational_failure_to_cofactor_failure10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {delta : ℝ} {S0 : Finset MixedIndex10}
+    (U : Set ℝ) (hQU : ∀ q ∈ U, 1 < q)
+    (D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0)
+    (hfail : ¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0, dataRationalDualProduct10 (D q) s = 0) :
+    ¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0,
+      mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s = 0 := by
+  rintro ⟨B,hzero⟩
+  apply hfail
+  refine ⟨B,?_⟩
+  intro q hq s hs
+  by_contra hn
+  exact (data_rational_product_nonzero_iff (D q) s).mp hn (hzero q hq s hs)
+
+theorem rational_counterexamples_unbounded10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (delta : ℝ) (S0 : Finset MixedIndex10)
+    (hfail : ∀ B : ℝ, ∃ Q : ℝ, ∃ hQ : 1 < Q, B < Q ∧
+      ∃ D : OriginalData10 A2 A3 L hL Q hQ delta S0, ∃ s ∈ S0, dataRationalDualProduct10 D s ≠ 0) :
+    ∃ U : Set ℝ, ¬ BddAbove U ∧ ∃ hQU : ∀ q ∈ U, 1 < q,
+      ∃ D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0,
+        (∀ q : U, ∃ s ∈ S0, dataRationalDualProduct10 (D q) s ≠ 0) ∧
+        ¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0, dataRationalDualProduct10 (D q) s = 0 := by
+  have hcof : ∀ B : ℝ, ∃ Q : ℝ, ∃ hQ : 1 < Q, B < Q ∧
+      ∃ D : OriginalData10 A2 A3 L hL Q hQ delta S0, ∃ s ∈ S0,
+        mixedProduct10 A2 A3 L (integerLastDual10 D.u) s ≠ 0 := by
+    intro B
+    obtain ⟨Q,hQ,hBQ,D,s,hs,hn⟩ := hfail B
+    exact ⟨Q,hQ,hBQ,D,s,hs,(data_rational_product_nonzero_iff D s).mp hn⟩
+  obtain ⟨U,hU,hQU,D,hbad,_hnotzero⟩ := original_counterexamples_unbounded10 A2 A3 L hL delta S0 hcof
+  have hrat (q : U) : ∃ s ∈ S0, dataRationalDualProduct10 (D q) s ≠ 0 := by
+    obtain ⟨s,hs,hn⟩ := hbad q
+    exact ⟨s,hs,(data_rational_product_nonzero_iff (D q) s).mpr hn⟩
+  refine ⟨U,hU,hQU,D,hrat,?_⟩
+  rintro ⟨B,hzero⟩
+  obtain ⟨q,hq,hBq⟩ := not_bddAbove_iff.mp hU B
+  obtain ⟨s,hs,hn⟩ := hrat ⟨q,hq⟩
+  exact hn (hzero ⟨q,hq⟩ hBq s hs)
+
+end
+end CompoundFeasibility.M209LiteralDual10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M209LiteralDual10
+open SourceSampling10 SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10 SchmidtNormal10 SourceOriginalVariable10
+noncomputable section
+
+theorem rational_family_schmidt_inputs10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ D0 E0 alpha C_upper T : ℝ, 1 ≤ D0 ∧ 1 ≤ E0 ∧ 0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      ∀ (U : Set ℝ) (hQU : ∀ q ∈ U, 1 < q)
+        (D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0),
+      (¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0,
+        dataRationalDualProduct10 (D q) s = 0) →
+      ∀ B1 : ℝ, ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+        (∀ q : V, max T B1 < q.val) ∧
+      ∃ e : ℝ, 0 < e ∧ e < 1 ∧ ∃ c : Fin 3 → Fin 10 → ℝ,
+        (∀ tau i, |c tau i| ≤ 1) ∧ (∑ tau, ∑ i, c tau i) = 0 ∧
+        (∀ i, c 1 i ≤ 0 ∧ c 2 i ≤ 0) ∧
+      ∃ eta : ℝ, 0 < eta ∧ 4000*eta < e ∧ ∃ m : ℕ, ∃ hm : 0 < m,
+        4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) ∧
+        (∀ rho : ℝ, 0 < rho → ∀ B : ℝ,
+          Nonempty (OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm)) ∧
+        ∀ (rho B : ℝ)
+          (S : OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm) (h : Fin m),
+          ((S.data.t h).val^5)^alpha ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+          (normalHeight10 (S.data.M h) : ℝ) ≤ C_upper*((S.data.t h).val^5)^9 ∧
+          ∃ s ∈ S0, mixedProduct10 A2 A3 L (S.data.M h) s ≠ 0 ∧
+            mixedProduct10 A2 A3 L (S.data.M h) s ≤ 362880*((S.data.t h).val^5)^(-17*delta/10) := by
+  obtain ⟨K,hK,D0,E0,alpha,C_upper,T,hD,hE,ha,hC,hT,hinputs⟩ :=
+    original_counterexample_schmidt_inputs10 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  refine ⟨K,hK,D0,E0,alpha,C_upper,T,hD,hE,ha,hC,hT,?_⟩
+  intro U hQU D hfail B1
+  exact hinputs U hQU D (rational_failure_to_cofactor_failure10 U hQU D hfail) B1
+
+theorem original_rational_counterexample_samples10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ D0 E0 alpha C_upper T : ℝ, 1 ≤ D0 ∧ 1 ≤ E0 ∧ 0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      ∀ (_hfail : ∀ B : ℝ, ∃ Q : ℝ, ∃ hQ : 1 < Q, B < Q ∧
+        ∃ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+          ∃ s ∈ S0, dataRationalDualProduct10 D s ≠ 0),
+      ∀ B1 : ℝ, ∃ U : Set ℝ, ¬ BddAbove U ∧ ∃ hQU : ∀ q ∈ U, 1 < q,
+        ∃ D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0,
+          (∀ q : U, ∃ s ∈ S0, dataRationalDualProduct10 (D q) s ≠ 0) ∧
+      ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+        (∀ q : V, max T B1 < q.val) ∧
+      ∃ e : ℝ, 0 < e ∧ e < 1 ∧ ∃ c : Fin 3 → Fin 10 → ℝ,
+        (∀ tau i, |c tau i| ≤ 1) ∧ (∑ tau, ∑ i, c tau i) = 0 ∧
+        (∀ i, c 1 i ≤ 0 ∧ c 2 i ≤ 0) ∧
+      ∃ eta : ℝ, 0 < eta ∧ 4000*eta < e ∧ ∃ m : ℕ, ∃ hm : 0 < m,
+        4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) ∧
+        (∀ rho : ℝ, 0 < rho → ∀ B : ℝ,
+          Nonempty (OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm)) ∧
+        ∀ (rho B : ℝ)
+          (S : OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm) (h : Fin m),
+          ((S.data.t h).val^5)^alpha ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+          (normalHeight10 (S.data.M h) : ℝ) ≤ C_upper*((S.data.t h).val^5)^9 ∧
+          ∃ s ∈ S0, mixedProduct10 A2 A3 L (S.data.M h) s ≠ 0 ∧
+            mixedProduct10 A2 A3 L (S.data.M h) s ≤ 362880*((S.data.t h).val^5)^(-17*delta/10) := by
+  obtain ⟨K,hK,D0,E0,alpha,C_upper,T,hD,hE,ha,hC,hT,hinputs⟩ :=
+    rational_family_schmidt_inputs10 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  refine ⟨K,hK,D0,E0,alpha,C_upper,T,hD,hE,ha,hC,hT,?_⟩
+  intro hfail B1
+  obtain ⟨U,hU,hQU,D,hbad,hnotzero⟩ := rational_counterexamples_unbounded10 A2 A3 L hL delta S0 hfail
+  exact ⟨U,hU,hQU,D,hbad,hinputs U hQU D hnotzero B1⟩
+
+end
+end CompoundFeasibility.M209LiteralDual10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.scalar_nonzero_iff
+
+#print axioms CompoundFeasibility.M209LiteralDual10.linear_row_nonzero_iff
+
+#print axioms CompoundFeasibility.M209LiteralDual10.rowLinear
+
+#print axioms CompoundFeasibility.M209LiteralDual10.matrix_row_linear_apply
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_cofactor_pointwise
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_cofactor_linear_nonzero
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_cofactor_matrix_nonzero
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_real_row_nonzero10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_real_nonzero10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_p2_row_nonzero10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_p2_nonzero10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_p3_row_nonzero10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_p3_nonzero10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.originalRationalDualProduct10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_rational_product_nonzero_iff
+
+#print axioms CompoundFeasibility.M209LiteralDual10.integer_frame_rational_independent10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.dataRationalDualProduct10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.data_rational_product_nonzero_iff
+
+#print axioms CompoundFeasibility.M209LiteralDual10.rational_failure_to_cofactor_failure10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.rational_counterexamples_unbounded10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.rational_family_schmidt_inputs10
+
+#print axioms CompoundFeasibility.M209LiteralDual10.original_rational_counterexample_samples10

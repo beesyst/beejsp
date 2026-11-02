@@ -1,0 +1,60 @@
+import SubspaceBridge.SourceRationalSamples10
+open scoped BigOperators Classical Matrix
+namespace M209SourceContract
+open CompoundFeasibility CompoundFeasibility.SourceOriginalDual10
+open SourceGlobalSelected10 OriginalDual10 SourceSelectedSet10 SourceSelectedUpper10 SourceOriginalVariable10 SchmidtNormal10 SourceSampling10
+noncomputable section
+
+theorem original_dual_pairing10 (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (j : Fin 10) :
+    (∑ i, (u j i : ℚ)*lastDual10 (fun j i => (u j i : ℚ)) hu i) =
+      if j = (9 : Fin 10) then 1 else 0 := by
+  have hf := functional_coordinates_dual10
+    (rationalFrameDual42 (fun j i => (u j i : ℚ)) hu (9 : Fin 10))
+    (fun i => (u j i : ℚ))
+  rw [rationalFrameDual42_pairing] at hf
+  simpa only [lastDual10,eq_comm] using hf.symm
+
+def sourceDualCoordinate10 (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (k : Fin 10) : ℚ :=
+  rationalFrameDual42 (fun j i => (u j i : ℚ)) hu (9 : Fin 10) (Pi.single k 1)
+
+def sourceDualProduct10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (s : Fin 3 → Fin 10) : ℝ :=
+  |(L⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ))) (s 0)| *
+    ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+      (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2]))) (s 1)‖ *
+    ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+      (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3]))) (s 2)‖
+
+theorem exact_source_product_nonzero10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (s : Fin 3 → Fin 10) :
+    sourceDualProduct10 A2 A3 L u hu s ≠ 0 ↔
+      mixedProduct10 A2 A3 L (integerLastDual10 u) s ≠ 0 := by
+  have hp : sourceDualProduct10 A2 A3 L u hu s ≠ 0 ↔
+      (L⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ))) (s 0) ≠ 0 ∧
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2]))) (s 1) ≠ 0 ∧
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3]))) (s 2) ≠ 0 := by
+    simp only [sourceDualProduct10,mul_ne_zero_iff,abs_ne_zero,norm_ne_zero_iff,and_assoc]
+  constructor
+  · intro h
+    obtain ⟨h0,h2,h3⟩ := hp.mp h
+    exact (mixedProduct10_ne_zero_iff A2 A3 L (integerLastDual10 u) s).mpr
+      ⟨(original_real_nonzero10 L u hu (s 0)).mpr h0,
+       (original_p2_nonzero10 A2 u hu (s 1)).mpr h2,
+       (original_p3_nonzero10 A3 u hu (s 2)).mpr h3⟩
+  · intro h
+    obtain ⟨h0,h2,h3⟩ := (mixedProduct10_ne_zero_iff A2 A3 L (integerLastDual10 u) s).mp h
+    exact hp.mpr ⟨(original_real_nonzero10 L u hu (s 0)).mp h0,
+      (original_p2_nonzero10 A2 u hu (s 1)).mp h2,
+      (original_p3_nonzero10 A3 u hu (s 2)).mp h3⟩
+
+end
+end M209SourceContract
+
+#print axioms M209SourceContract.original_dual_pairing10
+#print axioms M209SourceContract.exact_source_product_nonzero10

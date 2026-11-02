@@ -1,0 +1,81 @@
+import SubspaceBridge.SourceFixedReference234
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.SourceFixedArithmetic234
+  CompoundFeasibility.OriginalDual10 CompoundFeasibility.SourceSatz51Entry218
+  CompoundFeasibility.SourceOriginalDual10 CompoundFeasibility.SourceSelectedUpper10
+  CompoundFeasibility.SourceDualGeometry219
+namespace M234SourceChallenge
+theorem original_fixed_membership
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            (∀ q : Omega, q.val ∈ U → sourceSet218 q.val delta (A q.val) c2 c3 = S0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∀ q ∈ U, B < q → t q ≠ 0 ∧
+                (fun i => (((t q) • v0) i : ℚ)) ∈ scaledDual219
+                  (originalSourceGroup10 A2 A3 q c2 c3) := by
+  exact source_fixed_membership234 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+
+theorem original_index_pairing
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            (∀ q : Omega, q.val ∈ U → sourceSet218 q.val delta (A q.val) c2 c3 = S0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∀ q ∈ U, B < q → t q ≠ 0 ∧
+                ∀ x : originalSourceGroup10 A2 A3 q c2 c3, ∃ a : ℤ,
+                  (∑ i, (x : Fin 10 → ℤ) i*((t q) • v0) i) =
+                    ((originalSourceGroup10 A2 A3 q c2 c3).index : ℤ)*a := by
+  intro hA2 hA3
+  obtain ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,hpattern,C,hC,t,ht,hm⟩ :=
+    source_fixed_membership234 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+  refine ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,hpattern,C,hC,t,ht,?_⟩
+  intro q hqU hqB
+  obtain ⟨hn,hmem⟩ := hm q hqU hqB
+  refine ⟨hn,?_⟩
+  intro x
+  obtain ⟨z,hz,he⟩ := hmem
+  obtain ⟨a,ha⟩ := hz x
+  have hh := pairing_smul219
+    ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) z (x : Fin 10 → ℤ)
+  change ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) • z =
+    (fun i => (((t q) • v0) i : ℚ)) at he
+  rw [he,ha] at hh
+  change (∑ i, ((x : Fin 10 → ℤ) i : ℚ)*(((t q) • v0) i : ℚ)) = _ at hh
+  refine ⟨a,?_⟩
+  exact_mod_cast hh
+
+end M234SourceChallenge
+#check M234SourceChallenge.original_fixed_membership
+#print M234SourceChallenge.original_fixed_membership
+#print axioms M234SourceChallenge.original_fixed_membership
+#check M234SourceChallenge.original_index_pairing
+#print M234SourceChallenge.original_index_pairing
+#print axioms M234SourceChallenge.original_index_pairing

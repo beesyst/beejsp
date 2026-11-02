@@ -1,0 +1,222 @@
+import SubspaceBridge.BinaryIntegerBridge2
+import SubspaceBridge.BinaryKernelVector2
+import SubspaceBridge.BinaryIntegerNonvanishing2
+import SubspaceBridge.BinaryAnalyticBudget2
+import SubspaceBridge.BinaryVectorEvaluation2
+import SubspaceBridge.BinaryIntegerLocalBound2
+import SubspaceBridge.BinaryIntegerProduct2
+import SubspaceBridge.BinaryAnalyticContradiction2
+open scoped BigOperators Classical Matrix
+namespace RawR4
+open JSP000334
+abbrev Vars (m : ℕ) := Fin m × Fin 2
+
+def Vector (V : Fin 2 → ℤ) : Fin 2 → ℤ := ![V 1,-V 0]
+def Height (V : Fin 2 → ℤ) : ℕ := max (V 0).natAbs (V 1).natAbs
+noncomputable def MatrixCast (L : Matrix (Fin 2) (Fin 2) ℤ) : Matrix (Fin 2) (Fin 2) ℚ := fun i j => (L i j : ℚ)
+noncomputable def FormValue (L : Matrix (Fin 2) (Fin 2) ℤ) (w : Fin 2 → ℤ) (i : Fin 2) : ℚ :=
+  ∑ j : Fin 2,(L i j : ℚ)*(w j : ℚ)
+def Abs (tau : Fin 3) (q : ℚ) : ℝ :=
+  if tau=0 then |(q : ℝ)| else if tau=1 then padicNorm 2 q else padicNorm 3 q
+noncomputable def Derivative {m : ℕ} (J : Vars m →₀ ℕ) (P : MvPolynomial (Vars m) ℤ) : MvPolynomial (Vars m) ℤ :=
+  P.sum (fun b c => MvPolynomial.monomial (b-J) (c*∏ u : Vars m,(Nat.choose (b u) (J u) : ℤ)))
+def Homogeneous {m : ℕ} (r : Fin m → ℕ) (P : MvPolynomial (Vars m) ℤ) : Prop :=
+  ∀ b ∈ P.support,∀ h,∑ i : Fin 2,b (h,i)=r h
+noncomputable def Restriction {m : ℕ} (w : Fin m → Fin 2 → ℤ) (J : Vars m →₀ ℕ)
+    (P : MvPolynomial (Vars m) ℤ) : MvPolynomial (Fin m) ℤ :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u => MvPolynomial.C (w u.1 u.2)*MvPolynomial.X u.1) (Derivative J P)
+
+noncomputable def LocalExponent {m : ℕ} (tau : Fin 3) (Q : Fin m → ℝ) (c : Fin 3 → Fin 2 → ℝ) (delta : ℝ) (b : Vars m →₀ ℕ) : ℝ :=
+  ∑ i : Fin 2,(c tau i-if tau=0 then delta else 0)*(∑ h : Fin m,(b (h,i) : ℝ)*Real.log (Q h))
+noncomputable def SourceBound {m : ℕ} (tau : Fin 3) (E eta A : ℝ) (r : Fin m → ℕ) (c : Fin 3 → Fin 2 → ℝ) : ℝ :=
+  (2*E)^(∑ h,r h)*Real.exp (A*m*((∑ i : Fin 2,c tau i)/2+if tau=0 then -30*eta else 8*eta))
+theorem source_binary_integer_restriction_coefficient : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (Vars m) ℤ) (hP : Homogeneous r P)
+    (w : Fin m → Fin 2 → ℤ) (J : Vars m →₀ ℕ),
+
+    Restriction w J P =
+      MvPolynomial.monomial (Finsupp.equivFunOnFinite.symm (fun h => r h-∑ i : Fin 2,J (h,i)))
+        (MvPolynomial.eval (fun u => w u.1 u.2) (Derivative J P)) :=
+  @JSP000334.binary_integer_restriction_coefficient
+
+theorem source_binary_kernel_vector_nonzero : ∀ (V : Fin 2 → ℤ) (hV : ∃ i,V i ≠ 0),
+
+    ∃ i,Vector V i ≠ 0 :=
+  @JSP000334.binary_kernel_vector_nonzero
+
+theorem source_binary_kernel_vector_orthogonal : ∀ (V : Fin 2 → ℤ),
+
+    (∑ i : Fin 2,V i*Vector V i) = 0 :=
+  @JSP000334.binary_kernel_vector_orthogonal
+
+theorem source_binary_kernel_vector_primitive : ∀ (V : Fin 2 → ℤ)
+    (hV : Ideal.span (Set.range V)=⊤),
+
+    Int.gcd (Vector V 0) (Vector V 1)=1 :=
+  @JSP000334.binary_kernel_vector_primitive
+
+theorem source_binary_kernel_vector_free : ∀ (V : Fin 2 → ℤ) (k : Fin 2) (hk : V k ≠ 0),
+
+    Vector V k.rev ≠ 0 :=
+  @JSP000334.binary_kernel_vector_free
+
+theorem source_binary_kernel_vector_spans : ∀ (V : Fin 2 → ℤ) (hV : ∃ i,V i ≠ 0)
+    (x : Fin 2 → ℚ) (hx : (∑ i : Fin 2,(V i : ℚ)*x i)=0),
+
+    ∃ t : ℚ, ∀ i,x i=t*(Vector V i : ℚ) :=
+  @JSP000334.binary_kernel_vector_spans
+
+theorem source_binary_integer_normalized_scale : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (Vars m) ℤ)
+    (hP : Homogeneous r P) (J : Vars m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0),
+
+    ((MvPolynomial.eval (fun u => Vector (V u.1) u.2)
+      (Derivative J P) : ℤ) : ℚ) =
+      (∏ h,(Vector (V h) (k h).rev : ℚ)^(r h-∑ i : Fin 2,J (h,i)))*
+        MvPolynomial.eval₂ (RingHom.id ℚ) (fun _ => 1)
+          (binaryKernelRestriction V k (Derivative J P)) :=
+  @JSP000334.binary_integer_normalized_scale
+
+theorem source_binary_integer_block_scales_nonzero : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (J : Vars m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0),
+
+    (∏ h,(Vector (V h) (k h).rev : ℚ)^(r h-∑ i : Fin 2,J (h,i))) ≠ 0 :=
+  @JSP000334.binary_integer_block_scales_nonzero
+
+theorem source_binary_nonzero_integer_coefficient : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (Vars m) ℤ)
+    (hP : Homogeneous r P) (J : Vars m →₀ ℕ)
+    (k : Fin m → Fin 2) (hk : ∀ h,V h (k h) ≠ 0)
+    (hn : binaryKernelRestriction V k (Derivative J P) ≠ 0),
+
+    ∃ (e : Fin m →₀ ℕ) (z : ℤ), z ≠ 0 ∧
+      (Restriction (fun h => Vector (V h)) J P).coeff e = z ∧
+      z = MvPolynomial.eval (fun u => Vector (V u.1) u.2) (Derivative J P) :=
+  @JSP000334.binary_nonzero_integer_coefficient
+
+theorem source_binary_vector_local_evaluation : ∀ {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (MatrixCast L).det ≠ 0) (w : Fin m → Fin 2 → ℤ)
+    (J : Vars m →₀ ℕ) (P : MvPolynomial (Vars m) ℤ),
+
+    ((MvPolynomial.eval (fun u => w u.1 u.2) (Derivative J P) : ℤ) : ℚ) =
+      MvPolynomial.eval₂ (RingHom.id ℚ) (fun u => FormValue L (w u.1) u.2)
+        (binaryLocalExpansion L J P) :=
+  @JSP000334.binary_vector_local_evaluation
+
+theorem source_binary_expansion_support_card : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (Vars m) ℤ) (hP : Homogeneous r P)
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (J : Vars m →₀ ℕ),
+
+    (binaryLocalExpansion L J P).support.card ≤ 2^(∑ h,r h) :=
+  @JSP000334.binary_expansion_support_card
+
+theorem source_binary_local_value_product_bound : ∀ {m : ℕ} (tau : Fin 3)
+    (Q : Fin m → ℝ) (hQ : ∀ h,0<Q h) (c : Fin 3 → Fin 2 → ℝ) (delta : ℝ)
+    (y : Vars m → ℚ)
+    (hy : ∀ u,Abs tau (y u) ≤ Real.rpow (Q u.1) (c tau u.2-if tau=0 then delta else 0))
+    (b : Vars m →₀ ℕ),
+
+    Abs tau (∏ u : Vars m,y u^b u) ≤
+      Real.exp (LocalExponent tau Q c delta b) :=
+  @JSP000334.binary_local_value_product_bound
+
+theorem source_binary_integer_local_bound : ∀ {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h,0<r h)
+    (P : MvPolynomial (Vars m) ℤ) (hP : Homogeneous r P)
+    (D : ℝ) (hD : 1≤D) (hH : (binaryPolynomialHeight P : ℝ)≤D^(∑ h,r h))
+    (tau : Fin 3) (L : Matrix (Fin 2) (Fin 2) ℤ) (hL : (MatrixCast L).det ≠ 0)
+    (G : ℝ) (hG : 1≤G) (hentry : ∀ i j,Abs tau ((MatrixCast L)⁻¹ i j)≤G)
+    (eta delta A : ℝ) (heta : 0<eta) (hdelta : 40*eta<delta) (hdelta1 : delta<1) (hA : 0≤A)
+    (Q : Fin m → ℝ) (hQ : ∀ h,1<Q h)
+    (hlog : ∀ h,A≤(r h : ℝ)*Real.log (Q h) ∧ (r h : ℝ)*Real.log (Q h)≤(1+eta)*A)
+    (c : Fin 3 → Fin 2 → ℝ) (hc : ∀ tau i,|c tau i|≤1)
+    (hindex : ∀ i,binarySourceHighIndex r (fun _ => L i) ((1/2-eta)*m) P)
+    (w : Fin m → Fin 2 → ℤ)
+    (hw : ∀ h i,Abs tau (FormValue L (w h) i)≤
+      Real.rpow (Q h) (c tau i-if tau=0 then delta else 0))
+    (J : Vars m →₀ ℕ) (hJ : binarySourceDerivativeWeight r J≤2*eta*m),
+
+    Abs tau ((MvPolynomial.eval (fun u => w u.1 u.2) (Derivative J P) : ℤ) : ℚ) ≤
+      (2*(8*D*G))^(∑ h,r h)*Real.exp (A*m*((∑ i : Fin 2,c tau i)/2+if tau=0 then -30*eta else 8*eta)) :=
+  @JSP000334.binary_integer_local_bound
+
+theorem source_binary_integer_three_place_upper : ∀ {m : ℕ} (z : ℤ) (E eta A : ℝ) (hE : 0≤E)
+    (r : Fin m → ℕ) (c : Fin 3 → Fin 2 → ℝ)
+    (hcsum : (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0)
+    (hz : ∀ tau,Abs tau (z : ℚ)≤SourceBound tau E eta A r c),
+
+    Abs 0 (z : ℚ)*Abs 1 (z : ℚ)*Abs 2 (z : ℚ) ≤
+      (8*E^3)^(∑ h,r h)*Real.exp (-14*A*m*eta) :=
+  @JSP000334.binary_integer_three_place_upper
+
+theorem source_binary_product_bound_lt_one : ∀ {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (Q : Fin m → ℝ) (h0 : Fin m)
+    (E eta delta : ℝ) (hE : 1 ≤ E) (heta : 0 < eta)
+    (hdelta : 40*eta < delta) (hdeltalt : delta < 1)
+    (hQ : ∀ h, 1 < Q h) (hthreshold : ∀ h, 2*E < Real.rpow (Q h) eta)
+    (hlog : ∀ h, (r h : ℝ)*Real.log (Q h) ≤ (1+eta)*(r h0 : ℝ)*Real.log (Q h0)),
+
+    (8*E^3)^(∑ h, r h) * Real.exp (-14*((r h0 : ℝ)*Real.log (Q h0))*m*eta) < 1 :=
+  @JSP000334.binary_product_bound_lt_one
+
+theorem source_binary_auxiliary_integer_analytic_contradiction : ∀ (L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : ∀ tau,(MatrixCast (L tau)).det ≠ 0),
+
+    ∃ D E : ℝ,1≤D ∧ 1≤E ∧
+    ∀ eta : ℝ,0<eta → eta<1/2 →
+    ∀ m : ℕ,∀ hm : 0<m,4*(eta^2)⁻¹*Real.log 12≤(m : ℝ) →
+    ∀ r : Fin m → ℕ,(∀ h,0<r h) →
+    ∀ theta Gamma : ℝ,0<theta → theta<1/12 → theta≤2*eta*m → 0<Gamma → Gamma≤1 →
+    (∀ (h : Fin m) (hh : h.val+1<m),
+      (r ⟨h.val+1,hh⟩ : ℝ)≤rothInductionOmega m theta*(r h : ℝ)) →
+    ∀ delta : ℝ,40*eta<delta → delta<1 →
+    ∀ c : Fin 3 → Fin 2 → ℝ,(∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0 → (∀ tau i,|c tau i|≤1) →
+    ∀ Q : Fin m → ℝ,(∀ h,1<Q h) → (∀ h,2*E<Real.rpow (Q h) eta) →
+    (∀ h,(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)≤(r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h)≤(1+eta)*(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)) →
+    ∀ V : Fin m → Fin 2 → ℤ,
+    (∀ h,(∃ i,V h i ≠ 0) ∧ Ideal.span (Set.range (V h))=⊤) →
+    (∀ h : Fin m,h.val ≠ 0 →
+      Real.rpow (Height (V ⟨0,hm⟩) : ℝ) ((r ⟨0,hm⟩ : ℝ)*Gamma)≤
+        (Height (V h) : ℝ)^r h) →
+    (∀ h,(2 : ℝ)^(3*m)≤Real.rpow (Height (V h) : ℝ) (rothInductionOmega m theta*Gamma)) →
+    D^(∑ h,r h)≤Real.rpow (Height (V ⟨0,hm⟩) : ℝ)
+      (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*Gamma) →
+    (∀ tau h i,Abs tau (FormValue (L tau) (Vector (V h)) i)≤
+      Real.rpow (Q h) (c tau i-if tau=0 then delta else 0)) → False :=
+  @JSP000334.binary_auxiliary_integer_analytic_contradiction
+
+end RawR4
+#check RawR4.source_binary_integer_restriction_coefficient
+#print axioms RawR4.source_binary_integer_restriction_coefficient
+#check RawR4.source_binary_kernel_vector_nonzero
+#print axioms RawR4.source_binary_kernel_vector_nonzero
+#check RawR4.source_binary_kernel_vector_orthogonal
+#print axioms RawR4.source_binary_kernel_vector_orthogonal
+#check RawR4.source_binary_kernel_vector_primitive
+#print axioms RawR4.source_binary_kernel_vector_primitive
+#check RawR4.source_binary_kernel_vector_free
+#print axioms RawR4.source_binary_kernel_vector_free
+#check RawR4.source_binary_kernel_vector_spans
+#print axioms RawR4.source_binary_kernel_vector_spans
+#check RawR4.source_binary_integer_normalized_scale
+#print axioms RawR4.source_binary_integer_normalized_scale
+#check RawR4.source_binary_integer_block_scales_nonzero
+#print axioms RawR4.source_binary_integer_block_scales_nonzero
+#check RawR4.source_binary_nonzero_integer_coefficient
+#print axioms RawR4.source_binary_nonzero_integer_coefficient
+#check RawR4.source_binary_vector_local_evaluation
+#print axioms RawR4.source_binary_vector_local_evaluation
+#check RawR4.source_binary_expansion_support_card
+#print axioms RawR4.source_binary_expansion_support_card
+#check RawR4.source_binary_local_value_product_bound
+#print axioms RawR4.source_binary_local_value_product_bound
+#check RawR4.source_binary_integer_local_bound
+#print axioms RawR4.source_binary_integer_local_bound
+#check RawR4.source_binary_integer_three_place_upper
+#print axioms RawR4.source_binary_integer_three_place_upper
+#check RawR4.source_binary_product_bound_lt_one
+#print axioms RawR4.source_binary_product_bound_lt_one
+#check RawR4.source_binary_auxiliary_integer_analytic_contradiction
+#print axioms RawR4.source_binary_auxiliary_integer_analytic_contradiction

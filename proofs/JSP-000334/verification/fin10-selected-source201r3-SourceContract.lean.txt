@@ -1,0 +1,50 @@
+import SubspaceBridge.SourceSelectedSampleUpper10
+import SubspaceBridge.SourceMixedLiouville10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M201R3SourceContract
+open CompoundFeasibility CompoundFeasibility.OriginalDual10 CompoundFeasibility.SourceSelectedSet10
+open CompoundFeasibility.SchmidtNormal10 CompoundFeasibility.SourceHeightEnvelope10
+open CompoundFeasibility.SourceSampling10 CompoundFeasibility.SourceSelectedUpper10
+
+theorem actual_original_source_upper_contract10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (c2 c3 : Fin 10 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (c : Fin 3 → Fin 10 → ℝ) (hb : (∑ tau, ∑ i, c tau i) = 0)
+    (hc : ∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5)
+    (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ K T : ℝ, 0 < K ∧ 1 < T ∧
+      ∀ (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+        (eta D E B rho : ℝ) (m : ℕ) (hm : 0 < m)
+        (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+        (h : Fin m), T < (S.data.t h).val^5 →
+        ∀ s : MixedIndex10,
+          s ∈ roundedSelector10 ((S.data.t h).val^5) (epsilon/2)
+            (fun i => ((S.data.t h).val^5)^(c 0 i)) (c 1) (c 2) →
+          (L⁻¹.transpose *ᵥ integerReal (S.data.M h)) (s 0) ≠ 0 →
+          ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[2]))) (s 1) ≠ 0 →
+          ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[3]))) (s 2) ≠ 0 →
+          |(L⁻¹.transpose *ᵥ integerReal (S.data.M h)) (s 0)| *
+          ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[2]))) (s 1)‖ *
+          ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[3]))) (s 2)‖ ≤
+            K*((S.data.t h).val^5)^(-(epsilon/2)/4) := by
+  obtain ⟨K,T,hK,hT,hupper⟩ := original_sample_selected_upper10 A2 A3 L h2 h3 hL
+    c2 c3 hc2 hc3 c hb hc epsilon he
+  refine ⟨K,T,hK,hT,?_⟩
+  intro V v eta D E B rho m hm S h hlarge s hs _hn0 _hn2 _hn3
+  have hu := hupper V v eta D E B rho m hm S h hlarge s hs
+  rw [mixedProduct10_canonical A2 A3 L h2 h3 (S.data.M h) s] at hu
+  rw [original_p2_dual_norm10 A2 h2 (S.data.M h) (s 1),
+    original_p3_dual_norm10 A3 h3 (S.data.M h) (s 2)]
+  exact hu
+
+#print actual_original_source_upper_contract10
+#print axioms actual_original_source_upper_contract10
+#check CompoundFeasibility.SourceHeightEnvelope10.actual_same_normal_mixed_lower10
+
+end M201R3SourceContract

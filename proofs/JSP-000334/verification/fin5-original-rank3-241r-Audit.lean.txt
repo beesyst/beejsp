@@ -1,0 +1,25 @@
+import SubspaceBridge.SourceOriginalFlag241
+#check CompoundFeasibility.SourceFlag241.pairForm241
+#print axioms CompoundFeasibility.SourceFlag241.pairForm241
+#check CompoundFeasibility.SourceFlag241.radical241
+#print axioms CompoundFeasibility.SourceFlag241.radical241
+#check CompoundFeasibility.SourceFlag241.pairForm_apply241
+#print axioms CompoundFeasibility.SourceFlag241.pairForm_apply241
+#check CompoundFeasibility.SourceFlag241.pairForm_self241
+#print axioms CompoundFeasibility.SourceFlag241.pairForm_self241
+#check CompoundFeasibility.SourceFlag241.pairForm_swap241
+#print axioms CompoundFeasibility.SourceFlag241.pairForm_swap241
+#check CompoundFeasibility.SourceFlag241.pairForm_basis_pattern241
+#print axioms CompoundFeasibility.SourceFlag241.pairForm_basis_pattern241
+#check CompoundFeasibility.SourceFlag241.radical_rank3_241
+#print axioms CompoundFeasibility.SourceFlag241.radical_rank3_241
+#check CompoundFeasibility.SourceFlag241.original_rational_independent241
+#print axioms CompoundFeasibility.SourceFlag241.original_rational_independent241
+#check CompoundFeasibility.SourceFlag241.pairForm_integer_cast241
+#print axioms CompoundFeasibility.SourceFlag241.pairForm_integer_cast241
+#check CompoundFeasibility.SourceFlag241.exceptional_pair_nonzero241
+#print axioms CompoundFeasibility.SourceFlag241.exceptional_pair_nonzero241
+#check CompoundFeasibility.SourceFlag241.sameQ_radical_recovery241
+#print axioms CompoundFeasibility.SourceFlag241.sameQ_radical_recovery241
+#check CompoundFeasibility.SourceFlag241.source_original_fixed_rank3_241
+#print axioms CompoundFeasibility.SourceFlag241.source_original_fixed_rank3_241

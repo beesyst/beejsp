@@ -1,0 +1,143 @@
+import SubspaceBridge.SourceOriginalRank1Flag247
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace Rank1SourceChallenge247
+open CompoundFeasibility CompoundFeasibility.SourceFlag247
+def rawMinima246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ v : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ v ∧
+    (∀ i, ∃ z : Fin 5 → ℤ,
+      (∀ k, padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) k) ≤
+        (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 Q (c2 k)) : ℤ))) ∧
+      (∀ k, padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) k) ≤
+        (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 Q (c3 k)) : ℤ))) ∧
+      integerReal z = v i) ∧
+    ∀ i k, |(L *ᵥ v i) k| ≤ r * Q^(c0 k)}
+
+theorem rawMinima_eq246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) :
+    rawMinima246 A2 A3 L Q c0 c2 c3 j = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j := by
+  unfold rawMinima246 sourceMinima5
+  congr 1
+  ext r
+  constructor
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,?_⟩
+    · intro i
+      obtain ⟨z,h2,h3,he⟩ := hm i
+      exact ⟨z,⟨(lattice5_spec 2 A2 _ z).mpr h2,(lattice5_spec 3 A3 _ z).mpr h3⟩,he⟩
+    · intro i
+      exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mpr (hb i)
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,?_⟩
+    · intro i
+      obtain ⟨z,hz,he⟩ := hm i
+      exact ⟨z,(lattice5_spec 2 A2 _ z).mp hz.1,(lattice5_spec 3 A3 _ z).mp hz.2,he⟩
+    · intro i
+      exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mp (hb i)
+
+def rawGauge247 (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c : Fin 5 → ℝ)
+    (x : Fin 5 → ℝ) : ℝ := ‖fun i => (L *ᵥ x) i / Q^(c i)‖
+
+theorem rawGauge_eq247 (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c : Fin 5 → ℝ) (x : Fin 5 → ℝ) :
+    rawGauge247 L Q c x = coordinateGauge5 (originalCoordinates5 L hL Q hQ c) x := rfl
+
+theorem raw_annihilator247 (H : Submodule ℚ (Fin 5 → ℚ)) (x : Fin 5 → ℚ) :
+    x ∈ annihilator247 H ↔ ∀ w ∈ H, (∑ i, x i*w i) = 0 := by
+  change dotDual247 x ∈ H.dualAnnihilator ↔ _
+  rw [Submodule.mem_dualAnnihilator]
+  simp only [dotDual_apply247]
+
+theorem raw_adjugate_pairing247 (u : Matrix (Fin 5) (Fin 5) ℚ) (j : Fin 4) :
+    (∑ i, u 0 i*u.adjugate i j.castSucc.rev) = 0 := by
+  have h := first_four_pairing247 u j
+  rw [dotDual_apply247] at h
+  simpa only [Exterior54_246.signedQuad_adjugate246] using h
+
+theorem raw_four_wedge_recovery247 (u : Matrix (Fin 5) (Fin 5) ℚ)
+    (hu : LinearIndependent ℚ u) :
+    let H := Submodule.span ℚ (Set.range (fun j : Fin 4 => fun i => u.adjugate i j.castSucc.rev))
+    annihilator247 H = Submodule.span ℚ {u 0} ∧ Module.finrank ℚ (annihilator247 H) = 1 := by
+  have he (j : Fin 5) : Exterior54_246.signedQuad246 u j = fun i => u.adjugate i j := by
+    funext i
+    exact Exterior54_246.signedQuad_adjugate246 u j i
+  have hs := congrArg (fun v : Fin 4 → Fin 5 → ℚ => Submodule.span ℚ (Set.range v))
+    (funext (fun j : Fin 4 => he j.castSucc.rev))
+  have hr := four_wedge_annihilator247 u hu
+  dsimp only at hr ⊢
+  have hline := congrArg annihilator247 hs
+  have hdim := congrArg (fun H : Submodule ℚ (Fin 5 → ℚ) => Module.finrank ℚ (annihilator247 H)) hs
+  exact ⟨hline.symm.trans hr.1,hdim.symm.trans hr.2⟩
+
+theorem raw_source_original_fixed_rank1_247
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q)
+    (hgap : ∀ Q ∈ Omega, rawMinima246 A2 A3 L Q c0 c2 c3 0 <
+      rawMinima246 A2 A3 L Q c0 c2 c3 1*Q^(-delta)) :
+    ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = 1 ∧
+      ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+        ∀ Q ∈ V, ∃ u : Fin 5 → Fin 5 → ℤ,
+          LinearIndependent ℝ (fun j => integerReal (u j)) ∧
+          (∀ j i, padicNorm 2 ((A2 *ᵥ (fun k => (u j k : ℚ))) i) ≤
+            (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 Q (c2 i)) : ℤ))) ∧
+          (∀ j i, padicNorm 3 ((A3 *ᵥ (fun k => (u j k : ℚ))) i) ≤
+            (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 Q (c3 i)) : ℤ))) ∧
+          (∀ j, rawGauge247 L Q c0 (integerReal (u j)) = rawMinima246 A2 A3 L Q c0 c2 c3 j) ∧
+          u 0 ≠ 0 ∧ (fun i => (u 0 i : ℚ)) ≠ 0 ∧ (fun i => (u 0 i : ℚ)) ∈ P ∧
+          P = Submodule.span ℚ {fun i => (u 0 i : ℚ)} := by
+  have hs (Q : ℝ) (hQO : Q ∈ Omega) :
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 0 <
+        sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 1*Q^(-delta) := by
+    rw [← rawMinima_eq246 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 0,
+      ← rawMinima_eq246 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 1]
+    exact hgap Q hQO
+  obtain ⟨P,hP,V,hVO,hV,hfixed⟩ := source_original_fixed_rank1_247 A2 A3 L h2d h3d hLd hL hAlg
+    c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq hs
+  refine ⟨P,hP,V,hVO,hV,?_⟩
+  intro Q hQV
+  obtain ⟨u,hu,ha,hspan⟩ := hfixed Q hQV
+  let v : Fin 5 → Fin 5 → ℤ := fun j => (u j : Fin 5 → ℤ)
+  have hc := original_head_control247 v hu P hspan
+  refine ⟨v,hu,?_,?_,?_,hc.1,hc.2.1,hc.2.2,hspan⟩
+  · intro j
+    exact (lattice5_spec 2 A2 _ (v j)).mp (u j).property.1
+  · intro j
+    exact (lattice5_spec 3 A3 _ (v j)).mp (u j).property.2
+  · intro j
+    rw [rawGauge_eq247 L hL Q (hq Q (hVO hQV)),
+      rawMinima_eq246 A2 A3 L hL Q (hq Q (hVO hQV)) c0 c2 c3 j]
+    exact ha j
+
+end Rank1SourceChallenge247
+
+#check Rank1SourceChallenge247.rawMinima246
+#print Rank1SourceChallenge247.rawMinima246
+#print axioms Rank1SourceChallenge247.rawMinima246
+#check Rank1SourceChallenge247.rawMinima_eq246
+#print Rank1SourceChallenge247.rawMinima_eq246
+#print axioms Rank1SourceChallenge247.rawMinima_eq246
+#check Rank1SourceChallenge247.rawGauge247
+#print Rank1SourceChallenge247.rawGauge247
+#print axioms Rank1SourceChallenge247.rawGauge247
+#check Rank1SourceChallenge247.rawGauge_eq247
+#print Rank1SourceChallenge247.rawGauge_eq247
+#print axioms Rank1SourceChallenge247.rawGauge_eq247
+#check Rank1SourceChallenge247.raw_annihilator247
+#print Rank1SourceChallenge247.raw_annihilator247
+#print axioms Rank1SourceChallenge247.raw_annihilator247
+#check Rank1SourceChallenge247.raw_adjugate_pairing247
+#print Rank1SourceChallenge247.raw_adjugate_pairing247
+#print axioms Rank1SourceChallenge247.raw_adjugate_pairing247
+#check Rank1SourceChallenge247.raw_four_wedge_recovery247
+#print Rank1SourceChallenge247.raw_four_wedge_recovery247
+#print axioms Rank1SourceChallenge247.raw_four_wedge_recovery247
+#check Rank1SourceChallenge247.raw_source_original_fixed_rank1_247
+#print Rank1SourceChallenge247.raw_source_original_fixed_rank1_247
+#print axioms Rank1SourceChallenge247.raw_source_original_fixed_rank1_247

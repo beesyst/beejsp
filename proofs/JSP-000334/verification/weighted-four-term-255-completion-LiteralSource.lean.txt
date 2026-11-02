@@ -1,0 +1,580 @@
+import SubspaceBridge.FourTermSource3
+import SubspaceBridge.WeightedDiagonalCoefficients3
+import SubspaceBridge.WeightedDiagonalTransport3
+import SubspaceBridge.WeightedFixedProductCover3
+open JSP000334
+namespace Literal255F
+
+open scoped BigOperators Matrix
+
+theorem weighted_original_product_input3 (A B C D : ℚ) (L : ℕ) (t : Fin 3 → ℤ)
+    (ht : ∀ i,t i≠0) (hcoef : ∀ i,(t i : ℚ)=(L : ℚ)*(![B,C,D] i))
+    (p : fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup)
+    (hp : p∈WeightedFourTermSolutions A B C D) :
+    ∃ z : IntegerTriple,∃ s : fixedSUnitGroup,∃ g : ℕ,
+      0<g ∧ (g : ℤ)∣t 0*t 1*t 2 ∧ ∃ y : IntegerTriple,
+      (∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*(((![p.1,p.2.1,p.2.2] i) : ℚˣ) : ℚ)) ∧
+      (∀ i,t i*z i=(g : ℤ)*y i) ∧
+      weightedFixedProductTriples3 (fun i => (t i : ℚ)/g) ((L : ℚ)*A/g) y := by
+  let u : Fin 3 → fixedSUnitGroup := ![p.1,p.2.1,p.2.2]
+  obtain ⟨z,s,hz,hzn,hscale⟩ := weighted_primitive_sunit_coordinates3 u
+  obtain ⟨g,hg,hgd,y,hy,hyn,he⟩ := weighted_diagonal_primitive3 t z ht hz hzn
+  have hgn : (g : ℚ)≠0 := by exact_mod_cast ne_of_gt hg
+  have hcoord (i : Fin 3) : (y i : ℚ)=((t i : ℚ)/g)*((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ) := by
+    have hc := congrArg ((↑) : ℤ → ℚ) (he i)
+    push_cast at hc
+    rw [hscale i] at hc
+    field_simp
+    nlinarith only [hc]
+  have hrel : A+B*((u 0 : ℚˣ) : ℚ)+C*((u 1 : ℚˣ) : ℚ)+D*((u 2 : ℚˣ) : ℚ)=0 := hp.1
+  have hsum : (y 0 : ℚ)+y 1+y 2=-((L : ℚ)*A/g)*((s : ℚˣ) : ℚ) := by
+    rw [hcoord 0,hcoord 1,hcoord 2,hcoef 0,hcoef 1,hcoef 2]
+    change ((L : ℚ)*B/g)*((s : ℚˣ) : ℚ)*((u 0 : ℚˣ) : ℚ)+
+      ((L : ℚ)*C/g)*((s : ℚˣ) : ℚ)*((u 1 : ℚˣ) : ℚ)+
+      ((L : ℚ)*D/g)*((s : ℚˣ) : ℚ)*((u 2 : ℚˣ) : ℚ)=-((L : ℚ)*A/g)*((s : ℚˣ) : ℚ)
+    field_simp
+    linear_combination (L : ℚ)*((s : ℚˣ) : ℚ)*hrel
+  obtain ⟨hc,hs,_⟩ := weighted_diagonal_products3 t (L : ℚ) A g u s y hy hcoord hsum
+  exact ⟨z,s,g,hg,hgd,y,hscale,he,hy,hc,hs⟩
+
+
+open scoped BigOperators Matrix
+
+theorem weighted_four_term_proper_cover3 (A B C D : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0) :
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ p∈WeightedFourTermSolutions A B C D,
+        ∃ P∈F,![((p.1 : ℚˣ) : ℚ),((p.2.1 : ℚˣ) : ℚ),((p.2.2 : ℚˣ) : ℚ)]∈P := by
+  classical
+  obtain ⟨L,hL,t,ht,hcoef⟩ := weighted_coefficient_denominator3 B C D hB hC hD
+  let G : Set ℕ := {g | 0<g ∧ (g : ℤ)∣t 0*t 1*t 2}
+  have hG : G.Finite := weighted_diagonal_gcd_values_finite3 t ht
+  have hex (g : G) : ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ y : IntegerTriple,weightedFixedProductTriples3 (fun i => (t i : ℚ)/(g.val : ℚ))
+        ((L : ℚ)*A/(g.val : ℚ)) y → ∃ P∈F,(fun i => (y i : ℚ))∈P := by
+    have hgn : (g.val : ℚ)≠0 := by exact_mod_cast ne_of_gt g.property.1
+    exact weighted_fixed_product_cover3 (fun i => (t i : ℚ)/(g.val : ℚ)) ((L : ℚ)*A/(g.val : ℚ))
+      (fun i => div_ne_zero (by exact_mod_cast ht i) hgn)
+      (div_ne_zero (mul_ne_zero (by exact_mod_cast ne_of_gt hL) hA) hgn)
+  choose F hF hproper hcover using hex
+  let family : Set (Submodule ℚ (Fin 3 → ℚ)) :=
+    ⋃ g : G,(fun P : Submodule ℚ (Fin 3 → ℚ) => P.comap (weightedDiagonalMap3 t)) '' F g
+  have hfamily : family.Finite := by
+    letI := hG.fintype
+    exact Set.finite_iUnion (fun g => (hF g).image _)
+  refine ⟨family,hfamily,?_,?_⟩
+  · intro Q hQ
+    obtain ⟨g,hg⟩ := Set.mem_iUnion.mp hQ
+    obtain ⟨P,hPF,rfl⟩ := hg
+    exact weighted_diagonal_comap_proper3 t ht P (hproper g P hPF)
+  · intro p hp
+    obtain ⟨z,s,g,hg,hgd,y,hz,he,hy⟩ := weighted_original_product_input3 A B C D L t ht hcoef p hp
+    let gg : G := ⟨g,hg,hgd⟩
+    obtain ⟨P,hPF,hyP⟩ := hcover gg y hy
+    refine ⟨P.comap (weightedDiagonalMap3 t),Set.mem_iUnion.mpr ⟨gg,Set.mem_image_of_mem _ hPF⟩,?_⟩
+    have hm := weighted_diagonal_original_mem3 t z y g (![p.1,p.2.1,p.2.2]) s hz he P hyP
+    have hv : (fun i : Fin 3 => (((![p.1,p.2.1,p.2.2] i) : ℚˣ) : ℚ))=
+        ![((p.1 : ℚˣ) : ℚ),((p.2.1 : ℚˣ) : ℚ),((p.2.2 : ℚˣ) : ℚ)] := by
+      ext i
+      fin_cases i <;> rfl
+    rwa [hv] at hm
+
+
+open scoped BigOperators Matrix
+
+def weightedFourTermValues3 (p : fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup) : Fin 3 → ℚ :=
+  ![((p.1 : ℚˣ) : ℚ),((p.2.1 : ℚˣ) : ℚ),((p.2.2 : ℚˣ) : ℚ)]
+
+def weightedFourTermCoefficientFiber3 (A B C D b0 b1 b2 : ℚ) :
+    Set (fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup) :=
+  {p | p∈WeightedFourTermSolutions A B C D ∧
+    b0*((p.1 : ℚˣ) : ℚ)+b1*((p.2.1 : ℚˣ) : ℚ)+b2*((p.2.2 : ℚˣ) : ℚ)=0}
+
+theorem weighted_four_term_values_injective3 : Function.Injective weightedFourTermValues3 := by
+  intro p q he
+  apply Prod.ext
+  · apply Subtype.ext
+    apply Units.ext
+    exact congrFun he 0
+  · apply Prod.ext
+    · apply Subtype.ext
+      apply Units.ext
+      exact congrFun he 1
+    · apply Subtype.ext
+      apply Units.ext
+      exact congrFun he 2
+
+theorem weighted_four_term_pair_sums3 {A B C D : ℚ}
+    {p : fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup}
+    (hp : p∈WeightedFourTermSolutions A B C D) :
+    B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)≠0 ∧
+    B*((p.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)≠0 ∧
+    C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)≠0 := by
+  refine ⟨?_,?_,?_⟩
+  · simpa using hp.2 ({1,2} : Finset (Fin 4)) (by decide) (by decide)
+  · simpa using hp.2 ({1,3} : Finset (Fin 4)) (by decide) (by decide)
+  · simpa using hp.2 ({2,3} : Finset (Fin 4)) (by decide) (by decide)
+
+theorem weighted_four_term_projection_finite3
+    (S : Set (fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup))
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (f : (fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup) → fixedSUnitGroup × fixedSUnitGroup)
+    (recover : ℚ → ℚ → Fin 3 → ℚ)
+    (heq : ∀ p∈S,A+B*(((f p).1 : ℚˣ) : ℚ)+C*(((f p).2 : ℚˣ) : ℚ)=0)
+    (hrec : ∀ p∈S,recover (((f p).1 : ℚˣ) : ℚ) (((f p).2 : ℚˣ) : ℚ)=weightedFourTermValues3 p) :
+    S.Finite := by
+  have hf : (weightedFourTermValues3 '' S).Finite := by
+    apply ((weighted_fixed_sunit_pair_finite A B C hA hB hC).image
+      (fun q : fixedSUnitGroup × fixedSUnitGroup => recover ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ))).subset
+    rintro _ ⟨p,hp,rfl⟩
+    exact ⟨f p,heq p hp,hrec p hp⟩
+  exact hf.of_finite_image weighted_four_term_values_injective3.injOn
+
+theorem weighted_four_term_ratio_values3 (A B C D u v w : ℚ)
+    (hA : A≠0) (hu : u≠0) (he : A+B*u+C*v+D*w=0) :
+    B+C*(v/u)+D*(w/u)≠0 ∧
+    u=-A/(B+C*(v/u)+D*(w/u)) ∧ v=(v/u)*u ∧ w=(w/u)*u := by
+  have hv : v=(v/u)*u := by field_simp
+  have hw : w=(w/u)*u := by field_simp
+  have hscale : A+(B+C*(v/u)+D*(w/u))*u=0 := by
+    rw [hv,hw] at he
+    linear_combination he
+  have hd : B+C*(v/u)+D*(w/u)≠0 := by
+    intro h
+    rw [h,zero_mul,add_zero] at hscale
+    exact hA hscale
+  refine ⟨hd,?_,hv,hw⟩
+  apply (eq_div_iff hd).mpr
+  nlinarith only [hscale]
+
+
+open scoped BigOperators Matrix
+
+theorem weighted_four_term_fiber_all_nonzero3 (A B C D b0 b1 b2 : ℚ)
+    (hA : A≠0) (h0 : b0≠0) (h1 : b1≠0) (h2 : b2≠0) :
+    (weightedFourTermCoefficientFiber3 A B C D b0 b1 b2).Finite := by
+  apply weighted_four_term_projection_finite3 _ b0 b1 b2 h0 h1 h2
+    (fun p => (p.2.1/p.1,p.2.2/p.1))
+    (fun r q => ![-A/(B+C*r+D*q),r*(-A/(B+C*r+D*q)),q*(-A/(B+C*r+D*q))])
+  · intro p hp
+    simp only [Subgroup.coe_div,Units.val_div_eq_div_val]
+    have hu : ((p.1 : ℚˣ) : ℚ)≠0 := Units.ne_zero _
+    field_simp
+    linear_combination hp.2
+  · intro p hp
+    simp only [Subgroup.coe_div,Units.val_div_eq_div_val]
+    obtain ⟨hd,hu,hv,hw⟩ := weighted_four_term_ratio_values3 A B C D
+      ((p.1 : ℚˣ) : ℚ) ((p.2.1 : ℚˣ) : ℚ) ((p.2.2 : ℚˣ) : ℚ) hA (Units.ne_zero _) hp.1.1
+    ext i
+    fin_cases i
+    · exact hu.symm
+    · change (((p.2.1 : ℚˣ) : ℚ)/((p.1 : ℚˣ) : ℚ))*(-A/(B+C*(((p.2.1 : ℚˣ) : ℚ)/((p.1 : ℚˣ) : ℚ))+D*(((p.2.2 : ℚˣ) : ℚ)/((p.1 : ℚˣ) : ℚ))))=((p.2.1 : ℚˣ) : ℚ)
+      rw [← hu]
+      exact hv.symm
+    · change (((p.2.2 : ℚˣ) : ℚ)/((p.1 : ℚˣ) : ℚ))*(-A/(B+C*(((p.2.1 : ℚˣ) : ℚ)/((p.1 : ℚˣ) : ℚ))+D*(((p.2.2 : ℚˣ) : ℚ)/((p.1 : ℚˣ) : ℚ))))=((p.2.2 : ℚˣ) : ℚ)
+      rw [← hu]
+      exact hw.symm
+
+theorem weighted_four_term_fiber_zero_last3 (A B C D b0 b1 : ℚ)
+    (hA : A≠0) (hD : D≠0) (hb : b1≠0) :
+    (weightedFourTermCoefficientFiber3 A B C D b0 b1 0).Finite := by
+  let k : ℚ := -b0/b1
+  have hc : ∀ p∈weightedFourTermCoefficientFiber3 A B C D b0 b1 0,((p.2.1 : ℚˣ) : ℚ)=k*((p.1 : ℚˣ) : ℚ) := by
+    intro p hp
+    change ((p.2.1 : ℚˣ) : ℚ)=(-b0/b1)*((p.1 : ℚˣ) : ℚ)
+    rw [div_mul_eq_mul_div]
+    apply (eq_div_iff hb).mpr
+    have he := hp.2
+    nlinarith only [he]
+  by_cases hk : B+C*k=0
+  · apply Set.finite_empty.subset
+    intro p hp
+    have hn := (weighted_four_term_pair_sums3 hp.1).1
+    have he : B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)=(B+C*k)*((p.1 : ℚˣ) : ℚ) := by rw [hc p hp];ring
+    rw [hk,zero_mul] at he
+    exact False.elim (hn he)
+  · apply weighted_four_term_projection_finite3 _ A (B+C*k) D hA hk hD
+      (fun p => (p.1,p.2.2)) (fun u w => ![u,k*u,w])
+    · intro p hp
+      have hs := hp.1.1
+      rw [hc p hp] at hs
+      nlinarith only [hs]
+    · intro p hp
+      ext i
+      fin_cases i
+      · rfl
+      · exact (hc p hp).symm
+      · rfl
+
+theorem weighted_four_term_fiber_zero_middle3 (A B C D b0 b2 : ℚ)
+    (hA : A≠0) (hC : C≠0) (hb : b2≠0) :
+    (weightedFourTermCoefficientFiber3 A B C D b0 0 b2).Finite := by
+  let k : ℚ := -b0/b2
+  have hc : ∀ p∈weightedFourTermCoefficientFiber3 A B C D b0 0 b2,((p.2.2 : ℚˣ) : ℚ)=k*((p.1 : ℚˣ) : ℚ) := by
+    intro p hp
+    change ((p.2.2 : ℚˣ) : ℚ)=(-b0/b2)*((p.1 : ℚˣ) : ℚ)
+    rw [div_mul_eq_mul_div]
+    apply (eq_div_iff hb).mpr
+    have he := hp.2
+    nlinarith only [he]
+  by_cases hk : B+D*k=0
+  · apply Set.finite_empty.subset
+    intro p hp
+    have hn := (weighted_four_term_pair_sums3 hp.1).2.1
+    have he : B*((p.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=(B+D*k)*((p.1 : ℚˣ) : ℚ) := by rw [hc p hp];ring
+    rw [hk,zero_mul] at he
+    exact False.elim (hn he)
+  · apply weighted_four_term_projection_finite3 _ A (B+D*k) C hA hk hC
+      (fun p => (p.1,p.2.1)) (fun u v => ![u,v,k*u])
+    · intro p hp
+      have hs := hp.1.1
+      rw [hc p hp] at hs
+      nlinarith only [hs]
+    · intro p hp
+      ext i
+      fin_cases i
+      · rfl
+      · rfl
+      · exact (hc p hp).symm
+
+theorem weighted_four_term_fiber_zero_first3 (A B C D b1 b2 : ℚ)
+    (hA : A≠0) (hB : B≠0) (hb : b2≠0) :
+    (weightedFourTermCoefficientFiber3 A B C D 0 b1 b2).Finite := by
+  let k : ℚ := -b1/b2
+  have hc : ∀ p∈weightedFourTermCoefficientFiber3 A B C D 0 b1 b2,((p.2.2 : ℚˣ) : ℚ)=k*((p.2.1 : ℚˣ) : ℚ) := by
+    intro p hp
+    change ((p.2.2 : ℚˣ) : ℚ)=(-b1/b2)*((p.2.1 : ℚˣ) : ℚ)
+    rw [div_mul_eq_mul_div]
+    apply (eq_div_iff hb).mpr
+    have he := hp.2
+    nlinarith only [he]
+  by_cases hk : C+D*k=0
+  · apply Set.finite_empty.subset
+    intro p hp
+    have hn := (weighted_four_term_pair_sums3 hp.1).2.2
+    have he : C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=(C+D*k)*((p.2.1 : ℚˣ) : ℚ) := by rw [hc p hp];ring
+    rw [hk,zero_mul] at he
+    exact False.elim (hn he)
+  · apply weighted_four_term_projection_finite3 _ A B (C+D*k) hA hB hk
+      (fun p => (p.1,p.2.1)) (fun u v => ![u,v,k*v])
+    · intro p hp
+      have hs := hp.1.1
+      rw [hc p hp] at hs
+      nlinarith only [hs]
+    · intro p hp
+      ext i
+      fin_cases i
+      · rfl
+      · rfl
+      · exact (hc p hp).symm
+
+theorem weighted_four_term_coefficient_fiber_finite3 (A B C D b0 b1 b2 : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0)
+    (hb : b0≠0 ∨ b1≠0 ∨ b2≠0) :
+    (weightedFourTermCoefficientFiber3 A B C D b0 b1 b2).Finite := by
+  by_cases h0 : b0=0
+  · subst b0
+    by_cases h1 : b1=0
+    · subst b1
+      have h2 : b2≠0 := by simpa using hb
+      apply Set.finite_empty.subset
+      intro p hp
+      have he : b2*((p.2.2 : ℚˣ) : ℚ)=0 := by simpa using hp.2
+      exact False.elim ((mul_ne_zero h2 (Units.ne_zero (p.2.2 : ℚˣ))) he)
+    · by_cases h2 : b2=0
+      · subst b2
+        apply Set.finite_empty.subset
+        intro p hp
+        have he : b1*((p.2.1 : ℚˣ) : ℚ)=0 := by simpa using hp.2
+        exact False.elim ((mul_ne_zero h1 (Units.ne_zero (p.2.1 : ℚˣ))) he)
+      · exact weighted_four_term_fiber_zero_first3 A B C D b1 b2 hA hB h2
+  · by_cases h1 : b1=0
+    · subst b1
+      by_cases h2 : b2=0
+      · subst b2
+        apply Set.finite_empty.subset
+        intro p hp
+        have he : b0*((p.1 : ℚˣ) : ℚ)=0 := by simpa using hp.2
+        exact False.elim ((mul_ne_zero h0 (Units.ne_zero (p.1 : ℚˣ))) he)
+      · exact weighted_four_term_fiber_zero_middle3 A B C D b0 b2 hA hC h2
+    · by_cases h2 : b2=0
+      · subst b2
+        exact weighted_four_term_fiber_zero_last3 A B C D b0 b1 hA hD h1
+      · exact weighted_four_term_fiber_all_nonzero3 A B C D b0 b1 b2 hA h0 h1 h2
+
+
+open scoped BigOperators Matrix
+
+def weightedFourTermProperFiber3 (A B C D : ℚ) (P : Submodule ℚ (Fin 3 → ℚ)) :
+    Set (fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup) :=
+  {p | p∈WeightedFourTermSolutions A B C D ∧ weightedFourTermValues3 p∈P}
+
+theorem weighted_four_term_proper_fiber_finite3 (A B C D : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤) :
+    (weightedFourTermProperFiber3 A B C D P).Finite := by
+  obtain ⟨b0,b1,b2,hb,hann⟩ := four_term_proper_annihilator P hP
+  apply (weighted_four_term_coefficient_fiber_finite3 A B C D b0 b1 b2 hA hB hC hD hb).subset
+  intro p hp
+  refine ⟨hp.1,?_⟩
+  exact hann (weightedFourTermValues3 p) hp.2
+
+theorem weighted_four_term_finite (A B C D : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0) :
+    (WeightedFourTermSolutions A B C D).Finite := by
+  obtain ⟨F,hF,hproper,hcover⟩ := weighted_four_term_proper_cover3 A B C D hA hB hC hD
+  have hf : (⋃ P∈F,weightedFourTermProperFiber3 A B C D P).Finite :=
+    hF.biUnion (fun P hPF => weighted_four_term_proper_fiber_finite3 A B C D hA hB hC hD P (hproper P hPF))
+  apply hf.subset
+  intro p hp
+  obtain ⟨P,hPF,hpP⟩ := hcover p hp
+  exact Set.mem_iUnion.mpr ⟨P,Set.mem_iUnion.mpr ⟨hPF,hp,hpP⟩⟩
+
+end Literal255F
+namespace Raw255F
+noncomputable section
+open scoped Matrix BigOperators
+open JSP000334
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {n : ℕ} (x : Fin n → ℚ) : Prop := ∀ I : Finset (Fin n),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Weighted (A B C D : ℚ) : Set (Group × Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=0 ∧
+    Nondeg ![A,B*((p.1 : ℚˣ) : ℚ),C*((p.2.1 : ℚˣ) : ℚ),D*((p.2.2 : ℚˣ) : ℚ)]}
+def Primitive (z : Fin 3 → ℤ) : Prop := ∃ c : Fin 3 → ℤ,∑ i,c i*z i=1
+def Height (z : Fin 3 → ℤ) : ℚ := max |(z 0 : ℚ)| (max |(z 1 : ℚ)| |(z 2 : ℚ)|)
+def Product (q : ℚ) : ℚ := |q| *padicNorm 2 q*padicNorm 3 q
+def FixedProducts (k : Fin 3 → ℚ) (a : ℚ) (y : IntegerTriple) : Prop :=
+  Primitive y ∧ (∀ i,Product (y i : ℚ)=Product (k i)) ∧ Product ((y 0 : ℚ)+y 1+y 2)=Product a
+def IntegerDiagonal (t : Fin 3 → ℤ) : Matrix (Fin 3) (Fin 3) ℚ := Matrix.diagonal (fun i => (t i : ℚ))
+def Diagonal (t : Fin 3 → ℤ) : (Fin 3 → ℚ) →ₗ[ℚ] (Fin 3 → ℚ) := Matrix.toLin' (IntegerDiagonal t)
+def K (t : Fin 3 → ℤ) (L A : ℚ) (g : ℕ) : ℚ :=
+  Product ((t 0 : ℚ)/g)*Product ((t 1 : ℚ)/g)*Product ((t 2 : ℚ)/g)*Product (L*A/g)
+def Pairs (A B C : ℚ) : Set (Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+def Raw_weightedFourTermValues3 (p : Group × Group × Group) : Fin 3 → ℚ :=
+  ![((p.1 : ℚˣ) : ℚ),((p.2.1 : ℚˣ) : ℚ),((p.2.2 : ℚˣ) : ℚ)]
+
+def Raw_weightedFourTermCoefficientFiber3 (A B C D b0 b1 b2 : ℚ) :
+    Set (Group × Group × Group) :=
+  {p | p∈Weighted A B C D ∧
+    b0*((p.1 : ℚˣ) : ℚ)+b1*((p.2.1 : ℚˣ) : ℚ)+b2*((p.2.2 : ℚˣ) : ℚ)=0}
+
+def Raw_weightedFourTermProperFiber3 (A B C D : ℚ) (P : Submodule ℚ (Fin 3 → ℚ)) :
+    Set (Group × Group × Group) :=
+  {p | p∈Weighted A B C D ∧ Raw_weightedFourTermValues3 p∈P}
+
+theorem source_weighted_original_product_input3 : ∀ (A B C D : ℚ) (L : ℕ) (t : Fin 3 → ℤ)
+    (ht : ∀ i,t i≠0) (hcoef : ∀ i,(t i : ℚ)=(L : ℚ)*(![B,C,D] i))
+    (p : Group × Group × Group)
+    (hp : p∈Weighted A B C D),
+
+    ∃ z : IntegerTriple,∃ s : Group,∃ g : ℕ,
+      0<g ∧ (g : ℤ)∣t 0*t 1*t 2 ∧ ∃ y : IntegerTriple,
+      (∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*(((![p.1,p.2.1,p.2.2] i) : ℚˣ) : ℚ)) ∧
+      (∀ i,t i*z i=(g : ℤ)*y i) ∧
+      FixedProducts (fun i => (t i : ℚ)/g) ((L : ℚ)*A/g) y :=
+  @Literal255F.weighted_original_product_input3
+
+theorem source_weighted_four_term_proper_cover3 : ∀ (A B C D : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0),
+
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ p∈Weighted A B C D,
+        ∃ P∈F,![((p.1 : ℚˣ) : ℚ),((p.2.1 : ℚˣ) : ℚ),((p.2.2 : ℚˣ) : ℚ)]∈P :=
+  @Literal255F.weighted_four_term_proper_cover3
+
+theorem source_weighted_four_term_values_injective3 :
+ Function.Injective Raw_weightedFourTermValues3 :=
+  @Literal255F.weighted_four_term_values_injective3
+
+theorem source_weighted_four_term_pair_sums3 : ∀ {A B C D : ℚ}
+    {p : Group × Group × Group}
+    (hp : p∈Weighted A B C D),
+
+    B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)≠0 ∧
+    B*((p.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)≠0 ∧
+    C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)≠0 :=
+  @Literal255F.weighted_four_term_pair_sums3
+
+theorem source_weighted_four_term_projection_finite3 : ∀ (S : Set (Group × Group × Group))
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (f : (Group × Group × Group) → Group × Group)
+    (recover : ℚ → ℚ → Fin 3 → ℚ)
+    (heq : ∀ p∈S,A+B*(((f p).1 : ℚˣ) : ℚ)+C*(((f p).2 : ℚˣ) : ℚ)=0)
+    (hrec : ∀ p∈S,recover (((f p).1 : ℚˣ) : ℚ) (((f p).2 : ℚˣ) : ℚ)=Raw_weightedFourTermValues3 p),
+
+    S.Finite :=
+  @Literal255F.weighted_four_term_projection_finite3
+
+theorem source_weighted_four_term_ratio_values3 : ∀ (A B C D u v w : ℚ)
+    (hA : A≠0) (hu : u≠0) (he : A+B*u+C*v+D*w=0),
+
+    B+C*(v/u)+D*(w/u)≠0 ∧
+    u=-A/(B+C*(v/u)+D*(w/u)) ∧ v=(v/u)*u ∧ w=(w/u)*u :=
+  @Literal255F.weighted_four_term_ratio_values3
+
+theorem source_weighted_four_term_fiber_all_nonzero3 : ∀ (A B C D b0 b1 b2 : ℚ)
+    (hA : A≠0) (h0 : b0≠0) (h1 : b1≠0) (h2 : b2≠0),
+
+    (Raw_weightedFourTermCoefficientFiber3 A B C D b0 b1 b2).Finite :=
+  @Literal255F.weighted_four_term_fiber_all_nonzero3
+
+theorem source_weighted_four_term_fiber_zero_last3 : ∀ (A B C D b0 b1 : ℚ)
+    (hA : A≠0) (hD : D≠0) (hb : b1≠0),
+
+    (Raw_weightedFourTermCoefficientFiber3 A B C D b0 b1 0).Finite :=
+  @Literal255F.weighted_four_term_fiber_zero_last3
+
+theorem source_weighted_four_term_fiber_zero_middle3 : ∀ (A B C D b0 b2 : ℚ)
+    (hA : A≠0) (hC : C≠0) (hb : b2≠0),
+
+    (Raw_weightedFourTermCoefficientFiber3 A B C D b0 0 b2).Finite :=
+  @Literal255F.weighted_four_term_fiber_zero_middle3
+
+theorem source_weighted_four_term_fiber_zero_first3 : ∀ (A B C D b1 b2 : ℚ)
+    (hA : A≠0) (hB : B≠0) (hb : b2≠0),
+
+    (Raw_weightedFourTermCoefficientFiber3 A B C D 0 b1 b2).Finite :=
+  @Literal255F.weighted_four_term_fiber_zero_first3
+
+theorem source_weighted_four_term_coefficient_fiber_finite3 : ∀ (A B C D b0 b1 b2 : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0)
+    (hb : b0≠0 ∨ b1≠0 ∨ b2≠0),
+
+    (Raw_weightedFourTermCoefficientFiber3 A B C D b0 b1 b2).Finite :=
+  @Literal255F.weighted_four_term_coefficient_fiber_finite3
+
+theorem source_weighted_four_term_proper_fiber_finite3 : ∀ (A B C D : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤),
+
+    (Raw_weightedFourTermProperFiber3 A B C D P).Finite :=
+  @Literal255F.weighted_four_term_proper_fiber_finite3
+
+theorem source_weighted_four_term_finite : ∀ (A B C D : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0),
+
+    (Weighted A B C D).Finite :=
+  @Literal255F.weighted_four_term_finite
+
+theorem source_weighted_coefficient_denominator3 : ∀ (B C D : ℚ) (hB : B≠0) (hC : C≠0) (hD : D≠0),
+
+    ∃ L : ℕ,0<L ∧ ∃ t : Fin 3 → ℤ,(∀ i,t i≠0) ∧
+      ∀ i,(t i : ℚ)=(L : ℚ)*(![B,C,D] i) :=
+  @JSP000334.weighted_coefficient_denominator3
+
+theorem source_weighted_primitive_sunit_coordinates3 : ∀ (u : Fin 3 → Group),
+
+    ∃ z : Fin 3 → ℤ,∃ s : Group,Primitive z ∧ (∀ i,z i≠0) ∧
+      ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ) :=
+  @JSP000334.weighted_primitive_sunit_coordinates3
+
+theorem source_weighted_diagonal_primitive3 : ∀ (t z : Fin 3 → ℤ) (ht : ∀ i,t i≠0)
+    (hz : Primitive z) (hzn : ∀ i,z i≠0),
+
+    ∃ g : ℕ,0<g ∧ (g : ℤ)∣t 0*t 1*t 2 ∧ ∃ y : Fin 3 → ℤ,
+      Primitive y ∧ (∀ i,y i≠0) ∧ ∀ i,t i*z i=(g : ℤ)*y i :=
+  @JSP000334.weighted_diagonal_primitive3
+
+theorem source_weighted_diagonal_products3 : ∀ (t : Fin 3 → ℤ) (L A : ℚ) (g : ℕ)
+    (u : Fin 3 → Group) (s : Group) (y : Fin 3 → ℤ)
+    (hy : Primitive y)
+    (hcoord : ∀ i,(y i : ℚ)=((t i : ℚ)/g)*((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ))
+    (hsum : (y 0 : ℚ)+y 1+y 2=-(L*A/g)*((s : ℚˣ) : ℚ)),
+
+    (∀ i,Product (y i : ℚ)=Product ((t i : ℚ)/g)) ∧
+    Product ((y 0 : ℚ)+y 1+y 2)=Product (L*A/g) ∧
+    ∃ choice : Fin 3 → Fin 3,
+      tripleChoiceFormsProduct choice (fun i => (y i : ℚ))*Height y=K t L A g :=
+  @JSP000334.weighted_diagonal_products3
+
+theorem source_weighted_diagonal_gcd_values_finite3 : ∀ (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0),
+
+    {g : ℕ | 0<g ∧ (g : ℤ)∣t 0*t 1*t 2}.Finite :=
+  @JSP000334.weighted_diagonal_gcd_values_finite3
+
+theorem source_weighted_fixed_product_cover3 : ∀ (k : Fin 3 → ℚ) (a : ℚ) (hk : ∀ i,k i≠0) (ha : a≠0),
+
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ y : IntegerTriple,FixedProducts k a y → ∃ P∈F,(fun i => (y i : ℚ))∈P :=
+  @JSP000334.weighted_fixed_product_cover3
+
+theorem source_weighted_diagonal_comap_proper3 : ∀ (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤),
+
+    P.comap (Diagonal t)≠⊤ :=
+  @JSP000334.weighted_diagonal_comap_proper3
+
+theorem source_weighted_diagonal_original_mem3 : ∀ (t z y : Fin 3 → ℤ)
+    (g : ℕ) (u : Fin 3 → Group) (s : Group)
+    (hz : ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ))
+    (he : ∀ i,t i*z i=(g : ℤ)*y i)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hyP : (fun i => (y i : ℚ))∈P),
+
+    (fun i => ((u i : ℚˣ) : ℚ))∈P.comap (Diagonal t) :=
+  @JSP000334.weighted_diagonal_original_mem3
+
+theorem source_weighted_fixed_sunit_pair_finite : ∀ (A B C : ℚ)
+    (hA : A ≠ 0)
+    (hB : B ≠ 0)
+    (hC : C ≠ 0),
+
+    (Pairs A B C).Finite :=
+  @JSP000334.weighted_fixed_sunit_pair_finite
+
+theorem source_four_term_proper_annihilator : ∀ (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤),
+
+    ∃ a0 a1 a2 : ℚ,(a0≠0 ∨ a1≠0 ∨ a2≠0) ∧
+      ∀ y∈P,a0*y 0+a1*y 1+a2*y 2=0 :=
+  @JSP000334.four_term_proper_annihilator
+
+end
+end Raw255F
+#check Raw255F.source_weighted_original_product_input3
+#print axioms Raw255F.source_weighted_original_product_input3
+#check Raw255F.source_weighted_four_term_proper_cover3
+#print axioms Raw255F.source_weighted_four_term_proper_cover3
+#check Raw255F.source_weighted_four_term_values_injective3
+#print axioms Raw255F.source_weighted_four_term_values_injective3
+#check Raw255F.source_weighted_four_term_pair_sums3
+#print axioms Raw255F.source_weighted_four_term_pair_sums3
+#check Raw255F.source_weighted_four_term_projection_finite3
+#print axioms Raw255F.source_weighted_four_term_projection_finite3
+#check Raw255F.source_weighted_four_term_ratio_values3
+#print axioms Raw255F.source_weighted_four_term_ratio_values3
+#check Raw255F.source_weighted_four_term_fiber_all_nonzero3
+#print axioms Raw255F.source_weighted_four_term_fiber_all_nonzero3
+#check Raw255F.source_weighted_four_term_fiber_zero_last3
+#print axioms Raw255F.source_weighted_four_term_fiber_zero_last3
+#check Raw255F.source_weighted_four_term_fiber_zero_middle3
+#print axioms Raw255F.source_weighted_four_term_fiber_zero_middle3
+#check Raw255F.source_weighted_four_term_fiber_zero_first3
+#print axioms Raw255F.source_weighted_four_term_fiber_zero_first3
+#check Raw255F.source_weighted_four_term_coefficient_fiber_finite3
+#print axioms Raw255F.source_weighted_four_term_coefficient_fiber_finite3
+#check Raw255F.source_weighted_four_term_proper_fiber_finite3
+#print axioms Raw255F.source_weighted_four_term_proper_fiber_finite3
+#check Raw255F.source_weighted_four_term_finite
+#print axioms Raw255F.source_weighted_four_term_finite
+#check Raw255F.source_weighted_coefficient_denominator3
+#print axioms Raw255F.source_weighted_coefficient_denominator3
+#check Raw255F.source_weighted_primitive_sunit_coordinates3
+#print axioms Raw255F.source_weighted_primitive_sunit_coordinates3
+#check Raw255F.source_weighted_diagonal_primitive3
+#print axioms Raw255F.source_weighted_diagonal_primitive3
+#check Raw255F.source_weighted_diagonal_products3
+#print axioms Raw255F.source_weighted_diagonal_products3
+#check Raw255F.source_weighted_diagonal_gcd_values_finite3
+#print axioms Raw255F.source_weighted_diagonal_gcd_values_finite3
+#check Raw255F.source_weighted_fixed_product_cover3
+#print axioms Raw255F.source_weighted_fixed_product_cover3
+#check Raw255F.source_weighted_diagonal_comap_proper3
+#print axioms Raw255F.source_weighted_diagonal_comap_proper3
+#check Raw255F.source_weighted_diagonal_original_mem3
+#print axioms Raw255F.source_weighted_diagonal_original_mem3
+#check Raw255F.source_weighted_fixed_sunit_pair_finite
+#print axioms Raw255F.source_weighted_fixed_sunit_pair_finite
+#check Raw255F.source_four_term_proper_annihilator
+#print axioms Raw255F.source_four_term_proper_annihilator

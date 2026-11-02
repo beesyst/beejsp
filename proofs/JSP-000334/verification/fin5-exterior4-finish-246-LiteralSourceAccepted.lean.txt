@@ -1,0 +1,668 @@
+import SubspaceBridge.SourceExterior54Group246L
+import SubspaceBridge.MinimaProduct5
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.Exterior54Literal246F
+open CompoundFeasibility.Exterior54_246
+
+theorem compound_det4246 {R : Type*} [CommRing R]
+    (A : Matrix (Fin 5) (Fin 5) R) : (compound4246 A).det = A.det^4 := by
+  simp [compound4246, Matrix.det_transpose, Matrix.det_adjugate]
+
+theorem compound_det_one4246 {R : Type*} [CommRing R]
+    (A : Matrix (Fin 5) (Fin 5) R) (hA : A.det = 1) : (compound4246 A).det = 1 := by
+  rw [compound_det4246, hA, one_pow]
+
+theorem compound_unit4246 {R : Type*} [CommRing R]
+    (A : Matrix (Fin 5) (Fin 5) R) (hA : IsUnit A) : IsUnit (compound4246 A) := by
+  apply (Matrix.isUnit_iff_isUnit_det _).mpr
+  rw [compound_det4246]
+  exact ((Matrix.isUnit_iff_isUnit_det _).mp hA).pow 4
+
+theorem compound_algebraic4246 (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hL : ∀ i j, IsAlgebraic ℚ (L i j)) : ∀ i j, IsAlgebraic ℚ (compound4246 L i j) := by
+  intro i j
+  rw [compound_minor4246]
+  apply IsAlgebraic.mul
+  · exact (isAlgebraic_one.neg (R := ℚ)).pow _
+  · exact (IsIntegral.det (fun k l => (hL (i.succAbove k) (j.succAbove l)).isIntegral)).isAlgebraic
+
+theorem fourWeights_sum246 (c : Fin 5 → ℝ) :
+    (∑ i, fourWeights246 c i) = 4 * ∑ i, c i := by
+  simp [fourWeights246, Fin.sum_univ_succ, Fin.succAbove]
+  ring
+
+theorem normalized_real_bound4246 (c : Fin 5 → ℝ) (hc : ∀ i, |c i| ≤ 1) :
+    ∀ i, |normalizedWeights4246 c i| ≤ 1 := by
+  intro i
+  have hs : |fourWeights246 c i| ≤ 4 := by
+    calc
+      _ ≤ ∑ k : Fin 4, |c (i.succAbove k)| := Finset.abs_sum_le_sum_abs _ _
+      _ ≤ ∑ _k : Fin 4, (1 : ℝ) := Finset.sum_le_sum (fun k _ => hc _)
+      _ = 4 := by norm_num
+  unfold normalizedWeights4246
+  rw [abs_div]
+  norm_num only [show |(4 : ℝ)| = 4 by norm_num]
+  linarith
+
+theorem normalized_finite_bounds4246 (c : Fin 5 → ℝ)
+    (hc : ∀ i, -1 ≤ c i ∧ c i ≤ 0) :
+    ∀ i, -1 ≤ normalizedWeights4246 c i ∧ normalizedWeights4246 c i ≤ 0 := by
+  intro i
+  have hlo : (∑ _k : Fin 4, (-1 : ℝ)) ≤ fourWeights246 c i :=
+    Finset.sum_le_sum (fun k _ => (hc _).1)
+  have hhi : fourWeights246 c i ≤ 0 := Finset.sum_nonpos (fun k _ => (hc _).2)
+  norm_num at hlo
+  unfold normalizedWeights4246
+  constructor <;> linarith
+
+theorem normalized_balance4246 (c0 c2 c3 : Fin 5 → ℝ)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) :
+    (∑ i, (normalizedWeights4246 c0 i+normalizedWeights4246 c2 i+
+      normalizedWeights4246 c3 i)) = 0 := by
+  simp only [normalizedWeights4246, Finset.sum_add_distrib, ← Finset.sum_div,
+    fourWeights_sum246] at *
+  linarith
+
+
+
+theorem real_wedge_bound4246 (y : Fin 4 → Fin 5 → ℝ) (r : Fin 4 → ℝ)
+    (t : Fin 5 → ℝ) (hy : ∀ j k, |y j k| ≤ r j * t k) (i : Fin 5) :
+    |wedge4246 y i| ≤ 24 * (∏ j, r j) * (∏ k : Fin 4, t (i.succAbove k)) := by
+  let M : Matrix (Fin 5) (Fin 5) ℝ := Matrix.of (Fin.snoc y (0 : Fin 5 → ℝ))
+  change |M.adjugate i (Fin.last 4)| ≤ _
+  rw [Matrix.adjugate_fin_succ_eq_det_submatrix, abs_mul, abs_pow, abs_neg, abs_one]
+  simp only [one_pow, one_mul]
+  have h := OriginalDual10.det_row_column_bounds10
+    (M.submatrix (Fin.last 4).succAbove i.succAbove) r (fun k => t (i.succAbove k))
+    (by
+      intro j k
+      simpa only [Matrix.submatrix_apply, Fin.succAbove_last, M, Matrix.of_apply,
+        Fin.snoc_castSucc] using hy j (i.succAbove k))
+  simpa only [show (Nat.factorial 4 : ℝ) = 24 by norm_num [Nat.factorial]] using h
+
+theorem real_source_wedge4246 (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (x : Fin 4 → Fin 5 → ℤ) (r : Fin 4 → ℝ) (Q : ℝ) (hQ : 1 < Q)
+    (c0 : Fin 5 → ℝ)
+    (hx : ∀ j k, |(L *ᵥ integerReal (x j)) k| ≤ r j * Q^(c0 k)) (i : Fin 5) :
+    |(compound4246 L *ᵥ integerReal (wedge4246 x)) i| ≤
+      24 * (∏ j, r j) * Q^(fourWeights246 c0 i) := by
+  have he : integerReal (wedge4246 x) = wedge4246 (fun j => integerReal (x j)) :=
+    wedge_map4246 (Int.castRingHom ℝ) x
+  rw [he, wedge_transform4246]
+  have h := real_wedge_bound4246 (fun j => L *ᵥ integerReal (x j)) r
+    (fun k => Q^(c0 k)) hx i
+  have hp : (∏ k : Fin 4, Q^(c0 (i.succAbove k))) = Q^(fourWeights246 c0 i) := by
+    rw [← Real.rpow_sum_of_pos (zero_lt_one.trans hQ)]
+    rfl
+  rw [hp] at h
+  exact h
+
+
+
+theorem powered_gt_one4246 (Q : ℝ) (hQ : 1 < Q) : 1 < Q^4 :=
+  one_lt_pow₀ hQ (by decide)
+
+theorem powered_rpow4246 (Q a : ℝ) (hQ : 1 < Q) : (Q^4)^(a/4) = Q^a := by
+  rw [← Real.rpow_natCast, ← Real.rpow_mul (zero_lt_one.trans hQ).le]
+  congr 1
+  ring
+
+theorem powered_body4246 (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 : Fin 5 → ℝ) (x : Fin 5 → ℝ) (r : ℝ) :
+    coordinateGauge5 (originalCoordinates5 (compound4246 L) (compound_unit4246 L hL)
+      (Q^4) (powered_gt_one4246 Q hQ) (normalizedWeights4246 c0)) x ≤ r ↔
+      ∀ i, |(compound4246 L *ᵥ x) i| ≤ r * Q^(fourWeights246 c0 i) := by
+  change ‖originalCoordinates5 (compound4246 L) (compound_unit4246 L hL)
+    (Q^4) (powered_gt_one4246 Q hQ) (normalizedWeights4246 c0) x‖ ≤ r ↔ _
+  rw [originalCoordinates5_bounds]
+  simp only [normalizedWeights4246, powered_rpow4246 Q _ hQ]
+
+theorem powered_source_wedge4246 (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (x : Fin 4 → Fin 5 → ℤ) (r : Fin 4 → ℝ) (Q : ℝ) (hQ : 1 < Q)
+    (c0 : Fin 5 → ℝ)
+    (hx : ∀ j k, |(L *ᵥ integerReal (x j)) k| ≤ r j * Q^(c0 k)) :
+    coordinateGauge5 (originalCoordinates5 (compound4246 L) (compound_unit4246 L hL)
+      (Q^4) (powered_gt_one4246 Q hQ) (normalizedWeights4246 c0))
+      (integerReal (wedge4246 x)) ≤ 24 * ∏ j, r j := by
+  exact (powered_body4246 L hL Q hQ c0 _ _).mpr
+    (real_source_wedge4246 L x r Q hQ c0 hx)
+
+
+
+def signedQuad246 {R : Type*} [CommRing R] (u : Fin 5 → Fin 5 → R) (j : Fin 5) : Fin 5 → R :=
+  (-1 : R)^j.val • wedge4246 (fun k : Fin 4 => u (j.succAbove k))
+
+theorem signedQuad_adjugate246 {R : Type*} [CommRing R]
+    (u : Matrix (Fin 5) (Fin 5) R) (j i : Fin 5) :
+    signedQuad246 u j i = u.adjugate i j := by
+  let M : Matrix (Fin 5) (Fin 5) R :=
+    Matrix.of (Fin.snoc (fun k : Fin 4 => u (j.succAbove k)) (0 : Fin 5 → R))
+  have he : M.submatrix (Fin.last 4).succAbove i.succAbove =
+      u.submatrix j.succAbove i.succAbove := by
+    ext k l
+    simp only [Matrix.submatrix_apply, M, Matrix.of_apply, Fin.succAbove_last, Fin.snoc_castSucc]
+  change (-1 : R)^j.val * M.adjugate i (Fin.last 4) = _
+  rw [Matrix.adjugate_fin_succ_eq_det_submatrix, he,
+    Matrix.adjugate_fin_succ_eq_det_submatrix]
+  have hs : (-1 : R)^j.val * (-1)^(i.val+4) = (-1)^(i.val+j.val) := by
+    simp only [pow_add, show (-1 : R)^4 = 1 by ring, mul_one]
+    ring
+  rw [← mul_assoc]
+  simpa only [Fin.val_last, add_comm] using
+    congrArg (fun z : R => z * (u.submatrix j.succAbove i.succAbove).det) hs
+
+theorem signedQuad_independent246 (u : Fin 5 → Fin 5 → ℝ)
+    (hu : LinearIndependent ℝ u) : LinearIndependent ℝ (signedQuad246 u) := by
+  have he : signedQuad246 u = Matrix.transpose (Matrix.adjugate (u : Matrix (Fin 5) (Fin 5) ℝ)) := by
+    funext j i
+    exact signedQuad_adjugate246 u j i
+  rw [he]
+  exact Matrix.linearIndependent_rows_iff_isUnit.mpr
+    (compound_unit4246 u (Matrix.linearIndependent_rows_iff_isUnit.mp hu))
+
+theorem signedQuad_cast246 (u : Fin 5 → Fin 5 → ℤ) (j : Fin 5) :
+    integerReal (signedQuad246 u j) = signedQuad246 (fun k => integerReal (u k)) j := by
+  funext i
+  change ((signedQuad246 u j i : ℤ) : ℝ) = _
+  rw [signedQuad_adjugate246, signedQuad_adjugate246]
+  have h := (Int.castRingHom ℝ).map_adjugate (u : Matrix (Fin 5) (Fin 5) ℤ)
+  exact congrArg (fun M : Matrix (Fin 5) (Fin 5) ℝ => M i j) h
+
+theorem integer_signedQuad_independent246 (u : Fin 5 → Fin 5 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j))) :
+    LinearIndependent ℝ (fun j => integerReal (signedQuad246 u j)) := by
+  simp_rw [signedQuad_cast246]
+  exact signedQuad_independent246 _ hu
+
+theorem signedQuad_source_group246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3) (j : Fin 5) :
+    signedQuad246 (fun k => (u k : Fin 5 → ℤ)) j ∈
+      originalSourceGroup5 (compound4246 A2) (compound4246 A3) (Q^4)
+        (normalizedWeights4246 c2) (normalizedWeights4246 c3) := by
+  exact AddSubgroup.zsmul_mem _ (wedge_source_group4246 A2 A3 Q c2 c3
+    (fun k => u (j.succAbove k))) ((-1 : ℤ)^j.val)
+
+
+
+def fourProducts246 (a : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  ∏ k : Fin 4, a (j.rev.succAbove k)
+
+theorem fourProducts_pos246 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i) :
+    ∀ j, 0 < fourProducts246 a j := fun _ => Finset.prod_pos (fun _ _ => ha _)
+
+theorem fourProducts_mono246 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i) (hm : Monotone a) :
+    Monotone (fourProducts246 a) := by
+  have hi : ∀ j k : Fin 5, j ≤ k → ∀ t : Fin 4, j.rev.succAbove t ≤ k.rev.succAbove t := by decide
+  intro j k hjk
+  exact Finset.prod_le_prod (fun t _ => (ha _).le) (fun t _ => hm (hi j k hjk t))
+
+theorem fourProducts_values246 (a : Fin 5 → ℝ) :
+    fourProducts246 a 0 = a 0*a 1*a 2*a 3 ∧
+    fourProducts246 a 1 = a 0*a 1*a 2*a 4 ∧
+    fourProducts246 a 2 = a 0*a 1*a 3*a 4 ∧
+    fourProducts246 a 3 = a 0*a 2*a 3*a 4 ∧
+    fourProducts246 a 4 = a 1*a 2*a 3*a 4 := by
+  refine ⟨?_,?_,?_,?_,?_⟩
+  all_goals simp only [fourProducts246, Fin.prod_univ_succ, Fin.prod_univ_zero]
+  · change a 0 * (a 1 * (a 2 * (a 3 * 1))) = _
+    ring
+  · change a 0 * (a 1 * (a 2 * (a 4 * 1))) = _
+    ring
+  · change a 0 * (a 1 * (a 3 * (a 4 * 1))) = _
+    ring
+  · change a 0 * (a 2 * (a 3 * (a 4 * 1))) = _
+    ring
+  · change a 1 * (a 2 * (a 3 * (a 4 * 1))) = _
+    ring
+
+theorem fourProducts_product246 (a : Fin 5 → ℝ) :
+    (∏ j, fourProducts246 a j) = (∏ i, a i)^4 := by
+  simp [fourProducts246, Fin.prod_univ_succ, Fin.rev, Fin.succAbove]
+  ring
+
+theorem fourProducts_gap246 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i)
+    (Q delta : ℝ) (hg : a 0 < a 1 * Q^(-delta)) :
+    fourProducts246 a 3 < fourProducts246 a 4 * Q^(-delta) := by
+  obtain ⟨_,_,_,h3,h4⟩ := fourProducts_values246 a
+  rw [h3,h4]
+  convert mul_lt_mul_of_pos_right (mul_lt_mul_of_pos_right
+    (mul_lt_mul_of_pos_right hg (ha 2)) (ha 3)) (ha 4) using 1 <;> ring
+
+
+
+def compoundMinima4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ) : Fin 5 → ℝ :=
+  sourceMinima5 (compound4246 A2) (compound4246 A3) (compound4246 L)
+    (compound_unit4246 L hL) (Q^4) (powered_gt_one4246 Q hQ)
+    (normalizedWeights4246 c0) (normalizedWeights4246 c2) (normalizedWeights4246 c3)
+
+theorem compoundMinima_pos_mono4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ) :
+    (∀ j, 0 < compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 j) ∧
+    Monotone (compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3) :=
+  sourceMinima5_pos_mono _ _ _ _ _ _ _ _ _
+
+theorem signedQuad_real_bound246 (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (u : Fin 5 → Fin 5 → ℤ) (a : Fin 5 → ℝ) (Q : ℝ) (hQ : 1 < Q)
+    (c0 : Fin 5 → ℝ)
+    (hu : ∀ j k, |(L *ᵥ integerReal (u j)) k| ≤ a j * Q^(c0 k)) (j i : Fin 5) :
+    |(compound4246 L *ᵥ integerReal (signedQuad246 u j.rev)) i| ≤
+      24 * fourProducts246 a j * Q^(fourWeights246 c0 i) := by
+  rw [signedQuad_cast246]
+  change |(compound4246 L *ᵥ ((-1 : ℝ)^j.rev.val •
+    wedge4246 (fun k : Fin 4 => integerReal (u (j.rev.succAbove k))))) i| ≤ _
+  rw [Matrix.mulVec_smul, Pi.smul_apply, smul_eq_mul, abs_mul, abs_pow,
+    abs_neg, abs_one, one_pow, one_mul]
+  have h := real_source_wedge4246 L (fun k => u (j.rev.succAbove k))
+    (fun k => a (j.rev.succAbove k)) Q hQ c0 (fun k => hu _) i
+  have he : integerReal (wedge4246 (fun k : Fin 4 => u (j.rev.succAbove k))) =
+      wedge4246 (fun k : Fin 4 => integerReal (u (j.rev.succAbove k))) :=
+    wedge_map4246 (Int.castRingHom ℝ) _
+  rw [he] at h
+  exact h
+
+theorem actual_wedge_frame4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ) :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun j => integerReal (u j : Fin 5 → ℤ)) ∧
+      (∀ j, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u j : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j) ∧
+      let w : Fin 5 → Fin 5 → ℤ := fun j => signedQuad246 (fun k => (u k : Fin 5 → ℤ)) j.rev
+      (∀ j, w j ∈ originalSourceGroup5 (compound4246 A2) (compound4246 A3) (Q^4)
+        (normalizedWeights4246 c2) (normalizedWeights4246 c3)) ∧
+      LinearIndependent ℝ (fun j => integerReal (w j)) ∧
+      ∀ j, coordinateGauge5 (originalCoordinates5 (compound4246 L) (compound_unit4246 L hL)
+        (Q^4) (powered_gt_one4246 Q hQ) (normalizedWeights4246 c0)) (integerReal (w j)) ≤
+          24 * fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j := by
+  obtain ⟨u,hu,_,_,hatt,hpoint⟩ := exists_sourceMinima5_attaining A2 A3 L hL Q hQ c0 c2 c3
+  refine ⟨u,hu,hatt,?_,?_,?_⟩
+  · intro j
+    exact signedQuad_source_group246 A2 A3 Q c2 c3 u j.rev
+  · exact (integer_signedQuad_independent246 _ hu).comp Fin.rev (by
+      intro i j h
+      exact Fin.rev_injective h)
+  · intro j
+    apply (powered_body4246 L hL Q hQ c0 _ _).mpr
+    exact signedQuad_real_bound246 L _ _ Q hQ c0 hpoint j
+
+theorem compoundMinima_upper4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ) :
+    ∀ j, compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 j ≤
+      24 * fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j := by
+  intro j
+  obtain ⟨u,_,_,hm,hi,hg⟩ := actual_wedge_frame4246 A2 A3 L hL Q hQ c0 c2 c3
+  let w : Fin 5 → Fin 5 → ℤ := fun j => signedQuad246 (fun k => (u k : Fin 5 → ℤ)) j.rev
+  let f : Fin (j.val+1) → Fin 5 := Fin.castLE (by omega)
+  apply (sourceMinima5_radius_set_properties (compound4246 A2) (compound4246 A3) (compound4246 L)
+    (compound_unit4246 L hL) (Q^4) (powered_gt_one4246 Q hQ)
+    (normalizedWeights4246 c0) (normalizedWeights4246 c2) (normalizedWeights4246 c3) j).2.2.2
+  refine ⟨fun i => integerReal (w (f i)),hi.comp f (Fin.castLE_injective _),?_,?_⟩
+  · intro i
+    exact ⟨w (f i),hm (f i),rfl⟩
+  · intro i
+    have hp := sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3
+    exact (hg (f i)).trans (mul_le_mul_of_nonneg_left
+      (fourProducts_mono246 _ hp.1 hp.2 (show f i ≤ j by change i.val ≤ j.val; omega)) (by norm_num))
+
+
+
+theorem prod_erase_upper4246 (mu nu : Fin 5 → ℝ)
+    (hnu : ∀ k, 0 < nu k) (hupper : ∀ k, nu k ≤ 24 * mu k) (j : Fin 5) :
+    (∏ k ∈ Finset.univ.erase j, nu k) ≤ 331776 * ∏ k ∈ Finset.univ.erase j, mu k := by
+  have h := Finset.prod_le_prod (fun k _ => (hnu k).le)
+    (fun k (_ : k ∈ Finset.univ.erase j) => hupper k)
+  have hc : (Finset.univ.erase j).card = 4 := by simp
+  simpa only [Finset.prod_mul_distrib, Finset.prod_const, hc, show (24 : ℝ) ^ 4 = 331776 by norm_num] using h
+
+theorem product_reverse4246 (mu nu : Fin 5 → ℝ) (c C : ℝ)
+    (hmu : ∀ k, 0 < mu k) (hnu : ∀ k, 0 < nu k)
+    (hupper : ∀ k, nu k ≤ 24 * mu k)
+    (hlower : c ≤ ∏ k, nu k) (hprod : (∏ k, mu k) ≤ C ^ 4)
+    (hC : 0 < C) (j : Fin 5) :
+    (c / (331776 * C ^ 4)) * mu j ≤ nu j := by
+  have hdecomp (f : Fin 5 → ℝ) :
+      f j * (∏ k ∈ Finset.univ.erase j, f k) = ∏ k, f k :=
+    Finset.mul_prod_erase _ _ (Finset.mem_univ j)
+  have hstep : c * mu j ≤ 331776 * nu j * (∏ k, mu k) := by
+    calc
+      c * mu j ≤ (∏ k, nu k) * mu j := mul_le_mul_of_nonneg_right hlower (hmu j).le
+      _ = (nu j * (∏ k ∈ Finset.univ.erase j, nu k)) * mu j := by rw [hdecomp]
+      _ ≤ (nu j * (331776 * ∏ k ∈ Finset.univ.erase j, mu k)) * mu j :=
+        mul_le_mul_of_nonneg_right
+          (mul_le_mul_of_nonneg_left (prod_erase_upper4246 mu nu hnu hupper j) (hnu j).le) (hmu j).le
+      _ = 331776 * nu j * (∏ k, mu k) := by rw [← hdecomp mu]; ring
+  have hfinal : c * mu j ≤ nu j * (331776 * C ^ 4) := by
+    calc
+      _ ≤ 331776 * nu j * (∏ k, mu k) := hstep
+      _ ≤ 331776 * nu j * C ^ 4 := mul_le_mul_of_nonneg_left hprod (mul_nonneg (by norm_num) (hnu j).le)
+      _ = _ := by ring
+  have hd : 0 < 331776 * C ^ 4 := by positivity
+  rw [div_mul_eq_mul_div, div_le_iff₀ hd]
+  exact hfinal
+
+
+theorem source_uniform_products4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L) :
+    ∃ C5 ccompound : ℝ, 0 < C5 ∧ 0 < ccompound ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+        (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 →
+        ccompound ≤ (∏ j, compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 j) ∧
+        (∏ i, sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ≤ C5 ∧
+        (∏ j, fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j) ≤ C5^4 := by
+  obtain ⟨_,C5,_,hC,hfive⟩ := source_original_uniform_minima_two_sided5 A2 A3 L h2 h3 hL
+  obtain ⟨ccompound,_,hc,_,hten⟩ := source_original_uniform_minima_two_sided5 (compound4246 A2)
+    (compound4246 A3) (compound4246 L) (compound_unit4246 A2 h2) (compound_unit4246 A3 h3) (compound_unit4246 L hL)
+  refine ⟨C5,ccompound,hC,hc,?_⟩
+  intro Q hQ c0 c2 c3 hc2 hc3 hb
+  have hf := (hfive Q hQ c0 c2 c3 hc2 hc3 hb).2
+  have hn (c : Fin 5 → ℝ) (h : ∀ i, c i ≤ 0) : ∀ s, normalizedWeights4246 c s ≤ 0 := by
+    intro s
+    exact div_nonpos_of_nonpos_of_nonneg (Finset.sum_nonpos (fun _ _ => h _)) (by norm_num)
+  refine ⟨(hten (Q^4) (powered_gt_one4246 Q hQ) (normalizedWeights4246 c0)
+    (normalizedWeights4246 c2) (normalizedWeights4246 c3) (hn c2 hc2) (hn c3 hc3)
+    (normalized_balance4246 c0 c2 c3 hb)).1,hf,?_⟩
+  rw [fourProducts_product246]
+  exact pow_le_pow_left₀
+    (Finset.prod_pos (fun i _ => (sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3).1 i)).le hf 4
+
+theorem source_uniform_comparison4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L) :
+    ∃ C5 ccompound κ : ℝ, 0 < C5 ∧ 0 < ccompound ∧ 0 < κ ∧ κ = ccompound/(331776*C5^4) ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+        (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 →
+        ∀ j, κ*fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j ≤
+          compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 j ∧
+          compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 j ≤
+            24*fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j := by
+  obtain ⟨C5,ccompound,hC,hc,hprod⟩ := source_uniform_products4246 A2 A3 L h2 h3 hL
+  refine ⟨C5,ccompound,ccompound/(331776*C5^4),hC,hc,by positivity,rfl,?_⟩
+  intro Q hQ c0 c2 c3 hc2 hc3 hb j
+  obtain ⟨hn,_,hm⟩ := hprod Q hQ c0 c2 c3 hc2 hc3 hb
+  have hu := compoundMinima_upper4246 A2 A3 L hL Q hQ c0 c2 c3
+  exact ⟨product_reverse4246 _ _ ccompound C5
+    (fourProducts_pos246 _ (sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3).1)
+    (compoundMinima_pos_mono4246 A2 A3 L hL Q hQ c0 c2 c3).1 hu hn hm hC j,hu j⟩
+
+
+
+theorem ratio_gap4246 (mu nu : Fin 5 → ℝ) (κ Q delta : ℝ) (hk : 0 < κ) (hQ : 1 < Q)
+    (hcomp : ∀ j, κ*mu j ≤ nu j ∧ nu j ≤ 24*mu j)
+    (hg : mu 3 < mu 4*Q^(-delta)) : nu 3 < (24/κ)*nu 4*Q^(-delta) := by
+  calc
+    nu 3 ≤ 24*mu 3 := (hcomp 3).2
+    _ < 24*(mu 4*Q^(-delta)) := mul_lt_mul_of_pos_left hg (by norm_num)
+    _ = (24/κ)*(κ*mu 4)*Q^(-delta) := by field_simp; ring
+    _ ≤ (24/κ)*nu 4*Q^(-delta) := mul_le_mul_of_nonneg_right
+      (mul_le_mul_of_nonneg_left (hcomp 4).1 (by positivity))
+      (Real.rpow_pos_of_pos (zero_lt_one.trans hQ) _).le
+
+theorem powered_gap_exponent4246 (Q delta : ℝ) (hQ : 1 < Q) :
+    Q^(-delta/2) = (Q^4)^(-delta/8) := by
+  rw [← Real.rpow_natCast,← Real.rpow_mul (zero_lt_one.trans hQ).le]
+  congr 1
+  ring
+
+theorem source_uniform_gap4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L) :
+    ∃ C5 ccompound κ : ℝ, 0 < C5 ∧ 0 < ccompound ∧ 0 < κ ∧ κ = ccompound/(331776*C5^4) ∧
+      ∀ delta : ℝ, 0 < delta → ∃ T : ℝ, 1 < T ∧
+        ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+          (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 → T < Q →
+          sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 0 <
+            sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 1*Q^(-delta) →
+          (∀ j, κ*fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j ≤
+            compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 j ∧
+            compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 j ≤
+              24*fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j) ∧
+          compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 3 <
+            compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 4*(Q^4)^(-delta/8) := by
+  obtain ⟨C5,ccompound,κ,hC,hc,hk,he,hcompare⟩ := source_uniform_comparison4246 A2 A3 L h2 h3 hL
+  refine ⟨C5,ccompound,κ,hC,hc,hk,he,?_⟩
+  intro delta hd
+  obtain ⟨T,hT,hcut⟩ := compound_gap_cutoff42 (24/κ) delta hd
+  refine ⟨T,hT,?_⟩
+  intro Q hQ c0 c2 c3 hc2 hc3 hb hTQ hg
+  have hcq := hcompare Q hQ c0 c2 c3 hc2 hc3 hb
+  have hp := sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3
+  have hpair := fourProducts_gap246 _ hp.1 Q delta hg
+  have hr := ratio_gap4246 _ _ κ Q delta hk hQ hcq hpair
+  have hgenuine := absorb_compound_gap42 _ _ (24/κ) Q delta
+    ((compoundMinima_pos_mono4246 A2 A3 L hL Q hQ c0 c2 c3).1 4) hQ (hcut Q hTQ) hr
+  exact ⟨hcq,by rw [powered_gap_exponent4246 Q delta hQ] at hgenuine; exact hgenuine⟩
+
+theorem source_rank1_compound4_gap246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hL : IsUnit L) (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ C5 ccompound κ : ℝ, 0 < C5 ∧ 0 < ccompound ∧ 0 < κ ∧ κ = ccompound/(331776*C5^4) ∧
+      ∀ delta : ℝ, 0 < delta → ∃ T : ℝ, 1 < T ∧ 0 < delta/8 ∧
+        ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+          (∀ i, |c0 i| ≤ 1) → (∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) →
+          (∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 → T < Q →
+          sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 0 <
+            sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 1*Q^(-delta) →
+          let B2 := compound4246 A2
+          let B3 := compound4246 A3
+          let B0 := compound4246 L
+          let Qprime := Q^4
+          let cp0 := normalizedWeights4246 c0
+          let cp2 := normalizedWeights4246 c2
+          let cp3 := normalizedWeights4246 c3
+          let nu := sourceMinima5 B2 B3 B0 (compound_unit4246 L hL)
+            Qprime (powered_gt_one4246 Q hQ) cp0 cp2 cp3
+          let mu := fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3)
+          B2.det=1 ∧ B3.det=1 ∧ B0.det=1 ∧
+          (∀ s t, IsAlgebraic ℚ (B0 s t)) ∧
+          (∀ s, |cp0 s|≤1) ∧ (∀ s, -1≤cp2 s ∧ cp2 s≤0) ∧
+          (∀ s, -1≤cp3 s ∧ cp3 s≤0) ∧ (∑ s, (cp0 s+cp2 s+cp3 s))=0 ∧
+          originalSourceGroup5 B2 B3 Qprime cp2 cp3 = originalSourceGroup5 (compound4246 A2) (compound4246 A3) Q (fourWeights246 c2) (fourWeights246 c3) ∧
+          (∀ j, κ*mu j ≤ nu j ∧ nu j ≤ 24*mu j) ∧
+          nu 3 < nu 4*Qprime^(-delta/8) := by
+  have h2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+  have h3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+  obtain ⟨C5,ccompound,κ,hC,hc,hk,he,hgap⟩ := source_uniform_gap4246 A2 A3 L h2 h3 hL
+  refine ⟨C5,ccompound,κ,hC,hc,hk,he,?_⟩
+  intro delta hd
+  obtain ⟨T,hT,hs⟩ := hgap delta hd
+  refine ⟨T,hT,by positivity,?_⟩
+  intro Q hQ c0 c2 c3 hc0 hc2 hc3 hb hTQ hg
+  exact ⟨compound_det_one4246 A2 h2d,compound_det_one4246 A3 h3d,
+    compound_det_one4246 L hLd,compound_algebraic4246 L hAlg,
+    normalized_real_bound4246 c0 hc0,normalized_finite_bounds4246 c2 hc2,
+    normalized_finite_bounds4246 c3 hc3,normalized_balance4246 c0 c2 c3 hb,
+    powered_group4246 A2 A3 Q c2 c3,
+    hs Q hQ c0 c2 c3 (fun i => (hc2 i).2) (fun i => (hc3 i).2) hb hTQ hg⟩
+
+
+end CompoundFeasibility.Exterior54Literal246F
+#check CompoundFeasibility.Exterior54Literal246F.compound_det4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.compound_det4246
+#check CompoundFeasibility.Exterior54Literal246F.compound_det_one4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.compound_det_one4246
+#check CompoundFeasibility.Exterior54Literal246F.compound_unit4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.compound_unit4246
+#check CompoundFeasibility.Exterior54Literal246F.compound_algebraic4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.compound_algebraic4246
+#check CompoundFeasibility.Exterior54Literal246F.fourWeights_sum246
+#print axioms CompoundFeasibility.Exterior54Literal246F.fourWeights_sum246
+#check CompoundFeasibility.Exterior54Literal246F.normalized_real_bound4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.normalized_real_bound4246
+#check CompoundFeasibility.Exterior54Literal246F.normalized_finite_bounds4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.normalized_finite_bounds4246
+#check CompoundFeasibility.Exterior54Literal246F.normalized_balance4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.normalized_balance4246
+#check CompoundFeasibility.Exterior54Literal246F.real_wedge_bound4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.real_wedge_bound4246
+#check CompoundFeasibility.Exterior54Literal246F.real_source_wedge4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.real_source_wedge4246
+#check CompoundFeasibility.Exterior54Literal246F.powered_gt_one4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.powered_gt_one4246
+#check CompoundFeasibility.Exterior54Literal246F.powered_rpow4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.powered_rpow4246
+#check CompoundFeasibility.Exterior54Literal246F.powered_body4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.powered_body4246
+#check CompoundFeasibility.Exterior54Literal246F.powered_source_wedge4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.powered_source_wedge4246
+#check CompoundFeasibility.Exterior54Literal246F.signedQuad246
+#print axioms CompoundFeasibility.Exterior54Literal246F.signedQuad246
+#check CompoundFeasibility.Exterior54Literal246F.signedQuad_adjugate246
+#print axioms CompoundFeasibility.Exterior54Literal246F.signedQuad_adjugate246
+#check CompoundFeasibility.Exterior54Literal246F.signedQuad_independent246
+#print axioms CompoundFeasibility.Exterior54Literal246F.signedQuad_independent246
+#check CompoundFeasibility.Exterior54Literal246F.signedQuad_cast246
+#print axioms CompoundFeasibility.Exterior54Literal246F.signedQuad_cast246
+#check CompoundFeasibility.Exterior54Literal246F.integer_signedQuad_independent246
+#print axioms CompoundFeasibility.Exterior54Literal246F.integer_signedQuad_independent246
+#check CompoundFeasibility.Exterior54Literal246F.signedQuad_source_group246
+#print axioms CompoundFeasibility.Exterior54Literal246F.signedQuad_source_group246
+#check CompoundFeasibility.Exterior54Literal246F.fourProducts246
+#print axioms CompoundFeasibility.Exterior54Literal246F.fourProducts246
+#check CompoundFeasibility.Exterior54Literal246F.fourProducts_pos246
+#print axioms CompoundFeasibility.Exterior54Literal246F.fourProducts_pos246
+#check CompoundFeasibility.Exterior54Literal246F.fourProducts_mono246
+#print axioms CompoundFeasibility.Exterior54Literal246F.fourProducts_mono246
+#check CompoundFeasibility.Exterior54Literal246F.fourProducts_values246
+#print axioms CompoundFeasibility.Exterior54Literal246F.fourProducts_values246
+#check CompoundFeasibility.Exterior54Literal246F.fourProducts_product246
+#print axioms CompoundFeasibility.Exterior54Literal246F.fourProducts_product246
+#check CompoundFeasibility.Exterior54Literal246F.fourProducts_gap246
+#print axioms CompoundFeasibility.Exterior54Literal246F.fourProducts_gap246
+#check CompoundFeasibility.Exterior54Literal246F.compoundMinima4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.compoundMinima4246
+#check CompoundFeasibility.Exterior54Literal246F.compoundMinima_pos_mono4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.compoundMinima_pos_mono4246
+#check CompoundFeasibility.Exterior54Literal246F.signedQuad_real_bound246
+#print axioms CompoundFeasibility.Exterior54Literal246F.signedQuad_real_bound246
+#check CompoundFeasibility.Exterior54Literal246F.actual_wedge_frame4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.actual_wedge_frame4246
+#check CompoundFeasibility.Exterior54Literal246F.compoundMinima_upper4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.compoundMinima_upper4246
+#check CompoundFeasibility.Exterior54Literal246F.prod_erase_upper4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.prod_erase_upper4246
+#check CompoundFeasibility.Exterior54Literal246F.product_reverse4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.product_reverse4246
+#check CompoundFeasibility.Exterior54Literal246F.source_uniform_products4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.source_uniform_products4246
+#check CompoundFeasibility.Exterior54Literal246F.source_uniform_comparison4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.source_uniform_comparison4246
+#check CompoundFeasibility.Exterior54Literal246F.ratio_gap4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.ratio_gap4246
+#check CompoundFeasibility.Exterior54Literal246F.powered_gap_exponent4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.powered_gap_exponent4246
+#check CompoundFeasibility.Exterior54Literal246F.source_uniform_gap4246
+#print axioms CompoundFeasibility.Exterior54Literal246F.source_uniform_gap4246
+#check CompoundFeasibility.Exterior54Literal246F.source_rank1_compound4_gap246
+#print axioms CompoundFeasibility.Exterior54Literal246F.source_rank1_compound4_gap246
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace Exterior54SourceChallenge246F
+open CompoundFeasibility CompoundFeasibility.Exterior54Literal246F
+
+def rawMinima246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ v : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ v ∧
+    (∀ i, ∃ z : Fin 5 → ℤ,
+      (∀ k, padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) k) ≤
+        (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 Q (c2 k)) : ℤ))) ∧
+      (∀ k, padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) k) ≤
+        (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 Q (c3 k)) : ℤ))) ∧
+      integerReal z = v i) ∧
+    ∀ i k, |(L *ᵥ v i) k| ≤ r * Q^(c0 k)}
+
+theorem rawMinima_eq246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) :
+    rawMinima246 A2 A3 L Q c0 c2 c3 j = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j := by
+  unfold rawMinima246 sourceMinima5
+  congr 1
+  ext r
+  constructor
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,?_⟩
+    · intro i
+      obtain ⟨z,h2,h3,he⟩ := hm i
+      exact ⟨z,⟨(lattice5_spec 2 A2 _ z).mpr h2,(lattice5_spec 3 A3 _ z).mpr h3⟩,he⟩
+    · intro i
+      exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mpr (hb i)
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,?_⟩
+    · intro i
+      obtain ⟨z,hz,he⟩ := hm i
+      exact ⟨z,(lattice5_spec 2 A2 _ z).mp hz.1,(lattice5_spec 3 A3 _ z).mp hz.2,he⟩
+    · intro i
+      exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mp (hb i)
+
+end Exterior54SourceChallenge246F
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace Exterior54Expanded246F
+open CompoundFeasibility CompoundFeasibility.Exterior54Literal246F
+
+theorem actual_real_factor24 (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (x : Fin 4 → Fin 5 → ℤ) (r : Fin 4 → ℝ) (Q : ℝ) (hQ : 1 < Q)
+    (c : Fin 5 → ℝ)
+    (hx : ∀ j k, |(L *ᵥ (fun l => (x j l : ℝ))) k| ≤ r j * Q^(c k)) (i : Fin 5) :
+    |(L.adjugate.transpose *ᵥ (fun k =>
+      (((Matrix.of (Fin.snoc x 0)).adjugate k 4 : ℤ) : ℝ))) i| ≤
+      24 * (∏ j, r j) * Q^(∑ k : Fin 4, c (i.succAbove k)) :=
+  real_source_wedge4246 L x r Q hQ c hx i
+
+theorem actual_signed_independent (u : Fin 5 → Fin 5 → ℤ)
+    (hu : LinearIndependent ℝ (fun j i => (u j i : ℝ))) :
+    LinearIndependent ℝ (fun (j i : Fin 5) => (((-1 : ℤ)^j.val *
+      (Matrix.of (Fin.snoc (fun k : Fin 4 => u (j.succAbove k)) 0)).adjugate i 4 : ℤ) : ℝ)) :=
+  integer_signedQuad_independent246 u hu
+
+theorem actual_signed_cofactor (u : Matrix (Fin 5) (Fin 5) ℤ) (j i : Fin 5) :
+    (-1 : ℤ)^j.val *
+      (Matrix.of (Fin.snoc (fun k : Fin 4 => u (j.succAbove k)) 0)).adjugate i 4 =
+      u.adjugate i j := signedQuad_adjugate246 u j i
+
+theorem actual_four_products (a : Fin 5 → ℝ) :
+    (∏ j : Fin 5, ∏ k : Fin 4, a (j.rev.succAbove k)) = (∏ i, a i)^4 :=
+  fourProducts_product246 a
+
+theorem actual_upper (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) :
+    sourceMinima5 A2.adjugate.transpose A3.adjugate.transpose L.adjugate.transpose
+      (compound_unit4246 L hL) (Q^4) (powered_gt_one4246 Q hQ)
+      (fun i => (∑ k : Fin 4, c0 (i.succAbove k))/4)
+      (fun i => (∑ k : Fin 4, c2 (i.succAbove k))/4)
+      (fun i => (∑ k : Fin 4, c3 (i.succAbove k))/4) j ≤
+      24 * ∏ k : Fin 4, sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 (j.rev.succAbove k) :=
+  compoundMinima_upper4246 A2 A3 L hL Q hQ c0 c2 c3 j
+
+theorem actual_powered_real_gauge (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (x : Fin 4 → Fin 5 → ℤ) (r : Fin 4 → ℝ) (Q : ℝ) (hQ : 1 < Q) (c : Fin 5 → ℝ)
+    (hx : ∀ j k, |(L *ᵥ integerReal (x j)) k| ≤ r j * Q^(c k)) :
+    ‖originalCoordinates5 L.adjugate.transpose (compound_unit4246 L hL) (Q^4)
+      (powered_gt_one4246 Q hQ) (fun i => (∑ k : Fin 4, c (i.succAbove k))/4)
+      (fun i => (((Matrix.of (Fin.snoc x 0)).adjugate i 4 : ℤ) : ℝ))‖ ≤ 24 * ∏ j, r j :=
+  powered_source_wedge4246 L hL x r Q hQ c hx
+
+end Exterior54Expanded246F
+
+#check Exterior54SourceChallenge246F.rawMinima246
+#print axioms Exterior54SourceChallenge246F.rawMinima246
+#check Exterior54SourceChallenge246F.rawMinima_eq246
+#print axioms Exterior54SourceChallenge246F.rawMinima_eq246
+#check Exterior54Expanded246F.actual_real_factor24
+#print axioms Exterior54Expanded246F.actual_real_factor24
+#check Exterior54Expanded246F.actual_signed_independent
+#print axioms Exterior54Expanded246F.actual_signed_independent
+#check Exterior54Expanded246F.actual_signed_cofactor
+#print axioms Exterior54Expanded246F.actual_signed_cofactor
+#check Exterior54Expanded246F.actual_four_products
+#print axioms Exterior54Expanded246F.actual_four_products
+#check Exterior54Expanded246F.actual_upper
+#print axioms Exterior54Expanded246F.actual_upper
+#check Exterior54Expanded246F.actual_powered_real_gauge
+#print axioms Exterior54Expanded246F.actual_powered_real_gauge

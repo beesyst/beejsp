@@ -1,0 +1,612 @@
+import SubspaceBridge.SourceDeformation10
+import SubspaceBridge.SourceFixedLine235
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M236ScopedLiteral
+open OriginalDeformation10 SourceOriginalVariable10 SourceSatz51Entry218
+
+theorem powered_gt_one236 (Q : ℝ) (hQ : 1 < Q) : 1 < Q^5 :=
+  one_lt_pow₀ hQ (by decide)
+
+theorem scaled_exponents236 (c : Fin 10 → ℝ) (hc : ∀ i, -1 ≤ c i ∧ c i ≤ 0) :
+    ∀ i, -1 ≤ c i/5 ∧ c i/5 ≤ 0 := by
+  intro i
+  constructor <;> linarith [(hc i).1,(hc i).2]
+
+theorem powered_lattice236 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 10 → ℝ) :
+    originalSourceGroup10 A2 A3 (Q^5) (fun i => c2 i/5) (fun i => c3 i/5) =
+      originalSourceGroup10 A2 A3 Q c2 c3 := by
+  unfold originalSourceGroup10
+  simp_rw [rescaled_threshold10]
+
+theorem normalized_coordinates236 (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 d : Fin 10 → ℝ) (sigma : Equiv.Perm (Fin 10))
+    (hd : ∀ i, 0 < d i) :
+    originalCoordinates10 L hL (Q^5) (powered_gt_one236 Q hQ)
+      (fun i => normalizedWidth10 (Q^5) (deformedWidths10 Q c0 d sigma i)) =
+        originalDeformedCoordinates10 L hL Q hQ c0 d sigma hd := by
+  ext x i
+  change (L *ᵥ x) i/(Q^5)^normalizedWidth10 (Q^5) (deformedWidths10 Q c0 d sigma i) = _
+  rw [normalized_width_exact10 _ _ (powered_gt_one236 Q hQ)
+    (deformedWidths10_pos Q (zero_lt_one.trans hQ) c0 d hd sigma i),
+    originalDeformedCoordinates10_apply]
+  unfold deformedWidths10
+  field_simp <;> ring
+
+theorem normalized_gauge236 (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 d : Fin 10 → ℝ) (sigma : Equiv.Perm (Fin 10))
+    (hd : ∀ i, 0 < d i) (x : Fin 10 → ℝ) :
+    coordinateGauge10 (originalCoordinates10 L hL (Q^5) (powered_gt_one236 Q hQ)
+      (fun i => normalizedWidth10 (Q^5) (deformedWidths10 Q c0 d sigma i))) x =
+    coordinateGauge10 (originalDeformedCoordinates10 L hL Q hQ c0 d sigma hd) x := by
+  rw [normalized_coordinates236 L hL Q hQ c0 d sigma hd]
+
+theorem normalized_body236 (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 d : Fin 10 → ℝ) (sigma : Equiv.Perm (Fin 10))
+    (hd : ∀ i, 0 < d i) :
+    parallelepipedBody10 (originalCoordinates10 L hL (Q^5) (powered_gt_one236 Q hQ)
+      (fun i => normalizedWidth10 (Q^5) (deformedWidths10 Q c0 d sigma i))) =
+    parallelepipedBody10 (originalDeformedCoordinates10 L hL Q hQ c0 d sigma hd) := by
+  rw [normalized_coordinates236 L hL Q hQ c0 d sigma hd]
+
+theorem normalized_minima236 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 d : Fin 10 → ℝ) (sigma : Equiv.Perm (Fin 10)) (hd : ∀ i, 0 < d i) (j : Fin 10) :
+    sourceMinima10 A2 A3 L hL (Q^5) (powered_gt_one236 Q hQ)
+      (fun i => normalizedWidth10 (Q^5) (deformedWidths10 Q c0 d sigma i))
+      (fun i => c2 i/5) (fun i => c3 i/5) j =
+      originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3 d sigma hd j := by
+  rw [sourceMinima10_eq_radius,normalized_coordinates236 L hL Q hQ c0 d sigma hd]
+  unfold originalDeformedMinima10
+  simp_rw [rescaled_threshold10]
+
+theorem powered_balance236 (Q : ℝ) (hQ : 1 < Q) (A c2 c3 : Fin 10 → ℝ)
+    (hb : (∏ i, A i)*(∏ i, Q^(c2 i+c3 i)) = 1) :
+    (∏ i, A i*(Q^5)^(c2 i/5)*(Q^5)^(c3 i/5)) = 1 := by
+  simp_rw [rescaled_power10 Q _ (zero_lt_one.trans hQ)]
+  simpa only [Real.rpow_add (zero_lt_one.trans hQ),Finset.prod_mul_distrib,mul_assoc] using hb
+
+theorem exists_deformed_frame236
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 d : Fin 10 → ℝ)
+    (sigma : Equiv.Perm (Fin 10)) (hd : ∀ i, 0 < d i) :
+    ∃ w : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ)) ∧
+      (∀ j, 0 < originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3 d sigma hd j) ∧
+      Monotone (originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3 d sigma hd) ∧
+      ∀ j, coordinateGauge10 (originalDeformedCoordinates10 L hL Q hQ c0 d sigma hd)
+        (integerReal (w j : Fin 10 → ℤ)) =
+          originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3 d sigma hd j := by
+  let b := sourceRealBasis10 A2 A3
+    (fun i => Nat.ceil (JSP000334.qThreshold 2 Q (c2 i)))
+    (fun i => Nat.ceil (JSP000334.qThreshold 3 Q (c3 i)))
+  let e := originalDeformedCoordinates10 L hL Q hQ c0 d sigma hd
+  obtain ⟨v,hv,hmem,hpos,hmono,hatt⟩ := exists_successive_minima10 b e
+  have hlift (j : Fin 10) : ∃ z : originalSourceGroup10 A2 A3 Q c2 c3,
+      integerReal (z : Fin 10 → ℤ) = v j := by
+    have hj := hmem j
+    rw [sourceRealBasis10_span] at hj
+    obtain ⟨z,hz,he⟩ := hj
+    exact ⟨⟨z,hz⟩,he⟩
+  choose w hw using hlift
+  refine ⟨w,?_,hpos,hmono,?_⟩
+  · simpa only [hw] using hv
+  · intro j
+    change coordinateGauge10 e (integerReal (w j : Fin 10 → ℤ)) = successiveRadius10 b e j
+    rw [hw j]
+    exact hatt.1 j
+
+end CompoundFeasibility.M236ScopedLiteral
+namespace CompoundFeasibility.M236ScopedLiteral
+open OriginalDeformation10 SourceOriginalVariable10 SourceSatz51Entry218
+
+structure DeformedAttaining236
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ) (delta : ℝ)
+    (u : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3) where
+  deformation_pos : ∀ i, 0 < gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3) i
+  deformation_product : (∏ i, gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3) i) = 1
+  deformation_antitone : Antitone (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3))
+  deformed_scales_mono : Monotone (fun i => gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3) i*sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 i)
+  sigma : Equiv.Perm (Fin 10)
+  w : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3
+  real_independent : LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ))
+  rational_independent : LinearIndependent ℚ (fun j i => ((w j : Fin 10 → ℤ) i : ℚ))
+  attaining : ∀ j, coordinateGauge10
+    (originalDeformedCoordinates10 L hL Q hQ c0 (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos)
+    (integerReal (w j : Fin 10 → ℤ)) = originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3
+      (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos j
+  minima_pos : ∀ j, 0 < originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3
+    (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos j
+  minima_mono : Monotone (originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3
+    (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos)
+  small : originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3
+    (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos 8 < (Q^(5 : ℕ))^(-(delta/60))
+  widths_pos : ∀ i, 0 < deformedWidths10 Q c0 (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma i
+  balance : (∏ i, deformedWidths10 Q c0 (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma i)*
+    (∏ i, Q^(c2 i+c3 i)) = 1
+  sizes : ∀ i, deformedWidths10 Q c0 (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma i < Q^(5 : ℕ) ∧
+    (deformedWidths10 Q c0 (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma i)⁻¹ < Q^(5 : ℕ) ∧
+    Q^(-c2 i) < Q^(5 : ℕ) ∧ Q^(-c3 i) < Q^(5 : ℕ)
+  body : ∀ x, x ∈ parallelepipedBody10 (originalDeformedCoordinates10 L hL Q hQ c0
+    (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos) ↔
+    ∀ i, |(L *ᵥ x) i| ≤ deformedWidths10 Q c0 (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma i
+  volume : MeasureTheory.volume.real (parallelepipedBody10 (originalDeformedCoordinates10 L hL Q hQ c0
+    (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos)) =
+    MeasureTheory.volume.real (originalBody10 L Q c0)
+  comparison : ∀ j, gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3) j*
+    sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 j/1024 ≤
+      originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3
+        (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos j ∧
+    originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3
+      (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos j ≤
+      1024*(gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3) j*sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 j)
+  separation : ∀ j : Fin 10, ∀ z : originalSourceGroup10 A2 A3 Q c2 c3,
+    integerReal (z : Fin 10 → ℤ) ∉ minimaFlag10 (fun i => integerReal (u i : Fin 10 → ℤ)) j →
+    gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3) j*sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 j/1024 ≤
+      coordinateGauge10 (originalDeformedCoordinates10 L hL Q hQ c0
+        (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos) (integerReal (z : Fin 10 → ℤ))
+
+  radius_upper : originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3
+    (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos 8 ≤
+      1024*gapRadius10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)
+  small_unpowered : originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3
+    (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) sigma deformation_pos 8 < Q^(-5*delta/60)
+
+theorem attaining_of_ready236
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ) (delta : ℝ)
+    (u : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3)
+    (hr : deformationReady10 A2 A3 L hL Q hQ c0 c2 c3 delta u) :
+    Nonempty (DeformedAttaining236 A2 A3 L hL Q hQ c0 c2 c3 delta u) := by
+  rcases hr with ⟨_,_,hd,hprod,hanti,hscaled,sigma,hpos,hbal,hcmp,hvol,hsep,hupper,hsmall0,hsmall,hsizes,hbody,_,_⟩
+  obtain ⟨w,hw,hp,hm,ha⟩ := exists_deformed_frame236 A2 A3 L hL Q hQ c0 c2 c3 _ sigma hd
+  have hrat := SourceOriginalDual10.integer_frame_rational_independent10
+    (fun j => (w j : Fin 10 → ℤ)) hw
+  exact ⟨⟨hd,hprod,hanti,hscaled,sigma,w,hw,hrat,ha,hp,hm,hsmall,hpos,hbal,hsizes,hbody,hvol,hcmp,hsep,hupper,hsmall0⟩⟩
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {c0 c2 c3 : Fin 10 → ℝ} {delta : ℝ}
+  {u : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3}
+
+def toSourceData236 (F : DeformedAttaining236 A2 A3 L hL Q hQ c0 c2 c3 delta u) :
+    SourceData218 A2 A3 L hL (Q^5) (powered_gt_one236 Q hQ)
+      (fun i => c2 i/5) (fun i => c3 i/5)
+      (deformedWidths10 Q c0 (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) F.sigma)
+      (delta/60) where
+  positive := F.widths_pos
+  sizes := fun i => ⟨(F.sizes i).1,(F.sizes i).2.1⟩
+  balance := powered_balance236 Q hQ _ c2 c3 F.balance
+  u := fun j => (F.w j : Fin 10 → ℤ)
+  member := by
+    intro j
+    rw [powered_lattice236]
+    exact (F.w j).property
+  independent := F.real_independent
+  attaining := by
+    intro j
+    rw [normalized_coordinates236 L hL Q hQ c0 _ F.sigma F.deformation_pos,
+      normalized_minima236 A2 A3 L hL Q hQ c0 c2 c3 _ F.sigma F.deformation_pos j]
+    exact F.attaining j
+  small := by
+    rw [normalized_minima236 A2 A3 L hL Q hQ c0 c2 c3 _ F.sigma F.deformation_pos 8]
+    exact F.small
+
+theorem toSourceData_frame236 (F : DeformedAttaining236 A2 A3 L hL Q hQ c0 c2 c3 delta u) :
+    (toSourceData236 F).u = fun j => (F.w j : Fin 10 → ℤ) := rfl
+
+end CompoundFeasibility.M236ScopedLiteral
+namespace CompoundFeasibility.M236ScopedLiteral
+open OriginalDeformation10 SourceOriginalVariable10 SourceSatz51Entry218
+
+theorem flag_cutoff236 (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ Q : ℝ, T < Q → (1024 : ℝ)^2 < Q^delta := by
+  obtain ⟨B,hB⟩ := Filter.eventually_atTop.mp
+    ((tendsto_rpow_atTop hd).eventually (Filter.eventually_gt_atTop ((1024 : ℝ)^2)))
+  refine ⟨max B 2,lt_of_lt_of_le (by norm_num) (le_max_right _ _),?_⟩
+  intro Q hQ
+  exact hB Q ((le_max_left B 2).trans hQ.le)
+
+theorem flag_separation236 (lam : Fin 10 → ℝ) (hp : ∀ i, 0 < lam i)
+    (Q delta : ℝ) (hQ : 1 < Q)
+    (hgap : lam 8 < lam 9*Q^(-delta)) (hcut : (1024 : ℝ)^2 < Q^delta) :
+    1024*gapRadius10 lam < gapRadius10 lam*lam 9/(1024*lam 8) := by
+  have hQp : 0 < Q := zero_lt_one.trans hQ
+  have hr := gapRadius10_pos lam hp
+  have hmul : lam 8*Q^delta < lam 9 := by
+    have hh := mul_lt_mul_of_pos_right hgap (Real.rpow_pos_of_pos hQp delta)
+    rw [mul_assoc,← Real.rpow_add hQp,neg_add_cancel,Real.rpow_zero,mul_one] at hh
+    exact hh
+  have hh : (1024 : ℝ)^2*lam 8 < lam 9 :=
+    (mul_lt_mul_of_pos_right hcut (hp 8)).trans (by simpa only [mul_comm] using hmul)
+  apply (lt_div_iff₀ (mul_pos (by norm_num) (hp 8))).mpr
+  nlinarith [mul_lt_mul_of_pos_left hh hr]
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {c0 c2 c3 : Fin 10 → ℝ} {delta : ℝ}
+  {u : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3}
+
+theorem deformed_first_nine236
+    (F : DeformedAttaining236 A2 A3 L hL Q hQ c0 c2 c3 delta u)
+    (hgap : sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9*Q^(-delta))
+    (hcut : (1024 : ℝ)^2 < Q^delta) (j : Fin 9) :
+    integerReal (F.w j.castSucc : Fin 10 → ℤ) ∈
+      minimaFlag10 (fun i => integerReal (u i : Fin 10 → ℤ)) 9 := by
+  by_contra hout
+  let lam := sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3
+  have hp := (sourceMinima10_pos_mono A2 A3 L hL Q hQ c0 c2 c3).1
+  have hlo := F.separation 9 (F.w j.castSucc) hout
+  rw [gapDeformation10_last lam] at hlo
+  have hup := (F.minima_mono (show j.castSucc ≤ (8 : Fin 10) by
+    change j.val ≤ 8
+    omega)).trans F.radius_upper
+  rw [← F.attaining j.castSucc] at hup
+  have hs := flag_separation236 lam hp Q delta hQ hgap hcut
+  have he : gapRadius10 lam*lam 9/lam 8/1024 =
+      gapRadius10 lam*lam 9/(1024*lam 8) := by ring
+  rw [he] at hlo
+  exact (not_le_of_gt hs) (hlo.trans hup)
+
+open OriginalDual10 SourceOriginalDual10 SourceSecondMinimum226
+
+theorem cofactor_flag_zero236 (u : Fin 10 → Fin 10 → ℤ) (x : Fin 10 → ℝ)
+    (hx : x ∈ minimaFlag10 (fun j => integerReal (u j)) 9) :
+    ∑ i, x i*(integerLastDual10 u i : ℝ) = 0 := by
+  let f : Module.Dual ℝ (Fin 10 → ℝ) := ∑ i, (integerLastDual10 u i : ℝ) • LinearMap.proj i
+  have hf (y : Fin 10 → ℝ) : f y = ∑ i, y i*(integerLastDual10 u i : ℝ) := by
+    simp [f,mul_comm]
+  have hs : minimaFlag10 (fun j => integerReal (u j)) 9 ≤ LinearMap.ker f := by
+    apply Submodule.span_le.mpr
+    rintro _ ⟨j,rfl⟩
+    change f (integerReal (u j.castSucc)) = 0
+    rw [hf]
+    have hp := integerLastDual10_pairing u j.castSucc
+    have hne : j.castSucc ≠ Fin.last 9 := by
+      intro he
+      have := congrArg Fin.val he
+      change j.val = 9 at this
+      omega
+    rw [if_neg hne] at hp
+    change ∑ i, (u j.castSucc i : ℝ)*(integerLastDual10 u i : ℝ) = 0
+    exact_mod_cast hp
+  exact (hf x).symm.trans (hs hx)
+
+theorem flag_pairing_zero236 (u w : Fin 10 → Fin 10 → ℤ)
+    (hflag : ∀ j : Fin 9, integerReal (w j.castSucc) ∈
+      minimaFlag10 (fun i => integerReal (u i)) 9) :
+    ∀ j : Fin 9, ∑ i, (w j.castSucc i : ℚ)*(integerLastDual10 u i : ℚ) = 0 := by
+  intro j
+  have he := cofactor_flag_zero236 u (integerReal (w j.castSucc)) (hflag j)
+  change ∑ i, (w j.castSucc i : ℝ)*(integerLastDual10 u i : ℝ) = 0 at he
+  exact_mod_cast he
+
+theorem rational_line_transfer236 (u w : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j)))
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j)))
+    (hflag : ∀ j : Fin 9, integerReal (w j.castSucc) ∈
+      minimaFlag10 (fun i => integerReal (u i)) 9) :
+    Submodule.span ℚ {lastDual10 (fun j i => (u j i : ℚ))
+      (integer_frame_rational_independent10 u hu)} =
+    Submodule.span ℚ {lastDual10 (fun j i => (w j i : ℚ))
+      (integer_frame_rational_independent10 w hw)} := by
+  have huQ := integer_frame_rational_independent10 u hu
+  have hwQ := integer_frame_rational_independent10 w hw
+  have hn := integerLastDual10_nonzero u huQ
+  have hrat : (fun i => (integerLastDual10 u i : ℚ)) ≠ 0 := by
+    intro he
+    apply hn
+    funext i
+    have hi := congrFun he i
+    simp only [Pi.zero_apply] at hi
+    change integerLastDual10 u i = 0
+    exact_mod_cast hi
+  have hm := rational_annihilator226 (fun j i => (w j i : ℚ)) hwQ
+    (fun i => (integerLastDual10 u i : ℚ)) (flag_pairing_zero236 u w hflag)
+  obtain ⟨a,ha⟩ := Submodule.mem_span_singleton.mp hm
+  have ha0 : a ≠ 0 := by
+    intro he
+    apply hrat
+    rw [← ha,he,zero_smul]
+  rw [← integerLastDual10_line u huQ,← ha]
+  exact Submodule.span_singleton_smul_eq (isUnit_iff_ne_zero.mpr ha0) _
+
+theorem deformed_line_transfer236
+    (F : DeformedAttaining236 A2 A3 L hL Q hQ c0 c2 c3 delta u)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j : Fin 10 → ℤ)))
+    (hgap : sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9*Q^(-delta))
+    (hcut : (1024 : ℝ)^2 < Q^delta) :
+    Submodule.span ℚ {lastDual10 (fun j i => ((u j : Fin 10 → ℤ) i : ℚ))
+      (integer_frame_rational_independent10 _ hu)} =
+    Submodule.span ℚ {lastDual10 (fun j i => ((F.w j : Fin 10 → ℤ) i : ℚ))
+      F.rational_independent} :=
+  rational_line_transfer236 _ _ hu F.real_independent (deformed_first_nine236 F hgap hcut)
+
+end CompoundFeasibility.M236ScopedLiteral
+namespace CompoundFeasibility.M236ScopedLiteral
+
+def powerDomain236 (Omega : Set ℝ) (B : ℝ) : Set ℝ :=
+  (fun Q : ℝ => Q^5) '' {Q | Q ∈ Omega ∧ B < Q}
+
+theorem powerDomain_unbounded236 (Omega : Set ℝ) (hO : ¬ BddAbove Omega) (B : ℝ) :
+    ¬ BddAbove (powerDomain236 Omega B) := by
+  intro hb
+  obtain ⟨b,hb⟩ := hb
+  obtain ⟨Q,hQO,hQ⟩ := not_bddAbove_iff.mp hO (max B (max 1 b))
+  have hBQ : B < Q := (le_max_left _ _).trans_lt hQ
+  have h1Q : 1 < Q := ((le_max_left 1 b).trans (le_max_right B _)).trans_lt hQ
+  have hbQ : b < Q := ((le_max_right 1 b).trans (le_max_right B _)).trans_lt hQ
+  have hpow : Q ≤ Q^5 := le_self_pow₀ h1Q.le (by decide)
+  exact (not_le_of_gt (hbQ.trans_le hpow)) (hb ⟨Q,⟨hQO,hBQ⟩,rfl⟩)
+
+theorem exists_power_section236 (Omega : Set ℝ) (B : ℝ) :
+    ∃ lift : powerDomain236 Omega B → {Q // Q ∈ Omega ∧ B < Q},
+      ∀ p, (lift p).val^5 = p.val := by
+  have hh (p : powerDomain236 Omega B) :
+      ∃ q : {Q // Q ∈ Omega ∧ B < Q}, q.val^5 = p.val := by
+    obtain ⟨Q,hQ,he⟩ := p.property
+    exact ⟨⟨Q,hQ⟩,he⟩
+  choose lift hlift using hh
+  exact ⟨lift,hlift⟩
+
+theorem power_pullback_unbounded236 (Omega : Set ℝ) (B : ℝ) (hB : 1 < B)
+    (lift : powerDomain236 Omega B → {Q // Q ∈ Omega ∧ B < Q})
+    (hlift : ∀ p, (lift p).val^5 = p.val)
+    (V : Set ℝ) (hVO : V ⊆ powerDomain236 Omega B) (hV : ¬ BddAbove V) :
+    ¬ BddAbove {Q | ∃ p : powerDomain236 Omega B, p.val ∈ V ∧ (lift p).val = Q} := by
+  rintro ⟨b,hb⟩
+  apply hV
+  refine ⟨(max b 1)^5,?_⟩
+  intro P hP
+  let p : powerDomain236 Omega B := ⟨P,hVO hP⟩
+  have hq : (lift p).val ≤ b := hb ⟨p,hP,rfl⟩
+  have hq0 : 0 ≤ (lift p).val := (zero_lt_one.trans (hB.trans (lift p).property.2)).le
+  have hpow := pow_le_pow_left₀ hq0 (hq.trans (le_max_left b 1)) 5
+  rw [hlift p] at hpow
+  exact hpow
+
+end CompoundFeasibility.M236ScopedLiteral
+namespace CompoundFeasibility.M236ScopedLiteral
+open OriginalDeformation10 SourceOriginalVariable10 SourceSatz51Entry218
+  OriginalDual10 SourceOriginalDual10 SourceFixedGeometry235
+
+def sourceData_transport236
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {q r : ℝ} {hq : 1 < q} {hr : 1 < r} {c2 c3 A B : Fin 10 → ℝ} {delta : ℝ}
+    (he : q = r) (hA : A = B) (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    SourceData218 A2 A3 L hL r hr c2 c3 B delta := by
+  subst r
+  subst B
+  exact D
+
+theorem sourceData_transport_frame236
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {q r : ℝ} {hq : 1 < q} {hr : 1 < r} {c2 c3 A B : Fin 10 → ℝ} {delta : ℝ}
+    (he : q = r) (hA : A = B) (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (sourceData_transport236 (hr := hr) he hA D).u = D.u := by
+  subst r
+  subst B
+  rfl
+
+theorem lastDual_frame_eq236 (u w : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ)))
+    (hw : LinearIndependent ℚ (fun j i => (w j i : ℚ))) (he : u = w) :
+    lastDual10 (fun j i => (u j i : ℚ)) hu = lastDual10 (fun j i => (w j i : ℚ)) hw := by
+  subst w
+  rfl
+
+theorem source_ratio_fixed_line236
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 10 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q)
+    (u : ∀ q : Omega, Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : Omega, LinearIndependent ℝ (fun j => integerReal (u q j : Fin 10 → ℤ)))
+    (hatt : ∀ (q : Omega) j, coordinateGauge10
+      (originalCoordinates10 L hL q.val (hq q.val q.property) c0)
+      (integerReal (u q j : Fin 10 → ℤ)) =
+        sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 j)
+    (hgap : ∀ q : Omega, sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 9*q.val^(-delta)) :
+    ∃ b : Fin 10 → ℤ, b ≠ 0 ∧ ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+      ∀ q : Omega, q.val ∈ V →
+        Submodule.span ℚ {lastDual10 (fun j i => ((u q j : Fin 10 → ℤ) i : ℚ))
+          (integer_frame_rational_independent10 _ (hu q))} =
+        Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  have h2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+  have h3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+  obtain ⟨Td,hTd,hready⟩ := source_uniform_deformation10 A2 A3 L h2 h3 hL delta hd
+  obtain ⟨Tf,hTf,hflagcut⟩ := flag_cutoff236 delta hd
+  let B := max Td Tf
+  have hB : 1 < B := hTd.trans_le (le_max_left _ _)
+  let P := powerDomain236 Omega B
+  have hP : ¬ BddAbove P := powerDomain_unbounded236 Omega hO B
+  obtain ⟨lift,hlift⟩ := exists_power_section236 Omega B
+  let orig (p : P) : Omega := ⟨(lift p).val,(lift p).property.1⟩
+  have horigB (p : P) : B < (orig p).val := (lift p).property.2
+  have hpow (p : P) : (orig p).val^5 = p.val := hlift p
+  have hpq (p : ℝ) (hp : p ∈ P) : 1 < p := by
+    have he : (orig ⟨p,hp⟩).val^5 = p := hpow ⟨p,hp⟩
+    exact he ▸ powered_gt_one236 _ (hq _ (orig ⟨p,hp⟩).property)
+  have hF (p : P) : Nonempty (DeformedAttaining236 A2 A3 L hL (orig p).val
+      (hq _ (orig p).property) c0 c2 c3 delta (u (orig p))) := by
+    apply attaining_of_ready236
+    exact hready _ _ c0 c2 c3 hc0 hc2 hc3 hb
+      ((le_max_left Td Tf).trans_lt (horigB p)) _ (hu _) (hatt _) (hgap _)
+  let F (p : P) := Classical.choice (hF p)
+  let widths (p : P) := deformedWidths10 (orig p).val c0
+    (gapDeformation10 (sourceMinima10 A2 A3 L hL (orig p).val (hq _ (orig p).property) c0 c2 c3))
+    (F p).sigma
+  let A (p : ℝ) : Fin 10 → ℝ := if hp : p ∈ P then widths ⟨p,hp⟩ else fun _ => 1
+  have hA (p : P) : widths p = A p.val := by simp only [A,dif_pos p.property]
+  let D (p : P) : SourceData218 A2 A3 L hL p.val (hpq p.val p.property)
+      (fun i => c2 i/5) (fun i => c3 i/5) (A p.val) (delta/60) :=
+    sourceData_transport236 (hpow p) (hA p) (toSourceData236 (F p))
+  have hframe (p : P) : (D p).u = fun j => ((F p).w j : Fin 10 → ℤ) :=
+    sourceData_transport_frame236 (hpow p) (hA p) (toSourceData236 (F p))
+  obtain ⟨S0,hS0,B0,hB0,U,hUP,hU,q1,hq1U,hq1B,b,hbn,hbe,hzero,C,hC,t,ht,T,hT,hBT,V,hVe,hVP,hV,hline⟩ :=
+    source_fixed_line235 A2 A3 L h2d h3d hLd hL hAlg
+      (fun i => c2 i/5) (fun i => c3 i/5)
+      (scaled_exponents236 c2 hc2) (scaled_exponents236 c3 hc3)
+      (delta/60) (by positivity) P hP hpq A D
+  let W : Set ℝ := {Q | ∃ p : P, p.val ∈ V ∧ (lift p).val = Q}
+  refine ⟨b,hbn,W,?_,power_pullback_unbounded236 Omega B hB lift hlift V hVP hV,?_⟩
+  · rintro Q ⟨p,hp,rfl⟩
+    exact (lift p).property.1
+  · intro q hqW
+    obtain ⟨p,hp,he⟩ := hqW
+    have hqe : orig p = q := Subtype.ext he
+    subst q
+    have hcut := hflagcut _ ((le_max_right Td Tf).trans_lt (horigB p))
+    have htransfer := deformed_line_transfer236 (F p) (hu (orig p)) (hgap (orig p)) hcut
+    obtain ⟨_,_,_,_,_,hl⟩ := hline p hp
+    have hl' : Submodule.span ℚ {fun i => (b i : ℚ)} =
+        Submodule.span ℚ {lastDual10 (fun j i => (((F p).w j : Fin 10 → ℤ) i : ℚ))
+          (F p).rational_independent} := by
+      exact hl.trans (congrArg (fun z : Fin 10 → ℚ => Submodule.span ℚ {z})
+        (lastDual_frame_eq236 (D p).u _ _ (F p).rational_independent (hframe p)))
+    exact htransfer.trans hl'.symm
+
+end CompoundFeasibility.M236ScopedLiteral
+open CompoundFeasibility CompoundFeasibility.OriginalDeformation10 CompoundFeasibility.SourceOriginalVariable10 CompoundFeasibility.SourceSatz51Entry218 CompoundFeasibility.OriginalDual10 CompoundFeasibility.SourceOriginalDual10
+open CompoundFeasibility.M236ScopedLiteral
+namespace M236SourceLiteral
+theorem original_ratio_endpoint
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 10 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q)
+    (u : ∀ q : Omega, Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : Omega, LinearIndependent ℝ (fun j => integerReal (u q j : Fin 10 → ℤ)))
+    (hatt : ∀ (q : Omega) j, coordinateGauge10
+      (originalCoordinates10 L hL q.val (hq q.val q.property) c0)
+      (integerReal (u q j : Fin 10 → ℤ)) =
+        sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 j)
+    (hgap : ∀ q : Omega, sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 9*q.val^(-delta)) :
+    ∃ b : Fin 10 → ℤ, b ≠ 0 ∧ ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+      ∀ q : Omega, q.val ∈ V →
+        Submodule.span ℚ {lastDual10 (fun j i => ((u q j : Fin 10 → ℤ) i : ℚ))
+          (integer_frame_rational_independent10 _ (hu q))} =
+        Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  exact source_ratio_fixed_line236 A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq u hu hatt hgap
+
+theorem expanded_original_ratio_endpoint
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 10 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q)
+    (u : ∀ q : Omega, Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : Omega, LinearIndependent ℝ (fun j => integerReal (u q j : Fin 10 → ℤ)))
+    (hatt : ∀ (q : Omega) (j : Fin 10), coordinateGauge10
+      (originalCoordinates10 L hL q.val (hq q.val q.property) c0)
+      (integerReal (u q j : Fin 10 → ℤ)) =
+        (sInf {r : ℝ | ∃ v : Fin ((j : Fin 10).val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+      (∀ i, v i ∈ integerRealImage (sourceLattice10 A2 A3
+        (fun k => Nat.ceil (JSP000334.qThreshold 2 q.val (c2 k)))
+        (fun k => Nat.ceil (JSP000334.qThreshold 3 q.val (c3 k))))) ∧
+      ∀ i, ‖originalCoordinates10 L hL q.val (hq q.val q.property) c0 (v i)‖ ≤ r}))
+    (hgap : ∀ q : Omega, (sInf {r : ℝ | ∃ v : Fin ((8 : Fin 10).val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+      (∀ i, v i ∈ integerRealImage (sourceLattice10 A2 A3
+        (fun k => Nat.ceil (JSP000334.qThreshold 2 q.val (c2 k)))
+        (fun k => Nat.ceil (JSP000334.qThreshold 3 q.val (c3 k))))) ∧
+      ∀ i, ‖originalCoordinates10 L hL q.val (hq q.val q.property) c0 (v i)‖ ≤ r}) <
+      (sInf {r : ℝ | ∃ v : Fin ((9 : Fin 10).val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+      (∀ i, v i ∈ integerRealImage (sourceLattice10 A2 A3
+        (fun k => Nat.ceil (JSP000334.qThreshold 2 q.val (c2 k)))
+        (fun k => Nat.ceil (JSP000334.qThreshold 3 q.val (c3 k))))) ∧
+      ∀ i, ‖originalCoordinates10 L hL q.val (hq q.val q.property) c0 (v i)‖ ≤ r})*q.val^(-delta)) :
+    ∃ b : Fin 10 → ℤ, b ≠ 0 ∧ ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+      ∀ q : Omega, q.val ∈ V →
+        Submodule.span ℚ {lastDual10 (fun j i => ((u q j : Fin 10 → ℤ) i : ℚ))
+          (integer_frame_rational_independent10 _ (hu q))} =
+        Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  exact source_ratio_fixed_line236 A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq u hu hatt hgap
+
+theorem expanded_deformed_contract
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ) (delta : ℝ)
+    (u : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3)
+    (F : DeformedAttaining236 A2 A3 L hL Q hQ c0 c2 c3 delta u) :
+    let A := deformedWidths10 Q c0
+      (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) F.sigma
+    ∃ D : SourceData218 A2 A3 L hL (Q^5) (powered_gt_one236 Q hQ)
+      (fun i => c2 i/5) (fun i => c3 i/5) A (delta/60),
+      D.u = (fun j => (F.w j : Fin 10 → ℤ)) ∧
+      (∀ j, D.u j ∈ originalSourceGroup10 A2 A3 Q c2 c3) ∧
+      (∀ i, 0 < A i ∧ A i < Q^5 ∧ (A i)⁻¹ < Q^5) ∧
+      (∏ i, A i*(Q^5)^(c2 i/5)*(Q^5)^(c3 i/5)) = 1 ∧
+      (∀ x, x ∈ parallelepipedBody10 (originalCoordinates10 L hL (Q^5)
+        (powered_gt_one236 Q hQ) (fun i => normalizedWidth10 (Q^5) (A i))) ↔
+        ∀ i, |(L *ᵥ x) i| ≤ A i) ∧
+      sourceMinima10 A2 A3 L hL (Q^5) (powered_gt_one236 Q hQ)
+        (fun i => normalizedWidth10 (Q^5) (A i)) (fun i => c2 i/5) (fun i => c3 i/5) 8 <
+        (Q^5)^(-(delta/60)) := by
+  intro A
+  refine ⟨toSourceData236 F,rfl,fun j => (F.w j).property,?_,(toSourceData236 F).balance,?_,(toSourceData236 F).small⟩
+  · exact fun i => ⟨F.widths_pos i,(F.sizes i).1,(F.sizes i).2.1⟩
+  · intro x
+    rw [normalized_body236 L hL Q hQ c0 _ F.sigma F.deformation_pos]
+    exact F.body x
+
+theorem expanded_original_flag_transfer
+    (u w : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j)))
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j)))
+    (hflag : ∀ j : Fin 9, integerReal (w j.castSucc) ∈
+      Submodule.span ℝ (Set.range (fun k : Fin 9 => integerReal (u k.castSucc)))) :
+    integerLastDual10 u ≠ 0 ∧
+    (∀ j : Fin 9, ∑ i, (w j.castSucc i : ℚ)*(integerLastDual10 u i : ℚ) = 0) ∧
+    Submodule.span ℚ {lastDual10 (fun j i => (u j i : ℚ))
+      (integer_frame_rational_independent10 u hu)} =
+    Submodule.span ℚ {lastDual10 (fun j i => (w j i : ℚ))
+      (integer_frame_rational_independent10 w hw)} := by
+  exact ⟨integerLastDual10_nonzero u (integer_frame_rational_independent10 u hu),
+    flag_pairing_zero236 u w hflag,rational_line_transfer236 u w hu hw hflag⟩
+
+end M236SourceLiteral
+#print axioms CompoundFeasibility.M236ScopedLiteral.powered_gt_one236
+#print axioms CompoundFeasibility.M236ScopedLiteral.scaled_exponents236
+#print axioms CompoundFeasibility.M236ScopedLiteral.powered_lattice236
+#print axioms CompoundFeasibility.M236ScopedLiteral.normalized_coordinates236
+#print axioms CompoundFeasibility.M236ScopedLiteral.normalized_gauge236
+#print axioms CompoundFeasibility.M236ScopedLiteral.normalized_body236
+#print axioms CompoundFeasibility.M236ScopedLiteral.normalized_minima236
+#print axioms CompoundFeasibility.M236ScopedLiteral.powered_balance236
+#print axioms CompoundFeasibility.M236ScopedLiteral.exists_deformed_frame236
+#print axioms CompoundFeasibility.M236ScopedLiteral.attaining_of_ready236
+#print axioms CompoundFeasibility.M236ScopedLiteral.toSourceData236
+#print axioms CompoundFeasibility.M236ScopedLiteral.toSourceData_frame236
+#print axioms CompoundFeasibility.M236ScopedLiteral.flag_cutoff236
+#print axioms CompoundFeasibility.M236ScopedLiteral.flag_separation236
+#print axioms CompoundFeasibility.M236ScopedLiteral.deformed_first_nine236
+#print axioms CompoundFeasibility.M236ScopedLiteral.cofactor_flag_zero236
+#print axioms CompoundFeasibility.M236ScopedLiteral.flag_pairing_zero236
+#print axioms CompoundFeasibility.M236ScopedLiteral.rational_line_transfer236
+#print axioms CompoundFeasibility.M236ScopedLiteral.deformed_line_transfer236
+#print axioms CompoundFeasibility.M236ScopedLiteral.powerDomain236
+#print axioms CompoundFeasibility.M236ScopedLiteral.powerDomain_unbounded236
+#print axioms CompoundFeasibility.M236ScopedLiteral.exists_power_section236
+#print axioms CompoundFeasibility.M236ScopedLiteral.power_pullback_unbounded236
+#print axioms CompoundFeasibility.M236ScopedLiteral.sourceData_transport236
+#print axioms CompoundFeasibility.M236ScopedLiteral.sourceData_transport_frame236
+#print axioms CompoundFeasibility.M236ScopedLiteral.lastDual_frame_eq236
+#print axioms CompoundFeasibility.M236ScopedLiteral.source_ratio_fixed_line236
+#print axioms M236SourceLiteral.original_ratio_endpoint
+#print axioms M236SourceLiteral.expanded_original_ratio_endpoint
+#print axioms M236SourceLiteral.expanded_deformed_contract
+#print axioms M236SourceLiteral.expanded_original_flag_transfer

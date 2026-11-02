@@ -1,0 +1,275 @@
+import SubspaceBridge.AllPointActualValues3
+import SubspaceBridge.AllPointActualValues4
+import SubspaceBridge.AllPointGeneralPosition4
+import SubspaceBridge.AllPointWeights4
+open scoped BigOperators Classical Matrix
+open JSP000334 CompoundFeasibility CompoundFeasibility.OriginalFlagAssembly4 CompoundFeasibility.OriginalShortPlane42
+namespace Literal254C
+
+open scoped BigOperators Matrix
+
+def retainedRationalMatrix4 (k : Fin 4) : Matrix (Fin 4) (Fin 4) ℚ :=
+  fun i j => (retainedIntegerMatrix4 k i j : ℚ)
+def retainedRealMatrix4 (k : Fin 4) : Matrix (Fin 4) (Fin 4) ℝ :=
+  fun i j => (retainedIntegerMatrix4 k i j : ℝ)
+
+theorem retained_rational_det4 (k : Fin 4) : (retainedRationalMatrix4 k).det=1 := by
+  have hh : ((retainedIntegerMatrix4 k).map (Int.castRingHom ℚ)).det =
+      ((retainedIntegerMatrix4 k).det : ℚ) := ((Int.castRingHom ℚ).map_det _).symm
+  rw [retained_integer_matrix_det4] at hh
+  simpa only [Int.cast_one] using hh
+
+theorem retained_real_det4 (k : Fin 4) : (retainedRealMatrix4 k).det=1 := by
+  have hh : ((retainedIntegerMatrix4 k).map (Int.castRingHom ℝ)).det =
+      ((retainedIntegerMatrix4 k).det : ℝ) := ((Int.castRingHom ℝ).map_det _).symm
+  rw [retained_integer_matrix_det4] at hh
+  simpa only [Int.cast_one] using hh
+
+theorem retained_rational_apply4 (k i : Fin 4) (z : Fin 4 → ℤ) :
+    (retainedRationalMatrix4 k *ᵥ (fun j => (z j : ℚ))) i=
+      fourRetainedForm k i (fun j => (z j : ℚ)) := by
+  rw [← retained_integer_cast4]
+  simp [retainedRationalMatrix4,Matrix.mulVec,dotProduct]
+
+theorem retained_real_apply4 (k i : Fin 4) (z : Fin 4 → ℤ) :
+    (retainedRealMatrix4 k *ᵥ CompoundFeasibility.integerReal z) i=
+      (fourRetainedForm k i (fun j => (z j : ℚ)) : ℝ) := by
+  rw [← retained_integer_cast4]
+  simp [retainedRealMatrix4,CompoundFeasibility.integerReal,Matrix.mulVec,dotProduct]
+
+noncomputable def allpoint_norms4 (choice : Fin 3 → Fin 4) (z : Fin 4 → ℤ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  rationalPlaceNorm tau (fourRetainedForm (choice tau) i (fun j => (z j : ℚ)))
+
+theorem allpoint_fixed_source_point4 {x : Fin 5 → ℚ}
+    (hx : x∈normalizedRelations fixedSUnitGroup 4) (z : Fin 4 → ℤ) (s : fixedSUnitGroup)
+    (hz : PrimitiveFour z) (hscale : ∀ i : Fin 4,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc)
+    (hH : 4≤(archFourHeight z : ℝ)) :
+    let Q := (archFourHeight z : ℝ)^8
+    ∃ choice : Fin 3 → Fin 4,∃ d∈finiteWeightCandidates4 448,
+      sourceWeightConditions4 d ∧
+      CompoundFeasibility.OriginalVariableGap4.originalSourceSolution4
+        (retainedRationalMatrix4 (choice 1)) (retainedRationalMatrix4 (choice 2))
+        (retainedRealMatrix4 (choice 0)) (d 0) (d 1) (d 2) Q ((1 : ℝ)/64) z := by
+  intro Q
+  obtain ⟨choice,hret⟩ := allpoint_primitive_product4 hx z s hz hscale
+  let a := allpoint_norms4 choice z
+  have hl (tau : Fin 3) (i : Fin 4) : 0<a tau i ∧ (a tau i)⁻¹≤4*(archFourHeight z : ℝ) ∧
+      (tau≠0 → a tau i≤1) := by
+    let m := (retainedIntegerMatrix4 (choice tau) *ᵥ z) i
+    have hp : threePlaceProduct (m : ℚ)=1 := by
+      rw [retained_integer_cast4]
+      exact allpoint_form_product4 hx z s hscale _ _
+    have hh := allpoint_local_inverse3 m hp tau
+    have hm : (m : ℚ)=fourRetainedForm (choice tau) i (fun j => (z j : ℚ)) := retained_integer_cast4 _ _ _
+    rw [hm] at hh
+    dsimp only [a,allpoint_norms4]
+    refine ⟨by exact_mod_cast hh.1,?_,?_⟩
+    · exact_mod_cast hh.2.1.trans (allpoint_form_arch_bound4 z (choice tau) i)
+    · intro ht
+      exact_mod_cast hh.2.2 ht
+  have hp : (∏ tau,∏ i,a tau i)*(archFourHeight z : ℝ)=1 := by
+    dsimp only [a,allpoint_norms4]
+    unfold fourRetainedProduct at hret
+    exact_mod_cast hret
+  obtain ⟨hQ,hc,_,hr,hf⟩ := allpoint_balanced_weights4 (archFourHeight z : ℝ) hH a
+    (fun tau i => (hl tau i).1)
+    (fun i => by
+      change ((|fourRetainedForm (choice 0) i (fun j => (z j : ℚ))| : ℚ) : ℝ)≤_
+      exact_mod_cast allpoint_form_arch_bound4 z (choice 0) i)
+    (fun tau ht i => (hl tau i).2.2 ht) (fun tau i => (hl tau i).2.1) hp
+  let c := sourceLogWeights4 Q (allpoint_balanced_values4 Q a)
+  let d := finiteWeightApprox4 448 c
+  obtain ⟨hd,hdreal,hdfin⟩ := finiteWeightApprox4_bounds 448 (by norm_num) c hc
+  have hq0 := zero_lt_one.trans hQ
+  have hnz : z≠0 := by
+    intro he
+    obtain ⟨b,hb⟩ := hz
+    simp [he] at hb
+  refine ⟨choice,d,finiteWeightApprox4_mem 448 (by norm_num) c hc,hd,
+    hnz,hQ,by norm_num,?_,?_,?_⟩
+  · intro i
+    rw [retained_real_apply4]
+    have heq : |(fourRetainedForm (choice 0) i (fun j => (z j : ℚ)) : ℝ)|=a 0 i := by
+      simp [a,allpoint_norms4,rationalPlaceNorm]
+    rw [heq,hr]
+    apply Real.rpow_le_rpow_of_exponent_le hQ.le
+    have hh := hdreal i
+    norm_num at hh
+    linarith
+  · intro i
+    rw [retained_rational_apply4]
+    change a 1 i≤Q^(d 1 i)
+    rw [hf 1 (by decide) i]
+    exact Real.rpow_le_rpow_of_exponent_le hQ.le (hdfin 1 (by decide) i)
+  · intro i
+    rw [retained_rational_apply4]
+    change a 2 i≤Q^(d 2 i)
+    rw [hf 2 (by decide) i]
+    exact Real.rpow_le_rpow_of_exponent_le hQ.le (hdfin 2 (by decide) i)
+
+
+open scoped BigOperators Matrix
+
+def allpointEligible4 (z : Fin 4 → ℤ) : Prop :=
+  PrimitiveFour z ∧ ∃ x : Fin 5 → ℚ,x∈normalizedRelations fixedSUnitGroup 4 ∧
+    ∃ s : fixedSUnitGroup,∀ i : Fin 4,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc
+
+theorem four_retained_pattern_count : Fintype.card (Fin 3 → Fin 4)=64 := by decide
+
+theorem allpoint_joint_parameters_finite4 :
+    ((Set.univ : Set (Fin 3 → Fin 4)) ×ˢ finiteWeightCandidates4 448).Finite :=
+  Set.finite_univ.prod (finiteWeightCandidates4_finite 448)
+
+theorem allpoint_source_family4 (Omega : Set ℝ) (hOmega : ¬BddAbove Omega)
+    (x : Omega → Fin 5 → ℚ) (hx : ∀ q,x q∈normalizedRelations fixedSUnitGroup 4)
+    (z : Omega → Fin 4 → ℤ) (s : Omega → fixedSUnitGroup)
+    (hz : ∀ q,PrimitiveFour (z q))
+    (hscale : ∀ q,∀ i : Fin 4,(z q i : ℚ)=((s q : ℚˣ) : ℚ)*x q i.castSucc)
+    (hH : ∀ q,4≤(archFourHeight (z q) : ℝ))
+    (hparam : ∀ q,q.val=(archFourHeight (z q) : ℝ)^8) :
+    ∃ P : Submodule ℚ (Fin 4 → ℚ),P≠⊤ ∧ ∃ W : Set ℝ,W⊆Omega ∧ ¬BddAbove W ∧
+      ∀ q : Omega,q.val∈W → (fun i => (z q i : ℚ))∈P := by
+  classical
+  have hp (q : Omega) : ∃ choice : Fin 3 → Fin 4,∃ d∈finiteWeightCandidates4 448,
+      sourceWeightConditions4 d ∧
+      CompoundFeasibility.OriginalVariableGap4.originalSourceSolution4
+        (retainedRationalMatrix4 (choice 1)) (retainedRationalMatrix4 (choice 2))
+        (retainedRealMatrix4 (choice 0)) (d 0) (d 1) (d 2) q.val ((1 : ℝ)/64) (z q) := by
+    simpa only [← hparam q] using allpoint_fixed_source_point4 (hx q) (z q) (s q) (hz q) (hscale q) (hH q)
+  choose choice d hd hc hsol using hp
+  let F : Set ((Fin 3 → Fin 4) × (Fin 3 → Fin 4 → ℝ)) := Set.univ ×ˢ finiteWeightCandidates4 448
+  have hF : F.Finite := allpoint_joint_parameters_finite4
+  let a (Q : ℝ) := if h : Q∈Omega then (choice ⟨Q,h⟩,d ⟨Q,h⟩) else (fun _ => 0,fun _ _ => 0)
+  have ha : ∀ Q∈Omega,a Q∈F := by
+    intro Q h
+    simp only [a,dif_pos h,F,Set.mem_prod,Set.mem_univ,true_and]
+    exact hd ⟨Q,h⟩
+  obtain ⟨⟨k,c⟩,hkc,hT⟩ := allpoint_finite_parameter_fiber3 F hF Omega hOmega a ha
+  let T : Set ℝ := {Q | Q∈Omega ∧ a Q=(k,c)}
+  let embed (t : T) : Omega := ⟨t.val,t.property.1⟩
+  have he (t : T) : choice (embed t)=k ∧ d (embed t)=c := by
+    have hh := t.property.2
+    simp only [a,dif_pos t.property.1] at hh
+    exact Prod.mk.inj hh
+  have hcfix : sourceWeightConditions4 c := hkc.2.2
+  have hs (t : T) : CompoundFeasibility.OriginalVariableGap4.originalSourceSolution4
+      (retainedRationalMatrix4 (k 1)) (retainedRationalMatrix4 (k 2))
+      (retainedRealMatrix4 (k 0)) (c 0) (c 1) (c 2) t.val ((1 : ℝ)/64) (z (embed t)) := by
+    have hh := hsol (embed t)
+    simpa only [(he t).1,(he t).2] using hh
+  have htQ : ∀ Q∈T,1<Q := fun Q h => (hs ⟨Q,h⟩).2.1
+  have hbal : ∑ i : Fin 4,(c 0 i+c 1 i+c 2 i)=0 := by
+    have hh := hcfix.2.2
+    simpa [Fin.sum_univ_three,Finset.sum_add_distrib] using hh
+  have hAlg : ∀ i j,IsAlgebraic ℚ (retainedRealMatrix4 (k 0) i j) := by
+    intro i j
+    exact isAlgebraic_int _
+  obtain ⟨P,hP,W,hWT,hW,hm⟩ := allpoint_fixed_source_family4
+    (retainedRationalMatrix4 (k 1)) (retainedRationalMatrix4 (k 2))
+    (retainedRealMatrix4 (k 0)) (retained_rational_det4 _) (retained_rational_det4 _)
+    (retained_real_det4 _) hAlg (c 0) (c 1) (c 2) hcfix.1
+    (hcfix.2.1 1 (by decide)) (hcfix.2.1 2 (by decide)) hbal ((1 : ℝ)/64) (by norm_num)
+    T hT htQ (fun t => z (embed t)) hs
+  refine ⟨P,hP,W,fun Q h => (hWT h).1,hW,?_⟩
+  intro q hqW
+  exact hm ⟨q.val,hWT hqW⟩ hqW
+
+
+open scoped BigOperators Matrix
+
+theorem source_primitive_five_term_finite_cover4 :
+    ∃ F : Set (Submodule ℚ (Fin 4 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ z : Fin 4 → ℤ,allpointEligible4 z → ∃ P∈F,(fun i => (z i : ℚ))∈P := by
+  classical
+  by_contra hno
+  change allpoint_no_finite_cover4 allpointEligible4 at hno
+  obtain ⟨z,hE,hheight,hmono,havoid⟩ := allpoint_general_position_sequence4 allpointEligible4 hno
+  choose x hx s hscale using fun n => (hE n).2
+  let q (n : ℕ) : ℝ := (archFourHeight (z n) : ℝ)^8
+  let Omega : Set ℝ := Set.range q
+  have hOmega : ¬BddAbove Omega := by
+    rintro ⟨M,hM⟩
+    obtain ⟨n,hn⟩ := exists_nat_gt M
+    have hb := hM (show q n∈Omega from Set.mem_range_self n)
+    have hH := (hheight n).1
+    have hHn := (hheight n).2
+    have hsq : (archFourHeight (z n) : ℝ)≤(archFourHeight (z n) : ℝ)^2 := by nlinarith
+    have hfour : (archFourHeight (z n) : ℝ)^2≤(archFourHeight (z n) : ℝ)^4 := by
+      nlinarith [sq_nonneg ((archFourHeight (z n) : ℝ)^2-1)]
+    have height : (archFourHeight (z n) : ℝ)^4≤(archFourHeight (z n) : ℝ)^8 := by
+      nlinarith [sq_nonneg ((archFourHeight (z n) : ℝ)^4-1)]
+    change (archFourHeight (z n) : ℝ)^8≤M at hb
+    linarith
+  have hex (t : Omega) : ∃ n : ℕ,q n=t.val := t.property
+  choose original hparam using hex
+  obtain ⟨P,hP,W,hWO,hW,hm⟩ := allpoint_source_family4 Omega hOmega
+    (fun t => x (original t)) (fun t => hx (original t)) (fun t => z (original t))
+    (fun t => s (original t)) (fun t => (hE (original t)).1) (fun t => hscale (original t))
+    (fun t => (hheight (original t)).1.le) (fun t => (hparam t).symm)
+  have hS := allpoint_general_position_intersection4 z (fun n => (hheight n).1) havoid P hP
+  have hsub : W⊆q '' {n | (fun i => (z n i : ℚ))∈P} := by
+    intro Q hQW
+    let t : Omega := ⟨Q,hWO hQW⟩
+    exact ⟨original t,hm t hQW,hparam t⟩
+  exact hW ((hS.image q).bddAbove.mono hsub)
+
+theorem allpoint_five_term_original_mem4 {x : Fin 5 → ℚ}
+    (P : Submodule ℚ (Fin 4 → ℚ)) (w : Fin 5 → ℤ) (s : fixedSUnitGroup)
+    (hscale : ∀ i,(w i : ℚ)=((s : ℚˣ) : ℚ)*x i)
+    (hw : (fun i : Fin 4 => (w i.castSucc : ℚ))∈P) :
+    (fun i : Fin 4 => x i.castSucc)∈P := by
+  have hs : ((s : ℚˣ) : ℚ)≠0 := Units.ne_zero _
+  have hm := P.smul_mem (((s : ℚˣ) : ℚ)⁻¹) hw
+  have he : (((s : ℚˣ) : ℚ)⁻¹) • (fun i : Fin 4 => (w i.castSucc : ℚ))=
+      (fun i : Fin 4 => x i.castSucc) := by
+    ext i
+    change ((s : ℚˣ) : ℚ)⁻¹*(w i.castSucc : ℚ)=x i.castSucc
+    rw [hscale,inv_mul_cancel_left₀ hs]
+  rw [he] at hm
+  exact hm
+
+theorem source_five_term_finite_cover4 :
+    ∃ F : Set (Submodule ℚ (Fin 4 → ℚ)),
+      F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ x∈normalizedRelations fixedSUnitGroup 4,
+        ∃ P∈F,(fun i : Fin 4 => x i.castSucc)∈P := by
+  obtain ⟨F,hF,hproper,hcover⟩ := source_primitive_five_term_finite_cover4
+  refine ⟨F,hF,hproper,?_⟩
+  intro x hx
+  obtain ⟨w,s,hprim,_,_,_,hscale,_⟩ := exists_primitive_five_term_relation hx
+  obtain ⟨P,hPF,hwP⟩ := hcover (fun i => w i.castSucc) ⟨hprim,x,hx,s,fun i => hscale i.castSucc⟩
+  exact ⟨P,hPF,allpoint_five_term_original_mem4 P w s hscale hwP⟩
+
+
+end Literal254C
+
+#check Literal254C.retainedRationalMatrix4
+#print axioms Literal254C.retainedRationalMatrix4
+#check Literal254C.retainedRealMatrix4
+#print axioms Literal254C.retainedRealMatrix4
+#check Literal254C.retained_rational_det4
+#print axioms Literal254C.retained_rational_det4
+#check Literal254C.retained_real_det4
+#print axioms Literal254C.retained_real_det4
+#check Literal254C.retained_rational_apply4
+#print axioms Literal254C.retained_rational_apply4
+#check Literal254C.retained_real_apply4
+#print axioms Literal254C.retained_real_apply4
+#check Literal254C.allpoint_norms4
+#print axioms Literal254C.allpoint_norms4
+#check Literal254C.allpoint_fixed_source_point4
+#print axioms Literal254C.allpoint_fixed_source_point4
+#check Literal254C.allpointEligible4
+#print axioms Literal254C.allpointEligible4
+#check Literal254C.four_retained_pattern_count
+#print axioms Literal254C.four_retained_pattern_count
+#check Literal254C.allpoint_joint_parameters_finite4
+#print axioms Literal254C.allpoint_joint_parameters_finite4
+#check Literal254C.allpoint_source_family4
+#print axioms Literal254C.allpoint_source_family4
+#check Literal254C.source_primitive_five_term_finite_cover4
+#print axioms Literal254C.source_primitive_five_term_finite_cover4
+#check Literal254C.allpoint_five_term_original_mem4
+#print axioms Literal254C.allpoint_five_term_original_mem4
+#check Literal254C.source_five_term_finite_cover4
+#print axioms Literal254C.source_five_term_finite_cover4

@@ -1,0 +1,93 @@
+import SubspaceBridge.SourceAnnihilation225
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSecondMinimum226
+open OriginalDual10 SourceOriginalDual10 SourceSatz51Entry218 SourceDualGeometry219 SourceDualAnnihilation222 SourceAnnihilation225
+
+theorem functional_lastDual226 (u : Fin 10 → Fin 10 → ℚ) (hu : LinearIndependent ℚ u)
+    (f : Module.Dual ℚ (Fin 10 → ℚ)) (hf : ∀ j : Fin 9, f (u j.castSucc) = 0) :
+    f = f (u 9) • rationalFrameDual42 u hu 9 := by
+  apply (rationalFrameBasis42 u hu).ext
+  intro j
+  rw [rationalFrameBasis42_apply, LinearMap.smul_apply, rationalFrameDual42_pairing]
+  refine Fin.lastCases ?_ (fun i => ?_) j
+  · simp
+  · rw [hf]
+    simp [show i.castSucc ≠ (9 : Fin 10) by intro h; have := congrArg Fin.val h; simp at this; omega]
+
+theorem rational_annihilator226 (u : Fin 10 → Fin 10 → ℚ) (hu : LinearIndependent ℚ u)
+    (y : Fin 10 → ℚ) (hy : ∀ j : Fin 9, ∑ i, u j.castSucc i * y i = 0) :
+    y ∈ Submodule.span ℚ {lastDual10 u hu} := by
+  let f : Module.Dual ℚ (Fin 10 → ℚ) := ∑ i, y i • LinearMap.proj i
+  have hf (x : Fin 10 → ℚ) : f x = ∑ i, x i * y i := by
+    rw [functional_coordinates_dual10 f x]
+    simp [f, Pi.single_apply]
+  have hrel := functional_lastDual226 u hu f (fun j => (hf _).trans (hy j))
+  have he : y = f (u 9) • lastDual10 u hu := by
+    funext i
+    have hi := congrArg (fun g : Module.Dual ℚ (Fin 10 → ℚ) => g (Pi.single i 1)) hrel
+    simpa [f, lastDual10, Pi.single_apply] using hi
+  rw [he]
+  exact Submodule.smul_mem _ _ (Submodule.subset_span (Set.mem_singleton _))
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem same_frame_line226 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    integerLastDual10 D.u ≠ 0 ∧ ∀ y : Fin 10 → ℚ,
+      (∀ j : Fin 9, pairing219 y (D.u j.castSucc) = 0) →
+      y ∈ Submodule.span ℚ {fun i => (integerLastDual10 D.u i : ℚ)} := by
+  have hu := integer_frame_rational_independent10 D.u D.independent
+  refine ⟨integerLastDual10_nonzero D.u hu, ?_⟩
+  intro y hy
+  rw [integerLastDual10_line D.u hu]
+  exact rational_annihilator226 _ hu y hy
+
+theorem rational_line_real226 (M : Fin 10 → ℤ) (z : Fin 10 → ℚ)
+    (hz : z ∈ Submodule.span ℚ {fun i => (M i : ℚ)}) :
+    ratReal222 z ∈ Submodule.span ℝ {fun i => (M i : ℝ)} := by
+  obtain ⟨a, ha⟩ := Submodule.mem_span_singleton.mp hz
+  apply Submodule.mem_span_singleton.mpr
+  refine ⟨(a : ℝ), ?_⟩
+  ext i
+  have hi := congrArg (fun v : Fin 10 → ℚ => (v i : ℝ)) ha
+  simpa [ratReal222] using hi
+
+theorem rational_line_pair226 (M : Fin 10 → ℤ) (z1 z2 : Fin 10 → ℚ)
+    (h1 : z1 ∈ Submodule.span ℚ {fun i => (M i : ℚ)})
+    (h2 : z2 ∈ Submodule.span ℚ {fun i => (M i : ℚ)}) :
+    ∃ a b : ℚ, z1 = a • (fun i => (M i : ℚ)) ∧ z2 = b • (fun i => (M i : ℚ)) := by
+  obtain ⟨a, ha⟩ := Submodule.mem_span_singleton.mp h1
+  obtain ⟨b, hb⟩ := Submodule.mem_span_singleton.mp h2
+  exact ⟨a, b, ha.symm, hb.symm⟩
+
+theorem real_line_pair_dependent226 (M : Fin 10 → ℤ) (z1 z2 : Fin 10 → ℚ)
+    (h1 : z1 ∈ Submodule.span ℚ {fun i => (M i : ℚ)})
+    (h2 : z2 ∈ Submodule.span ℚ {fun i => (M i : ℚ)}) :
+    ¬ LinearIndependent ℝ (fun i : Fin 2 => if i = 0 then ratReal222 z1 else ratReal222 z2) := by
+  intro h
+  obtain ⟨i, hi⟩ := independent_family_escapes_subspace10 _ h
+    (Submodule.span ℝ {fun i => (M i : ℝ)})
+    (lt_of_le_of_lt (show Module.finrank ℝ (Submodule.span ℝ {fun i => (M i : ℝ)}) ≤ 1 from
+      by simpa using (finrank_span_le_card ({fun i => (M i : ℝ)} : Set (Fin 10 → ℝ))))
+      (by norm_num))
+  by_cases he : i = 0
+  · exact hi (by simpa [he] using rational_line_real226 M z1 h1)
+  · exact hi (by simpa [he] using rational_line_real226 M z2 h2)
+
+theorem source_short_line226 (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+      (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L) (q : ℝ), T < q →
+      ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℚ),
+        z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3) →
+        dualGauge222 L hL
+          (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+          (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive (ratReal222 z) ≤ 2 →
+        z ∈ Submodule.span ℚ {fun i => (integerLastDual10 D.u i : ℚ)} := by
+  obtain ⟨T, hT, h⟩ := source_uniform_annihilation225 delta hd
+  refine ⟨T, hT, ?_⟩
+  intro A2 A3 L hL q hqT hq c2 c3 A D z hz hg
+  exact (same_frame_line226 D).2 z (h A2 A3 L hL q hqT hq c2 c3 A D z hz hg)
+
+end CompoundFeasibility.SourceSecondMinimum226

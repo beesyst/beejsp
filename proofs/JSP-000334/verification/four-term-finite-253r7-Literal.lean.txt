@@ -1,0 +1,291 @@
+import SubspaceBridge.AllPointFiniteCover3
+import SubspaceBridge.WeightedPairFiniteness2
+open scoped BigOperators Classical Matrix
+open JSP000334
+namespace LiteralR7
+
+
+def fourTermCoefficientFiber (a0 a1 a2 : ℚ) : Set (Fin 4 → ℚ) :=
+  {x | x ∈ normalizedRelations fixedSUnitGroup 3 ∧ a0*x 0+a1*x 1+a2*x 2=0}
+
+theorem four_term_weighted_projection_finite (S : Set (Fin 4 → ℚ))
+    (hs : S ⊆ normalizedRelations fixedSUnitGroup 3)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (i j : Fin 4) (recover : ℚ → ℚ → (Fin 4 → ℚ))
+    (heq : ∀ x∈S,A+B*x i+C*x j=0)
+    (hrec : ∀ x∈S,recover (x i) (x j)=x) : S.Finite := by
+  let f : (fixedSUnitGroup × fixedSUnitGroup) → (Fin 4 → ℚ) :=
+    fun p => recover ((p.1 : ℚˣ) : ℚ) ((p.2 : ℚˣ) : ℚ)
+  apply ((weighted_fixed_sunit_pair_finite A B C hA hB hC).image f).subset
+  intro x hx
+  obtain ⟨u,hu⟩ := (hs hx).2.1 i
+  obtain ⟨v,hv⟩ := (hs hx).2.1 j
+  refine ⟨(u,v),?_,?_⟩
+  · change A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)=0
+    rw [hu,hv]
+    exact heq x hx
+  · change recover ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ)=x
+    rw [hu,hv]
+    exact hrec x hx
+
+theorem four_term_coordinate_reconstruction (x : Fin 4 → ℚ) (h0 : x 0=1)
+    (hs : x 0+x 1+x 2+x 3=0) : ![1,x 1,x 2,-1-x 1-x 2]=x := by
+  ext i
+  fin_cases i
+  · exact h0.symm
+  · rfl
+  · rfl
+  · change -1-x 1-x 2=x 3
+    linarith
+
+
+
+theorem four_term_relation_facts {x : Fin 4 → ℚ}
+    (hx : x ∈ normalizedRelations fixedSUnitGroup 3) :
+    x 0=1 ∧ x 0+x 1+x 2+x 3=0 ∧
+      x 0+x 1≠0 ∧ x 0+x 2≠0 ∧ x 1+x 2≠0 ∧ ∀ i,x i≠0 := by
+  refine ⟨hx.1,?_,?_,?_,?_,?_⟩
+  · simpa [Fin.sum_univ_succ,add_assoc] using hx.2.2.1
+  · simpa using hx.2.2.2 ({0,1} : Finset (Fin 4)) (by decide) (by decide)
+  · simpa using hx.2.2.2 ({0,2} : Finset (Fin 4)) (by decide) (by decide)
+  · simpa using hx.2.2.2 ({1,2} : Finset (Fin 4)) (by decide) (by decide)
+  · intro i
+    obtain ⟨u,hu⟩ := hx.2.1 i
+    rw [← hu]
+    exact Units.ne_zero _
+
+theorem four_term_original_mem {x : Fin 4 → ℚ}
+    (hx : x ∈ normalizedRelations fixedSUnitGroup 3)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (w : Fin 4 → ℤ) (s : fixedSUnitGroup)
+    (hscale : ∀ i,(w i : ℚ)=((s : ℚˣ) : ℚ)*x i)
+    (hw : (fun i : Fin 3 => (w i.castSucc : ℚ)) ∈ P) : ![1,x 1,x 2] ∈ P := by
+  have hs : ((s : ℚˣ) : ℚ)≠0 := Units.ne_zero _
+  have hm := P.smul_mem (((s : ℚˣ) : ℚ)⁻¹) hw
+  have he : (((s : ℚˣ) : ℚ)⁻¹) • (fun i : Fin 3 => (w i.castSucc : ℚ)) =
+      (fun i : Fin 3 => x i.castSucc) := by
+    ext i
+    change ((s : ℚˣ) : ℚ)⁻¹*(w i.castSucc : ℚ)=x i.castSucc
+    rw [hscale,inv_mul_cancel_left₀ hs]
+  rw [he] at hm
+  have hv : (fun i : Fin 3 => x i.castSucc) = ![1,x 1,x 2] := by
+    ext i
+    fin_cases i
+    · exact hx.1
+    · rfl
+    · rfl
+  rw [hv] at hm
+  exact hm
+
+theorem four_term_proper_annihilator (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤) :
+    ∃ a0 a1 a2 : ℚ,(a0≠0 ∨ a1≠0 ∨ a2≠0) ∧
+      ∀ y∈P,a0*y 0+a1*y 1+a2*y 2=0 := by
+  obtain ⟨f,hf,hker⟩ := P.exists_le_ker_of_lt_top (lt_top_iff_ne_top.mpr hP)
+  have heval (y : Fin 3 → ℚ) : f y=f ![1,0,0]*y 0+f ![0,1,0]*y 1+f ![0,0,1]*y 2 := by
+    have hy : y=y 0 • ![(1 : ℚ),0,0]+y 1 • ![0,1,0]+y 2 • ![0,0,1] := by
+      ext i
+      fin_cases i <;> simp
+    conv_lhs => rw [hy]
+    simp only [map_add,map_smul,smul_eq_mul]
+    ring
+  refine ⟨f ![1,0,0],f ![0,1,0],f ![0,0,1],?_,?_⟩
+  · by_contra hn
+    push_neg at hn
+    apply hf
+    apply LinearMap.ext
+    intro y
+    simpa [hn.1,hn.2.1,hn.2.2] using heval y
+  · intro y hy
+    have hk : f y=0 := hker hy
+    rw [heval] at hk
+    exact hk
+
+
+
+theorem four_term_fiber_all_nonzero (a0 a1 a2 : ℚ) (h0 : a0≠0) (h1 : a1≠0) (h2 : a2≠0) :
+    (fourTermCoefficientFiber a0 a1 a2).Finite := by
+  apply four_term_weighted_projection_finite _ (fun _ hx => hx.1) a0 a1 a2 h0 h1 h2 1 2
+    (fun u v => ![1,u,v,-1-u-v])
+  · intro x hx
+    simpa only [hx.1.1,mul_one] using hx.2
+  · intro x hx
+    exact four_term_coordinate_reconstruction x hx.1.1 (four_term_relation_facts hx.1).2.1
+
+theorem four_term_fiber_fixed_first (a0 a1 : ℚ) (h1 : a1≠0) :
+    (fourTermCoefficientFiber a0 a1 0).Finite := by
+  let k : ℚ := -a0/a1
+  have hc : ∀ x∈fourTermCoefficientFiber a0 a1 0,x 1=k := by
+    intro x hx
+    apply (eq_div_iff h1).mpr
+    have he := hx.2
+    rw [hx.1.1] at he
+    nlinarith only [he]
+  by_cases hk : 1+k=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := (four_term_relation_facts hx.1).2.2.1
+    exact False.elim (hn (by rw [hx.1.1,hc x hx]; exact hk))
+  · apply four_term_weighted_projection_finite _ (fun _ hx => hx.1) (1+k) 1 1 hk
+      one_ne_zero one_ne_zero 2 3 (fun v t => ![1,k,v,t])
+    · intro x hx
+      have hs := (four_term_relation_facts hx.1).2.1
+      rw [hx.1.1,hc x hx] at hs
+      simpa only [one_mul] using hs
+    · intro x hx
+      ext i
+      fin_cases i
+      · exact hx.1.1.symm
+      · exact (hc x hx).symm
+      · rfl
+      · rfl
+
+theorem four_term_fiber_fixed_second (a0 a2 : ℚ) (h2 : a2≠0) :
+    (fourTermCoefficientFiber a0 0 a2).Finite := by
+  let k : ℚ := -a0/a2
+  have hc : ∀ x∈fourTermCoefficientFiber a0 0 a2,x 2=k := by
+    intro x hx
+    apply (eq_div_iff h2).mpr
+    have he := hx.2
+    rw [hx.1.1] at he
+    nlinarith only [he]
+  by_cases hk : 1+k=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := (four_term_relation_facts hx.1).2.2.2.1
+    exact False.elim (hn (by rw [hx.1.1,hc x hx]; exact hk))
+  · apply four_term_weighted_projection_finite _ (fun _ hx => hx.1) (1+k) 1 1 hk
+      one_ne_zero one_ne_zero 1 3 (fun u t => ![1,u,k,t])
+    · intro x hx
+      have hs := (four_term_relation_facts hx.1).2.1
+      rw [hx.1.1,hc x hx] at hs
+      simp only [one_mul]
+      linarith only [hs]
+    · intro x hx
+      ext i
+      fin_cases i
+      · exact hx.1.1.symm
+      · rfl
+      · exact (hc x hx).symm
+      · rfl
+
+theorem four_term_fiber_ratio (a1 a2 : ℚ) (h2 : a2≠0) :
+    (fourTermCoefficientFiber 0 a1 a2).Finite := by
+  let k : ℚ := -a1/a2
+  have hc : ∀ x∈fourTermCoefficientFiber 0 a1 a2,x 2=k*x 1 := by
+    intro x hx
+    change x 2=(-a1/a2)*x 1
+    rw [div_mul_eq_mul_div]
+    apply (eq_div_iff h2).mpr
+    have he := hx.2
+    nlinarith only [he]
+  by_cases hk : 1+k=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := (four_term_relation_facts hx.1).2.2.2.2.1
+    have he : x 1+x 2=(1+k)*x 1 := by rw [hc x hx]; ring
+    rw [hk,zero_mul] at he
+    exact False.elim (hn he)
+  · apply four_term_weighted_projection_finite _ (fun _ hx => hx.1) 1 (1+k) 1
+      one_ne_zero hk one_ne_zero 1 3 (fun u t => ![1,u,k*u,t])
+    · intro x hx
+      have hs := (four_term_relation_facts hx.1).2.1
+      rw [hx.1.1,hc x hx] at hs
+      simp only [one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      ext i
+      fin_cases i
+      · exact hx.1.1.symm
+      · rfl
+      · exact (hc x hx).symm
+      · rfl
+
+theorem four_term_coefficient_fiber_finite (a0 a1 a2 : ℚ)
+    (ha : a0≠0 ∨ a1≠0 ∨ a2≠0) : (fourTermCoefficientFiber a0 a1 a2).Finite := by
+  by_cases h0 : a0=0
+  · subst a0
+    by_cases h1 : a1=0
+    · subst a1
+      have h2 : a2≠0 := by simpa using ha
+      apply Set.finite_empty.subset
+      intro x hx
+      have hn := (four_term_relation_facts hx.1).2.2.2.2.2 2
+      have he : a2*x 2=0 := by simpa using hx.2
+      exact False.elim ((mul_ne_zero h2 hn) he)
+    · by_cases h2 : a2=0
+      · subst a2
+        apply Set.finite_empty.subset
+        intro x hx
+        have hn := (four_term_relation_facts hx.1).2.2.2.2.2 1
+        have he : a1*x 1=0 := by simpa using hx.2
+        exact False.elim ((mul_ne_zero h1 hn) he)
+      · exact four_term_fiber_ratio a1 a2 h2
+  · by_cases h1 : a1=0
+    · subst a1
+      by_cases h2 : a2=0
+      · subst a2
+        apply Set.finite_empty.subset
+        intro x hx
+        have he : a0=0 := by simpa [hx.1.1] using hx.2
+        exact False.elim (h0 he)
+      · exact four_term_fiber_fixed_second a0 a2 h2
+    · by_cases h2 : a2=0
+      · subst a2
+        exact four_term_fiber_fixed_first a0 a1 h1
+      · exact four_term_fiber_all_nonzero a0 a1 a2 h0 h1 h2
+
+
+
+def fourTermProperFiber (P : Submodule ℚ (Fin 3 → ℚ)) : Set (Fin 4 → ℚ) :=
+  {x | x ∈ normalizedRelations fixedSUnitGroup 3 ∧ ![1,x 1,x 2] ∈ P}
+
+theorem four_term_proper_fiber_finite (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤) :
+    (fourTermProperFiber P).Finite := by
+  obtain ⟨a0,a1,a2,ha,hann⟩ := four_term_proper_annihilator P hP
+  apply (four_term_coefficient_fiber_finite a0 a1 a2 ha).subset
+  intro x hx
+  refine ⟨hx.1,?_⟩
+  have he : a0*1+a1*x 1+a2*x 2=0 := hann _ hx.2
+  simpa only [hx.1.1] using he
+
+theorem fixed_four_term_finite :
+    (normalizedRelations fixedSUnitGroup 3).Finite := by
+  obtain ⟨F,hF,hproper,hcover⟩ := source_four_term_finite_cover3
+  have hU : (⋃ P∈F,fourTermProperFiber P).Finite :=
+    hF.biUnion (fun P hP => four_term_proper_fiber_finite P (hproper P hP))
+  apply hU.subset
+  intro x hx
+  obtain ⟨w,s,_,_,_,_,hscale,_,P,hPF,hwP⟩ := hcover x hx
+  have hxP := four_term_original_mem hx P w s hscale hwP
+  exact Set.mem_iUnion.mpr ⟨P,Set.mem_iUnion.mpr ⟨hPF,⟨hx,hxP⟩⟩⟩
+
+
+end LiteralR7
+
+#check LiteralR7.fourTermCoefficientFiber
+#print axioms LiteralR7.fourTermCoefficientFiber
+#check LiteralR7.four_term_weighted_projection_finite
+#print axioms LiteralR7.four_term_weighted_projection_finite
+#check LiteralR7.four_term_coordinate_reconstruction
+#print axioms LiteralR7.four_term_coordinate_reconstruction
+#check LiteralR7.four_term_relation_facts
+#print axioms LiteralR7.four_term_relation_facts
+#check LiteralR7.four_term_original_mem
+#print axioms LiteralR7.four_term_original_mem
+#check LiteralR7.four_term_proper_annihilator
+#print axioms LiteralR7.four_term_proper_annihilator
+#check LiteralR7.four_term_fiber_all_nonzero
+#print axioms LiteralR7.four_term_fiber_all_nonzero
+#check LiteralR7.four_term_fiber_fixed_first
+#print axioms LiteralR7.four_term_fiber_fixed_first
+#check LiteralR7.four_term_fiber_fixed_second
+#print axioms LiteralR7.four_term_fiber_fixed_second
+#check LiteralR7.four_term_fiber_ratio
+#print axioms LiteralR7.four_term_fiber_ratio
+#check LiteralR7.four_term_coefficient_fiber_finite
+#print axioms LiteralR7.four_term_coefficient_fiber_finite
+#check LiteralR7.fourTermProperFiber
+#print axioms LiteralR7.fourTermProperFiber
+#check LiteralR7.four_term_proper_fiber_finite
+#print axioms LiteralR7.four_term_proper_fiber_finite
+#check LiteralR7.fixed_four_term_finite
+#print axioms LiteralR7.fixed_four_term_finite

@@ -1,0 +1,651 @@
+import SubspaceBridge.NormalIndex10
+import SubspaceBridge.SourceAuxiliaryPolynomial10
+import SubspaceBridge.SourceFiniteSampling10
+import SubspaceBridge.SourceOriginalFrame10
+import SubspaceBridge.SourceWeightSampling10
+import Lean.Util.FoldConsts
+namespace M199RLiteral
+open _root_.CompoundFeasibility _root_.CompoundFeasibility.SourceSampling10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+open OriginalDeformation10
+
+theorem fixed_width_exponents10 (U : Set ℝ) (hU : ¬ BddAbove U)
+    (hQ : ∀ q ∈ U, 1 < q) (W : U → Fin 10 → ℝ) (c2 c3 : Fin 10 → ℝ)
+    (hW : ∀ q i, 0 < W q i)
+    (hsizes : ∀ q i, W q i < q.val^5 ∧ (W q i)⁻¹ < q.val^5)
+    (hbal : ∀ q, (∏ i, W q i)*(∏ i, q.val^(c2 i+c3 i)) = 1)
+    (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+      ∃ a : Fin 10 → ℝ, (∀ i, -1 < a i ∧ a i < 1) ∧
+        (∑ i, a i)+(∑ i, c2 i/5)+(∑ i, c3 i/5) = 0 ∧
+        ∀ q : V, ∀ i, W ⟨q.val,hVU q.property⟩ i ≤ (q.val^5)^(a i+epsilon) := by
+  let alpha (q : ℝ) (i : Fin 10) := if hq : q ∈ U then logWeight10 (q^5) (W ⟨q,hq⟩ i) else 0
+  have halpha (q : U) (i) : alpha q.val i = logWeight10 (q.val^5) (W q i) := by
+    simp only [alpha,dif_pos q.property]
+  have hQ5 (q : U) : 1 < q.val^5 := one_lt_pow₀ (hQ q.val q.property) (by decide)
+  have hab (q : U) (i) : -1 < alpha q.val i ∧ alpha q.val i < 1 := by
+    rw [halpha]
+    exact logWeight10_bounds _ _ (hQ5 q) (hW q i) (hsizes q i).1 (hsizes q i).2
+  obtain ⟨V,hVU,hV,q0,hq0,hclose⟩ := select_unbounded_weights10 U hU alpha
+    (fun q hq i => abs_le.mpr ⟨(hab ⟨q,hq⟩ i).1.le,(hab ⟨q,hq⟩ i).2.le⟩) epsilon he
+  let q : U := ⟨q0,hVU hq0⟩
+  have hp : (∏ i, W q i*(q0^5)^(c2 i/5)*(q0^5)^(c3 i/5)) = 1 := by
+    simp_rw [rescaled_power10 q0 _ (zero_lt_one.trans (hQ q0 q.property))]
+    rw [Finset.prod_mul_distrib,Finset.prod_mul_distrib,mul_assoc,← Finset.prod_mul_distrib]
+    simpa only [← Real.rpow_add (zero_lt_one.trans (hQ q0 q.property))] using hbal q
+  have hb := logWeight10_balance (q0^5) (hQ5 q) (W q) (fun i => c2 i/5) (fun i => c3 i/5) (hW q) hp
+  refine ⟨V,hVU,hV,alpha q0,hab q,?_,?_⟩
+  · have hs : (∑ i, alpha q0 i) = ∑ i, logWeight10 (q0^5) (W q i) := by
+      apply Finset.sum_congr rfl
+      intro i hi
+      exact halpha q i
+    rw [hs]
+    exact hb
+  · intro v i
+    have hv : alpha v.val i ≤ alpha q0 i+epsilon := by
+      have hh := (abs_lt.mp (hclose v.val v.property i)).2
+      linarith
+    have hpow := Real.rpow_le_rpow_of_exponent_le (hQ5 ⟨v.val,hVU v.property⟩).le hv
+    rw [halpha ⟨v.val,hVU v.property⟩ i,logWeight10_power _ _ (hQ5 ⟨v.val,hVU v.property⟩) (hW ⟨v.val,hVU v.property⟩ i)] at hpow
+    exact hpow
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+open OriginalDeformation10
+
+structure OriginalFrameWitness10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (Q delta : ℝ) (c2 c3 : Fin 10 → ℝ)
+    (u : Fin 10 → Fin 10 → ℤ) where
+  w : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3
+  W : Fin 10 → ℝ
+  independent : LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ))
+  flag : minimaFlag10 (fun i => integerReal (u i)) 9 =
+    minimaFlag10 (fun i => integerReal (w i : Fin 10 → ℤ)) 9
+  positive : ∀ i, 0 < W i
+  balance : (∏ i, W i)*(∏ i, Q^(c2 i+c3 i)) = 1
+  sizes : ∀ i, W i < Q^5 ∧ (W i)⁻¹ < Q^5
+  small : ∀ (j : Fin 9) i, |(L *ᵥ integerReal (w j.castSucc : Fin 10 → ℤ)) i| ≤
+    (Q^5)^(-(delta/60))*W i
+
+theorem original_frame_witness10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L)
+    (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ),
+    (∀ i, |c0 i| ≤ 1) → (∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) →
+    (∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 → T < Q →
+    ∀ u : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3,
+    LinearIndependent ℝ (fun i => integerReal (u i : Fin 10 → ℤ)) →
+    (∀ i, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0)
+      (integerReal (u i : Fin 10 → ℤ)) = sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 i) →
+    sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9*Q^(-delta) →
+    Nonempty (OriginalFrameWitness10 A2 A3 L Q delta c2 c3 (fun i => (u i : Fin 10 → ℤ))) := by
+  obtain ⟨T,hT,hsource⟩ := source_original_deformed_frame10 A2 A3 L h2 h3 hL delta hd
+  refine ⟨T,hT,?_⟩
+  intro Q hQ c0 c2 c3 hc0 hc2 hc3 hb hlarge u hu hatt hgap
+  obtain ⟨hdp,sigma,w,hli,hatt',hflag,hpos,hbal,hsizes,hsmall⟩ :=
+    hsource Q hQ c0 c2 c3 hc0 hc2 hc3 hb hlarge u hu hatt hgap
+  exact ⟨⟨w,_,hli,hflag,hpos,hbal,hsizes,hsmall⟩⟩
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+open OriginalDeformation10
+
+theorem source_original_fixed_weight_family10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L)
+    (c0 c2 c3 : Fin 10 → ℝ) (hc0 : ∀ i, |c0 i| ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) (delta : ℝ) (hd : 0 < delta)
+    (U : Set ℝ) (hU : ¬ BddAbove U) (hQU : ∀ q ∈ U, 1 < q)
+    (u : (q : U) → Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : U, LinearIndependent ℝ (fun i => integerReal (u q i : Fin 10 → ℤ)))
+    (hatt : ∀ (q : U) (i : Fin 10), coordinateGauge10 (originalCoordinates10 L hL q.val (hQU q.val q.property) c0)
+      (integerReal (u q i : Fin 10 → ℤ)) =
+        sourceMinima10 A2 A3 L hL q.val (hQU q.val q.property) c0 c2 c3 i)
+    (hgap : ∀ q : U, sourceMinima10 A2 A3 L hL q.val (hQU q.val q.property) c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL q.val (hQU q.val q.property) c0 c2 c3 9*q.val^(-delta)) :
+    ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+    ∃ epsilon : ℝ, 0 < epsilon ∧ epsilon < 1 ∧
+    ∃ c : Fin 3 → Fin 10 → ℝ, (∀ tau i, |c tau i| ≤ 1) ∧
+      (∑ tau, ∑ i, c tau i) = 0 ∧
+      (∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5) ∧
+      ∀ q : V, ∃ w : Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3,
+        LinearIndependent ℝ (fun i => integerReal (w i : Fin 10 → ℤ)) ∧
+        minimaFlag10 (fun i => integerReal (u ⟨q.val,hVU q.property⟩ i : Fin 10 → ℤ)) 9 =
+          minimaFlag10 (fun i => integerReal (w i : Fin 10 → ℤ)) 9 ∧
+        (∀ (j : Fin 9) i, ‖(L *ᵥ integerReal (w j.castSucc : Fin 10 → ℤ)) i‖ ≤
+          (q.val^(5 : ℕ))^(c 0 i-epsilon)) ∧
+        (∀ (j : Fin 9) i, ‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ
+          (fun k => ((w j.castSucc : Fin 10 → ℤ) k : ℚ_[2]))) i‖ ≤ (q.val^(5 : ℕ))^(c 1 i)) ∧
+        (∀ (j : Fin 9) i, ‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ
+          (fun k => ((w j.castSucc : Fin 10 → ℤ) k : ℚ_[3]))) i‖ ≤ (q.val^(5 : ℕ))^(c 2 i)) := by
+  obtain ⟨T,hT,hframe⟩ := original_frame_witness10 A2 A3 L h2 h3 hL delta hd
+  let U0 := {q : ℝ | q ∈ U ∧ T < q}
+  have hU0 : ¬ BddAbove U0 := by
+    intro h
+    obtain ⟨B,hB⟩ := h
+    obtain ⟨q,hq,hbig⟩ := not_bddAbove_iff.mp hU (max B T)
+    have hq0 : q ∈ U0 := ⟨hq,(le_max_right _ _).trans_lt hbig⟩
+    exact (not_lt_of_ge (hB hq0)) ((le_max_left _ _).trans_lt hbig)
+  have hpoint (q : U) (hq : T < q.val) :
+      Nonempty (OriginalFrameWitness10 A2 A3 L q.val delta c2 c3
+        (fun i => (u q i : Fin 10 → ℤ))) := by
+    exact hframe q.val (hQU q.val q.property) c0 c2 c3 hc0 hc2 hc3 hb hq
+      (u q) (hu q) (hatt q) (hgap q)
+  have hfamily (q : U0) : Nonempty (OriginalFrameWitness10 A2 A3 L q.val delta c2 c3
+      (fun i => (u ⟨q.val,q.property.1⟩ i : Fin 10 → ℤ))) :=
+    hpoint ⟨q.val,q.property.1⟩ q.property.2
+  let F := fun q : U0 => Classical.choice (hfamily q)
+  let W := fun q : U0 => (F q).W
+  let w := fun q : U0 => (F q).w
+  let epsilon := min (delta/240) (1/4 : ℝ)
+  have he : 0 < epsilon := lt_min (by positivity) (by norm_num)
+  have he1 : epsilon < 1 := (min_le_right _ _).trans_lt (by norm_num)
+  have hedelta : 2*epsilon ≤ delta/60 := by
+    have hh : epsilon ≤ delta/240 := min_le_left _ _
+    linarith
+  obtain ⟨V,hVU0,hV,a,ha,hba,hupper⟩ := fixed_width_exponents10 U0 hU0
+    (fun q hq => hQU q hq.1) W c2 c3 (fun q => (F q).positive) (fun q => (F q).sizes) (fun q => (F q).balance) epsilon he
+  let c : Fin 3 → Fin 10 → ℝ := ![a,fun i => c2 i/5,fun i => c3 i/5]
+  have hc (tau : Fin 3) (i : Fin 10) : |c tau i| ≤ 1 := by
+    fin_cases tau
+    · exact abs_le.mpr ⟨(ha i).1.le,(ha i).2.le⟩
+    · change |c2 i/5| ≤ 1
+      exact abs_le.mpr ⟨by linarith [(hc2 i).1],by linarith [(hc2 i).2]⟩
+    · change |c3 i/5| ≤ 1
+      exact abs_le.mpr ⟨by linarith [(hc3 i).1],by linarith [(hc3 i).2]⟩
+  have hbalance : (∑ tau, ∑ i, c tau i) = 0 := by
+    simpa only [c,Fin.sum_univ_three,Matrix.cons_val_zero,Matrix.cons_val_one,
+      Matrix.cons_val_two] using hba
+  refine ⟨V,fun q hq => (hVU0 hq).1,hV,epsilon,he,he1,c,hc,hbalance,fun i => ⟨rfl,rfl⟩,?_⟩
+  intro q
+  let q' : U0 := ⟨q.val,hVU0 q.property⟩
+  refine ⟨w q',(F q').independent,(F q').flag,?_,?_,?_⟩
+  · intro j i
+    have hh := (F q').small j i
+    have hQ5 : 1 < q.val^5 := one_lt_pow₀ (hQU q.val q'.property.1) (by decide)
+    have hW := hupper q i
+    rw [Real.norm_eq_abs]
+    calc
+      _ ≤ (q.val^5)^(-(delta/60))*W q' i := hh
+      _ ≤ (q.val^5)^(-(delta/60))*(q.val^5)^(a i+epsilon) :=
+        mul_le_mul_of_nonneg_left hW (Real.rpow_pos_of_pos (zero_lt_one.trans hQ5) _).le
+      _ = (q.val^5)^(a i+epsilon-delta/60) := by
+        rw [← Real.rpow_add (zero_lt_one.trans hQ5)]
+        congr 1
+        ring
+      _ ≤ (q.val^5)^(a i-epsilon) :=
+        Real.rpow_le_rpow_of_exponent_le hQ5.le (by linarith)
+      _ = _ := rfl
+  · intro j i
+    change ‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ _) i‖ ≤ (q.val^5)^(c2 i/5)
+    rw [rescaled_power10 q.val _ (zero_lt_one.trans (hQU q.val q'.property.1))]
+    exact source_finite_short_bound10 2 A2 q.val (hQU q.val q'.property.1) c2 (fun i => (hc2 i).2)
+      (w q' j.castSucc) (w q' j.castSucc).property.1 i
+  · intro j i
+    change ‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ _) i‖ ≤ (q.val^5)^(c3 i/5)
+    rw [rescaled_power10 q.val _ (zero_lt_one.trans (hQU q.val q'.property.1))]
+    exact source_finite_short_bound10 3 A3 q.val (hQU q.val q'.property.1) c3 (fun i => (hc3 i).2)
+      (w q' j.castSucc) (w q' j.castSucc).property.2 i
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+open SchmidtNormal10
+
+theorem actual_frame_normals10 (u w : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j)))
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j)))
+    (hflag : minimaFlag10 (fun j => integerReal (u j)) 9 =
+      minimaFlag10 (fun j => integerReal (w j)) 9) :
+    ∃ M a : Fin 10 → ℤ, M ≠ 0 ∧ (∑ i, a i*M i) = 1 ∧
+      Ideal.span (Set.range M) = ⊤ ∧
+      LinearMap.ker (normalForm10 M) = firstNineSpan10 (fun j i => (u j i : ℚ)) ∧
+      LinearMap.ker (normalForm10 M) = firstNineSpan10 (fun j i => (w j i : ℚ)) ∧
+      LinearMap.ker (realNormalForm10 M) = minimaFlag10 (fun j => integerReal (u j)) 9 ∧
+      LinearMap.ker (realNormalForm10 M) = minimaFlag10 (fun j => integerReal (w j)) 9 := by
+  obtain ⟨M,a,hM,ha,hprim,hku,hkw,hdim⟩ := same_real_flag_rational_kernel10 u w hu hw hflag
+  have hann (j : Fin 9) : (∑ i, M i*w j.castSucc i) = 0 := by
+    have hm : (fun i => (w j.castSucc i : ℚ)) ∈ LinearMap.ker (normalForm10 M) := by
+      rw [hkw]
+      exact Submodule.subset_span ⟨j,rfl⟩
+    have hh : (∑ i, (M i : ℚ)*(w j.castSucc i : ℚ)) = 0 := hm
+    exact_mod_cast hh
+  have hreal := real_normal_kernel10 w hw M hM hann
+  exact ⟨M,a,hM,ha,hprim,hku,hkw,hreal.trans hflag.symm,hreal⟩
+
+theorem normalized_tail_parameters10 (V : Set ℝ) (hV : ¬ BddAbove V)
+    (eta E rho B : ℝ) (he : 0 < eta) (hE : 1 ≤ E) (hp : 0 < rho)
+    (m : ℕ) (hm : 0 < m) :
+    ∃ (t : Fin m → V) (r : Fin m → ℕ),
+      StrictMono (fun h => (t h).val) ∧
+      (∀ h, B < (t h).val ∧ 1 < (t h).val ∧
+        1 < (t h).val^5 ∧ 1060*E < ((t h).val^5)^eta ∧
+        10*(eta⁻¹+1) < ((t h).val^5)^eta) ∧
+      (∀ h, 0 < r h) ∧
+      (∀ (h : Fin m) (hh : h.val+1 < m),
+        (r ⟨h.val+1,hh⟩ : ℝ) ≤ rho*(r h : ℝ)) ∧
+      ∀ h, (r ⟨0,hm⟩ : ℝ)*Real.log ((t ⟨0,hm⟩).val^5) ≤
+        (r h : ℝ)*Real.log ((t h).val^5) ∧
+        (r h : ℝ)*Real.log ((t h).val^5) ≤
+          (1+eta)*((r ⟨0,hm⟩ : ℝ)*Real.log ((t ⟨0,hm⟩).val^5)) := by
+  obtain ⟨t,r,hmono,hgrowth,hr,hrho,hbal⟩ := original_tail_parameters10 V hV eta E rho B he hE hp m hm
+  have hpow (h) : (t h).val^eta ≤ ((t h).val^5)^eta := by
+    apply Real.rpow_le_rpow (zero_lt_one.trans (hgrowth h).2.1).le _ he.le
+    exact le_self_pow₀ (hgrowth h).2.1.le (by decide : 5 ≠ 0)
+  refine ⟨t,r,hmono,?_,hr,hrho,?_⟩
+  · intro h
+    exact ⟨(hgrowth h).1,(hgrowth h).2.1,one_lt_pow₀ (hgrowth h).2.1 (by decide),
+      (hgrowth h).2.2.1.trans_le (hpow h),(hgrowth h).2.2.2.trans_le (hpow h)⟩
+  · intro h
+    simp only [Real.log_pow]
+    constructor <;> nlinarith [(hbal h).1,(hbal h).2]
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+
+structure OriginalSampleData10 (V : Set ℝ) (m : ℕ) where
+  t : Fin m → V
+  r : Fin m → ℕ
+  w : Fin m → Fin 10 → Fin 10 → ℤ
+  M : Fin m → Fin 10 → ℤ
+  a : Fin m → Fin 10 → ℤ
+  P : MvPolynomial (Vars10 m) ℤ
+
+structure OriginalSampleConditions10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (c2 c3 : Fin 10 → ℝ) (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+    (c : Fin 3 → Fin 10 → ℝ) (epsilon eta D E B rho : ℝ) (m : ℕ) (hm : 0 < m) (S : OriginalSampleData10 V m) : Prop where
+  increasing : StrictMono (fun h => (S.t h).val)
+  large : ∀ h, B < (S.t h).val ∧ 1 < (S.t h).val ∧
+    1 < (S.t h).val^5 ∧ 1060*E < ((S.t h).val^5)^eta ∧ 10*(eta⁻¹+1) < ((S.t h).val^5)^eta
+  positive_degrees : ∀ h, 0 < S.r h
+  degree_separation : ∀ (h : Fin m) (hh : h.val+1 < m),
+    (S.r ⟨h.val+1,hh⟩ : ℝ) ≤ rho*(S.r h : ℝ)
+  logarithmic_balance : ∀ h,
+    (S.r ⟨0,hm⟩ : ℝ)*Real.log ((S.t ⟨0,hm⟩).val^5) ≤ (S.r h : ℝ)*Real.log ((S.t h).val^5) ∧
+    (S.r h : ℝ)*Real.log ((S.t h).val^5) ≤ (1+eta)*((S.r ⟨0,hm⟩ : ℝ)*Real.log ((S.t ⟨0,hm⟩).val^5))
+  member : ∀ h j, S.w h j ∈ originalSourceGroup10 A2 A3 (S.t h).val c2 c3
+  independent : ∀ h, LinearIndependent ℝ (fun j => integerReal (S.w h j : Fin 10 → ℤ))
+  original_flag : ∀ h, minimaFlag10 (fun j => integerReal (v (S.t h) j)) 9 =
+    minimaFlag10 (fun j => integerReal (S.w h j : Fin 10 → ℤ)) 9
+  real_bound : ∀ h (j : Fin 9) i,
+    ‖(L *ᵥ integerReal (S.w h j.castSucc : Fin 10 → ℤ)) i‖ ≤ ((S.t h).val^5)^(c 0 i-epsilon)
+  two_bound : ∀ h (j : Fin 9) i, ‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ
+    (fun k => ((S.w h j.castSucc : Fin 10 → ℤ) k : ℚ_[2]))) i‖ ≤ ((S.t h).val^5)^(c 1 i)
+  three_bound : ∀ h (j : Fin 9) i, ‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ
+    (fun k => ((S.w h j.castSucc : Fin 10 → ℤ) k : ℚ_[3]))) i‖ ≤ ((S.t h).val^5)^(c 2 i)
+  normal_nonzero : ∀ h, S.M h ≠ 0
+  bezout : ∀ h, (∑ i, S.a h i*S.M h i) = 1
+  primitive : ∀ h, Ideal.span (Set.range (S.M h)) = ⊤
+  original_rational_kernel : ∀ h, LinearMap.ker (SchmidtNormal10.normalForm10 (S.M h)) =
+    SchmidtNormal10.firstNineSpan10 (fun j i => (v (S.t h) j i : ℚ))
+  original_real_kernel : ∀ h, LinearMap.ker (SchmidtNormal10.realNormalForm10 (S.M h)) =
+    minimaFlag10 (fun j => integerReal (v (S.t h) j)) 9
+  rational_kernel : ∀ h, LinearMap.ker (SchmidtNormal10.normalForm10 (S.M h)) =
+    SchmidtNormal10.firstNineSpan10 (fun j i => ((S.w h j : Fin 10 → ℤ) i : ℚ))
+  real_kernel : ∀ h, LinearMap.ker (SchmidtNormal10.realNormalForm10 (S.M h)) =
+    minimaFlag10 (fun j => integerReal (S.w h j : Fin 10 → ℤ)) 9
+  polynomial_nonzero : S.P ≠ 0
+  homogeneous : homogeneous10 S.r S.P
+  block_degrees : ∀ h, blockDegree10 S.P h = S.r h
+  variable_degrees : ∀ u, S.P.degreeOf u ≤ S.r u.1
+  height : (height10 S.P : ℝ) ≤ D^(∑ h, S.r h)
+  grid : ∀ b : Fin m → Fin 9 → ℕ, (∀ h j, 1 ≤ b h j ∧ b h j ≤ Nat.floor eta⁻¹+1) →
+    ∀ J : Vars10 m →₀ ℕ, rothSourceDerivativeWeight S.r J < 2*eta*m →
+      integerValue J S.P (gridPoint (fun h j => (S.w h j.castSucc : Fin 10 → ℤ)) b) = 0
+  rational_restrictions : ∀ J : Vars10 m →₀ ℕ, rothSourceDerivativeWeight S.r J < (m : ℝ)*eta →
+    ∀ y : Fin m → Fin 10 → ℚ, (∀ h, y h ∈ LinearMap.ker (SchmidtNormal10.normalForm10 (S.M h))) →
+      MvPolynomial.eval (fun u => y u.1 u.2) (derivative10 J (S.P.map (Int.castRingHom ℚ))) = 0
+  real_restrictions : ∀ J : Vars10 m →₀ ℕ, rothSourceDerivativeWeight S.r J < (m : ℝ)*eta →
+    ∀ y : Fin m → Fin 10 → ℝ, (∀ h, y h ∈ LinearMap.ker (SchmidtNormal10.realNormalForm10 (S.M h))) →
+      MvPolynomial.eval (fun u => y u.1 u.2) (derivative10 J (S.P.map (Int.castRingHom ℝ))) = 0
+  normal_ideal : S.P.map (Int.castRingHom ℝ) ∈ SchmidtNormal10.sourceNormalIdeal10 S.M S.r ((m : ℝ)*eta)
+
+structure OriginalAuxiliarySample10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (c2 c3 : Fin 10 → ℝ) (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+    (c : Fin 3 → Fin 10 → ℝ) (epsilon eta D E B rho : ℝ) (m : ℕ) (hm : 0 < m) where
+  data : OriginalSampleData10 V m
+  conditions : OriginalSampleConditions10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm data
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+
+theorem source_auxiliary_samples10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+    ∃ D E : ℝ, 1 ≤ D ∧ 1 ≤ E ∧
+    ∀ (c2 c3 : Fin 10 → ℝ) (V : Set ℝ), ¬ BddAbove V →
+    ∀ v : V → Fin 10 → Fin 10 → ℤ,
+    (∀ q, LinearIndependent ℝ (fun j => integerReal (v q j))) →
+    ∀ w : (q : V) → Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3,
+    (∀ q, LinearIndependent ℝ (fun j => integerReal (w q j : Fin 10 → ℤ))) →
+    (∀ q, minimaFlag10 (fun j => integerReal (v q j)) 9 =
+      minimaFlag10 (fun j => integerReal (w q j : Fin 10 → ℤ)) 9) →
+    ∀ (c : Fin 3 → Fin 10 → ℝ) (epsilon : ℝ), 0 < epsilon → epsilon < 1 →
+    (∀ tau i, |c tau i| ≤ 1) → (∑ tau, ∑ i, c tau i) = 0 →
+    (∀ q : V, ∀ (j : Fin 9) i, ‖(L *ᵥ integerReal (w q j.castSucc : Fin 10 → ℤ)) i‖ ≤
+      (q.val^5)^(c 0 i-epsilon)) →
+    (∀ q : V, ∀ (j : Fin 9) i, ‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ
+      (fun k => ((w q j.castSucc : Fin 10 → ℤ) k : ℚ_[2]))) i‖ ≤ (q.val^5)^(c 1 i)) →
+    (∀ q : V, ∀ (j : Fin 9) i, ‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ
+      (fun k => ((w q j.castSucc : Fin 10 → ℤ) k : ℚ_[3]))) i‖ ≤ (q.val^5)^(c 2 i)) →
+    ∃ eta : ℝ, 0 < eta ∧ 4000*eta < epsilon ∧
+    ∃ m : ℕ, ∃ hm : 0 < m,
+      4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) ∧
+      ∀ rho : ℝ, 0 < rho → ∀ B : ℝ,
+        Nonempty (OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm) := by
+  obtain ⟨K,hK,hmem,D,E,hD,hE,haux⟩ := Auxiliary10.source_auxiliary_polynomial10 A2 A3 L h2 h3 hL ha
+  refine ⟨K,hK,D,E,hD,hE,?_⟩
+  intro c2 c3 V hV v hv w hw hflag c epsilon he he1 hc hbal hw0 hw2 hw3
+  let eta := epsilon/8000
+  have heta : 0 < eta := by dsimp [eta]; positivity
+  have hmargin : 4000*eta < epsilon := by dsimp [eta]; linarith
+  obtain ⟨m,hm⟩ := exists_nat_gt (max 1 (4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ))))
+  have hmp : 0 < m := by
+    have hh : (1 : ℝ) < m := (le_max_left _ _).trans_lt hm
+    exact_mod_cast (zero_lt_one.trans hh)
+  have hcount := ((le_max_right _ _).trans_lt hm).le
+  refine ⟨eta,heta,hmargin,m,hmp,hcount,?_⟩
+  intro rho hrho B
+  obtain ⟨t,r,hmono,hlarge,hr,hsep,hlog⟩ := normalized_tail_parameters10 V hV eta E rho B heta hE hrho m hmp
+  have hnorm (h : Fin m) := actual_frame_normals10 (v (t h))
+    (fun j => (w (t h) j : Fin 10 → ℤ)) (hv (t h)) (hw (t h)) (hflag (t h))
+  choose M a hM ha' hprim hku hkw hru hrw using hnorm
+  obtain ⟨P,hn,hhom,hblock,hdegree,hheight,hfield,hreal,hp2,hp3,hclaims,hcfs,hgrid⟩ :=
+    haux eta heta m hcount r hr
+  have hactual := hgrid (fun h => (t h).val^5) (fun h => (hlarge h).2.2.1)
+    ⟨0,hmp⟩ epsilon hmargin he1 (fun h => (hlarge h).2.2.2.1)
+    (fun h => (hlarge h).2.2.2.2) hlog c hc hbal
+    (fun h j => (w (t h) j.castSucc : Fin 10 → ℤ))
+    (fun h => hw0 (t h)) (fun h => hw2 (t h)) (fun h => hw3 (t h))
+  have hnormal := hactual.2 M hM hkw hrw
+  let S : OriginalSampleData10 V m := {
+    t := t
+    r := r
+    w := fun h j => (w (t h) j : Fin 10 → ℤ)
+    M := M
+    a := a
+    P := P }
+  have hconditions : OriginalSampleConditions10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hmp S := {
+    increasing := hmono
+    large := hlarge
+    positive_degrees := hr
+    degree_separation := hsep
+    logarithmic_balance := hlog
+    member := fun h j => (w (t h) j).property
+    independent := fun h => hw (t h)
+    original_flag := fun h => hflag (t h)
+    real_bound := fun h => hw0 (t h)
+    two_bound := fun h => hw2 (t h)
+    three_bound := fun h => hw3 (t h)
+    normal_nonzero := hM
+    bezout := ha'
+    primitive := hprim
+    original_rational_kernel := hku
+    original_real_kernel := hru
+    rational_kernel := hkw
+    real_kernel := hrw
+    polynomial_nonzero := hn
+    homogeneous := hhom
+    block_degrees := hblock
+    variable_degrees := hdegree
+    height := hheight
+    grid := hactual.1
+    rational_restrictions := fun J hJ => (hnormal.1 J hJ).1
+    real_restrictions := fun J hJ => (hnormal.1 J hJ).2
+    normal_ideal := hnormal.2 }
+  exact ⟨⟨S,hconditions⟩⟩
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+variable {c2 c3 : Fin 10 → ℝ} {V : Set ℝ} {v : V → Fin 10 → Fin 10 → ℤ}
+variable {c : Fin 3 → Fin 10 → ℝ} {epsilon eta D E B rho : ℝ} {m : ℕ} {hm : 0 < m}
+
+def OriginalAuxiliarySample10.latticeFrame10
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+    (h : Fin m) (j : Fin 10) : originalSourceGroup10 A2 A3 (S.data.t h).val c2 c3 :=
+  ⟨S.data.w h j,S.conditions.member h j⟩
+
+theorem OriginalAuxiliarySample10.latticeFrame10_coe
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+    (h : Fin m) (j : Fin 10) :
+    (S.latticeFrame10 h j : Fin 10 → ℤ) = S.data.w h j := rfl
+
+end CompoundFeasibility.SourceSampling10
+
+end
+end M199RLiteral
+open Lean Elab Command
+run_cmd do
+  let env ← getEnv
+  let names : Array Name := #[
+``M199RLiteral.CompoundFeasibility.SourceSampling10.fixed_width_exponents10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.mk,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.w,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.W,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.independent,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.flag,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.positive,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.balance,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.sizes,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.small,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.original_frame_witness10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.source_original_fixed_weight_family10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.actual_frame_normals10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.normalized_tail_parameters10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.mk,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.t,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.r,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.w,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.M,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.a,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.P,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.mk,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.increasing,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.large,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.positive_degrees,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.degree_separation,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.logarithmic_balance,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.member,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.independent,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_flag,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_bound,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.two_bound,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.three_bound,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.normal_nonzero,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.bezout,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.primitive,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_rational_kernel,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_real_kernel,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.rational_kernel,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_kernel,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.polynomial_nonzero,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.homogeneous,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.block_degrees,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.variable_degrees,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.height,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.grid,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.rational_restrictions,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_restrictions,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.normal_ideal,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.mk,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.data,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.conditions,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.source_auxiliary_samples10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.latticeFrame10,
+``M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.latticeFrame10_coe]
+  let forbidden : Array Name := #[
+"CompoundFeasibility.SourceSampling10.fixed_width_exponents10".toName,
+"CompoundFeasibility.SourceSampling10.OriginalFrameWitness10".toName,
+"CompoundFeasibility.SourceSampling10.original_frame_witness10".toName,
+"CompoundFeasibility.SourceSampling10.source_original_fixed_weight_family10".toName,
+"CompoundFeasibility.SourceSampling10.actual_frame_normals10".toName,
+"CompoundFeasibility.SourceSampling10.normalized_tail_parameters10".toName,
+"CompoundFeasibility.SourceSampling10.OriginalSampleData10".toName,
+"CompoundFeasibility.SourceSampling10.OriginalSampleConditions10".toName,
+"CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10".toName,
+"CompoundFeasibility.SourceSampling10.source_auxiliary_samples10".toName,
+"CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.latticeFrame10".toName,
+"CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.latticeFrame10_coe".toName]
+  for n in names do
+    let some info := env.find? n | throwError "missing literal {n}"
+    for used in info.getUsedConstantsAsSet.toArray do
+      if forbidden.any (fun bad => bad.isPrefixOf used) then
+        throwError "literal {n} depends on production {used}"
+  logInfo m!"checked {names.size} isolated literal dependency gates"
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.fixed_width_exponents10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.fixed_width_exponents10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.mk
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.mk
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.w
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.w
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.W
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.W
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.independent
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.independent
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.flag
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.flag
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.positive
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.positive
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.balance
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.balance
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.sizes
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.sizes
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.small
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalFrameWitness10.small
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.original_frame_witness10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.original_frame_witness10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.source_original_fixed_weight_family10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.source_original_fixed_weight_family10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.actual_frame_normals10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.actual_frame_normals10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.normalized_tail_parameters10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.normalized_tail_parameters10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.mk
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.mk
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.t
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.t
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.r
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.r
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.w
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.w
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.M
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.M
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.a
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.a
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.P
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleData10.P
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.mk
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.mk
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.increasing
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.increasing
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.large
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.large
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.positive_degrees
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.positive_degrees
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.degree_separation
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.degree_separation
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.logarithmic_balance
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.logarithmic_balance
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.member
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.member
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.independent
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.independent
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_flag
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_flag
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_bound
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_bound
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.two_bound
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.two_bound
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.three_bound
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.three_bound
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.normal_nonzero
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.normal_nonzero
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.bezout
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.bezout
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.primitive
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.primitive
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_rational_kernel
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_rational_kernel
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_real_kernel
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.original_real_kernel
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.rational_kernel
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.rational_kernel
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_kernel
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_kernel
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.polynomial_nonzero
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.polynomial_nonzero
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.homogeneous
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.homogeneous
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.block_degrees
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.block_degrees
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.variable_degrees
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.variable_degrees
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.height
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.height
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.grid
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.grid
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.rational_restrictions
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.rational_restrictions
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_restrictions
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.real_restrictions
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.normal_ideal
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalSampleConditions10.normal_ideal
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.mk
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.mk
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.data
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.data
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.conditions
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.conditions
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.source_auxiliary_samples10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.source_auxiliary_samples10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.latticeFrame10
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.latticeFrame10
+#check M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.latticeFrame10_coe
+#print axioms M199RLiteral.CompoundFeasibility.SourceSampling10.OriginalAuxiliarySample10.latticeFrame10_coe

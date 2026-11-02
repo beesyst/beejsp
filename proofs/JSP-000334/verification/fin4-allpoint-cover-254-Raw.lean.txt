@@ -1,0 +1,424 @@
+import SubspaceBridge.AllPointSourceExtraction4
+import SubspaceBridge.AllPointForms4
+import SubspaceBridge.AllPointPrimitive4
+import SubspaceBridge.AllPointProduct4
+import SubspaceBridge.AllPointActualValues4
+import SubspaceBridge.AllPointFixedWeights4
+import SubspaceBridge.AllPointWeights4
+import SubspaceBridge.AllPointFiniteGeometry4
+import SubspaceBridge.AllPointGeneralPosition4
+open scoped BigOperators Classical Matrix
+namespace Raw254
+noncomputable section
+open JSP000334 CompoundFeasibility CompoundFeasibility.OriginalFlagAssembly4 CompoundFeasibility.OriginalShortPlane42
+
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {m : ℕ} (x : Fin m → ℚ) : Prop :=
+  ∀ I : Finset (Fin m),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Relations (G : Subgroup ℚˣ) (m : ℕ) : Set (Fin (m+1) → ℚ) :=
+  {x | x 0=1 ∧ (∀ i,∃ u : G,(u : ℚˣ).val=x i) ∧ (∑ i,x i=0) ∧ Nondeg x}
+def SourceSolution (A2 A3 : Matrix (Fin 4) (Fin 4) ℚ)
+    (L : Matrix (Fin 4) (Fin 4) ℝ) (c0 c2 c3 : Fin 4 → ℝ) (Q delta : ℝ) (x : Fin 4 → ℤ) : Prop :=
+  x≠0 ∧ 1<Q ∧ 0<delta ∧
+    (∀ i,|(L *ᵥ integerReal x) i|≤Q^(c0 i-delta)) ∧
+    (∀ i,(padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) : ℝ)≤Q^(c2 i)) ∧
+    (∀ i,(padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) : ℝ)≤Q^(c3 i))
+def Raw_retainedIntegerMatrix4 (k : Fin 4) : Matrix (Fin 4) (Fin 4) ℤ :=
+  fun i j => if i=k then 1 else if i=j then 1 else 0
+
+def Raw_PrimitiveFour (z : Fin 4 → ℤ) : Prop := ∃ c : Fin 4 → ℤ,∑ i,c i*z i=1
+
+def Raw_fourRetainedForm (k i : Fin 4) (y : Fin 4 → ℚ) : ℚ := if i=k then ∑ j,y j else y i
+
+def Raw_localFourHeight (tau : Fin 3) (y : Fin 4 → ℚ) : ℚ :=
+  max (rationalPlaceNorm tau (y 0)) (max (rationalPlaceNorm tau (y 1))
+    (max (rationalPlaceNorm tau (y 2)) (rationalPlaceNorm tau (y 3))))
+
+def Raw_fourHeight (y : Fin 4 → ℚ) : ℚ := ∏ tau : Fin 3,Raw_localFourHeight tau y
+
+def Raw_archFourHeight (z : Fin 4 → ℤ) : ℚ :=
+  max |(z 0 : ℚ)| (max |(z 1 : ℚ)| (max |(z 2 : ℚ)| |(z 3 : ℚ)|))
+
+def Raw_fourRetainedProduct (choice : Fin 3 → Fin 4) (y : Fin 4 → ℚ) : ℚ :=
+  ∏ tau : Fin 3,∏ i : Fin 4,rationalPlaceNorm tau (Raw_fourRetainedForm (choice tau) i y)
+
+def Raw_sourceWeightConditions4 (c : Fin 3 → Fin 4 → ℝ) : Prop :=
+  (∀ i, |c 0 i| ≤ 1) ∧ (∀ tau, tau ≠ 0 → ∀ i, -1 ≤ c tau i ∧ c tau i ≤ 0) ∧
+    (∑ tau : Fin 3, ∑ i : Fin 4, c tau i) = 0
+
+noncomputable def Raw_finiteWeightIndex4 (n : ℕ) (c : Fin 3 → Fin 4 → ℝ) (tau : Fin 3) (i : Fin 4) : ℤ :=
+  if tau = 0 then ⌊(n : ℝ)*((1-4/(n : ℝ))*c tau i)⌋
+  else ⌈(n : ℝ)*((1-4/(n : ℝ))*c tau i)⌉
+
+noncomputable def Raw_finiteWeightRaw4 (n : ℕ) (z : Fin 3 → Fin 4 → ℤ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  (z tau i : ℝ)/(n : ℝ)
+
+noncomputable def Raw_finiteWeightCandidate4 (n : ℕ) (z : Fin 3 → Fin 4 → ℤ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  if tau = 0 then Raw_finiteWeightRaw4 n z tau i - (∑ t : Fin 3, ∑ j : Fin 4, Raw_finiteWeightRaw4 n z t j)/4
+  else Raw_finiteWeightRaw4 n z tau i
+
+noncomputable def Raw_finiteWeightApprox4 (n : ℕ) (c : Fin 3 → Fin 4 → ℝ) : Fin 3 → Fin 4 → ℝ :=
+  Raw_finiteWeightCandidate4 n (Raw_finiteWeightIndex4 n c)
+
+noncomputable def Raw_finiteWeightCandidates4 (n : ℕ) : Set (Fin 3 → Fin 4 → ℝ) :=
+  (Raw_finiteWeightCandidate4 n '' {z : Fin 3 → Fin 4 → ℤ | ∀ tau i, -(n : ℤ) ≤ z tau i ∧ z tau i ≤ n}) ∩
+    {d | Raw_sourceWeightConditions4 d}
+
+noncomputable def Raw_sourceLogWeights4 (Q : ℝ) (W : Fin 3 → Fin 4 → ℝ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  Real.log (W tau i)/Real.log Q
+
+def Raw_allpoint_balanced_values4 (Q : ℝ) (a : Fin 3 → Fin 4 → ℝ) (tau : Fin 3) (i : Fin 4) : ℝ :=
+  if tau = 0 then a tau i*Q^((1 : ℝ)/32) else a tau i
+
+def Raw_allpoint_no_finite_cover4 (E : (Fin 4 → ℤ) → Prop) : Prop :=
+  ¬ ∃ F : Set (Submodule ℚ (Fin 4 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+    ∀ z, E z → ∃ P ∈ F, (fun i => (z i : ℚ)) ∈ P
+
+theorem source_allpoint_rank_scalar4 : ∀ (a b c d g t q C : ℝ)
+    (ha : 0<a) (hb : 0<b) (hc : 0<c) (hd : 0<d) (ht : 0<t) (hq : 1≤q)
+    (hab : a≤b) (hbc : b≤c) (hcd : c≤d) (hag : a≤g) (hgt : g≤t)
+    (hp : C≤a*b*c*d) (hcut : t^4*q^12<C),
+
+    (c*q<d ∧ g<d) ∨ (b*q<c ∧ g<c) ∨ (a*q<b ∧ g<b) :=
+  @JSP000334.allpoint_rank_scalar4
+
+theorem source_allpoint_rational_flag4 : ∀ (w : Fin 4 → Fin 4 → ℤ)
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j))) (k : Fin 4) (z : Fin 4 → ℤ)
+    (hz : integerReal z ∈ minimaFlag4 (fun j => integerReal (w j)) k),
+
+    (fun i => (z i : ℚ)) ∈ originalFirstFlag4 k w :=
+  @JSP000334.allpoint_rational_flag4
+
+theorem source_allpoint_source_short_rational4 : ∀ (A2 A3 : Matrix (Fin 4) (Fin 4) ℚ)
+    (L : Matrix (Fin 4) (Fin 4) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1<Q)
+    (c0 c2 c3 : Fin 4 → ℝ) (k : Fin 4)
+    (u : Fin 4 → originalSourceGroup4 A2 A3 Q c2 c3)
+    (hu : OriginalAttainmentFlag4.ambientFrame4 A2 A3 L hL Q hQ c0 c2 c3 u)
+    (hgap : ∀ i : Fin 4,i<k → sourceMinima4 A2 A3 L hL Q hQ c0 c2 c3 i<
+      sourceMinima4 A2 A3 L hL Q hQ c0 c2 c3 k)
+    (z : originalSourceGroup4 A2 A3 Q c2 c3)
+    (hz : coordinateGauge4 (originalCoordinates4 L hL Q hQ c0) (integerReal (z : Fin 4 → ℤ))<
+      sourceMinima4 A2 A3 L hL Q hQ c0 c2 c3 k),
+
+    (fun i => ((z : Fin 4 → ℤ) i : ℚ)) ∈ originalFirstFlag4 k (fun j => (u j : Fin 4 → ℤ)) :=
+  @JSP000334.allpoint_source_short_rational4
+
+theorem source_allpoint_fixed_source_family4 : ∀ (A2 A3 : Matrix (Fin 4) (Fin 4) ℚ) (L : Matrix (Fin 4) (Fin 4) ℝ)
+    (h2 : A2.det=1) (h3 : A3.det=1) (hL : L.det=1)
+    (hAlg : ∀ i j,IsAlgebraic ℚ (L i j))
+    (c0 c2 c3 : Fin 4 → ℝ) (hc0 : ∀ i,|c0 i|≤1)
+    (hc2 : ∀ i,-1≤c2 i ∧ c2 i≤0) (hc3 : ∀ i,-1≤c3 i ∧ c3 i≤0)
+    (hb : ∑ i,(c0 i+c2 i+c3 i)=0) (epsilon : ℝ) (he : 0<epsilon)
+    (Omega : Set ℝ) (hO : ¬BddAbove Omega) (hQ : ∀ Q∈Omega,1<Q)
+    (z : Omega → Fin 4 → ℤ)
+    (hz : ∀ Q : Omega,SourceSolution A2 A3 L c0 c2 c3 Q.val epsilon (z Q)),
+
+    ∃ P : Submodule ℚ (Fin 4 → ℚ),P≠⊤ ∧ ∃ W : Set ℝ,W⊆Omega ∧ ¬BddAbove W ∧
+      ∀ Q : Omega,Q.val∈W → (fun i => (z Q i : ℚ))∈P :=
+  @JSP000334.allpoint_fixed_source_family4
+
+theorem source_retained_integer_matrix_det4 : ∀ (k : Fin 4),
+ (Raw_retainedIntegerMatrix4 k).det=1 :=
+  @JSP000334.retained_integer_matrix_det4
+
+theorem source_retained_integer_matrix_apply4 : ∀ (k i : Fin 4) (z : Fin 4 → ℤ),
+
+    (Raw_retainedIntegerMatrix4 k *ᵥ z) i=if i=k then ∑ j,z j else z i :=
+  @JSP000334.retained_integer_matrix_apply4
+
+theorem source_primitive_four_integer_reduction : ∀ (w : Fin 4 → ℤ) (hw0 : w 0≠0),
+
+    ∃ g : ℕ,0<g ∧ (g : ℤ)∣w 0 ∧ ∃ z : Fin 4 → ℤ,
+      Raw_PrimitiveFour z ∧ ∀ i,w i=(g : ℤ)*z i :=
+  @JSP000334.primitive_four_integer_reduction
+
+theorem source_positive_smooth23_sunit4 : ∀ {g : ℕ} (hg : g≠0) (hs : Smooth23 g),
+
+    ∃ u : Group,((u : ℚˣ) : ℚ)=(g : ℚ) :=
+  @JSP000334.positive_smooth23_sunit4
+
+theorem source_exists_primitive_sunit_four : ∀ {x : Fin 5 → ℚ}
+    (hx : x∈Relations Group 4),
+
+    ∃ z : Fin 4 → ℤ,∃ s : Group,Raw_PrimitiveFour z ∧ z≠0 ∧
+      ∀ i : Fin 4,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc :=
+  @JSP000334.exists_primitive_sunit_four
+
+theorem source_exists_primitive_five_term_relation : ∀ {x : Fin 5 → ℚ}
+    (hx : x∈Relations Group 4),
+
+    ∃ w : Fin 5 → ℤ,∃ s : Group,
+      Raw_PrimitiveFour (fun i => w i.castSucc) ∧ (∀ i,w i≠0) ∧ (∑ i,w i=0) ∧
+      Nondeg (fun i => (w i : ℚ)) ∧
+      (∀ i,(w i : ℚ)=((s : ℚˣ) : ℚ)*x i) ∧
+      (∀ i,x i=(w i : ℚ)/(w 0 : ℚ)) :=
+  @JSP000334.exists_primitive_five_term_relation
+
+theorem source_four_local_coordinate_le : ∀ (tau : Fin 3) (y : Fin 4 → ℚ) (i : Fin 4),
+
+    rationalPlaceNorm tau (y i)≤Raw_localFourHeight tau y :=
+  @JSP000334.four_local_coordinate_le
+
+theorem source_primitive_four_local_height : ∀ (z : Fin 4 → ℤ) (hz : Raw_PrimitiveFour z)
+    (p : ℕ) [Fact p.Prime],
+
+    max (padicNorm p (z 0 : ℚ)) (max (padicNorm p (z 1 : ℚ))
+      (max (padicNorm p (z 2 : ℚ)) (padicNorm p (z 3 : ℚ))))=1 :=
+  @JSP000334.primitive_four_local_height
+
+theorem source_primitive_four_height : ∀ (z : Fin 4 → ℤ) (hz : Raw_PrimitiveFour z),
+
+    Raw_fourHeight (fun i => (z i : ℚ))=Raw_archFourHeight z :=
+  @JSP000334.primitive_four_height
+
+theorem source_exists_four_maximal_coordinate : ∀ (tau : Fin 3) (y : Fin 4 → ℚ),
+
+    ∃ k : Fin 4,rationalPlaceNorm tau (y k)=Raw_localFourHeight tau y :=
+  @JSP000334.exists_four_maximal_coordinate
+
+theorem source_four_retained_product_height : ∀ (choice : Fin 3 → Fin 4) (y : Fin 4 → ℚ)
+    (hchoice : ∀ tau,rationalPlaceNorm tau (y (choice tau))=Raw_localFourHeight tau y),
+
+    Raw_fourRetainedProduct choice y*Raw_fourHeight y=
+      (∏ i : Fin 4,threePlaceProduct (y i))*threePlaceProduct (∑ i,y i) :=
+  @JSP000334.four_retained_product_height
+
+theorem source_retained_integer_cast4 : ∀ (k i : Fin 4) (z : Fin 4 → ℤ),
+
+    ((Raw_retainedIntegerMatrix4 k *ᵥ z) i : ℚ)=Raw_fourRetainedForm k i (fun j => (z j : ℚ)) :=
+  @JSP000334.retained_integer_cast4
+
+theorem source_five_term_integer_product4 : ∀ {x : Fin 5 → ℚ}
+    (hx : x∈Relations Group 4) (z : Fin 4 → ℤ) (s : Group)
+    (hscale : ∀ i : Fin 4,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc),
+
+    (∀ i,threePlaceProduct (z i : ℚ)=1) ∧ threePlaceProduct (∑ i : Fin 4,(z i : ℚ))=1 :=
+  @JSP000334.five_term_integer_product4
+
+theorem source_allpoint_primitive_product4 : ∀ {x : Fin 5 → ℚ}
+    (hx : x∈Relations Group 4) (z : Fin 4 → ℤ) (s : Group)
+    (hz : Raw_PrimitiveFour z) (hscale : ∀ i : Fin 4,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc),
+
+    ∃ choice : Fin 3 → Fin 4,Raw_fourRetainedProduct choice (fun i => (z i : ℚ))*Raw_archFourHeight z=1 :=
+  @JSP000334.allpoint_primitive_product4
+
+theorem source_allpoint_form_product4 : ∀ {x : Fin 5 → ℚ}
+    (hx : x∈Relations Group 4) (z : Fin 4 → ℤ) (s : Group)
+    (hscale : ∀ i : Fin 4,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc) (k i : Fin 4),
+
+    threePlaceProduct (Raw_fourRetainedForm k i (fun j => (z j : ℚ)))=1 :=
+  @JSP000334.allpoint_form_product4
+
+theorem source_allpoint_form_arch_bound4 : ∀ (z : Fin 4 → ℤ) (k i : Fin 4),
+
+    |Raw_fourRetainedForm k i (fun j => (z j : ℚ))|≤4*Raw_archFourHeight z :=
+  @JSP000334.allpoint_form_arch_bound4
+
+theorem source_finiteWeight_floor_bounds4 : ∀ (n : ℕ) (hn : 0 < n) (x : ℝ),
+
+    x-1/(n : ℝ) ≤ (⌊(n : ℝ)*x⌋ : ℝ)/(n : ℝ) ∧
+      (⌊(n : ℝ)*x⌋ : ℝ)/(n : ℝ) ≤ x :=
+  @JSP000334.finiteWeight_floor_bounds4
+
+theorem source_finiteWeight_ceil_bounds4 : ∀ (n : ℕ) (hn : 0 < n) (x : ℝ),
+
+    x ≤ (⌈(n : ℝ)*x⌉ : ℝ)/(n : ℝ) ∧
+      (⌈(n : ℝ)*x⌉ : ℝ)/(n : ℝ) ≤ x+1/(n : ℝ) :=
+  @JSP000334.finiteWeight_ceil_bounds4
+
+theorem source_finiteWeightCandidate4_balance : ∀ (n : ℕ) (z : Fin 3 → Fin 4 → ℤ),
+
+    (∑ tau : Fin 3, ∑ i : Fin 4, Raw_finiteWeightCandidate4 n z tau i) = 0 :=
+  @JSP000334.finiteWeightCandidate4_balance
+
+theorem source_finiteWeight_raw_errors4 : ∀ (n : ℕ) (hn : 0 < n) (c : Fin 3 → Fin 4 → ℝ),
+
+    (∀ i, (1-4/(n : ℝ))*c 0 i-1/(n : ℝ) ≤ Raw_finiteWeightRaw4 n (Raw_finiteWeightIndex4 n c) 0 i ∧
+      Raw_finiteWeightRaw4 n (Raw_finiteWeightIndex4 n c) 0 i ≤ (1-4/(n : ℝ))*c 0 i) ∧
+    (∀ tau, tau ≠ 0 → ∀ i,
+      (1-4/(n : ℝ))*c tau i ≤ Raw_finiteWeightRaw4 n (Raw_finiteWeightIndex4 n c) tau i ∧
+      Raw_finiteWeightRaw4 n (Raw_finiteWeightIndex4 n c) tau i ≤ (1-4/(n : ℝ))*c tau i+1/(n : ℝ)) :=
+  @JSP000334.finiteWeight_raw_errors4
+
+theorem source_finiteWeight_raw_sum4 : ∀ (n : ℕ) (hn : 0 < n) (c : Fin 3 → Fin 4 → ℝ)
+    (hb : (∑ tau : Fin 3, ∑ i : Fin 4, c tau i) = 0),
+
+    -4/(n : ℝ) ≤ (∑ tau : Fin 3, ∑ i : Fin 4, Raw_finiteWeightRaw4 n (Raw_finiteWeightIndex4 n c) tau i) ∧
+    (∑ tau : Fin 3, ∑ i : Fin 4, Raw_finiteWeightRaw4 n (Raw_finiteWeightIndex4 n c) tau i) ≤ 8/(n : ℝ) :=
+  @JSP000334.finiteWeight_raw_sum4
+
+theorem source_finiteWeightApprox4_bounds : ∀ (n : ℕ) (hn : 16 ≤ n)
+    (c : Fin 3 → Fin 4 → ℝ) (hc : Raw_sourceWeightConditions4 c),
+
+    Raw_sourceWeightConditions4 (Raw_finiteWeightApprox4 n c) ∧
+      (∀ i, c 0 i-7/(n : ℝ) ≤ Raw_finiteWeightApprox4 n c 0 i) ∧
+      (∀ tau, tau ≠ 0 → ∀ i, c tau i ≤ Raw_finiteWeightApprox4 n c tau i) :=
+  @JSP000334.finiteWeightApprox4_bounds
+
+theorem source_finiteWeightCandidates4_finite : ∀ (n : ℕ),
+ (Raw_finiteWeightCandidates4 n).Finite :=
+  @JSP000334.finiteWeightCandidates4_finite
+
+theorem source_finiteWeightIndex4_bounded : ∀ (n : ℕ) (hn : 16 ≤ n) (c : Fin 3 → Fin 4 → ℝ)
+    (hc : Raw_sourceWeightConditions4 c),
+
+    ∀ tau i, -(n : ℤ) ≤ Raw_finiteWeightIndex4 n c tau i ∧ Raw_finiteWeightIndex4 n c tau i ≤ n :=
+  @JSP000334.finiteWeightIndex4_bounded
+
+theorem source_finiteWeightApprox4_mem : ∀ (n : ℕ) (hn : 16 ≤ n) (c : Fin 3 → Fin 4 → ℝ)
+    (hc : Raw_sourceWeightConditions4 c),
+ Raw_finiteWeightApprox4 n c ∈ Raw_finiteWeightCandidates4 n :=
+  @JSP000334.finiteWeightApprox4_mem
+
+theorem source_sourceLogWeights4_rpow : ∀ (Q : ℝ) (hQ : 1 < Q) (W : Fin 3 → Fin 4 → ℝ)
+    (hW : ∀ tau i, 0 < W tau i) (tau : Fin 3) (i : Fin 4),
+
+    Q^(Raw_sourceLogWeights4 Q W tau i) = W tau i :=
+  @JSP000334.sourceLogWeights4_rpow
+
+theorem source_sourceLogWeights4_conditions : ∀ (Q : ℝ) (hQ : 1 < Q) (W : Fin 3 → Fin 4 → ℝ)
+    (hW : ∀ tau i, 0 < W tau i)
+    (hcut : ∀ tau i, (W tau i)⁻¹ < Q)
+    (hcut0 : ∀ i, W 0 i < Q)
+    (hfinite : ∀ tau, tau ≠ 0 → ∀ i, W tau i ≤ 1)
+    (hprod : (∏ tau : Fin 3, ∏ i : Fin 4, W tau i) = 1),
+
+    Raw_sourceWeightConditions4 (Raw_sourceLogWeights4 Q W) :=
+  @JSP000334.sourceLogWeights4_conditions
+
+theorem source_allpoint_balanced_weights4 : ∀ (H : ℝ) (hH : 4 ≤ H)
+    (a : Fin 3 → Fin 4 → ℝ) (ha : ∀ tau i, 0 < a tau i)
+    (hreal : ∀ i, a 0 i ≤ 4*H)
+    (hfinite : ∀ tau, tau ≠ 0 → ∀ i, a tau i ≤ 1)
+    (hinv : ∀ tau i, (a tau i)⁻¹ ≤ 4*H)
+    (hprod : (∏ tau, ∏ i, a tau i)*H = 1),
+
+    let Q := H^8
+    let W := Raw_allpoint_balanced_values4 Q a
+    1 < Q ∧ Raw_sourceWeightConditions4 (Raw_sourceLogWeights4 Q W) ∧
+      (∀ tau i, Q^(Raw_sourceLogWeights4 Q W tau i) = W tau i) ∧
+      (∀ i, a 0 i = Q^(Raw_sourceLogWeights4 Q W 0 i-(1 : ℝ)/32)) ∧
+      (∀ tau, tau ≠ 0 → ∀ i, a tau i = Q^(Raw_sourceLogWeights4 Q W tau i)) :=
+  @JSP000334.allpoint_balanced_weights4
+
+theorem source_allpoint_triple_proper4 : ∀ (a b c : Fin 4 → ℚ),
+ Submodule.span ℚ {a,b,c}≠⊤ :=
+  @JSP000334.allpoint_triple_proper4
+
+theorem source_allpoint_bounded_height_finite4 : ∀ (M : ℝ),
+
+    {z : Fin 4 → ℤ | (Raw_archFourHeight z : ℝ)≤M}.Finite :=
+  @JSP000334.allpoint_bounded_height_finite4
+
+theorem source_allpoint_avoid_finite4 : ∀ (E : (Fin 4 → ℤ) → Prop) (hno : Raw_allpoint_no_finite_cover4 E)
+    (F : Finset (Submodule ℚ (Fin 4 → ℚ))) (hF : ∀ P ∈ F, P ≠ ⊤),
+
+    ∃ z, E z ∧ ∀ P ∈ F, (fun i => (z i : ℚ)) ∉ P :=
+  @JSP000334.allpoint_avoid_finite4
+
+theorem source_allpoint_general_position_step4 : ∀ (E : (Fin 4 → ℤ) → Prop) (hno : Raw_allpoint_no_finite_cover4 E)
+    (n : ℕ) (v : Fin n → (Fin 4 → ℤ)),
+
+    ∃ z, E z ∧ max 4 (max (n : ℝ) ((∑ i, (Raw_archFourHeight (v i) : ℝ))+1)) < (Raw_archFourHeight z : ℝ) ∧
+      ∀ i j k : Fin n, (fun l => (z l : ℚ)) ∉ Submodule.span ℚ
+        {fun l => (v i l : ℚ),fun l => (v j l : ℚ),fun l => (v k l : ℚ)} :=
+  @JSP000334.allpoint_general_position_step4
+
+theorem source_allpoint_general_position_sequence4 : ∀ (E : (Fin 4 → ℤ) → Prop) (hno : Raw_allpoint_no_finite_cover4 E),
+
+    ∃ z : ℕ → (Fin 4 → ℤ), (∀ n, E (z n)) ∧
+      (∀ n, 4 < (Raw_archFourHeight (z n) : ℝ) ∧ (n : ℝ) < (Raw_archFourHeight (z n) : ℝ)) ∧
+      StrictMono (fun n => (Raw_archFourHeight (z n) : ℝ)) ∧
+      ∀ n, ∀ i j k : Fin n, (fun k => (z n k : ℚ)) ∉ Submodule.span ℚ
+        {fun l => (z i.val l : ℚ),fun l => (z j.val l : ℚ),fun l => (z k.val l : ℚ)} :=
+  @JSP000334.allpoint_general_position_sequence4
+
+theorem source_allpoint_general_position_intersection4 : ∀ (z : ℕ → Fin 4 → ℤ)
+    (hH : ∀ n,4<(Raw_archFourHeight (z n) : ℝ))
+    (havoid : ∀ n,∀ i j k : Fin n,(fun l => (z n l : ℚ))∉Submodule.span ℚ
+      {fun l => (z i.val l : ℚ),fun l => (z j.val l : ℚ),fun l => (z k.val l : ℚ)})
+    (P : Submodule ℚ (Fin 4 → ℚ)) (hP : P≠⊤),
+
+    {n | (fun i => (z n i : ℚ))∈P}.Finite :=
+  @JSP000334.allpoint_general_position_intersection4
+
+end
+end Raw254
+#check Raw254.source_allpoint_rank_scalar4
+#print axioms Raw254.source_allpoint_rank_scalar4
+#check Raw254.source_allpoint_rational_flag4
+#print axioms Raw254.source_allpoint_rational_flag4
+#check Raw254.source_allpoint_source_short_rational4
+#print axioms Raw254.source_allpoint_source_short_rational4
+#check Raw254.source_allpoint_fixed_source_family4
+#print axioms Raw254.source_allpoint_fixed_source_family4
+#check Raw254.source_retained_integer_matrix_det4
+#print axioms Raw254.source_retained_integer_matrix_det4
+#check Raw254.source_retained_integer_matrix_apply4
+#print axioms Raw254.source_retained_integer_matrix_apply4
+#check Raw254.source_primitive_four_integer_reduction
+#print axioms Raw254.source_primitive_four_integer_reduction
+#check Raw254.source_positive_smooth23_sunit4
+#print axioms Raw254.source_positive_smooth23_sunit4
+#check Raw254.source_exists_primitive_sunit_four
+#print axioms Raw254.source_exists_primitive_sunit_four
+#check Raw254.source_exists_primitive_five_term_relation
+#print axioms Raw254.source_exists_primitive_five_term_relation
+#check Raw254.source_four_local_coordinate_le
+#print axioms Raw254.source_four_local_coordinate_le
+#check Raw254.source_primitive_four_local_height
+#print axioms Raw254.source_primitive_four_local_height
+#check Raw254.source_primitive_four_height
+#print axioms Raw254.source_primitive_four_height
+#check Raw254.source_exists_four_maximal_coordinate
+#print axioms Raw254.source_exists_four_maximal_coordinate
+#check Raw254.source_four_retained_product_height
+#print axioms Raw254.source_four_retained_product_height
+#check Raw254.source_retained_integer_cast4
+#print axioms Raw254.source_retained_integer_cast4
+#check Raw254.source_five_term_integer_product4
+#print axioms Raw254.source_five_term_integer_product4
+#check Raw254.source_allpoint_primitive_product4
+#print axioms Raw254.source_allpoint_primitive_product4
+#check Raw254.source_allpoint_form_product4
+#print axioms Raw254.source_allpoint_form_product4
+#check Raw254.source_allpoint_form_arch_bound4
+#print axioms Raw254.source_allpoint_form_arch_bound4
+#check Raw254.source_finiteWeight_floor_bounds4
+#print axioms Raw254.source_finiteWeight_floor_bounds4
+#check Raw254.source_finiteWeight_ceil_bounds4
+#print axioms Raw254.source_finiteWeight_ceil_bounds4
+#check Raw254.source_finiteWeightCandidate4_balance
+#print axioms Raw254.source_finiteWeightCandidate4_balance
+#check Raw254.source_finiteWeight_raw_errors4
+#print axioms Raw254.source_finiteWeight_raw_errors4
+#check Raw254.source_finiteWeight_raw_sum4
+#print axioms Raw254.source_finiteWeight_raw_sum4
+#check Raw254.source_finiteWeightApprox4_bounds
+#print axioms Raw254.source_finiteWeightApprox4_bounds
+#check Raw254.source_finiteWeightCandidates4_finite
+#print axioms Raw254.source_finiteWeightCandidates4_finite
+#check Raw254.source_finiteWeightIndex4_bounded
+#print axioms Raw254.source_finiteWeightIndex4_bounded
+#check Raw254.source_finiteWeightApprox4_mem
+#print axioms Raw254.source_finiteWeightApprox4_mem
+#check Raw254.source_sourceLogWeights4_rpow
+#print axioms Raw254.source_sourceLogWeights4_rpow
+#check Raw254.source_sourceLogWeights4_conditions
+#print axioms Raw254.source_sourceLogWeights4_conditions
+#check Raw254.source_allpoint_balanced_weights4
+#print axioms Raw254.source_allpoint_balanced_weights4
+#check Raw254.source_allpoint_triple_proper4
+#print axioms Raw254.source_allpoint_triple_proper4
+#check Raw254.source_allpoint_bounded_height_finite4
+#print axioms Raw254.source_allpoint_bounded_height_finite4
+#check Raw254.source_allpoint_avoid_finite4
+#print axioms Raw254.source_allpoint_avoid_finite4
+#check Raw254.source_allpoint_general_position_step4
+#print axioms Raw254.source_allpoint_general_position_step4
+#check Raw254.source_allpoint_general_position_sequence4
+#print axioms Raw254.source_allpoint_general_position_sequence4
+#check Raw254.source_allpoint_general_position_intersection4
+#print axioms Raw254.source_allpoint_general_position_intersection4

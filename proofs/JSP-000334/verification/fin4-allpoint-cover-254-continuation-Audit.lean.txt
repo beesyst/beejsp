@@ -1,0 +1,56 @@
+import SubspaceBridge.AllPointSourcePoint4
+import SubspaceBridge.AllPointSourceFamily4
+import SubspaceBridge.AllPointFiniteCover4
+#check JSP000334.retainedRationalMatrix4
+#print JSP000334.retainedRationalMatrix4
+#print axioms JSP000334.retainedRationalMatrix4
+#check JSP000334.retainedRealMatrix4
+#print JSP000334.retainedRealMatrix4
+#print axioms JSP000334.retainedRealMatrix4
+#check JSP000334.retained_rational_det4
+#print JSP000334.retained_rational_det4
+#print axioms JSP000334.retained_rational_det4
+#check JSP000334.retained_real_det4
+#print JSP000334.retained_real_det4
+#print axioms JSP000334.retained_real_det4
+#check JSP000334.retained_rational_apply4
+#print JSP000334.retained_rational_apply4
+#print axioms JSP000334.retained_rational_apply4
+#check JSP000334.retained_real_apply4
+#print JSP000334.retained_real_apply4
+#print axioms JSP000334.retained_real_apply4
+#check JSP000334.allpoint_norms4
+#print JSP000334.allpoint_norms4
+#print axioms JSP000334.allpoint_norms4
+#check JSP000334.allpoint_fixed_source_point4
+#print JSP000334.allpoint_fixed_source_point4
+#print axioms JSP000334.allpoint_fixed_source_point4
+#check JSP000334.allpointEligible4
+#print JSP000334.allpointEligible4
+#print axioms JSP000334.allpointEligible4
+#check JSP000334.four_retained_pattern_count
+#print JSP000334.four_retained_pattern_count
+#print axioms JSP000334.four_retained_pattern_count
+#check JSP000334.allpoint_joint_parameters_finite4
+#print JSP000334.allpoint_joint_parameters_finite4
+#print axioms JSP000334.allpoint_joint_parameters_finite4
+#check JSP000334.allpoint_source_family4
+#print JSP000334.allpoint_source_family4
+#print axioms JSP000334.allpoint_source_family4
+#check JSP000334.source_primitive_five_term_finite_cover4
+#print JSP000334.source_primitive_five_term_finite_cover4
+#print axioms JSP000334.source_primitive_five_term_finite_cover4
+#check JSP000334.allpoint_five_term_original_mem4
+#print JSP000334.allpoint_five_term_original_mem4
+#print axioms JSP000334.allpoint_five_term_original_mem4
+#check JSP000334.source_five_term_finite_cover4
+#print JSP000334.source_five_term_finite_cover4
+#print axioms JSP000334.source_five_term_finite_cover4
+#check JSP000334.allpoint_fixed_source_family4
+#print axioms JSP000334.allpoint_fixed_source_family4
+#check JSP000334.exists_primitive_five_term_relation
+#print axioms JSP000334.exists_primitive_five_term_relation
+#check JSP000334.allpoint_general_position_sequence4
+#print axioms JSP000334.allpoint_general_position_sequence4
+#check JSP000334.allpoint_general_position_intersection4
+#print axioms JSP000334.allpoint_general_position_intersection4

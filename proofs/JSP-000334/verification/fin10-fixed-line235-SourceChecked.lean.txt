@@ -1,0 +1,102 @@
+import SubspaceBridge.SourceFixedLine235
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.SourceFixedGeometry235
+  CompoundFeasibility.SourceFixedArithmetic234 CompoundFeasibility.OriginalDual10
+  CompoundFeasibility.SourceOriginalDual10 CompoundFeasibility.SourceSatz51Entry218
+  CompoundFeasibility.SourceSelectedUpper10 CompoundFeasibility.SourceDualGeometry219
+  CompoundFeasibility.SourceDualAnnihilation222
+namespace M235SourceChallenge
+theorem original_fixed_line
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∃ T : ℝ, 1 < T ∧ B ≤ T ∧ ∃ V : Set ℝ,
+                V = {q | q ∈ U ∧ T < q} ∧ V ⊆ Omega ∧ ¬ BddAbove V ∧
+                  ∀ q : Omega, q.val ∈ V → sourceSet218 q.val delta (A q.val) c2 c3 = S0 ∧
+                    let z : Fin 10 → ℚ := fun i => (((t q.val) • v0) i : ℚ)
+                    z ≠ 0 ∧ 0 < t q.val ∧
+                      z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q.val c2 c3) ∧
+                      ratReal222 z ∈ dualBody222 L
+                        (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q.val c2 c3))) (A q.val) ∧
+                      Submodule.span ℚ {fun i => (v0 i : ℚ)} = Submodule.span ℚ
+                        {lastDual10 (fun j i => ((D q).u j i : ℚ))
+                          (integer_frame_rational_independent10 (D q).u (D q).independent)} := by
+  exact source_fixed_line235 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+
+theorem expanded_original_geometry
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∃ T : ℝ, 1 < T ∧ B ≤ T ∧ ∃ V : Set ℝ,
+                V = {q | q ∈ U ∧ T < q} ∧ V ⊆ Omega ∧ ¬ BddAbove V ∧
+                  ∀ q : Omega, q.val ∈ V → Finset.univ.filter (fun s : Fin 3 → Fin 10 =>
+                    1 ≤ (A q.val (s 0))*q.val^(c2 (s 1))*q.val^(c3 (s 2))*q.val^(delta/4)) = S0 ∧
+                    let z : Fin 10 → ℚ := fun i => (((t q.val) • v0) i : ℚ)
+                    z ≠ 0 ∧ 0 < t q.val ∧
+                      (∃ w : Fin 10 → ℚ,
+                        (∀ x : originalSourceGroup10 A2 A3 q.val c2 c3, ∃ a : ℤ,
+                          (∑ i, ((x : Fin 10 → ℤ) i : ℚ)*w i) = (a : ℚ)) ∧
+                        (fun i => ((originalSourceGroup10 A2 A3 q.val c2 c3).index : ℚ)*w i) = z) ∧
+                      (∀ i, |(L⁻¹.transpose *ᵥ integerReal ((t q.val) • v0)) i| ≤
+                        ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q.val c2 c3))/(A q.val i)) ∧
+                      Submodule.span ℚ {fun i => (v0 i : ℚ)} = Submodule.span ℚ
+                        {lastDual10 (fun j i => ((D q).u j i : ℚ))
+                          (integer_frame_rational_independent10 (D q).u (D q).independent)} := by
+  intro hA2 hA3
+  obtain ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,C,hC,t,ht,T,hT,hBT,V,hVe,hVO,hV,h⟩ :=
+    source_fixed_line235 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+  refine ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,C,hC,t,ht,T,hT,hBT,V,hVe,hVO,hV,?_⟩
+  intro q hqV
+  have hg := h q hqV
+  have hb := hg.2.2.2.2.1
+  rw [integer_cast_real235] at hb
+  exact ⟨hg.1,hg.2.1,hg.2.2.1,hg.2.2.2.1,hb,hg.2.2.2.2.2⟩
+
+theorem original_selected_rescaled_zero
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (h2 : IsUnit A2) (h3 : IsUnit A3)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (v : Fin 10 → ℤ)
+    (S : Finset (Fin 3 → Fin 10)) (hz : ∀ s ∈ S, mixedProduct10 A2 A3 L v s = 0)
+    (i : Fin 10) (hs : ∃ j2 ∈ dualSupport234 A2 v, ∃ j3 ∈ dualSupport234 A3 v,
+      ![i,j2,j3] ∈ S) (t : ℤ) :
+    (L⁻¹.transpose *ᵥ integerReal (t • v)) i = 0 := by
+  rw [real_coordinate_scale235,selected_coordinate_zero235 A2 A3 h2 h3 L v S hz i hs,mul_zero]
+
+end M235SourceChallenge
+#check M235SourceChallenge.original_fixed_line
+#print M235SourceChallenge.original_fixed_line
+#print axioms M235SourceChallenge.original_fixed_line
+#check M235SourceChallenge.expanded_original_geometry
+#print M235SourceChallenge.expanded_original_geometry
+#print axioms M235SourceChallenge.expanded_original_geometry
+#check M235SourceChallenge.original_selected_rescaled_zero
+#print M235SourceChallenge.original_selected_rescaled_zero
+#print axioms M235SourceChallenge.original_selected_rescaled_zero

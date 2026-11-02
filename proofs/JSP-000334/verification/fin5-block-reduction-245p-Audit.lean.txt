@@ -1,0 +1,18 @@
+import SubspaceBridge.SourceProjection245P
+import SubspaceBridge.SourceBlockWeights245P
+#check CompoundFeasibility.BlockReduction245P.spanning_five245P
+#print axioms CompoundFeasibility.BlockReduction245P.spanning_five245P
+#check CompoundFeasibility.BlockReduction245P.projected_frame245P
+#print axioms CompoundFeasibility.BlockReduction245P.projected_frame245P
+#check CompoundFeasibility.BlockReduction245P.blockIndex245P
+#print axioms CompoundFeasibility.BlockReduction245P.blockIndex245P
+#check CompoundFeasibility.BlockReduction245P.block245P
+#print axioms CompoundFeasibility.BlockReduction245P.block245P
+#check CompoundFeasibility.BlockReduction245P.weight0245P
+#print axioms CompoundFeasibility.BlockReduction245P.weight0245P
+#check CompoundFeasibility.BlockReduction245P.weightp245P
+#print axioms CompoundFeasibility.BlockReduction245P.weightp245P
+#check CompoundFeasibility.BlockReduction245P.weight_bounds245P
+#print axioms CompoundFeasibility.BlockReduction245P.weight_bounds245P
+#check CompoundFeasibility.BlockReduction245P.weight_balance245P
+#print axioms CompoundFeasibility.BlockReduction245P.weight_balance245P

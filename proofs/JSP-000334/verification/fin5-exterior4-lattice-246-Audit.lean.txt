@@ -1,0 +1,40 @@
+import SubspaceBridge.SourceExterior54Map246L
+import SubspaceBridge.SourceExterior54Bound246L
+import SubspaceBridge.SourceExterior54Lattice246L
+import SubspaceBridge.SourceExterior54Group246L
+#check CompoundFeasibility.Exterior54_246.compound_map4246
+#print CompoundFeasibility.Exterior54_246.compound_map4246
+#print axioms CompoundFeasibility.Exterior54_246.compound_map4246
+#check CompoundFeasibility.Exterior54_246.wedge_map4246
+#print CompoundFeasibility.Exterior54_246.wedge_map4246
+#print axioms CompoundFeasibility.Exterior54_246.wedge_map4246
+#check CompoundFeasibility.Exterior54_246.padic_wedge_bound4246
+#print CompoundFeasibility.Exterior54_246.padic_wedge_bound4246
+#print axioms CompoundFeasibility.Exterior54_246.padic_wedge_bound4246
+#check CompoundFeasibility.Exterior54_246.local_wedge4246
+#print CompoundFeasibility.Exterior54_246.local_wedge4246
+#print axioms CompoundFeasibility.Exterior54_246.local_wedge4246
+#check CompoundFeasibility.Exterior54_246.fourWeights246
+#print CompoundFeasibility.Exterior54_246.fourWeights246
+#print axioms CompoundFeasibility.Exterior54_246.fourWeights246
+#check CompoundFeasibility.Exterior54_246.normalizedWeights4246
+#print CompoundFeasibility.Exterior54_246.normalizedWeights4246
+#print axioms CompoundFeasibility.Exterior54_246.normalizedWeights4246
+#check CompoundFeasibility.Exterior54_246.four_ceiling246
+#print CompoundFeasibility.Exterior54_246.four_ceiling246
+#print axioms CompoundFeasibility.Exterior54_246.four_ceiling246
+#check CompoundFeasibility.Exterior54_246.local_ceiling_inclusion4246
+#print CompoundFeasibility.Exterior54_246.local_ceiling_inclusion4246
+#print axioms CompoundFeasibility.Exterior54_246.local_ceiling_inclusion4246
+#check CompoundFeasibility.Exterior54_246.wedge_direct4246
+#print CompoundFeasibility.Exterior54_246.wedge_direct4246
+#print axioms CompoundFeasibility.Exterior54_246.wedge_direct4246
+#check CompoundFeasibility.Exterior54_246.powered_threshold4246
+#print CompoundFeasibility.Exterior54_246.powered_threshold4246
+#print axioms CompoundFeasibility.Exterior54_246.powered_threshold4246
+#check CompoundFeasibility.Exterior54_246.powered_group4246
+#print CompoundFeasibility.Exterior54_246.powered_group4246
+#print axioms CompoundFeasibility.Exterior54_246.powered_group4246
+#check CompoundFeasibility.Exterior54_246.wedge_source_group4246
+#print CompoundFeasibility.Exterior54_246.wedge_source_group4246
+#print axioms CompoundFeasibility.Exterior54_246.wedge_source_group4246

@@ -1,0 +1,122 @@
+import SubspaceBridge.BinaryIntegerBridge2
+import SubspaceBridge.BinaryKernelVector2
+import SubspaceBridge.BinaryIntegerNonvanishing2
+import SubspaceBridge.BinaryAnalyticBudget2
+import SubspaceBridge.BinaryVectorEvaluation2
+import SubspaceBridge.BinaryIntegerLocalBound2
+import SubspaceBridge.BinaryIntegerProduct2
+import SubspaceBridge.BinaryAnalyticContradiction2
+#check JSP000334.binary_derivative_homogeneous
+#print JSP000334.binary_derivative_homogeneous
+#print axioms JSP000334.binary_derivative_homogeneous
+#check JSP000334.binary_homogeneous_scale_eval
+#print JSP000334.binary_homogeneous_scale_eval
+#print axioms JSP000334.binary_homogeneous_scale_eval
+#check JSP000334.binaryIntegerVectorRestriction
+#print JSP000334.binaryIntegerVectorRestriction
+#print axioms JSP000334.binaryIntegerVectorRestriction
+#check JSP000334.binary_monomial_product
+#print JSP000334.binary_monomial_product
+#print axioms JSP000334.binary_monomial_product
+#check JSP000334.binary_integer_restriction_coefficient
+#print JSP000334.binary_integer_restriction_coefficient
+#print axioms JSP000334.binary_integer_restriction_coefficient
+#check JSP000334.binaryKernelVector
+#print JSP000334.binaryKernelVector
+#print axioms JSP000334.binaryKernelVector
+#check JSP000334.binary_kernel_vector_nonzero
+#print JSP000334.binary_kernel_vector_nonzero
+#print axioms JSP000334.binary_kernel_vector_nonzero
+#check JSP000334.binary_kernel_vector_orthogonal
+#print JSP000334.binary_kernel_vector_orthogonal
+#print axioms JSP000334.binary_kernel_vector_orthogonal
+#check JSP000334.binary_kernel_vector_primitive
+#print JSP000334.binary_kernel_vector_primitive
+#print axioms JSP000334.binary_kernel_vector_primitive
+#check JSP000334.binary_kernel_vector_free
+#print JSP000334.binary_kernel_vector_free
+#print axioms JSP000334.binary_kernel_vector_free
+#check JSP000334.binary_kernel_vector_normalized
+#print JSP000334.binary_kernel_vector_normalized
+#print axioms JSP000334.binary_kernel_vector_normalized
+#check JSP000334.binary_kernel_vector_spans
+#print JSP000334.binary_kernel_vector_spans
+#print axioms JSP000334.binary_kernel_vector_spans
+#check JSP000334.binaryVectorRecovery
+#print JSP000334.binaryVectorRecovery
+#print axioms JSP000334.binaryVectorRecovery
+#check JSP000334.binary_vector_chart_recovery
+#print JSP000334.binary_vector_chart_recovery
+#print axioms JSP000334.binary_vector_chart_recovery
+#check JSP000334.binary_kernel_integer_factor
+#print JSP000334.binary_kernel_integer_factor
+#print axioms JSP000334.binary_kernel_integer_factor
+#check JSP000334.binary_nonzero_integer_coefficient
+#print JSP000334.binary_nonzero_integer_coefficient
+#print axioms JSP000334.binary_nonzero_integer_coefficient
+#check JSP000334.binary_integer_eval_cast
+#print JSP000334.binary_integer_eval_cast
+#print axioms JSP000334.binary_integer_eval_cast
+#check JSP000334.binary_integer_normalized_scale
+#print JSP000334.binary_integer_normalized_scale
+#print axioms JSP000334.binary_integer_normalized_scale
+#check JSP000334.binary_integer_block_scales_nonzero
+#print JSP000334.binary_integer_block_scales_nonzero
+#print axioms JSP000334.binary_integer_block_scales_nonzero
+#check JSP000334.binaryNormal_local_order_le
+#print JSP000334.binaryNormal_local_order_le
+#print axioms JSP000334.binaryNormal_local_order_le
+#check JSP000334.binaryNormal_local_total_weight
+#print JSP000334.binaryNormal_local_total_weight
+#print axioms JSP000334.binaryNormal_local_total_weight
+#check JSP000334.binaryNormalLogWeight
+#print JSP000334.binaryNormalLogWeight
+#print axioms JSP000334.binaryNormalLogWeight
+#check JSP000334.binaryNormal_log_weight_transport
+#print JSP000334.binaryNormal_log_weight_transport
+#print axioms JSP000334.binaryNormal_log_weight_transport
+#check JSP000334.binaryNormalLocalExponent
+#print JSP000334.binaryNormalLocalExponent
+#print axioms JSP000334.binaryNormalLocalExponent
+#check JSP000334.binaryNormal_log_total_lower
+#print JSP000334.binaryNormal_log_total_lower
+#print axioms JSP000334.binaryNormal_log_total_lower
+#check JSP000334.binaryNormal_source_exponent
+#print JSP000334.binaryNormal_source_exponent
+#print axioms JSP000334.binaryNormal_source_exponent
+#check JSP000334.binaryLocalVectorValue
+#print JSP000334.binaryLocalVectorValue
+#print axioms JSP000334.binaryLocalVectorValue
+#check JSP000334.binary_vector_local_evaluation
+#print JSP000334.binary_vector_local_evaluation
+#print axioms JSP000334.binary_vector_local_evaluation
+#check JSP000334.binary_expansion_support_card
+#print JSP000334.binary_expansion_support_card
+#print axioms JSP000334.binary_expansion_support_card
+#check JSP000334.binary_abs_sum
+#print JSP000334.binary_abs_sum
+#print axioms JSP000334.binary_abs_sum
+#check JSP000334.binary_local_value_product_bound
+#print JSP000334.binary_local_value_product_bound
+#print axioms JSP000334.binary_local_value_product_bound
+#check JSP000334.binary_integer_local_bound
+#print JSP000334.binary_integer_local_bound
+#print axioms JSP000334.binary_integer_local_bound
+#check JSP000334.binarySourceBound
+#print JSP000334.binarySourceBound
+#print axioms JSP000334.binarySourceBound
+#check JSP000334.binary_integer_three_place_upper
+#print JSP000334.binary_integer_three_place_upper
+#print axioms JSP000334.binary_integer_three_place_upper
+#check JSP000334.binary_product_bound_lt_one
+#print JSP000334.binary_product_bound_lt_one
+#print axioms JSP000334.binary_product_bound_lt_one
+#check JSP000334.binary_auxiliary_integer_analytic_contradiction
+#print JSP000334.binary_auxiliary_integer_analytic_contradiction
+#print axioms JSP000334.binary_auxiliary_integer_analytic_contradiction
+#check JSP000334.binary_kernel_omega65_nonvanishing
+#print axioms JSP000334.binary_kernel_omega65_nonvanishing
+#check JSP000334.binary_auxiliary_integer_three_place
+#print axioms JSP000334.binary_auxiliary_integer_three_place
+#check JSP000334.rothInteger_three_place_lower
+#print axioms JSP000334.rothInteger_three_place_lower

@@ -1,0 +1,8 @@
+import SubspaceBridge.SourceSelectedFactorBounds10
+import SubspaceBridge.SourceSelectedPrimitive10
+#print CompoundFeasibility.SourceSelectedUpper10.three_factor_bound10
+#print axioms CompoundFeasibility.SourceSelectedUpper10.three_factor_bound10
+#check CompoundFeasibility.SourceSelectedUpper10.mixedProduct10
+#check CompoundFeasibility.SourceSelectedUpper10.mixed_power_product10
+#check CompoundFeasibility.SourceSelectedUpper10.mixedProduct10_le_int_mul10
+#print axioms CompoundFeasibility.SourceSelectedUpper10.mixed_power_product10

@@ -1,0 +1,47 @@
+import SubspaceBridge.SourceAnnihilation225
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.SourceSatz51Entry218
+  CompoundFeasibility.SourceOriginalVariable10 CompoundFeasibility.SourceDualAnnihilation222
+  CompoundFeasibility.SourceDualGeometry219 CompoundFeasibility.SourceAnnihilation225
+namespace M225SourceChallenge
+
+theorem original_source_endpoint (delta : ℝ) (hdelta : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧
+      ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+        (hL : IsUnit L) (q : ℝ), T < q → ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℚ),
+        z ∈ (fun v : Fin 10 → ℚ => ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) • v) ''
+          {v | ∀ x : originalSourceGroup10 A2 A3 q c2 c3,
+            ∃ a : ℤ, (∑ i, ((x : Fin 10 → ℤ) i : ℚ) * v i) = (a : ℚ)} →
+        (∀ i, |(L⁻¹.transpose *ᵥ (fun k => (z k : ℝ))) i| ≤
+          2 * (ZLattice.covolume (integerRealImage
+            (originalSourceGroup10 A2 A3 q c2 c3)) / A i)) →
+        ∀ j : Fin 9, (∑ i, (D.u j.castSucc i : ℚ) * z i) = 0 := by
+  obtain ⟨T, hT, h⟩ := source_uniform_annihilation225 delta hdelta
+  refine ⟨T, hT, ?_⟩
+  intro A2 A3 L hL q hqT hq c2 c3 A D z hz hg j
+  have hzg : dualGauge222 L hL
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive (ratReal222 z) ≤ 2 :=
+    (dualGauge_bounds222 L hL _ _ A D.positive (ratReal222 z) 2).mpr hg
+  exact h A2 A3 L hL q hqT hq c2 c3 A D z hz hzg j
+
+theorem original_frame_and_scale
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℚ)
+    (hz : z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3)) (j : Fin 9) :
+    D.u j.castSucc ∈ originalSourceGroup10 A2 A3 q c2 c3 ∧
+      LinearIndependent ℝ (fun j => integerReal (D.u j)) ∧
+      ∃ a : ℤ, (∑ i, (D.u j.castSucc i : ℚ) * z i) =
+          ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) * (a : ℚ) ∧
+        (((∑ i, (D.u j.castSucc i : ℚ) * z i) : ℚ) : ℝ) =
+          ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) * (a : ℝ) := by
+  exact ⟨D.member j.castSucc, D.independent, source_integer_pairing225 D z hz j⟩
+
+end M225SourceChallenge
+#print M225SourceChallenge.original_source_endpoint
+#print axioms M225SourceChallenge.original_source_endpoint
+#print M225SourceChallenge.original_frame_and_scale
+#print axioms M225SourceChallenge.original_frame_and_scale

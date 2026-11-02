@@ -1,0 +1,189 @@
+import SubspaceBridge.CofactorDualMinima3
+import SubspaceBridge.CofactorFixedDual3
+import SubspaceBridge.CofactorExteriorSquare3
+import SubspaceBridge.CofactorExteriorReal3
+import SubspaceBridge.CofactorExteriorMinima3
+import SubspaceBridge.CofactorExteriorTransport3
+#check JSP000334.cofactor_sourceDualBody3
+#print JSP000334.cofactor_sourceDualBody3
+#print axioms JSP000334.cofactor_sourceDualBody3
+#check JSP000334.cofactor_sourceDualCoordinates3
+#print JSP000334.cofactor_sourceDualCoordinates3
+#print axioms JSP000334.cofactor_sourceDualCoordinates3
+#check JSP000334.cofactor_sourceDualRealCoordinates3_abs_det
+#print JSP000334.cofactor_sourceDualRealCoordinates3_abs_det
+#print axioms JSP000334.cofactor_sourceDualRealCoordinates3_abs_det
+#check JSP000334.cofactor_sourceDualBody3_eq_parallelepiped
+#print JSP000334.cofactor_sourceDualBody3_eq_parallelepiped
+#print axioms JSP000334.cofactor_sourceDualBody3_eq_parallelepiped
+#check JSP000334.cofactor_sourceDualBody3_volume
+#print JSP000334.cofactor_sourceDualBody3_volume
+#print axioms JSP000334.cofactor_sourceDualBody3_volume
+#check JSP000334.cofactor_sourceDual_frame_gauge_bound3
+#print JSP000334.cofactor_sourceDual_frame_gauge_bound3
+#print axioms JSP000334.cofactor_sourceDual_frame_gauge_bound3
+#check JSP000334.cofactor_sourceDual_minima_upper3
+#print JSP000334.cofactor_sourceDual_minima_upper3
+#print axioms JSP000334.cofactor_sourceDual_minima_upper3
+#check JSP000334.cofactor_sourceDual_minima_product_lower3
+#print JSP000334.cofactor_sourceDual_minima_product_lower3
+#print axioms JSP000334.cofactor_sourceDual_minima_product_lower3
+#check JSP000334.cofactor_sourceDual_minima_product_upper3
+#print JSP000334.cofactor_sourceDual_minima_product_upper3
+#print axioms JSP000334.cofactor_sourceDual_minima_product_upper3
+#check JSP000334.cofactor_sourceDual_minima_transference3
+#print JSP000334.cofactor_sourceDual_minima_transference3
+#print axioms JSP000334.cofactor_sourceDual_minima_transference3
+#check JSP000334.cofactor_sourceDual_integer_pairing3
+#print JSP000334.cofactor_sourceDual_integer_pairing3
+#print axioms JSP000334.cofactor_sourceDual_integer_pairing3
+#check JSP000334.cofactor_sourceDual_complementary_divisibility3
+#print JSP000334.cofactor_sourceDual_complementary_divisibility3
+#print axioms JSP000334.cofactor_sourceDual_complementary_divisibility3
+#check JSP000334.cofactor_sourceDual_complementary_mem3
+#print JSP000334.cofactor_sourceDual_complementary_mem3
+#print axioms JSP000334.cofactor_sourceDual_complementary_mem3
+#check JSP000334.cofactor_sourceDualSupport3
+#print JSP000334.cofactor_sourceDualSupport3
+#print axioms JSP000334.cofactor_sourceDualSupport3
+#check JSP000334.cofactor_sourceDualSupport3_nonempty
+#print JSP000334.cofactor_sourceDualSupport3_nonempty
+#print axioms JSP000334.cofactor_sourceDualSupport3_nonempty
+#check JSP000334.cofactor_sourceDualFloorMin3
+#print JSP000334.cofactor_sourceDualFloorMin3
+#print axioms JSP000334.cofactor_sourceDualFloorMin3
+#check JSP000334.cofactor_sourceDualFloorMin3_le
+#print JSP000334.cofactor_sourceDualFloorMin3_le
+#print axioms JSP000334.cofactor_sourceDualFloorMin3_le
+#check JSP000334.cofactor_sourceDualInt_smul3
+#print JSP000334.cofactor_sourceDualInt_smul3
+#print axioms JSP000334.cofactor_sourceDualInt_smul3
+#check JSP000334.cofactor_sourceDual_rescale_mem3
+#print JSP000334.cofactor_sourceDual_rescale_mem3
+#print axioms JSP000334.cofactor_sourceDual_rescale_mem3
+#check JSP000334.cofactor_sourceRealLogWeights3_coordinates
+#print JSP000334.cofactor_sourceRealLogWeights3_coordinates
+#print axioms JSP000334.cofactor_sourceRealLogWeights3_coordinates
+#check JSP000334.cofactor_sourceReal_uniform_selected_vanishing3
+#print JSP000334.cofactor_sourceReal_uniform_selected_vanishing3
+#print axioms JSP000334.cofactor_sourceReal_uniform_selected_vanishing3
+#check JSP000334.cofactor_sourceDual_rescale_real_bound3
+#print JSP000334.cofactor_sourceDual_rescale_real_bound3
+#print axioms JSP000334.cofactor_sourceDual_rescale_real_bound3
+#check JSP000334.cofactor_sourceReal_width_geometry3
+#print JSP000334.cofactor_sourceReal_width_geometry3
+#print axioms JSP000334.cofactor_sourceReal_width_geometry3
+#check JSP000334.cofactor_sourceReal_dual_second_gt_one3
+#print JSP000334.cofactor_sourceReal_dual_second_gt_one3
+#print axioms JSP000334.cofactor_sourceReal_dual_second_gt_one3
+#check JSP000334.cofactor_sourceReal_index_lower3
+#print JSP000334.cofactor_sourceReal_index_lower3
+#print axioms JSP000334.cofactor_sourceReal_index_lower3
+#check JSP000334.cofactor_sourceDual_two_case_body3
+#print JSP000334.cofactor_sourceDual_two_case_body3
+#print axioms JSP000334.cofactor_sourceDual_two_case_body3
+#check JSP000334.cofactor_sourceReal_last_dual_body3
+#print JSP000334.cofactor_sourceReal_last_dual_body3
+#print axioms JSP000334.cofactor_sourceReal_last_dual_body3
+#check JSP000334.cofactor_sourceDual_power_cutoff3
+#print JSP000334.cofactor_sourceDual_power_cutoff3
+#print axioms JSP000334.cofactor_sourceDual_power_cutoff3
+#check JSP000334.cofactor_sourceReal_fixed_reference_line3
+#print JSP000334.cofactor_sourceReal_fixed_reference_line3
+#print axioms JSP000334.cofactor_sourceReal_fixed_reference_line3
+#check JSP000334.cofactor_source_fixed_dual_direction3
+#print JSP000334.cofactor_source_fixed_dual_direction3
+#print axioms JSP000334.cofactor_source_fixed_dual_direction3
+#check JSP000334.cofactor_compound_reverse_product3
+#print JSP000334.cofactor_compound_reverse_product3
+#print axioms JSP000334.cofactor_compound_reverse_product3
+#check JSP000334.hodgeWedge3
+#print JSP000334.hodgeWedge3
+#print axioms JSP000334.hodgeWedge3
+#check JSP000334.hodgeWedge3_matrix
+#print JSP000334.hodgeWedge3_matrix
+#print axioms JSP000334.hodgeWedge3_matrix
+#check JSP000334.hodgeFrame3
+#print JSP000334.hodgeFrame3
+#print axioms JSP000334.hodgeFrame3
+#check JSP000334.hodgeFrame3_det
+#print JSP000334.hodgeFrame3_det
+#print axioms JSP000334.hodgeFrame3_det
+#check JSP000334.hodgeFrame3_independent
+#print JSP000334.hodgeFrame3_independent
+#print axioms JSP000334.hodgeFrame3_independent
+#check JSP000334.hodgeWedge3_map
+#print JSP000334.hodgeWedge3_map
+#print axioms JSP000334.hodgeWedge3_map
+#check JSP000334.hodgeFrame3_map
+#print JSP000334.hodgeFrame3_map
+#print axioms JSP000334.hodgeFrame3_map
+#check JSP000334.pairWeights3
+#print JSP000334.pairWeights3
+#print axioms JSP000334.pairWeights3
+#check JSP000334.pairWeights3_bounds
+#print JSP000334.pairWeights3_bounds
+#print axioms JSP000334.pairWeights3_bounds
+#check JSP000334.pairWeights3_power
+#print JSP000334.pairWeights3_power
+#print axioms JSP000334.pairWeights3_power
+#check JSP000334.hodgeWedge3_padic_bound
+#print JSP000334.hodgeWedge3_padic_bound
+#print axioms JSP000334.hodgeWedge3_padic_bound
+#check JSP000334.pairWeights3_Q_squared
+#print JSP000334.pairWeights3_Q_squared
+#print axioms JSP000334.pairWeights3_Q_squared
+#check JSP000334.hodgeWedge3_source_mem
+#print JSP000334.hodgeWedge3_source_mem
+#print axioms JSP000334.hodgeWedge3_source_mem
+#check JSP000334.hodge_real_minor_bound3
+#print JSP000334.hodge_real_minor_bound3
+#print axioms JSP000334.hodge_real_minor_bound3
+#check JSP000334.hodgeWedge3_real_bound
+#print JSP000334.hodgeWedge3_real_bound
+#print axioms JSP000334.hodgeWedge3_real_bound
+#check JSP000334.cofactorRealMatrix3_adjugate
+#print JSP000334.cofactorRealMatrix3_adjugate
+#print axioms JSP000334.cofactorRealMatrix3_adjugate
+#check JSP000334.hodgeWedge3_source_gauge
+#print JSP000334.hodgeWedge3_source_gauge
+#print axioms JSP000334.hodgeWedge3_source_gauge
+#check JSP000334.cofactor_pair_ceiling_bounds3
+#print JSP000334.cofactor_pair_ceiling_bounds3
+#print axioms JSP000334.cofactor_pair_ceiling_bounds3
+#check JSP000334.hodgeFrame3_original_first_line
+#print JSP000334.hodgeFrame3_original_first_line
+#print axioms JSP000334.hodgeFrame3_original_first_line
+#check JSP000334.pairProducts3
+#print JSP000334.pairProducts3
+#print axioms JSP000334.pairProducts3
+#check JSP000334.pairProducts3_positive
+#print JSP000334.pairProducts3_positive
+#print axioms JSP000334.pairProducts3_positive
+#check JSP000334.pairProducts3_product
+#print JSP000334.pairProducts3_product
+#print axioms JSP000334.pairProducts3_product
+#check JSP000334.pairProducts3_monotone
+#print JSP000334.pairProducts3_monotone
+#print axioms JSP000334.pairProducts3_monotone
+#check JSP000334.cofactor_product_bounds3
+#print JSP000334.cofactor_product_bounds3
+#print axioms JSP000334.cofactor_product_bounds3
+#check JSP000334.hodgeFrame3_forward_bounds
+#print JSP000334.hodgeFrame3_forward_bounds
+#print axioms JSP000334.hodgeFrame3_forward_bounds
+#check JSP000334.source_exterior_square_comparison3
+#print JSP000334.source_exterior_square_comparison3
+#print axioms JSP000334.source_exterior_square_comparison3
+#check JSP000334.exterior_square_cutoff3
+#print JSP000334.exterior_square_cutoff3
+#print axioms JSP000334.exterior_square_cutoff3
+#check JSP000334.exterior_square_gap_scalar3
+#print JSP000334.exterior_square_gap_scalar3
+#print axioms JSP000334.exterior_square_gap_scalar3
+#check JSP000334.hodgeFrame3_source_gauges
+#print JSP000334.hodgeFrame3_source_gauges
+#print axioms JSP000334.hodgeFrame3_source_gauges
+#check JSP000334.source_exterior_square_gap_plane3
+#print JSP000334.source_exterior_square_gap_plane3
+#print axioms JSP000334.source_exterior_square_gap_plane3

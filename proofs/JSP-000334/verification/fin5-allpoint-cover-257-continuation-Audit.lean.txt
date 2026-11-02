@@ -1,0 +1,210 @@
+import SubspaceBridge.AllPointFixedSourceFamily5
+import SubspaceBridge.AllPointPrimitive5
+import SubspaceBridge.AllPointForms5
+import SubspaceBridge.AllPointProduct5
+import SubspaceBridge.AllPointActualValues5
+import SubspaceBridge.AllPointFixedWeights5
+import SubspaceBridge.AllPointWeights5
+import SubspaceBridge.AllPointSourcePoint5
+import SubspaceBridge.AllPointFiniteGeometry5
+import SubspaceBridge.AllPointGeneralPosition5
+import SubspaceBridge.AllPointSourceFamily5
+import SubspaceBridge.AllPointFiniteCover5
+#check JSP000334.allpoint_minima_bounds5
+#print JSP000334.allpoint_minima_bounds5
+#print axioms JSP000334.allpoint_minima_bounds5
+#check JSP000334.allpoint_fixed_source_family5
+#print JSP000334.allpoint_fixed_source_family5
+#print axioms JSP000334.allpoint_fixed_source_family5
+#check JSP000334.PrimitiveFive
+#print JSP000334.PrimitiveFive
+#print axioms JSP000334.PrimitiveFive
+#check JSP000334.primitive_five_integer_reduction
+#print JSP000334.primitive_five_integer_reduction
+#print axioms JSP000334.primitive_five_integer_reduction
+#check JSP000334.exists_primitive_sunit_five
+#print JSP000334.exists_primitive_sunit_five
+#print axioms JSP000334.exists_primitive_sunit_five
+#check JSP000334.exists_primitive_six_term_relation
+#print JSP000334.exists_primitive_six_term_relation
+#print axioms JSP000334.exists_primitive_six_term_relation
+#check JSP000334.retainedIntegerMatrix5
+#print JSP000334.retainedIntegerMatrix5
+#print axioms JSP000334.retainedIntegerMatrix5
+#check JSP000334.retained_integer_matrix_det5
+#print JSP000334.retained_integer_matrix_det5
+#print axioms JSP000334.retained_integer_matrix_det5
+#check JSP000334.retained_integer_matrix_apply5
+#print JSP000334.retained_integer_matrix_apply5
+#print axioms JSP000334.retained_integer_matrix_apply5
+#check JSP000334.fiveRetainedForm
+#print JSP000334.fiveRetainedForm
+#print axioms JSP000334.fiveRetainedForm
+#check JSP000334.localFiveHeight
+#print JSP000334.localFiveHeight
+#print axioms JSP000334.localFiveHeight
+#check JSP000334.fiveHeight
+#print JSP000334.fiveHeight
+#print axioms JSP000334.fiveHeight
+#check JSP000334.archFiveHeight
+#print JSP000334.archFiveHeight
+#print axioms JSP000334.archFiveHeight
+#check JSP000334.fiveRetainedProduct
+#print JSP000334.fiveRetainedProduct
+#print axioms JSP000334.fiveRetainedProduct
+#check JSP000334.five_local_coordinate_le
+#print JSP000334.five_local_coordinate_le
+#print axioms JSP000334.five_local_coordinate_le
+#check JSP000334.primitive_five_local_height
+#print JSP000334.primitive_five_local_height
+#print axioms JSP000334.primitive_five_local_height
+#check JSP000334.primitive_five_height
+#print JSP000334.primitive_five_height
+#print axioms JSP000334.primitive_five_height
+#check JSP000334.exists_five_maximal_coordinate
+#print JSP000334.exists_five_maximal_coordinate
+#print axioms JSP000334.exists_five_maximal_coordinate
+#check JSP000334.five_retained_product_height
+#print JSP000334.five_retained_product_height
+#print axioms JSP000334.five_retained_product_height
+#check JSP000334.retained_integer_cast5
+#print JSP000334.retained_integer_cast5
+#print axioms JSP000334.retained_integer_cast5
+#check JSP000334.six_term_integer_product5
+#print JSP000334.six_term_integer_product5
+#print axioms JSP000334.six_term_integer_product5
+#check JSP000334.allpoint_primitive_product5
+#print JSP000334.allpoint_primitive_product5
+#print axioms JSP000334.allpoint_primitive_product5
+#check JSP000334.allpoint_form_product5
+#print JSP000334.allpoint_form_product5
+#print axioms JSP000334.allpoint_form_product5
+#check JSP000334.allpoint_form_arch_bound5
+#print JSP000334.allpoint_form_arch_bound5
+#print axioms JSP000334.allpoint_form_arch_bound5
+#check JSP000334.sourceWeightConditions5
+#print JSP000334.sourceWeightConditions5
+#print axioms JSP000334.sourceWeightConditions5
+#check JSP000334.finiteWeightIndex5
+#print JSP000334.finiteWeightIndex5
+#print axioms JSP000334.finiteWeightIndex5
+#check JSP000334.finiteWeightRaw5
+#print JSP000334.finiteWeightRaw5
+#print axioms JSP000334.finiteWeightRaw5
+#check JSP000334.finiteWeightCandidate5
+#print JSP000334.finiteWeightCandidate5
+#print axioms JSP000334.finiteWeightCandidate5
+#check JSP000334.finiteWeightApprox5
+#print JSP000334.finiteWeightApprox5
+#print axioms JSP000334.finiteWeightApprox5
+#check JSP000334.finiteWeight_floor_bounds5
+#print JSP000334.finiteWeight_floor_bounds5
+#print axioms JSP000334.finiteWeight_floor_bounds5
+#check JSP000334.finiteWeight_ceil_bounds5
+#print JSP000334.finiteWeight_ceil_bounds5
+#print axioms JSP000334.finiteWeight_ceil_bounds5
+#check JSP000334.finiteWeightCandidate5_balance
+#print JSP000334.finiteWeightCandidate5_balance
+#print axioms JSP000334.finiteWeightCandidate5_balance
+#check JSP000334.finiteWeight_raw_errors5
+#print JSP000334.finiteWeight_raw_errors5
+#print axioms JSP000334.finiteWeight_raw_errors5
+#check JSP000334.finiteWeight_raw_sum5
+#print JSP000334.finiteWeight_raw_sum5
+#print axioms JSP000334.finiteWeight_raw_sum5
+#check JSP000334.finiteWeightApprox5_bounds
+#print JSP000334.finiteWeightApprox5_bounds
+#print axioms JSP000334.finiteWeightApprox5_bounds
+#check JSP000334.finiteWeightCandidates5
+#print JSP000334.finiteWeightCandidates5
+#print axioms JSP000334.finiteWeightCandidates5
+#check JSP000334.finiteWeightCandidates5_finite
+#print JSP000334.finiteWeightCandidates5_finite
+#print axioms JSP000334.finiteWeightCandidates5_finite
+#check JSP000334.finiteWeightIndex5_bounded
+#print JSP000334.finiteWeightIndex5_bounded
+#print axioms JSP000334.finiteWeightIndex5_bounded
+#check JSP000334.finiteWeightApprox5_mem
+#print JSP000334.finiteWeightApprox5_mem
+#print axioms JSP000334.finiteWeightApprox5_mem
+#check JSP000334.sourceLogWeights5
+#print JSP000334.sourceLogWeights5
+#print axioms JSP000334.sourceLogWeights5
+#check JSP000334.sourceLogWeights5_rpow
+#print JSP000334.sourceLogWeights5_rpow
+#print axioms JSP000334.sourceLogWeights5_rpow
+#check JSP000334.sourceLogWeights5_conditions
+#print JSP000334.sourceLogWeights5_conditions
+#print axioms JSP000334.sourceLogWeights5_conditions
+#check JSP000334.allpoint_balanced_values5
+#print JSP000334.allpoint_balanced_values5
+#print axioms JSP000334.allpoint_balanced_values5
+#check JSP000334.allpoint_balanced_weights5
+#print JSP000334.allpoint_balanced_weights5
+#print axioms JSP000334.allpoint_balanced_weights5
+#check JSP000334.retainedRationalMatrix5
+#print JSP000334.retainedRationalMatrix5
+#print axioms JSP000334.retainedRationalMatrix5
+#check JSP000334.retainedRealMatrix5
+#print JSP000334.retainedRealMatrix5
+#print axioms JSP000334.retainedRealMatrix5
+#check JSP000334.retained_rational_det5
+#print JSP000334.retained_rational_det5
+#print axioms JSP000334.retained_rational_det5
+#check JSP000334.retained_real_det5
+#print JSP000334.retained_real_det5
+#print axioms JSP000334.retained_real_det5
+#check JSP000334.retained_rational_apply5
+#print JSP000334.retained_rational_apply5
+#print axioms JSP000334.retained_rational_apply5
+#check JSP000334.retained_real_apply5
+#print JSP000334.retained_real_apply5
+#print axioms JSP000334.retained_real_apply5
+#check JSP000334.allpoint_norms5
+#print JSP000334.allpoint_norms5
+#print axioms JSP000334.allpoint_norms5
+#check JSP000334.allpoint_fixed_source_point5
+#print JSP000334.allpoint_fixed_source_point5
+#print axioms JSP000334.allpoint_fixed_source_point5
+#check JSP000334.allpoint_quad_proper5
+#print JSP000334.allpoint_quad_proper5
+#print axioms JSP000334.allpoint_quad_proper5
+#check JSP000334.allpoint_bounded_height_finite5
+#print JSP000334.allpoint_bounded_height_finite5
+#print axioms JSP000334.allpoint_bounded_height_finite5
+#check JSP000334.allpoint_no_finite_cover5
+#print JSP000334.allpoint_no_finite_cover5
+#print axioms JSP000334.allpoint_no_finite_cover5
+#check JSP000334.allpoint_avoid_finite5
+#print JSP000334.allpoint_avoid_finite5
+#print axioms JSP000334.allpoint_avoid_finite5
+#check JSP000334.allpoint_general_position_step5
+#print JSP000334.allpoint_general_position_step5
+#print axioms JSP000334.allpoint_general_position_step5
+#check JSP000334.allpoint_general_position_sequence5
+#print JSP000334.allpoint_general_position_sequence5
+#print axioms JSP000334.allpoint_general_position_sequence5
+#check JSP000334.allpoint_general_position_intersection5
+#print JSP000334.allpoint_general_position_intersection5
+#print axioms JSP000334.allpoint_general_position_intersection5
+#check JSP000334.allpointEligible5
+#print JSP000334.allpointEligible5
+#print axioms JSP000334.allpointEligible5
+#check JSP000334.five_retained_pattern_count
+#print JSP000334.five_retained_pattern_count
+#print axioms JSP000334.five_retained_pattern_count
+#check JSP000334.allpoint_joint_parameters_finite5
+#print JSP000334.allpoint_joint_parameters_finite5
+#print axioms JSP000334.allpoint_joint_parameters_finite5
+#check JSP000334.allpoint_source_family5
+#print JSP000334.allpoint_source_family5
+#print axioms JSP000334.allpoint_source_family5
+#check JSP000334.source_primitive_six_term_finite_cover5
+#print JSP000334.source_primitive_six_term_finite_cover5
+#print axioms JSP000334.source_primitive_six_term_finite_cover5
+#check JSP000334.allpoint_six_term_original_mem5
+#print JSP000334.allpoint_six_term_original_mem5
+#print axioms JSP000334.allpoint_six_term_original_mem5
+#check JSP000334.source_six_term_finite_cover5
+#print JSP000334.source_six_term_finite_cover5
+#print axioms JSP000334.source_six_term_finite_cover5

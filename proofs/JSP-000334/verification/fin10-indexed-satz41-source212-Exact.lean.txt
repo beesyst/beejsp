@@ -1,0 +1,30 @@
+import SubspaceBridge.SourceOriginalIndex212
+set_option pp.deepTerms true
+
+#check CompoundFeasibility.SourceOriginalSatz212.originalLattice212
+#print CompoundFeasibility.SourceOriginalSatz212.originalLattice212
+#print axioms CompoundFeasibility.SourceOriginalSatz212.originalLattice212
+
+#check CompoundFeasibility.SourceOriginalSatz212.original_lattice_eq212
+#print CompoundFeasibility.SourceOriginalSatz212.original_lattice_eq212
+#print axioms CompoundFeasibility.SourceOriginalSatz212.original_lattice_eq212
+
+#check CompoundFeasibility.SourceOriginalSatz212.original_lattice_mem212
+#print CompoundFeasibility.SourceOriginalSatz212.original_lattice_mem212
+#print axioms CompoundFeasibility.SourceOriginalSatz212.original_lattice_mem212
+
+#check CompoundFeasibility.SourceOriginalSatz212.originalFrame212
+#print CompoundFeasibility.SourceOriginalSatz212.originalFrame212
+#print axioms CompoundFeasibility.SourceOriginalSatz212.originalFrame212
+
+#check CompoundFeasibility.SourceOriginalSatz212.originalIndex212
+#print CompoundFeasibility.SourceOriginalSatz212.originalIndex212
+#print axioms CompoundFeasibility.SourceOriginalSatz212.originalIndex212
+
+#check CompoundFeasibility.SourceOriginalSatz212.originalCovolume212
+#print CompoundFeasibility.SourceOriginalSatz212.originalCovolume212
+#print axioms CompoundFeasibility.SourceOriginalSatz212.originalCovolume212
+
+#check CompoundFeasibility.SourceOriginalSatz212.original_frame_independent212
+#print CompoundFeasibility.SourceOriginalSatz212.original_frame_independent212
+#print axioms CompoundFeasibility.SourceOriginalSatz212.original_frame_independent212

@@ -1,0 +1,206 @@
+import SubspaceBridge.SourceMixedLiouville10
+import SubspaceBridge.SourceSelectedSampleUpper10
+import SubspaceBridge.SourceHeightUpper10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M202Literal
+open SchmidtNormal10 OriginalDual10 SourceSampling10 SourceSelectedSet10 SourceSelectedUpper10 SourceHeightEnvelope10
+
+abbrev literalHeight10 (M : Fin 10 → ℤ) : ℕ := Finset.univ.sup (fun i => (M i).natAbs)
+
+theorem height_power_rearrange10 (C Q epsilon H : ℝ) (D : ℕ) (hQ : 0 < Q)
+    (hh : C ≤ 362880*Q^(-epsilon/8)*H^(D+2)) :
+    (C/362880)*Q^(epsilon/8) ≤ H^(D+2) := by
+  have hp : 0 < Q^(epsilon/8) := Real.rpow_pos_of_pos hQ _
+  have he : Q^(-epsilon/8)*Q^(epsilon/8) = 1 := by
+    rw [← Real.rpow_add hQ]
+    rw [show -epsilon/8+epsilon/8 = (0 : ℝ) by ring,Real.rpow_zero]
+  have ht := mul_le_mul_of_nonneg_right hh hp.le
+  have ht' : C*Q^(epsilon/8) ≤ 362880*H^(D+2) := by
+    calc
+      _ ≤ (362880*Q^(-epsilon/8)*H^(D+2))*Q^(epsilon/8) := ht
+      _ = 362880*H^(D+2)*(Q^(-epsilon/8)*Q^(epsilon/8)) := by ring
+      _ = _ := by rw [he,mul_one]
+  nlinarith
+
+theorem original_sample_height_power10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j))
+    (c2 c3 : Fin 10 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (c : Fin 3 → Fin 10 → ℝ) (hb : (∑ tau, ∑ i, c tau i) = 0)
+    (hc : ∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5)
+    (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ C : ℝ, 0 < C ∧ ∃ d : ℕ,
+      ∀ (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+        (eta D E B rho : ℝ) (m : ℕ) (hm : 0 < m)
+        (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+        (h : Fin m),
+        ∀ s : MixedIndex10,
+          s ∈ roundedSelector10 ((S.data.t h).val^5) (epsilon/2)
+            (fun i => ((S.data.t h).val^5)^(c 0 i)) (c 1) (c 2) →
+          (L⁻¹.transpose *ᵥ integerReal (S.data.M h)) (s 0) ≠ 0 →
+          ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[2]))) (s 1) ≠ 0 →
+          ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[3]))) (s 2) ≠ 0 →
+          C ≤ 362880*((S.data.t h).val^5)^(-epsilon/8)*
+            (max 1 (literalHeight10 (S.data.M h) : ℝ))^(d+2) ∧
+          (C/362880)*((S.data.t h).val^5)^(epsilon/8) ≤
+            (max 1 (literalHeight10 (S.data.M h) : ℝ))^(d+2) := by
+  obtain ⟨C,hC,d,hlower⟩ := actual_same_normal_mixed_lower10 A2 A3 L h2 h3 hL hAlg
+  refine ⟨C,hC,d,?_⟩
+  intro V v eta D E B rho m hm S h s hs hn0 hn2 hn3
+  have hl := hlower (S.data.M h) (s 0) (s 1) (s 2) hn0 hn2 hn3
+  rw [original_p2_dual_norm10 A2 h2 (S.data.M h) (s 1),
+    original_p3_dual_norm10 A3 h3 (S.data.M h) (s 2)] at hl
+  have hu := original_sample_selected_upper_bound10 A2 A3 L h2 h3 hL c2 c3 hc2 hc3 c hb hc epsilon he S h s hs
+  rw [mixedProduct10_canonical A2 A3 L h2 h3 (S.data.M h) s,
+    show -(epsilon/2)/4 = -epsilon/8 by ring] at hu
+  have htotal : C ≤ 362880*((S.data.t h).val^5)^(-epsilon/8)*
+      (max 1 (literalHeight10 (S.data.M h) : ℝ))^(d+2) :=
+    hl.trans (mul_le_mul_of_nonneg_right hu (by positivity))
+  exact ⟨htotal,height_power_rearrange10 C _ epsilon _ d
+    (zero_lt_one.trans (S.conditions.large h).2.2.1) htotal⟩
+
+theorem nonzero_normal_height_one10 (M : Fin 10 → ℤ) (hM : M ≠ 0) :
+    1 ≤ (literalHeight10 M : ℝ) := by
+  obtain ⟨i,hi,_,he⟩ := height_attaining10 M hM
+  change literalHeight10 M = (M i).natAbs at he
+  rw [he]
+  have hh : 1 ≤ (M i).natAbs := Int.natAbs_pos.mpr hi
+  exact_mod_cast hh
+
+theorem original_sample_height_upper10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    (hL : L.det = 1)
+    {c2 c3 : Fin 10 → ℝ} {V : Set ℝ} {v : V → Fin 10 → Fin 10 → ℤ}
+    {c : Fin 3 → Fin 10 → ℝ} (hc0 : ∀ i, |c 0 i| ≤ 1)
+    {epsilon eta D E B rho : ℝ} (he : 0 < epsilon) {m : ℕ} {hm : 0 < m}
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+    (h : Fin m) :
+    ∃ g : ℤ, g ≠ 0 ∧ integerLastDual10 (S.data.w h) = (fun i => g*S.data.M h i) ∧
+      (literalHeight10 (S.data.M h) : ℝ) ≤
+        (transposeRowConstant10 L*362880)*((S.data.t h).val^5)^9 := by
+  obtain ⟨g,hg,hscale⟩ := original_sample_cofactor_factor10 S h
+  refine ⟨g,hg,hscale,?_⟩
+  let f : (Fin 10 → ℚ) →ₗ[ℚ] (Fin 10 → ℝ) :=
+    LinearMap.pi (fun i => (Algebra.linearMap ℚ ℝ).comp (LinearMap.proj i))
+  have hwQ : LinearIndependent ℚ (fun j i => (S.data.w h j i : ℚ)) := by
+    apply LinearIndependent.of_comp f
+    convert (S.conditions.independent h).restrict_scalars' ℚ using 1
+  have hann (j : Fin 9) : (∑ i, S.data.M h i*S.data.w h j.castSucc i) = 0 := by
+    have hk : (fun i => (S.data.w h j.castSucc i : ℚ)) ∈
+        LinearMap.ker (normalForm10 (S.data.M h)) := by
+      rw [S.conditions.rational_kernel h]
+      exact Submodule.subset_span ⟨j,rfl⟩
+    have hq : (∑ i, (S.data.M h i : ℚ)*(S.data.w h j.castSucc i : ℚ)) = 0 := hk
+    exact_mod_cast hq
+  apply actual_primitive_height_upper10 L hL (S.data.w h) hwQ
+    (S.data.M h) (S.data.a h) (S.conditions.normal_nonzero h) (S.conditions.bezout h)
+    hann ((S.data.t h).val^5) (zero_lt_one.trans (S.conditions.large h).2.2.1).le
+  intro j i
+  have hb := S.conditions.real_bound h j i
+  rw [Real.norm_eq_abs] at hb
+  apply hb.trans
+  calc
+    _ ≤ ((S.data.t h).val^5)^(1 : ℝ) :=
+      Real.rpow_le_rpow_of_exponent_le (S.conditions.large h).2.2.1.le
+        (by linarith [(abs_le.mp (hc0 i)).2])
+    _ = _ := Real.rpow_one _
+
+theorem height_growth_cutoff10 (C epsilon : ℝ) (hC : 0 < C) (he : 0 < epsilon) :
+    ∃ T : ℝ, 1 < T ∧ ∀ Q : ℝ, T < Q →
+      Q^(epsilon/16) ≤ (C/362880)*Q^(epsilon/8) := by
+  let R : ℝ := 362880/C
+  have hR : 0 < R := div_pos (by norm_num) hC
+  have heq : (R^(16/epsilon))^(epsilon/16) = R := by
+    rw [← Real.rpow_mul hR.le]
+    rw [show (16/epsilon)*(epsilon/16) = (1 : ℝ) by field_simp]
+    exact Real.rpow_one R
+  refine ⟨max 2 (R^(16/epsilon)),lt_of_lt_of_le (by norm_num : (1 : ℝ) < 2) (le_max_left _ _),?_⟩
+  intro Q hQ
+  have hQ1 : 1 < Q := lt_trans (by norm_num : (1 : ℝ) < 2) ((le_max_left _ _).trans_lt hQ)
+  have hcut : R ≤ Q^(epsilon/16) := by
+    rw [← heq]
+    exact Real.rpow_le_rpow (Real.rpow_nonneg hR.le _) ((le_max_right _ _).trans hQ.le) (by positivity)
+  have hm : 1 ≤ (C/362880)*Q^(epsilon/16) := by
+    have hh := mul_le_mul_of_nonneg_left hcut (show 0 ≤ C/362880 by positivity)
+    have hid : (C/362880)*R = 1 := by dsimp only [R]; field_simp
+    rwa [hid] at hh
+  calc
+    Q^(epsilon/16) = 1*Q^(epsilon/16) := (one_mul _).symm
+    _ ≤ ((C/362880)*Q^(epsilon/16))*Q^(epsilon/16) :=
+      mul_le_mul_of_nonneg_right hm (Real.rpow_nonneg (zero_lt_one.trans hQ1).le _)
+    _ = (C/362880)*Q^(epsilon/8) := by
+      rw [mul_assoc,← Real.rpow_add (zero_lt_one.trans hQ1)]
+      congr 2
+      ring
+
+theorem height_growth_root10 (Q epsilon H : ℝ) (D : ℕ) (hQ : 0 < Q) (hH : 0 ≤ H)
+    (hh : Q^(epsilon/16) ≤ H^(D+2)) :
+    Q^(epsilon/(16*((D+2 : ℕ) : ℝ))) ≤ H := by
+  have hD : 0 < ((D+2 : ℕ) : ℝ) := by positivity
+  have hr : (Q^(epsilon/16))^(((D+2 : ℕ) : ℝ)⁻¹) ≤ H := by
+    apply (Real.rpow_inv_le_iff_of_pos (Real.rpow_nonneg hQ.le _) hH hD).mpr
+    exact hh.trans_eq (Real.rpow_natCast H (D+2)).symm
+  rw [← Real.rpow_mul hQ.le] at hr
+  have he : (epsilon/16)*((D+2 : ℕ) : ℝ)⁻¹ = epsilon/(16*((D+2 : ℕ) : ℝ)) := by ring
+  rwa [he] at hr
+
+
+theorem original_sample_height_envelope10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j))
+    (c2 c3 : Fin 10 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (c : Fin 3 → Fin 10 → ℝ) (hc0 : ∀ i, |c 0 i| ≤ 1) (hb : (∑ tau, ∑ i, c tau i) = 0)
+    (hc : ∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5)
+    (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ alpha C_upper T : ℝ, 0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      ∀ (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+        (eta D E B rho : ℝ) (m : ℕ) (hm : 0 < m)
+        (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+        (h : Fin m), T < (S.data.t h).val^5 →
+        ∀ s : MixedIndex10,
+          s ∈ roundedSelector10 ((S.data.t h).val^5) (epsilon/2)
+            (fun i => ((S.data.t h).val^5)^(c 0 i)) (c 1) (c 2) →
+          (L⁻¹.transpose *ᵥ integerReal (S.data.M h)) (s 0) ≠ 0 →
+          ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[2]))) (s 1) ≠ 0 →
+          ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[3]))) (s 2) ≠ 0 →
+          ((S.data.t h).val^5)^alpha ≤ (literalHeight10 (S.data.M h) : ℝ) ∧
+          (literalHeight10 (S.data.M h) : ℝ) ≤ C_upper*((S.data.t h).val^5)^9 := by
+  obtain ⟨C,hC,d,hpower⟩ := original_sample_height_power10 A2 A3 L h2 h3 hL hAlg
+    c2 c3 hc2 hc3 c hb hc epsilon he
+  obtain ⟨_K,T_upper,_hK,hT_upper,_hupper⟩ := original_sample_selected_upper10
+    A2 A3 L h2 h3 hL c2 c3 hc2 hc3 c hb hc epsilon he
+  obtain ⟨T,hT,hcut⟩ := height_growth_cutoff10 C epsilon hC he
+  refine ⟨epsilon/(16*((d+2 : ℕ) : ℝ)),transposeRowConstant10 L*362880,max T_upper T,
+    by positivity,mul_pos (transposeRowConstant10_pos L) (by norm_num),hT_upper.trans_le (le_max_left _ _),?_⟩
+  intro V v eta D E B rho m hm S h hlarge s hs hn0 hn2 hn3
+  have hheight := nonzero_normal_height_one10 (S.data.M h) (S.conditions.normal_nonzero h)
+  have hp := (hpower V v eta D E B rho m hm S h s hs hn0 hn2 hn3).2
+  rw [max_eq_right hheight] at hp
+  have hgrowth := height_growth_root10 _ epsilon _ d
+    (zero_lt_one.trans (S.conditions.large h).2.2.1) (zero_le_one.trans hheight)
+    ((hcut _ ((le_max_right _ _).trans_lt hlarge)).trans hp)
+  obtain ⟨g,_hg,_hscale,hupper⟩ := original_sample_height_upper10 hL hc0 he S h
+  exact ⟨hgrowth,hupper⟩
+
+
+#print axioms height_power_rearrange10
+
+#print axioms original_sample_height_power10
+
+#print axioms nonzero_normal_height_one10
+
+#print axioms original_sample_height_upper10
+
+#print axioms height_growth_cutoff10
+
+#print axioms height_growth_root10
+
+#print axioms original_sample_height_envelope10
+end CompoundFeasibility.M202Literal

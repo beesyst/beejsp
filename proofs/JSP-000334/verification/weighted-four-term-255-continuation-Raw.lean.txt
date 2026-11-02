@@ -1,0 +1,265 @@
+import SubspaceBridge.WeightedDiagonalReduction3
+import SubspaceBridge.WeightedDiagonalWeights3
+import SubspaceBridge.WeightedDiagonalProducts3
+import SubspaceBridge.WeightedDiagonalPoint3
+import SubspaceBridge.WeightedDiagonalFamily3
+import SubspaceBridge.WeightedDiagonalPrimitive3
+import SubspaceBridge.WeightedFixedProductPoint3
+import SubspaceBridge.WeightedFixedProductCover3
+import SubspaceBridge.WeightedDiagonalCoefficients3
+import SubspaceBridge.WeightedDiagonalTransport3
+namespace Raw255C
+noncomputable section
+open scoped Matrix BigOperators
+open JSP000334
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Primitive (z : Fin 3 → ℤ) : Prop := ∃ c : Fin 3 → ℤ,∑ i,c i*z i=1
+def Height (z : Fin 3 → ℤ) : ℚ := max |(z 0 : ℚ)| (max |(z 1 : ℚ)| |(z 2 : ℚ)|)
+def Product (q : ℚ) : ℚ := |q| *padicNorm 2 q*padicNorm 3 q
+def Local (v : Fin 3) (q : ℚ) : ℚ := ![|q|,padicNorm 2 q,padicNorm 3 q] v
+def Forms (i : Fin 3) : Fin 3 → ((Fin 3 → ℚ) →ₗ[ℚ] ℚ) :=
+  ![LinearMap.proj (i.succAbove 0),LinearMap.proj (i.succAbove 1),
+    LinearMap.proj (R:=ℚ) (φ:=fun _ : Fin 3 => ℚ) 0+LinearMap.proj (R:=ℚ) (φ:=fun _ : Fin 3 => ℚ) 1+LinearMap.proj (R:=ℚ) (φ:=fun _ : Fin 3 => ℚ) 2]
+def Retained (choice : Fin 3 → Fin 3) (y : Fin 3 → ℚ) : ℚ :=
+  ∏ v : Fin 3,∏ j : Fin 3,Local v (Forms (choice v) j y)
+def Raw_weightedIntegerDiagonal3 (t : Fin 3 → ℤ) : Matrix (Fin 3) (Fin 3) ℚ :=
+  Matrix.diagonal (fun i => (t i : ℚ))
+
+def Raw_weightedBalancedValues3 (H K : ℝ) (a : Fin 3 → Fin 3 → ℝ) (tau i : Fin 3) : ℝ :=
+  if tau=0 then a tau i*(H/K)^((1 : ℝ)/3) else a tau i
+
+def Raw_weightedDiagonalK3 (t : Fin 3 → ℤ) (L A : ℚ) (g : ℕ) : ℚ :=
+  Product ((t 0 : ℚ)/g)*Product ((t 1 : ℚ)/g)*
+    Product ((t 2 : ℚ)/g)*Product (L*A/g)
+
+def Raw_weightedProductConstant3 (k : Fin 3 → ℚ) (a : ℚ) : ℚ :=
+  Product (k 0)*Product (k 1)*Product (k 2)*Product a
+
+def Raw_weightedProductBound3 (k : Fin 3 → ℚ) (a : ℚ) : ℚ :=
+  max 1 (max (Product (k 0))⁻¹
+    (max (Product (k 1))⁻¹ (max (Product (k 2))⁻¹ (Product a)⁻¹)))
+
+noncomputable def Raw_weightedProductCutoff3 (k : Fin 3 → ℚ) (a : ℚ) : ℝ :=
+  max 3 (max (3*(Raw_weightedProductBound3 k a : ℝ))
+    (max ((Raw_weightedProductConstant3 k a : ℝ)⁻¹) ((Raw_weightedProductConstant3 k a : ℝ)^4)))
+
+def Raw_weightedFixedProductTriples3 (k : Fin 3 → ℚ) (a : ℚ) (y : IntegerTriple) : Prop :=
+  Primitive y ∧ (∀ i,Product (y i : ℚ)=Product (k i)) ∧
+    Product ((y 0 : ℚ)+y 1+y 2)=Product a
+
+def Raw_weightedDiagonalMap3 (t : Fin 3 → ℤ) : (Fin 3 → ℚ) →ₗ[ℚ] (Fin 3 → ℚ) :=
+  Matrix.toLin' (Raw_weightedIntegerDiagonal3 t)
+
+theorem source_weighted_diagonal_gcd_divides3 : ∀ (t z : Fin 3 → ℤ) (hz : Primitive z)
+    (g : ℤ) (hg : ∀ i,g∣t i*z i),
+ g∣t 0*t 1*t 2 :=
+  @JSP000334.weighted_diagonal_gcd_divides3
+
+theorem source_weighted_diagonal_gcd_values_finite3 : ∀ (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0),
+
+    {g : ℕ | 0<g ∧ (g : ℤ)∣t 0*t 1*t 2}.Finite :=
+  @JSP000334.weighted_diagonal_gcd_values_finite3
+
+theorem source_weighted_diagonal_invertible3 : ∀ (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0),
+
+    IsUnit (Raw_weightedIntegerDiagonal3 t) :=
+  @JSP000334.weighted_diagonal_invertible3
+
+theorem source_weighted_fixed_product_height3 : ∀ (y : Fin 3 → ℤ) (hy : Primitive y)
+    (k : Fin 3 → ℚ) (a : ℚ)
+    (hk : ∀ i,Product (y i : ℚ)=Product (k i))
+    (ha : Product ((y 0 : ℚ)+y 1+y 2)=Product a),
+
+    ∃ choice : Fin 3 → Fin 3,
+      Retained choice (fun i => (y i : ℚ))*Height y=
+        Product (k 0)*Product (k 1)*Product (k 2)*Product a :=
+  @JSP000334.weighted_fixed_product_height3
+
+theorem source_weighted_balanced_weights3 : ∀ (H K C : ℝ) (hH : 3≤H) (hK : 0<K)
+    (hC : C≤H) (hKi : K⁻¹≤H) (hK4 : K^4≤H)
+    (a : Fin 3 → Fin 3 → ℝ) (ha : ∀ tau i,0<a tau i)
+    (hreal : ∀ i,a 0 i≤C*H)
+    (hfinite : ∀ tau,tau≠0 → ∀ i,a tau i≤1)
+    (hinv : ∀ tau i,(a tau i)⁻¹≤C*H)
+    (hprod : (∏ tau,∏ i,a tau i)*H=K),
+
+    let Q := H^4
+    let W := Raw_weightedBalancedValues3 H K a
+    1<Q ∧ sourceWeightConditions3 (sourceLogWeights3 Q W) ∧
+      (∀ tau i,Q^(sourceLogWeights3 Q W tau i)=W tau i) ∧
+      (∀ i,a 0 i≤Q^(sourceLogWeights3 Q W 0 i-(1 : ℝ)/16)) ∧
+      (∀ tau,tau≠0 → ∀ i,a tau i=Q^(sourceLogWeights3 Q W tau i)) :=
+  @JSP000334.weighted_balanced_weights3
+
+theorem source_weighted_scaled_product3 : ∀ (q : ℚ) (s u : Group),
+
+    Product (q*((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))=Product q :=
+  @JSP000334.weighted_scaled_product3
+
+theorem source_weighted_three_place_pos3 : ∀ {q : ℚ} (hq : q≠0),
+ 0<Product q :=
+  @JSP000334.weighted_three_place_pos3
+
+theorem source_weighted_diagonal_K_pos3 : ∀ (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0)
+    (L A : ℚ) (hL : L≠0) (hA : A≠0) (g : ℕ) (hg : 0<g),
+
+    0<Raw_weightedDiagonalK3 t L A g :=
+  @JSP000334.weighted_diagonal_K_pos3
+
+theorem source_weighted_diagonal_products3 : ∀ (t : Fin 3 → ℤ) (L A : ℚ) (g : ℕ)
+    (u : Fin 3 → Group) (s : Group) (y : Fin 3 → ℤ)
+    (hy : Primitive y)
+    (hcoord : ∀ i,(y i : ℚ)=((t i : ℚ)/g)*((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ))
+    (hsum : (y 0 : ℚ)+y 1+y 2=-(L*A/g)*((s : ℚˣ) : ℚ)),
+
+    (∀ i,Product (y i : ℚ)=Product ((t i : ℚ)/g)) ∧
+    Product ((y 0 : ℚ)+y 1+y 2)=Product (L*A/g) ∧
+    ∃ choice : Fin 3 → Fin 3,
+      Retained choice (fun i => (y i : ℚ))*Height y=Raw_weightedDiagonalK3 t L A g :=
+  @JSP000334.weighted_diagonal_products3
+
+theorem source_weighted_integer_local_inverse3 : ∀ (m : ℤ) {p : ℚ} (hp : 0<p)
+    (hprod : Product (m : ℚ)=p) (tau : Fin 3),
+
+    0<Local tau (m : ℚ) ∧
+    (Local tau (m : ℚ))⁻¹≤max 1 p⁻¹*|(m : ℚ)| ∧
+    (tau≠0 → Local tau (m : ℚ)≤1) :=
+  @JSP000334.weighted_integer_local_inverse3
+
+theorem source_weighted_integer_source_point3 : ∀ (y : IntegerTriple) (choice : Fin 3 → Fin 3)
+    (C K : ℝ) (hC3 : 3≤C) (hK : 0<K)
+    (hH : 3≤(Height y : ℝ)) (hC : C≤(Height y : ℝ))
+    (hKi : K⁻¹≤(Height y : ℝ)) (hK4 : K^4≤(Height y : ℝ))
+    (ha : ∀ tau i,0<(Local tau (Forms (choice tau) i (fun j => (y j : ℚ))) : ℝ))
+    (hinv : ∀ tau i,((Local tau (Forms (choice tau) i (fun j => (y j : ℚ))) : ℝ))⁻¹≤C*(Height y : ℝ))
+    (hprod : (Retained choice (fun j => (y j : ℚ)) : ℝ)*(Height y : ℝ)=K),
+
+    let Q := (Height y : ℝ)^4
+    ∃ d∈finiteWeightCandidates3 336,∃ hQ : 1<Q,sourceWeightConditions3 d ∧
+      y∈qSourceLattice3 (choice 1) (choice 2) Q (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) Q (d 0) hQ) (integerTripleReal3 y)≤Q^(-(1 : ℝ)/24) :=
+  @JSP000334.weighted_integer_source_point3
+
+theorem source_weighted_integer_source_family3 : ∀ (Omega : Set ℝ) (hOmega : ¬BddAbove Omega)
+    (z : Omega → IntegerTriple) (hy : ∀ q,Primitive (z q))
+    (hp : ∀ q,∃ choice : Fin 3 → Fin 3,∃ d∈finiteWeightCandidates3 336,
+      ∃ hQ : 1<q.val,sourceWeightConditions3 d ∧
+      z q∈qSourceLattice3 (choice 1) (choice 2) q.val (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) q.val (d 0) hQ) (integerTripleReal3 (z q))≤q.val^(-(1 : ℝ)/24)),
+
+    ∃ P : Submodule ℚ (Fin 3 → ℚ),P≠⊤ ∧ ∃ W : Set ℝ,W⊆Omega ∧ ¬BddAbove W ∧
+      ∀ q : Omega,q.val∈W → (fun i => (z q i : ℚ))∈P :=
+  @JSP000334.weighted_integer_source_family3
+
+theorem source_weighted_primitive_triple_reduction3 : ∀ (z : Fin 3 → ℤ) (hz0 : z 0 ≠ 0),
+
+    ∃ g : ℕ, 0 < g ∧ (g : ℤ) ∣ z 0 ∧ ∃ y : Fin 3 → ℤ,
+      Primitive y ∧ ∀ i, z i = (g : ℤ) * y i :=
+  @JSP000334.weighted_primitive_triple_reduction3
+
+theorem source_weighted_primitive_sunit_normalized3 : ∀ (x : Fin 3 → ℚ) (h0 : x 0=1)
+    (u1 u2 : Group) (hu1 : ((u1 : ℚˣ) : ℚ)=x 1) (hu2 : ((u2 : ℚˣ) : ℚ)=x 2),
+
+    ∃ z : Fin 3 → ℤ,∃ s : Group,Primitive z ∧ z≠0 ∧
+      ∀ i : Fin 3,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i :=
+  @JSP000334.weighted_primitive_sunit_normalized3
+
+theorem source_weighted_primitive_sunit_coordinates3 : ∀ (u : Fin 3 → Group),
+
+    ∃ z : Fin 3 → ℤ,∃ s : Group,Primitive z ∧ (∀ i,z i≠0) ∧
+      ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ) :=
+  @JSP000334.weighted_primitive_sunit_coordinates3
+
+theorem source_weighted_diagonal_primitive3 : ∀ (t z : Fin 3 → ℤ) (ht : ∀ i,t i≠0)
+    (hz : Primitive z) (hzn : ∀ i,z i≠0),
+
+    ∃ g : ℕ,0<g ∧ (g : ℤ)∣t 0*t 1*t 2 ∧ ∃ y : Fin 3 → ℤ,
+      Primitive y ∧ (∀ i,y i≠0) ∧ ∀ i,t i*z i=(g : ℤ)*y i :=
+  @JSP000334.weighted_diagonal_primitive3
+
+theorem source_weighted_fixed_product_point3 : ∀ (k : Fin 3 → ℚ) (a : ℚ)
+    (hk : ∀ i,k i≠0) (ha : a≠0) (y : IntegerTriple) (hy : Primitive y)
+    (hc : ∀ i,Product (y i : ℚ)=Product (k i))
+    (hs : Product ((y 0 : ℚ)+y 1+y 2)=Product a)
+    (hH : Raw_weightedProductCutoff3 k a≤(Height y : ℝ)),
+
+    let Q := (Height y : ℝ)^4
+    ∃ choice : Fin 3 → Fin 3,∃ d∈finiteWeightCandidates3 336,
+      ∃ hQ : 1<Q,sourceWeightConditions3 d ∧
+      y∈qSourceLattice3 (choice 1) (choice 2) Q (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) Q (d 0) hQ) (integerTripleReal3 y)≤Q^(-(1 : ℝ)/24) :=
+  @JSP000334.weighted_fixed_product_point3
+
+theorem source_weighted_fixed_product_cover3 : ∀ (k : Fin 3 → ℚ) (a : ℚ) (hk : ∀ i,k i≠0) (ha : a≠0),
+
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ y : IntegerTriple,Raw_weightedFixedProductTriples3 k a y → ∃ P∈F,(fun i => (y i : ℚ))∈P :=
+  @JSP000334.weighted_fixed_product_cover3
+
+theorem source_weighted_coefficient_denominator3 : ∀ (B C D : ℚ) (hB : B≠0) (hC : C≠0) (hD : D≠0),
+
+    ∃ L : ℕ,0<L ∧ ∃ t : Fin 3 → ℤ,(∀ i,t i≠0) ∧
+      ∀ i,(t i : ℚ)=(L : ℚ)*(![B,C,D] i) :=
+  @JSP000334.weighted_coefficient_denominator3
+
+theorem source_weighted_diagonal_comap_proper3 : ∀ (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤),
+
+    P.comap (Raw_weightedDiagonalMap3 t)≠⊤ :=
+  @JSP000334.weighted_diagonal_comap_proper3
+
+theorem source_weighted_diagonal_original_mem3 : ∀ (t z y : Fin 3 → ℤ)
+    (g : ℕ) (u : Fin 3 → Group) (s : Group)
+    (hz : ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ))
+    (he : ∀ i,t i*z i=(g : ℤ)*y i)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hyP : (fun i => (y i : ℚ))∈P),
+
+    (fun i => ((u i : ℚˣ) : ℚ))∈P.comap (Raw_weightedDiagonalMap3 t) :=
+  @JSP000334.weighted_diagonal_original_mem3
+
+end
+end Raw255C
+#check Raw255C.source_weighted_diagonal_gcd_divides3
+#print axioms Raw255C.source_weighted_diagonal_gcd_divides3
+#check Raw255C.source_weighted_diagonal_gcd_values_finite3
+#print axioms Raw255C.source_weighted_diagonal_gcd_values_finite3
+#check Raw255C.source_weighted_diagonal_invertible3
+#print axioms Raw255C.source_weighted_diagonal_invertible3
+#check Raw255C.source_weighted_fixed_product_height3
+#print axioms Raw255C.source_weighted_fixed_product_height3
+#check Raw255C.source_weighted_balanced_weights3
+#print axioms Raw255C.source_weighted_balanced_weights3
+#check Raw255C.source_weighted_scaled_product3
+#print axioms Raw255C.source_weighted_scaled_product3
+#check Raw255C.source_weighted_three_place_pos3
+#print axioms Raw255C.source_weighted_three_place_pos3
+#check Raw255C.source_weighted_diagonal_K_pos3
+#print axioms Raw255C.source_weighted_diagonal_K_pos3
+#check Raw255C.source_weighted_diagonal_products3
+#print axioms Raw255C.source_weighted_diagonal_products3
+#check Raw255C.source_weighted_integer_local_inverse3
+#print axioms Raw255C.source_weighted_integer_local_inverse3
+#check Raw255C.source_weighted_integer_source_point3
+#print axioms Raw255C.source_weighted_integer_source_point3
+#check Raw255C.source_weighted_integer_source_family3
+#print axioms Raw255C.source_weighted_integer_source_family3
+#check Raw255C.source_weighted_primitive_triple_reduction3
+#print axioms Raw255C.source_weighted_primitive_triple_reduction3
+#check Raw255C.source_weighted_primitive_sunit_normalized3
+#print axioms Raw255C.source_weighted_primitive_sunit_normalized3
+#check Raw255C.source_weighted_primitive_sunit_coordinates3
+#print axioms Raw255C.source_weighted_primitive_sunit_coordinates3
+#check Raw255C.source_weighted_diagonal_primitive3
+#print axioms Raw255C.source_weighted_diagonal_primitive3
+#check Raw255C.source_weighted_fixed_product_point3
+#print axioms Raw255C.source_weighted_fixed_product_point3
+#check Raw255C.source_weighted_fixed_product_cover3
+#print axioms Raw255C.source_weighted_fixed_product_cover3
+#check Raw255C.source_weighted_coefficient_denominator3
+#print axioms Raw255C.source_weighted_coefficient_denominator3
+#check Raw255C.source_weighted_diagonal_comap_proper3
+#print axioms Raw255C.source_weighted_diagonal_comap_proper3
+#check Raw255C.source_weighted_diagonal_original_mem3
+#print axioms Raw255C.source_weighted_diagonal_original_mem3

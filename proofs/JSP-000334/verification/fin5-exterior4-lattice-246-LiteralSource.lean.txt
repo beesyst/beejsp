@@ -1,0 +1,277 @@
+import SubspaceBridge.SourceExterior54Cofactor246
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralExterior54L246
+open CompoundFeasibility.Exterior54_246
+
+theorem compound_map4246 {R S : Type*} [CommRing R] [CommRing S]
+    (f : R →+* S) (A : Matrix (Fin 5) (Fin 5) R) :
+    (compound4246 A).map f = compound4246 (A.map f) := by
+  have ha : A.adjugate.map f = (A.map f).adjugate := f.map_adjugate A
+  simpa only [compound4246, Matrix.transpose_map] using congrArg Matrix.transpose ha
+
+theorem wedge_map4246 {R S : Type*} [CommRing R] [CommRing S]
+    (f : R →+* S) (x : Fin 4 → Fin 5 → R) :
+    (fun i => f (wedge4246 x i)) = wedge4246 (fun j k => f (x j k)) := by
+  have hm : (Matrix.of (Fin.snoc x 0)).map f =
+      Matrix.of (Fin.snoc (fun j k => f (x j k)) 0) := by
+    ext i k
+    refine Fin.lastCases ?_ (fun j => ?_) i
+    · change f 0 = 0
+      exact f.map_zero
+    · simp only [Matrix.map_apply, Matrix.of_apply, Fin.snoc_castSucc]
+  funext i
+  change ((Matrix.of (Fin.snoc x 0)).adjugate.map f) i 4 = _
+  have ha : (Matrix.of (Fin.snoc x 0)).adjugate.map f =
+      ((Matrix.of (Fin.snoc x 0)).map f).adjugate := f.map_adjugate _
+  rw [ha, hm]
+  rfl
+
+end CompoundFeasibility.LiteralExterior54L246
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralExterior54L246
+open CompoundFeasibility.Exterior54_246
+
+theorem padic_wedge_bound4246 (p : ℕ) [Fact p.Prime]
+    (y : Fin 4 → Fin 5 → ℚ_[p]) (b : Fin 5 → ℝ)
+    (hb : ∀ k, 0 ≤ b k) (hy : ∀ j k, ‖y j k‖ ≤ b k) (i : Fin 5) :
+    ‖wedge4246 y i‖ ≤ ∏ k : Fin 4, b (i.succAbove k) := by
+  let M : Matrix (Fin 5) (Fin 5) ℚ_[p] := Matrix.of (Fin.snoc y (0 : Fin 5 → ℚ_[p]))
+  change ‖M.adjugate i (Fin.last 4)‖ ≤ _
+  rw [Matrix.adjugate_fin_succ_eq_det_submatrix, norm_mul, norm_pow, norm_neg, norm_one]
+  simp only [one_pow, one_mul]
+  apply OriginalDual10.padic_det3_bound10 (n := 4) p _ _ (fun k => hb (i.succAbove k))
+  intro j k
+  simpa only [Matrix.submatrix_apply, Fin.succAbove_last, M, Matrix.of_apply,
+    Fin.snoc_castSucc] using hy j (i.succAbove k)
+
+end CompoundFeasibility.LiteralExterior54L246
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralExterior54L246
+open CompoundFeasibility.Exterior54_246
+
+theorem local_wedge4246 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (e : Fin 5 → ℕ)
+    (x : Fin 4 → Fin 5 → ℤ) (hx : ∀ j, x j ∈ lattice5 p A e) :
+    wedge4246 x ∈ lattice5 p (compound4246 A)
+      (fun i => ∑ r : Fin 4, e (i.succAbove r)) := by
+  have hy : ∀ j k, ‖((A.map (algebraMap ℚ ℚ_[p])) *ᵥ
+      (fun t => (x j t : ℚ_[p]))) k‖ ≤ (p : ℝ)^(-(e k : ℤ)) := by
+    intro j k
+    rw [OriginalDual10.finite_form_norm10]
+    have hr := (Rat.cast_le (K := ℝ)
+      (p := padicNorm p ((A *ᵥ (fun t => (x j t : ℚ))) k))
+      (q := (p : ℚ)^(-(e k : ℤ)))).mpr ((lattice5_spec p A e (x j)).mp (hx j) k)
+    simpa only [Rat.cast_zpow, Rat.cast_natCast] using hr
+  rw [lattice5_spec]
+  intro i
+  have hs := padic_wedge_bound4246 p
+    (fun j => A.map (algebraMap ℚ ℚ_[p]) *ᵥ (fun t => (x j t : ℚ_[p])))
+    (fun k => (p : ℝ)^(-(e k : ℤ))) (fun k => by positivity) hy i
+  have ht := wedge_transform4246 (A.map (algebraMap ℚ ℚ_[p]))
+    (fun j t => (x j t : ℚ_[p]))
+  have hc : (fun k => ((wedge4246 x k : ℤ) : ℚ_[p])) =
+      wedge4246 (fun j t => (x j t : ℚ_[p])) := wedge_map4246 (Int.castRingHom ℚ_[p]) x
+  rw [← ht, ← hc, ← compound_map4246 (algebraMap ℚ ℚ_[p]) A,
+    OriginalDual10.finite_form_norm10] at hs
+  have hp : (p : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (Fact.out : p.Prime).ne_zero
+  have hprod (s : Finset (Fin 4)) :
+      (∏ k ∈ s, (p : ℝ)^(-(e (i.succAbove k) : ℤ))) =
+        (p : ℝ)^(∑ k ∈ s, -(e (i.succAbove k) : ℤ)) := by
+    induction s using Finset.induction_on with
+    | empty => simp
+    | @insert a s ha ih =>
+      rw [Finset.prod_insert ha, Finset.sum_insert ha, ih, zpow_add₀ hp]
+  rw [hprod] at hs
+  have he : (∑ k : Fin 4, -(e (i.succAbove k) : ℤ)) =
+      -((∑ k : Fin 4, e (i.succAbove k) : ℕ) : ℤ) := by simp
+  rw [he] at hs
+  apply (Rat.cast_le (K := ℝ)).mp
+  simpa only [Rat.cast_zpow, Rat.cast_natCast] using hs
+
+end CompoundFeasibility.LiteralExterior54L246
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralExterior54L246
+open CompoundFeasibility.Exterior54_246
+
+def fourWeights246 (c : Fin 5 → ℝ) (i : Fin 5) : ℝ :=
+  ∑ r : Fin 4, c (i.succAbove r)
+
+def normalizedWeights4246 (c : Fin 5 → ℝ) (i : Fin 5) : ℝ := fourWeights246 c i / 4
+
+theorem four_ceiling246 (p : ℕ) (Q : ℝ) (c : Fin 5 → ℝ) (i : Fin 5) :
+    Nat.ceil (JSP000334.qThreshold p Q (fourWeights246 c i)) ≤
+      ∑ r : Fin 4, Nat.ceil (JSP000334.qThreshold p Q (c (i.succAbove r))) := by
+  simp only [fourWeights246, Fin.sum_univ_succ, Fin.sum_univ_zero, add_zero,
+    qThreshold_add42]
+  exact (Nat.ceil_add_le _ _).trans (Nat.add_le_add_left
+    ((Nat.ceil_add_le _ _).trans (Nat.add_le_add_left (Nat.ceil_add_le _ _) _)) _)
+
+theorem local_ceiling_inclusion4246 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c : Fin 5 → ℝ) :
+    lattice5 p (compound4246 A)
+      (fun i => ∑ r : Fin 4, Nat.ceil (JSP000334.qThreshold p Q (c (i.succAbove r)))) ≤
+    lattice5 p (compound4246 A)
+      (fun i => Nat.ceil (JSP000334.qThreshold p Q (fourWeights246 c i))) := by
+  intro z hz
+  simp only [lattice5, AddSubgroup.mem_iInf, AddSubgroup.mem_comap] at hz ⊢
+  intro i
+  exact normBall_antitone42 p _ _ (four_ceiling246 p Q c i) (hz i)
+
+theorem wedge_direct4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (x : Fin 4 → originalSourceGroup5 A2 A3 Q c2 c3) :
+    wedge4246 (fun j => (x j : Fin 5 → ℤ)) ∈
+      originalSourceGroup5 (compound4246 A2) (compound4246 A3) Q
+        (fourWeights246 c2) (fourWeights246 c3) := by
+  let e2 : Fin 5 → ℕ := fun i => Nat.ceil (JSP000334.qThreshold 2 Q (c2 i))
+  let e3 : Fin 5 → ℕ := fun i => Nat.ceil (JSP000334.qThreshold 3 Q (c3 i))
+  have hx2 : ∀ j, (x j : Fin 5 → ℤ) ∈ lattice5 2 A2 e2 := fun j => (x j).property.1
+  have hx3 : ∀ j, (x j : Fin 5 → ℤ) ∈ lattice5 3 A3 e3 := fun j => (x j).property.2
+  have h2 := local_wedge4246 2 A2 e2 (fun j => (x j : Fin 5 → ℤ)) hx2
+  have h3 := local_wedge4246 3 A3 e3 (fun j => (x j : Fin 5 → ℤ)) hx3
+  exact ⟨local_ceiling_inclusion4246 2 A2 Q c2 h2,
+    local_ceiling_inclusion4246 3 A3 Q c3 h3⟩
+
+theorem powered_threshold4246 (p : ℕ) (Q : ℝ) (c : Fin 5 → ℝ) (i : Fin 5) :
+    JSP000334.qThreshold p (Q^4) (normalizedWeights4246 c i) =
+      JSP000334.qThreshold p Q (fourWeights246 c i) := by
+  unfold normalizedWeights4246 JSP000334.qThreshold
+  rw [Real.log_pow]
+  ring
+
+theorem powered_group4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ) :
+    originalSourceGroup5 (compound4246 A2) (compound4246 A3) (Q^4)
+      (normalizedWeights4246 c2) (normalizedWeights4246 c3) =
+    originalSourceGroup5 (compound4246 A2) (compound4246 A3) Q
+      (fourWeights246 c2) (fourWeights246 c3) := by
+  unfold originalSourceGroup5
+  simp_rw [powered_threshold4246]
+
+theorem wedge_source_group4246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (x : Fin 4 → originalSourceGroup5 A2 A3 Q c2 c3) :
+    wedge4246 (fun j => (x j : Fin 5 → ℤ)) ∈
+      originalSourceGroup5 (compound4246 A2) (compound4246 A3) (Q^4)
+        (normalizedWeights4246 c2) (normalizedWeights4246 c3) := by
+  rw [powered_group4246]
+  exact wedge_direct4246 A2 A3 Q c2 c3 x
+
+end CompoundFeasibility.LiteralExterior54L246
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace Exterior54LSourceChallenges
+open CompoundFeasibility CompoundFeasibility.Exterior54_246
+
+theorem integer_rational_cast (x : Fin 4 → Fin 5 → ℤ) (i : Fin 5) :
+    (((Matrix.of (Fin.snoc x 0)).adjugate i 4 : ℤ) : ℚ) =
+      (Matrix.of (Fin.snoc (fun j k => (x j k : ℚ)) 0)).adjugate i 4 := by
+  exact congrFun (CompoundFeasibility.LiteralExterior54L246.wedge_map4246 (Int.castRingHom ℚ) x) i
+
+theorem rational_padic_cast (p : ℕ) [Fact p.Prime]
+    (x : Fin 4 → Fin 5 → ℚ) (i : Fin 5) :
+    algebraMap ℚ ℚ_[p] ((Matrix.of (Fin.snoc x 0)).adjugate i 4) =
+      (Matrix.of (Fin.snoc (fun j k => algebraMap ℚ ℚ_[p] (x j k)) 0)).adjugate i 4 := by
+  exact congrFun (CompoundFeasibility.LiteralExterior54L246.wedge_map4246 (algebraMap ℚ ℚ_[p]) x) i
+
+theorem actual_compound_padic_map (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) :
+    A.adjugate.transpose.map (algebraMap ℚ ℚ_[p]) =
+      (A.map (algebraMap ℚ ℚ_[p])).adjugate.transpose := by
+  exact CompoundFeasibility.LiteralExterior54L246.compound_map4246 (algebraMap ℚ ℚ_[p]) A
+
+theorem actual_padic_minor_bound (p : ℕ) [Fact p.Prime]
+    (y : Fin 4 → Fin 5 → ℚ_[p]) (b : Fin 5 → ℝ)
+    (hb : ∀ k, 0 ≤ b k) (hy : ∀ j k, ‖y j k‖ ≤ b k) (i : Fin 5) :
+    ‖(Matrix.of (Fin.snoc y (0 : Fin 5 → ℚ_[p]))).adjugate i (Fin.last 4)‖ ≤
+      ∏ k : Fin 4, b (i.succAbove k) := by
+  exact CompoundFeasibility.LiteralExterior54L246.padic_wedge_bound4246 p y b hb hy i
+
+theorem actual_local_two (A : Matrix (Fin 5) (Fin 5) ℚ) (e : Fin 5 → ℕ)
+    (x : Fin 4 → Fin 5 → ℤ)
+    (hx : ∀ j i, padicNorm 2 ((A *ᵥ (fun k => (x j k : ℚ))) i) ≤ (2 : ℚ)^(-(e i : ℤ))) :
+    ∀ i, padicNorm 2 ((A.adjugate.transpose *ᵥ
+      (fun k => (((Matrix.of (Fin.snoc x 0)).adjugate k 4 : ℤ) : ℚ))) i) ≤
+        (2 : ℚ)^(-((∑ r : Fin 4, e (i.succAbove r) : ℕ) : ℤ)) := by
+  exact (lattice5_spec 2 (compound4246 A) _ _).mp
+    (CompoundFeasibility.LiteralExterior54L246.local_wedge4246 2 A e x (fun j => (lattice5_spec 2 A e (x j)).mpr (hx j)))
+
+theorem actual_local_three (A : Matrix (Fin 5) (Fin 5) ℚ) (e : Fin 5 → ℕ)
+    (x : Fin 4 → Fin 5 → ℤ)
+    (hx : ∀ j i, padicNorm 3 ((A *ᵥ (fun k => (x j k : ℚ))) i) ≤ (3 : ℚ)^(-(e i : ℤ))) :
+    ∀ i, padicNorm 3 ((A.adjugate.transpose *ᵥ
+      (fun k => (((Matrix.of (Fin.snoc x 0)).adjugate k 4 : ℤ) : ℚ))) i) ≤
+        (3 : ℚ)^(-((∑ r : Fin 4, e (i.succAbove r) : ℕ) : ℤ)) := by
+  exact (lattice5_spec 3 (compound4246 A) _ _).mp
+    (CompoundFeasibility.LiteralExterior54L246.local_wedge4246 3 A e x (fun j => (lattice5_spec 3 A e (x j)).mpr (hx j)))
+
+theorem actual_four_ceiling (p : ℕ) (Q : ℝ) (c : Fin 5 → ℝ) (i : Fin 5) :
+    Nat.ceil (JSP000334.qThreshold p Q (∑ r : Fin 4, c (i.succAbove r))) ≤
+      ∑ r : Fin 4, Nat.ceil (JSP000334.qThreshold p Q (c (i.succAbove r))) := by
+  exact CompoundFeasibility.LiteralExterior54L246.four_ceiling246 p Q c i
+
+theorem actual_powered_threshold (p : ℕ) (Q : ℝ) (c : Fin 5 → ℝ) (i : Fin 5) :
+    JSP000334.qThreshold p (Q^4) ((∑ r : Fin 4, c (i.succAbove r))/4) =
+      JSP000334.qThreshold p Q (∑ r : Fin 4, c (i.succAbove r)) := by
+  exact CompoundFeasibility.LiteralExterior54L246.powered_threshold4246 p Q c i
+
+theorem actual_powered_source (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (x : Fin 4 → originalSourceGroup5 A2 A3 Q c2 c3) :
+    (fun i => (Matrix.of (Fin.snoc (fun j => (x j : Fin 5 → ℤ)) 0)).adjugate i 4) ∈
+      originalSourceGroup5 A2.adjugate.transpose A3.adjugate.transpose (Q^4)
+        (fun i => (∑ r : Fin 4, c2 (i.succAbove r))/4)
+        (fun i => (∑ r : Fin 4, c3 (i.succAbove r))/4) := by
+  exact CompoundFeasibility.LiteralExterior54L246.wedge_source_group4246 A2 A3 Q c2 c3 x
+
+theorem raw_two_place_source (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ) (x : Fin 4 → Fin 5 → ℤ)
+    (hx2 : ∀ j i, padicNorm 2 ((A2 *ᵥ (fun k => (x j k : ℚ))) i) ≤
+      (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 Q (c2 i)) : ℤ)))
+    (hx3 : ∀ j i, padicNorm 3 ((A3 *ᵥ (fun k => (x j k : ℚ))) i) ≤
+      (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 Q (c3 i)) : ℤ))) :
+    (∀ i, padicNorm 2 ((A2.adjugate.transpose *ᵥ
+      (fun k => (((Matrix.of (Fin.snoc x 0)).adjugate k 4 : ℤ) : ℚ))) i) ≤
+      (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 (Q^4)
+        ((∑ r : Fin 4, c2 (i.succAbove r))/4)) : ℤ))) ∧
+    (∀ i, padicNorm 3 ((A3.adjugate.transpose *ᵥ
+      (fun k => (((Matrix.of (Fin.snoc x 0)).adjugate k 4 : ℤ) : ℚ))) i) ≤
+      (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 (Q^4)
+        ((∑ r : Fin 4, c3 (i.succAbove r))/4)) : ℤ))) := by
+  let u : Fin 4 → originalSourceGroup5 A2 A3 Q c2 c3 := fun j =>
+    ⟨x j, ⟨(lattice5_spec 2 A2 _ (x j)).mpr (hx2 j),
+      (lattice5_spec 3 A3 _ (x j)).mpr (hx3 j)⟩⟩
+  have hm := CompoundFeasibility.LiteralExterior54L246.wedge_source_group4246 A2 A3 Q c2 c3 u
+  exact ⟨(lattice5_spec 2 (compound4246 A2) _ _).mp hm.1,
+    (lattice5_spec 3 (compound4246 A3) _ _).mp hm.2⟩
+
+end Exterior54LSourceChallenges
+#check Exterior54LSourceChallenges.integer_rational_cast
+#print axioms Exterior54LSourceChallenges.integer_rational_cast
+#check Exterior54LSourceChallenges.rational_padic_cast
+#print axioms Exterior54LSourceChallenges.rational_padic_cast
+#check Exterior54LSourceChallenges.actual_compound_padic_map
+#print axioms Exterior54LSourceChallenges.actual_compound_padic_map
+#check Exterior54LSourceChallenges.actual_padic_minor_bound
+#print axioms Exterior54LSourceChallenges.actual_padic_minor_bound
+#check Exterior54LSourceChallenges.actual_local_two
+#print axioms Exterior54LSourceChallenges.actual_local_two
+#check Exterior54LSourceChallenges.actual_local_three
+#print axioms Exterior54LSourceChallenges.actual_local_three
+#check Exterior54LSourceChallenges.actual_four_ceiling
+#print axioms Exterior54LSourceChallenges.actual_four_ceiling
+#check Exterior54LSourceChallenges.actual_powered_threshold
+#print axioms Exterior54LSourceChallenges.actual_powered_threshold
+#check Exterior54LSourceChallenges.actual_powered_source
+#print axioms Exterior54LSourceChallenges.actual_powered_source
+#check Exterior54LSourceChallenges.raw_two_place_source
+#print axioms Exterior54LSourceChallenges.raw_two_place_source

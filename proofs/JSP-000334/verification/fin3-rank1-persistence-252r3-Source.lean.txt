@@ -1,0 +1,282 @@
+import SubspaceBridge.CofactorDualMinima3
+import SubspaceBridge.CofactorFixedDual3
+import SubspaceBridge.CofactorExteriorSquare3
+import SubspaceBridge.CofactorExteriorReal3
+import SubspaceBridge.CofactorExteriorMinima3
+import SubspaceBridge.CofactorExteriorTransport3
+open scoped BigOperators Matrix
+open MeasureTheory JSP000334
+namespace ExteriorRaw252R3
+noncomputable section
+
+def rawA (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ :=
+  ![Pi.single (k.succAbove 0) 1,Pi.single (k.succAbove 1) 1,fun _ => 1]
+
+def rawC (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ := (rawA k).adjugate.transpose
+
+def rawG (k2 k3 : Fin 3) (Q : ℝ) (c2 c3 : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (rawA k2) (rawA k3)
+    (fun i => Nat.ceil (-c2 i*Real.log Q/Real.log 2))
+    (fun i => Nat.ceil (-c3 i*Real.log Q/Real.log 3))
+
+def rawCG (k2 k3 : Fin 3) (Q : ℝ) (c2 c3 : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (rawC k2) (rawC k3)
+    (fun i => Nat.ceil (-c2 i*Real.log Q/Real.log 2))
+    (fun i => Nat.ceil (-c3 i*Real.log Q/Real.log 3))
+
+def rawReal (k : Fin 3) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  LinearEquiv.ofBijective (Matrix.toLin' ((rawA k).map (Int.castRingHom ℝ))) (by
+    have h : IsUnit ((rawA k).map (Int.castRingHom ℝ)) := by
+      change IsUnit (retainedRealMatrix3 k)
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [retainedRealMatrix3_det]
+      split_ifs <;> norm_num
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr h,Matrix.mulVec_surjective_iff_isUnit.mpr h⟩)
+
+def rawCReal (k : Fin 3) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  LinearEquiv.ofBijective (Matrix.toLin' ((rawC k).map (Int.castRingHom ℝ))) (by
+    have h : IsUnit ((rawC k).map (Int.castRingHom ℝ)) := by
+      change IsUnit (cofactorRealMatrix3 k)
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [cofactorRealMatrix3_det]
+      exact isUnit_one
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr h,Matrix.mulVec_surjective_iff_isUnit.mpr h⟩)
+
+def rawE (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) (hQ : 1 < Q) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3 (rawReal k) (fun i => Q^c i) (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+
+def rawCE (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) (hQ : 1 < Q) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3 (rawCReal k) (fun i => Q^c i) (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+
+def rawMin (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (j.val+1) → RealTriple, LinearIndependent ℝ u ∧
+    (∀ i, u i ∈ lattice3 B) ∧ ∀ i, coordinateGauge3 e (u i) ≤ r}
+
+def rawPair (c : Fin 3 → ℝ) (i : Fin 3) : ℝ := (c (i.succAbove 0)+c (i.succAbove 1))/2
+
+def rawProducts (l : Fin 3 → ℝ) : Fin 3 → ℝ := ![l 0*l 1,l 0*l 2,l 1*l 2]
+
+def rawWedge {R : Type*} [CommRing R] (x y : Fin 3 → R) : Fin 3 → R :=
+  ![x 1*y 2-x 2*y 1,x 2*y 0-x 0*y 2,x 0*y 1-x 1*y 0]
+
+def rawFrame {R : Type*} [CommRing R] (u : Fin 3 → Fin 3 → R) : Fin 3 → Fin 3 → R :=
+  ![rawWedge (u 0) (u 1),rawWedge (u 0) (u 2),rawWedge (u 1) (u 2)]
+
+theorem raw_minimum_eq (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) :
+    rawMin B e j = successiveRadius3 B e j := rfl
+
+theorem raw_cofactor_source_fixed_dual_direction3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c₂ c₃ : Fin 3 → ℝ) (hc₂ : ∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0)
+    (hc₃ : ∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega)
+    (A : ℝ → Fin 3 → ℝ) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (hA : ∀ Q ∈ Omega, ∀ i, 0 < A Q i)
+    (hcut : ∀ Q ∈ Omega, ∀ i, A Q i < Q ∧ (A Q i)⁻¹ < Q)
+    (hnorm : ∀ Q ∈ Omega, (∏ i, A Q i*Q^(c₂ i)*Q^(c₃ i)) = 1)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawCG k₂ k₃ Q.val c₂ c₃)
+    (hB : ∀ Q : Omega, lattice3 (B Q) =
+      (rawCG k₂ k₃ Q.val c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (archCoordinates3 (rawCReal k₀) (A Q.val) (hA Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      rawMin (B Q)
+        (archCoordinates3 (rawCReal k₀) (A Q.val) (hA Q.val Q.property)) j)
+    (hsmall : ∀ Q : Omega, rawMin (B Q)
+      (archCoordinates3 (rawCReal k₀) (A Q.val) (hA Q.val Q.property)) 1 < Q.val^(-delta)) :
+    ∃ v : IntegerTriple, v ≠ 0 ∧ ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+      ∀ Q : Omega, Q.val ∈ U →
+        Submodule.span ℚ {dualFrameVector3 (fun j => (u Q j : IntegerTriple)) 2} =
+          Submodule.span ℚ {fun i => (v i : ℚ)} := by
+  exact JSP000334.cofactor_source_fixed_dual_direction3 k₀ k₂ k₃ delta hd c₂ c₃ hc₂ hc₃ Omega hOmega A hQ hA hcut hnorm B u hB hu hatt hsmall
+
+theorem raw_hodgeWedge3_matrix {R : Type*} [CommRing R]
+    (A : Matrix (Fin 3) (Fin 3) R) (x y : Fin 3 → R) :
+    rawWedge (A *ᵥ x) (A *ᵥ y) = A.adjugate.transpose *ᵥ rawWedge x y := by
+  exact JSP000334.hodgeWedge3_matrix A x y
+
+theorem raw_hodgeFrame3_det {R : Type*} [CommRing R] (u : Matrix (Fin 3) (Fin 3) R) :
+    Matrix.det (rawFrame u) = u.det^2 := by
+  exact JSP000334.hodgeFrame3_det u
+
+theorem raw_hodgeFrame3_independent {K : Type*} [Field K] (u : Fin 3 → Fin 3 → K)
+    (hu : LinearIndependent K u) : LinearIndependent K (rawFrame u) := by
+  exact JSP000334.hodgeFrame3_independent u hu
+
+theorem raw_pairWeights3_bounds (c0 c2 c3 : Fin 3 → ℝ)
+    (h0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0) :
+    (∀ i, -1 ≤ rawPair c0 i ∧ rawPair c0 i ≤ 1) ∧
+    (∀ i, -1 ≤ rawPair c2 i ∧ rawPair c2 i ≤ 0) ∧
+    (∀ i, -1 ≤ rawPair c3 i ∧ rawPair c3 i ≤ 0) ∧
+    (∑ i, (rawPair c0 i+rawPair c2 i+rawPair c3 i)) = 0 := by
+  exact JSP000334.pairWeights3_bounds c0 c2 c3 h0 h2 h3 hb
+
+theorem raw_pairWeights3_power (Q : ℝ) (hQ : 0 < Q) (c : Fin 3 → ℝ) (i : Fin 3) :
+    (Q^2) ^ rawPair c i = Q ^ (c (i.succAbove 0)+c (i.succAbove 1)) := by
+  exact JSP000334.pairWeights3_power Q hQ c i
+
+theorem raw_hodgeWedge3_source_mem (k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c2 c3 : Fin 3 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (x y : rawG k2 k3 Q c2 c3) :
+    rawWedge (x : IntegerTriple) (y : IntegerTriple) ∈
+      rawCG k2 k3 (Q^2) (rawPair c2) (rawPair c3) := by
+  exact JSP000334.hodgeWedge3_source_mem k2 k3 Q hQ c2 c3 hc2 hc3 x y
+
+theorem raw_hodgeWedge3_source_gauge (k : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c : Fin 3 → ℝ) (x y : IntegerTriple) :
+    coordinateGauge3 (rawCE k (Q^2) (rawPair c) (pairWeights3_Q_squared Q hQ))
+      (integerTripleReal3 (rawWedge x y)) ≤
+      2*coordinateGauge3 (rawE k Q c hQ) (integerTripleReal3 x)*
+        coordinateGauge3 (rawE k Q c hQ) (integerTripleReal3 y) := by
+  exact JSP000334.hodgeWedge3_source_gauge k Q hQ c x y
+
+theorem raw_cofactor_pair_ceiling_bounds3 (x y : ℝ) (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    Nat.ceil (x+y) ≤ Nat.ceil x+Nat.ceil y ∧
+      Nat.ceil x+Nat.ceil y ≤ Nat.ceil (x+y)+1 := by
+  exact JSP000334.cofactor_pair_ceiling_bounds3 x y hx hy
+
+theorem raw_hodgeFrame3_original_first_line (u : Fin 3 → IntegerTriple)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j))) :
+    Submodule.span ℚ {fun i => (u 0 i : ℚ)} =
+      Submodule.span ℚ {dualFrameVector3 (rawFrame u) 2} := by
+  exact JSP000334.hodgeFrame3_original_first_line u hu
+
+theorem raw_cofactor_product_bounds3 (k0 k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 3 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (hB : lattice3 B = (rawCG k2 k3 Q c2 c3).toIntSubmodule.map integerTripleReal3) :
+    (1 : ℝ)/6 ≤ ∏ i, rawMin B (rawCE k0 Q c0 hQ) i ∧
+      (∏ i, rawMin B (rawCE k0 Q c0 hQ) i) < 216 := by
+  exact JSP000334.cofactor_product_bounds3 k0 k2 k3 Q hQ c0 c2 c3 hc2 hc3 hb B hB
+
+theorem raw_hodgeFrame3_forward_bounds (k0 k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 3 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawG k2 k3 Q c2 c3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (rawE k0 Q c0 hQ) (integerTripleReal3 (u j : IntegerTriple)) =
+      rawMin B (rawE k0 Q c0 hQ) j)
+    (D : Basis (Fin 3) ℝ RealTriple)
+    (hD : lattice3 D = (rawCG k2 k3 (Q^2) (rawPair c2) (rawPair c3)).toIntSubmodule.map integerTripleReal3) :
+    ∀ i, rawMin D (rawCE k0 (Q^2) (rawPair c0) (pairWeights3_Q_squared Q hQ)) i ≤
+      2*rawProducts (rawMin B (rawE k0 Q c0 hQ)) i := by
+  exact JSP000334.hodgeFrame3_forward_bounds k0 k2 k3 Q hQ c0 c2 c3 hc2 hc3 B u hu hatt D hD
+
+theorem raw_source_exterior_square_comparison3 (k0 k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawG k2 k3 Q c2 c3)
+    (hB : lattice3 B = (rawG k2 k3 Q c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (rawE k0 Q c0 hQ) (integerTripleReal3 (u j : IntegerTriple)) =
+      rawMin B (rawE k0 Q c0 hQ) j)
+    (D : Basis (Fin 3) ℝ RealTriple)
+    (hD : lattice3 D = (rawCG k2 k3 (Q^2) (rawPair c2) (rawPair c3)).toIntSubmodule.map integerTripleReal3) :
+    ∀ i, rawProducts (rawMin B (rawE k0 Q c0 hQ)) i / 1119744 ≤
+      rawMin D (rawCE k0 (Q^2) (rawPair c0) (pairWeights3_Q_squared Q hQ)) i ∧
+      rawMin D (rawCE k0 (Q^2) (rawPair c0) (pairWeights3_Q_squared Q hQ)) i ≤
+        1119744*rawProducts (rawMin B (rawE k0 Q c0 hQ)) i := by
+  exact JSP000334.source_exterior_square_comparison3 k0 k2 k3 Q hQ c0 c2 c3 hc0 hc2 hc3 hb B u hB hu hatt D hD
+
+theorem raw_exterior_square_gap_scalar3 (a b c m n Q delta : ℝ)
+    (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hn : 0 < n)
+    (hQ : 1 < Q) (hd : 0 < delta)
+    (hlo : b*c/1119744 ≤ n) (hhi : m ≤ 1119744*(a*c))
+    (hgap : a < b*Q^(-delta)) (hcut : (1119744 : ℝ)^2 < Q^(delta/2)) :
+    m < n*(Q^2)^(-delta/4) ∧ 2*a*c < n := by
+  exact JSP000334.exterior_square_gap_scalar3 a b c m n Q delta ha hb hc hn hQ hd hlo hhi hgap hcut
+
+theorem raw_source_exterior_square_gap_plane3 (k0 k2 k3 : Fin 3) (Q delta : ℝ)
+    (hQ : 1 < Q) (hd : 0 < delta)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawG k2 k3 Q c2 c3)
+    (hB : lattice3 B = (rawG k2 k3 Q c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (rawE k0 Q c0 hQ) (integerTripleReal3 (u j : IntegerTriple)) =
+      rawMin B (rawE k0 Q c0 hQ) j)
+    (hgap : rawMin B (rawE k0 Q c0 hQ) 0 <
+      rawMin B (rawE k0 Q c0 hQ) 1*Q^(-delta))
+    (D : Basis (Fin 3) ℝ RealTriple)
+    (v : Fin 3 → rawCG k2 k3 (Q^2) (rawPair c2) (rawPair c3))
+    (hD : lattice3 D = (rawCG k2 k3 (Q^2) (rawPair c2) (rawPair c3)).toIntSubmodule.map integerTripleReal3)
+    (hv : LinearIndependent ℝ (fun j => integerTripleReal3 (v j : IntegerTriple)))
+    (hav : ∀ j, coordinateGauge3
+      (rawCE k0 (Q^2) (rawPair c0) (pairWeights3_Q_squared Q hQ))
+      (integerTripleReal3 (v j : IntegerTriple)) = rawMin D
+      (rawCE k0 (Q^2) (rawPair c0) (pairWeights3_Q_squared Q hQ)) j)
+    (hcut : (1119744 : ℝ)^2 < Q^(delta/2)) :
+    rawMin D (rawCE k0 (Q^2) (rawPair c0) (pairWeights3_Q_squared Q hQ)) 1 <
+      rawMin D (rawCE k0 (Q^2) (rawPair c0) (pairWeights3_Q_squared Q hQ)) 2*(Q^2)^(-delta/4) ∧
+    Submodule.span ℚ {fun i => ((u 0 : IntegerTriple) i : ℚ)} =
+      Submodule.span ℚ {dualFrameVector3 (fun j => (v j : IntegerTriple)) 2} := by
+  exact JSP000334.source_exterior_square_gap_plane3 k0 k2 k3 Q delta hQ hd c0 c2 c3 hc0 hc2 hc3 hb B u hB hu hatt hgap D v hD hv hav hcut
+
+end
+end ExteriorRaw252R3
+#check ExteriorRaw252R3.rawA
+#print axioms ExteriorRaw252R3.rawA
+#check ExteriorRaw252R3.rawC
+#print axioms ExteriorRaw252R3.rawC
+#check ExteriorRaw252R3.rawG
+#print axioms ExteriorRaw252R3.rawG
+#check ExteriorRaw252R3.rawCG
+#print axioms ExteriorRaw252R3.rawCG
+#check ExteriorRaw252R3.rawReal
+#print axioms ExteriorRaw252R3.rawReal
+#check ExteriorRaw252R3.rawCReal
+#print axioms ExteriorRaw252R3.rawCReal
+#check ExteriorRaw252R3.rawE
+#print axioms ExteriorRaw252R3.rawE
+#check ExteriorRaw252R3.rawCE
+#print axioms ExteriorRaw252R3.rawCE
+#check ExteriorRaw252R3.rawMin
+#print axioms ExteriorRaw252R3.rawMin
+#check ExteriorRaw252R3.rawPair
+#print axioms ExteriorRaw252R3.rawPair
+#check ExteriorRaw252R3.rawProducts
+#print axioms ExteriorRaw252R3.rawProducts
+#check ExteriorRaw252R3.rawWedge
+#print axioms ExteriorRaw252R3.rawWedge
+#check ExteriorRaw252R3.rawFrame
+#print axioms ExteriorRaw252R3.rawFrame
+#check ExteriorRaw252R3.raw_minimum_eq
+#print axioms ExteriorRaw252R3.raw_minimum_eq
+#check ExteriorRaw252R3.raw_cofactor_source_fixed_dual_direction3
+#print axioms ExteriorRaw252R3.raw_cofactor_source_fixed_dual_direction3
+#check ExteriorRaw252R3.raw_hodgeWedge3_matrix
+#print axioms ExteriorRaw252R3.raw_hodgeWedge3_matrix
+#check ExteriorRaw252R3.raw_hodgeFrame3_det
+#print axioms ExteriorRaw252R3.raw_hodgeFrame3_det
+#check ExteriorRaw252R3.raw_hodgeFrame3_independent
+#print axioms ExteriorRaw252R3.raw_hodgeFrame3_independent
+#check ExteriorRaw252R3.raw_pairWeights3_bounds
+#print axioms ExteriorRaw252R3.raw_pairWeights3_bounds
+#check ExteriorRaw252R3.raw_pairWeights3_power
+#print axioms ExteriorRaw252R3.raw_pairWeights3_power
+#check ExteriorRaw252R3.raw_hodgeWedge3_source_mem
+#print axioms ExteriorRaw252R3.raw_hodgeWedge3_source_mem
+#check ExteriorRaw252R3.raw_hodgeWedge3_source_gauge
+#print axioms ExteriorRaw252R3.raw_hodgeWedge3_source_gauge
+#check ExteriorRaw252R3.raw_cofactor_pair_ceiling_bounds3
+#print axioms ExteriorRaw252R3.raw_cofactor_pair_ceiling_bounds3
+#check ExteriorRaw252R3.raw_hodgeFrame3_original_first_line
+#print axioms ExteriorRaw252R3.raw_hodgeFrame3_original_first_line
+#check ExteriorRaw252R3.raw_cofactor_product_bounds3
+#print axioms ExteriorRaw252R3.raw_cofactor_product_bounds3
+#check ExteriorRaw252R3.raw_hodgeFrame3_forward_bounds
+#print axioms ExteriorRaw252R3.raw_hodgeFrame3_forward_bounds
+#check ExteriorRaw252R3.raw_source_exterior_square_comparison3
+#print axioms ExteriorRaw252R3.raw_source_exterior_square_comparison3
+#check ExteriorRaw252R3.raw_exterior_square_gap_scalar3
+#print axioms ExteriorRaw252R3.raw_exterior_square_gap_scalar3
+#check ExteriorRaw252R3.raw_source_exterior_square_gap_plane3
+#print axioms ExteriorRaw252R3.raw_source_exterior_square_gap_plane3

@@ -1,0 +1,146 @@
+import SubspaceBridge.AllPointSourceFamily3
+import SubspaceBridge.WeightedPairFiniteness2
+namespace JSP000334
+open scoped BigOperators Matrix
+
+def WeightedFourTermSolutions (A B C D : ℚ) : Set (fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=0 ∧
+    Nondegenerate ![A,B*((p.1 : ℚˣ) : ℚ),C*((p.2.1 : ℚˣ) : ℚ),D*((p.2.2 : ℚˣ) : ℚ)]}
+
+def weightedRetainedMatrix3 (B C D : ℚ) : Matrix (Fin 3) (Fin 3) ℚ :=
+  !![B,C,D;0,1,0;0,0,1]
+
+def weightedNormalizedMatrix3 (B C D : ℚ) : Matrix (Fin 3) (Fin 3) ℚ :=
+  !![1,C/B,D/B;0,1,0;0,0,1]
+
+theorem weighted_retained_det3 (B C D : ℚ) : (weightedRetainedMatrix3 B C D).det=B := by
+  simp [weightedRetainedMatrix3,Matrix.det_fin_three]
+
+theorem weighted_normalized_det3 (B C D : ℚ) : (weightedNormalizedMatrix3 B C D).det=1 := by
+  simp [weightedNormalizedMatrix3,Matrix.det_fin_three]
+
+theorem weighted_normalized_apply3 (B C D : ℚ) (hB : B≠0) (z : Fin 3 → ℚ) :
+    (weightedNormalizedMatrix3 B C D *ᵥ z) 0=(B*z 0+C*z 1+D*z 2)/B := by
+  simp [weightedNormalizedMatrix3,Matrix.mulVec,dotProduct,Fin.sum_univ_three]
+  field_simp
+  ring
+
+theorem weighted_scaled_relation3 (A B C D : ℚ) (u v w s : fixedSUnitGroup)
+    (z : Fin 3 → ℤ)
+    (he : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)+D*((w : ℚˣ) : ℚ)=0)
+    (hz : ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*(![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ),((w : ℚˣ) : ℚ)] i)) :
+    B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ)=-A*((s : ℚˣ) : ℚ) := by
+  rw [hz 0,hz 1,hz 2]
+  change B*(((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))+C*(((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ))+D*(((s : ℚˣ) : ℚ)*((w : ℚˣ) : ℚ)) = -A*((s : ℚˣ) : ℚ)
+  linear_combination ((s : ℚˣ) : ℚ)*he
+
+theorem weighted_three_place_product3 (A B C D : ℚ) (u v w s : fixedSUnitGroup)
+    (z : Fin 3 → ℤ)
+    (he : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)+D*((w : ℚˣ) : ℚ)=0)
+    (hz : ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*(![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ),((w : ℚˣ) : ℚ)] i)) :
+    threePlaceProduct (B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ))=threePlaceProduct A := by
+  rw [weighted_scaled_relation3 A B C D u v w s z he hz,threePlaceProduct_mul,fixed_sunit_product_formula,mul_one]
+  simp [threePlaceProduct]
+
+theorem weighted_coordinate_product3 (s u : fixedSUnitGroup) (m : ℤ)
+    (hm : (m : ℚ)=((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ)) :
+    threePlaceProduct (m : ℚ)=1 := by
+  rw [hm,threePlaceProduct_mul,fixed_sunit_product_formula,fixed_sunit_product_formula,mul_one]
+
+theorem weighted_example_two_nondegenerate : Nondegenerate (![-5,2,1,2] : Fin 4 → ℚ) := by
+  intro I hI hproper
+  fin_cases I <;> norm_num [Finset.sum_insert,Matrix.cons_val_succ,Matrix.cons_val_zero] at *
+  all_goals exact (hproper (by decide)).elim
+
+theorem weighted_example_three_nondegenerate : Nondegenerate (![-5,3,1,1] : Fin 4 → ℚ) := by
+  intro I hI hproper
+  fin_cases I <;> norm_num [Finset.sum_insert,Matrix.cons_val_succ,Matrix.cons_val_zero] at *
+  all_goals exact (hproper (by decide)).elim
+
+theorem weighted_example_two_solution : (1,1,1)∈WeightedFourTermSolutions (-5) 2 1 2 := by
+  constructor
+  · norm_num
+  · simpa using weighted_example_two_nondegenerate
+
+theorem weighted_example_three_solution : (1,1,1)∈WeightedFourTermSolutions (-5) 3 1 1 := by
+  constructor
+  · norm_num
+  · simpa using weighted_example_three_nondegenerate
+
+theorem weighted_normalized_two_value :
+    (weightedNormalizedMatrix3 2 1 2 *ᵥ (fun _ => 1)) 0=5/2 := by
+  rw [weighted_normalized_apply3 2 1 2 (by norm_num)]
+  norm_num
+
+theorem weighted_normalized_three_value :
+    (weightedNormalizedMatrix3 3 1 1 *ᵥ (fun _ => 1)) 0=5/3 := by
+  rw [weighted_normalized_apply3 3 1 1 (by norm_num)]
+  norm_num
+
+theorem weighted_normalized_two_norm : padicNorm 2 (5/2 : ℚ)=2 := by
+  have h5 : padicNorm 2 (5 : ℚ)=1 := (padicNorm.nat_eq_one_iff 5).mpr (by decide)
+  have hp : padicNorm 2 (2 : ℚ)=(2 : ℚ)⁻¹ := padicNorm.padicNorm_p (by decide)
+  rw [padicNorm.div,h5,hp]
+  norm_num
+
+theorem weighted_normalized_three_norm : padicNorm 3 (5/3 : ℚ)=3 := by
+  have h5 : padicNorm 3 (5 : ℚ)=1 := (padicNorm.nat_eq_one_iff 5).mpr (by decide)
+  have hp : padicNorm 3 (3 : ℚ)=(3 : ℚ)⁻¹ := padicNorm.padicNorm_p (by decide)
+  rw [padicNorm.div,h5,hp]
+  norm_num
+
+theorem weighted_nonunit_product_constant : threePlaceProduct (5 : ℚ)=5 := by
+  have h2 : padicNorm 2 (5 : ℚ)=1 := (padicNorm.nat_eq_one_iff 5).mpr (by decide)
+  have h3 : padicNorm 3 (5 : ℚ)=1 := (padicNorm.nat_eq_one_iff 5).mpr (by decide)
+  change |(5 : ℚ)| *padicNorm 2 5*padicNorm 3 5=5
+  rw [h2,h3]
+  norm_num
+
+
+theorem weighted_finite_place_bound3 (p : ℕ) [Fact p.Prime] (B C D : ℚ) (z : Fin 3 → ℤ) :
+    padicNorm p (B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ)) ≤
+      max (max (padicNorm p B) (padicNorm p C)) (padicNorm p D) := by
+  have h (q : ℚ) (m : ℤ) : padicNorm p (q*(m : ℚ))≤padicNorm p q := by
+    rw [padicNorm.mul]
+    simpa only [mul_one] using mul_le_mul_of_nonneg_left (padicNorm.of_int m) (padicNorm.nonneg q)
+  calc
+    _ ≤ max (padicNorm p (B*(z 0 : ℚ)+C*(z 1 : ℚ))) (padicNorm p (D*(z 2 : ℚ))) := padicNorm.nonarchimedean
+    _ ≤ max (max (padicNorm p (B*(z 0 : ℚ))) (padicNorm p (C*(z 1 : ℚ)))) (padicNorm p (D*(z 2 : ℚ))) :=
+      max_le_max padicNorm.nonarchimedean le_rfl
+    _ ≤ _ := max_le_max (max_le_max (h B _) (h C _)) (h D _)
+
+theorem weighted_two_nonpositive_source_impossible (Q c : ℝ) (hQ : 1<Q) (hc : c≤0) :
+    ¬ ((padicNorm 2 ((weightedNormalizedMatrix3 2 1 2 *ᵥ (fun _ => 1)) 0) : ℝ)≤Q^c) := by
+  rw [weighted_normalized_two_value,weighted_normalized_two_norm]
+  have h := Real.rpow_le_one_of_one_le_of_nonpos hQ.le hc
+  norm_num at *
+  linarith
+
+theorem weighted_three_nonpositive_source_impossible (Q c : ℝ) (hQ : 1<Q) (hc : c≤0) :
+    ¬ ((padicNorm 3 ((weightedNormalizedMatrix3 3 1 1 *ᵥ (fun _ => 1)) 0) : ℝ)≤Q^c) := by
+  rw [weighted_normalized_three_value,weighted_normalized_three_norm]
+  have h := Real.rpow_le_one_of_one_le_of_nonpos hQ.le hc
+  norm_num at *
+  linarith
+
+theorem weighted_opposite_pairs_degenerate (t : ℚ) : ¬Nondegenerate (![1,-1,t,-t] : Fin 4 → ℚ) := by
+  intro h
+  have hh := h ({0,1} : Finset (Fin 4)) (by decide) (by decide)
+  norm_num at hh
+
+theorem weighted_normalized_finite_of_max3 (p : ℕ) [Fact p.Prime]
+    (B C D : ℚ) (hB : B≠0) (z : Fin 3 → ℤ)
+    (hC : padicNorm p (C*(z 1 : ℚ))≤padicNorm p (B*(z 0 : ℚ)))
+    (hD : padicNorm p (D*(z 2 : ℚ))≤padicNorm p (B*(z 0 : ℚ))) :
+    padicNorm p ((B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ))/B)≤1 := by
+  have hsum : padicNorm p (B*(z 0 : ℚ)+C*(z 1 : ℚ)+D*(z 2 : ℚ))≤padicNorm p (B*(z 0 : ℚ)) :=
+    padicNorm.nonarchimedean.trans (max_le
+      (padicNorm.nonarchimedean.trans (max_le le_rfl hC)) hD)
+  have hb : 0<padicNorm p B := lt_of_le_of_ne (padicNorm.nonneg B) (Ne.symm (padicNorm.nonzero hB))
+  rw [padicNorm.div]
+  apply (div_le_one hb).mpr
+  exact hsum.trans (by
+    rw [padicNorm.mul]
+    simpa only [mul_one] using mul_le_mul_of_nonneg_left (padicNorm.of_int (z 0)) (padicNorm.nonneg B))
+
+end JSP000334

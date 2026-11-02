@@ -1,0 +1,336 @@
+import SubspaceBridge.CofactorGap3
+import SubspaceBridge.CofactorGapPersistence3
+import SubspaceBridge.CofactorOriginalRankOne3
+open scoped BigOperators Matrix
+open MeasureTheory JSP000334
+namespace PersistenceRaw252R4
+noncomputable section
+
+def rawA (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ :=
+  ![Pi.single (k.succAbove 0) 1,Pi.single (k.succAbove 1) 1,fun _ => 1]
+
+def rawC (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ := (rawA k).adjugate.transpose
+
+def rawG (k2 k3 : Fin 3) (Q : ℝ) (c2 c3 : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (rawA k2) (rawA k3)
+    (fun i => Nat.ceil (-c2 i*Real.log Q/Real.log 2))
+    (fun i => Nat.ceil (-c3 i*Real.log Q/Real.log 3))
+
+def rawCG (k2 k3 : Fin 3) (Q : ℝ) (c2 c3 : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (rawC k2) (rawC k3)
+    (fun i => Nat.ceil (-c2 i*Real.log Q/Real.log 2))
+    (fun i => Nat.ceil (-c3 i*Real.log Q/Real.log 3))
+
+def rawReal (k : Fin 3) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  LinearEquiv.ofBijective (Matrix.toLin' ((rawA k).map (Int.castRingHom ℝ))) (by
+    have h : IsUnit ((rawA k).map (Int.castRingHom ℝ)) := by
+      change IsUnit (retainedRealMatrix3 k)
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [retainedRealMatrix3_det]
+      split_ifs <;> norm_num
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr h,Matrix.mulVec_surjective_iff_isUnit.mpr h⟩)
+
+def rawCReal (k : Fin 3) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  LinearEquiv.ofBijective (Matrix.toLin' ((rawC k).map (Int.castRingHom ℝ))) (by
+    have h : IsUnit ((rawC k).map (Int.castRingHom ℝ)) := by
+      change IsUnit (cofactorRealMatrix3 k)
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [cofactorRealMatrix3_det]
+      exact isUnit_one
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr h,Matrix.mulVec_surjective_iff_isUnit.mpr h⟩)
+
+def rawE (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) (hQ : 1 < Q) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3 (rawReal k) (fun i => Q^c i) (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+
+def rawCE (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) (hQ : 1 < Q) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3 (rawCReal k) (fun i => Q^c i) (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+
+def rawMin (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (j.val+1) → RealTriple, LinearIndependent ℝ u ∧
+    (∀ i, u i ∈ lattice3 B) ∧ ∀ i, coordinateGauge3 e (u i) ≤ r}
+
+def rawPair (c : Fin 3 → ℝ) (i : Fin 3) : ℝ := (c (i.succAbove 0)+c (i.succAbove 1))/2
+
+def rawProducts (l : Fin 3 → ℝ) : Fin 3 → ℝ := ![l 0*l 1,l 0*l 2,l 1*l 2]
+
+def rawWedge {R : Type*} [CommRing R] (x y : Fin 3 → R) : Fin 3 → R :=
+  ![x 1*y 2-x 2*y 1,x 2*y 0-x 0*y 2,x 0*y 1-x 1*y 0]
+
+def rawFrame {R : Type*} [CommRing R] (u : Fin 3 → Fin 3 → R) : Fin 3 → Fin 3 → R :=
+  ![rawWedge (u 0) (u 1),rawWedge (u 0) (u 2),rawWedge (u 1) (u 2)]
+
+theorem raw_minimum_eq (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) :
+    rawMin B e j = successiveRadius3 B e j := rfl
+
+def rawDual (w : Fin 3 → IntegerTriple) (j i : Fin 3) : ℚ :=
+  (Matrix.map (w : Matrix (Fin 3) (Fin 3) ℤ) (Int.castRingHom ℚ))⁻¹ i j
+
+theorem raw_cofactor_gap_rescaled_lattice3 (k₂ k₃ : Fin 3) (Q : ℝ) (c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 0 < Q) :
+    rawCG k₂ k₃ (Q ^ (5 : ℕ)) (fun i => c₂ i / 5) (fun i => c₃ i / 5) =
+      rawCG k₂ k₃ Q c₂ c₃ := by
+  exact JSP000334.cofactor_gap_rescaled_lattice3 k₂ k₃ Q c₂ c₃ hQ
+
+theorem raw_cofactor_gap_integer_real_lower3 (k : Fin 3) (x : IntegerTriple) (hx : x ≠ 0) :
+    ∃ i, 1 ≤ |rawCReal k (integerTripleReal3 x) i| := by
+  exact JSP000334.cofactor_gap_integer_real_lower3 k x hx
+
+theorem raw_cofactor_gap_source_product3 (k₀ k₂ k₃ : Fin 3) (Q : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawCG k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (rawCG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hatt : ∀ j, coordinateGauge3 (rawCE k₀ Q c₀ hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+      rawMin B (rawCE k₀ Q c₀ hQ) j) :
+    (1 : ℝ) / 6 ≤ ∏ j, rawMin B (rawCE k₀ Q c₀ hQ) j ∧
+    (∏ j, rawMin B (rawCE k₀ Q c₀ hQ) j) < 216 := by
+  exact JSP000334.cofactor_gap_source_product3 k₀ k₂ k₃ Q c₀ c₂ c₃ hQ hc₂ hc₃ hb B u hB hatt
+
+theorem raw_cofactor_gap_source_first_lower3 (k₀ k₂ k₃ : Fin 3) (Q : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₀ : ∀ i, c₀ i ≤ 1)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawCG k₂ k₃ Q c₂ c₃)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (rawCE k₀ Q c₀ hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+      rawMin B (rawCE k₀ Q c₀ hQ) j) :
+    1 / Q ≤ rawMin B (rawCE k₀ Q c₀ hQ) 0 := by
+  exact JSP000334.cofactor_gap_source_first_lower3 k₀ k₂ k₃ Q c₀ c₂ c₃ hQ hc₀ B u hu hatt
+
+theorem raw_cofactor_gap_source_last_upper3 (k₀ k₂ k₃ : Fin 3) (Q : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₀ : ∀ i, -1 ≤ c₀ i)
+    (hc₂ : ∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) (hc₃ : ∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (hB : lattice3 B = (rawCG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3) :
+    rawMin B (rawCE k₀ Q c₀ hQ) 2 ≤ 6 * Q ^ (3 : ℕ) := by
+  exact JSP000334.cofactor_gap_source_last_upper3 k₀ k₂ k₃ Q c₀ c₂ c₃ hQ hc₀ hc₂ hc₃ B hB
+
+theorem raw_cofactor_gap_source_davenport3 (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ)
+    (c₀ c₂ c₃ : Fin 3 → ℝ) (hQ : 1 < Q)
+    (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawCG k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (rawCG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (rawCE k₀ Q c₀ hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+      rawMin B (rawCE k₀ Q c₀ hQ) j)
+    (hgap : rawMin B (rawCE k₀ Q c₀ hQ) 1 <
+      rawMin B (rawCE k₀ Q c₀ hQ) 2 * Q ^ (-delta)) :
+    let l := rawMin B (rawCE k₀ Q c₀ hQ)
+    ∃ (hr : ∀ i, 0 < gapFactors3 l i) (sigma : Equiv.Perm (Fin 3)),
+      rawMin B (davenportCoordinates3 (rawCReal k₀)
+        (fun i => Q ^ c₀ i) (gapFactors3 l) sigma
+        (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _) hr) 1 <
+          18432 * Q ^ (-delta / 3) ∧
+      (∀ j, gapFactors3 l j * l j / 8 ≤
+        rawMin B (davenportCoordinates3 (rawCReal k₀)
+          (fun i => Q ^ c₀ i) (gapFactors3 l) sigma
+          (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _) hr) j) ∧
+      ∀ j : Fin 3, ∀ z : rawCG k₂ k₃ Q c₂ c₃,
+        integerTripleReal3 (z : IntegerTriple) ∉
+          minimaFlag3 (fun k => integerTripleReal3 (u k : IntegerTriple)) j →
+        gapFactors3 l j * l j / 8 ≤
+          coordinateGauge3 (davenportCoordinates3 (rawCReal k₀)
+            (fun i => Q ^ c₀ i) (gapFactors3 l) sigma
+            (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _) hr)
+              (integerTripleReal3 (z : IntegerTriple)) := by
+  exact JSP000334.cofactor_gap_source_davenport3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ hc₂ hc₃ hb B u hB hu hatt hgap
+
+theorem raw_cofactor_gap_deformed_data3 (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ)
+    (c₀ c₂ c₃ : Fin 3 → ℝ) (hQ : 1 < Q) (hlarge : 36 < Q)
+    (hcut : 18432 < Q ^ (delta / 18))
+    (hc₀ : ∀ i, -1 ≤ c₀ i ∧ c₀ i ≤ 1)
+    (hc₂ : ∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) (hc₃ : ∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawCG k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (rawCG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (rawCE k₀ Q c₀ hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+      rawMin B (rawCE k₀ Q c₀ hQ) j)
+    (hgap : rawMin B (rawCE k₀ Q c₀ hQ) 1 <
+      rawMin B (rawCE k₀ Q c₀ hQ) 2 * Q ^ (-delta)) :
+    Nonempty (cofactor_GapDeformedData3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ B u) := by
+  exact JSP000334.cofactor_gap_deformed_data3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ hlarge hcut hc₀ hc₂ hc₃ hb B u hB hu hatt hgap
+
+theorem raw_cofactor_source_gap_satz51_applicable3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hc₀ : ∀ i, -1 ≤ c₀ i ∧ c₀ i ≤ 1)
+    (hc₂ : ∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) (hc₃ : ∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawCG k₂ k₃ Q.val c₂ c₃)
+    (hB : ∀ Q : Omega, lattice3 (B Q) =
+      (rawCG k₂ k₃ Q.val c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j, coordinateGauge3 (rawCE k₀ Q.val c₀ (hQ Q.val Q.property))
+      (integerTripleReal3 (u Q j : IntegerTriple)) =
+      rawMin (B Q) (rawCE k₀ Q.val c₀ (hQ Q.val Q.property)) j)
+    (hgap : ∀ Q : Omega, rawMin (B Q) (rawCE k₀ Q.val c₀ (hQ Q.val Q.property)) 1 <
+      rawMin (B Q) (rawCE k₀ Q.val c₀ (hQ Q.val Q.property)) 2 * Q.val ^ (-delta)) :
+    ∃ F : cofactor_GapSatz51Family3 k₀ k₂ k₃ delta c₀ c₂ c₃ Omega hQ B u,
+      ∃ v : IntegerTriple, v ≠ 0 ∧ ∃ U : Set ℝ, U ⊆ F.domain ∧ ¬ BddAbove U ∧
+        ∀ t : F.domain, t.val ∈ U →
+          Submodule.span ℚ {rawDual (fun j => ((F.data t).frame j : IntegerTriple)) 2} =
+            Submodule.span ℚ {fun i => (v i : ℚ)} := by
+  exact JSP000334.cofactor_source_gap_satz51_applicable3 k₀ k₂ k₃ delta hd c₀ c₂ c₃ hc₀ hc₂ hc₃ hb Omega hOmega hQ B u hB hu hatt hgap
+
+theorem raw_cofactor_originalPlane_deformed_transport3 (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ)
+    (c₀ c₂ c₃ : Fin 3 → ℝ) (hQ : 1 < Q) (hd : 0 < delta)
+    (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0)
+    (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawCG k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (rawCG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (hatt : ∀ j, coordinateGauge3 (rawCE k₀ Q c₀ hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) = rawMin B (rawCE k₀ Q c₀ hQ) j)
+    (hgap : rawMin B (rawCE k₀ Q c₀ hQ) 1 <
+      rawMin B (rawCE k₀ Q c₀ hQ) 2 * Q ^ (-delta))
+    (d : cofactor_GapDeformedData3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ B u)
+    (hcut : 3072 < Q ^ (2 * delta)) :
+    (∀ i : Fin 2, integerTripleReal3 (d.frame (Fin.castLE (by decide) i) : IntegerTriple) ∈
+      minimaFlag3 (fun j => integerTripleReal3 (u j : IntegerTriple)) 2) ∧
+    minimaFlag3 (fun j => integerTripleReal3 (d.frame j : IntegerTriple)) 2 =
+      minimaFlag3 (fun j => integerTripleReal3 (u j : IntegerTriple)) 2 ∧
+    Submodule.span ℚ {rawDual (fun j => (d.frame j : IntegerTriple)) 2} =
+      Submodule.span ℚ {rawDual (fun j => (u j : IntegerTriple)) 2} := by
+  exact JSP000334.cofactor_originalPlane_deformed_transport3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ hd hc₂ hc₃ hb B u hB hu hatt hgap d hcut
+
+theorem raw_cofactor_originalPlane_pullback_unbounded3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ)
+    (c₀ c₂ c₃ : Fin 3 → ℝ) (Omega : Set ℝ) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawCG k₂ k₃ Q.val c₂ c₃)
+    (F : cofactor_GapSatz51Family3 k₀ k₂ k₃ delta c₀ c₂ c₃ Omega hQ B u)
+    (U : Set ℝ) (hU : U ⊆ F.domain) (hUb : ¬ BddAbove U) :
+    ¬ BddAbove {Q : ℝ | ∃ t : F.domain, t.val ∈ U ∧ (F.original t).val = Q} := by
+  exact JSP000334.cofactor_originalPlane_pullback_unbounded3 k₀ k₂ k₃ delta c₀ c₂ c₃ Omega hQ B u F U hU hUb
+
+theorem raw_cofactor_source_fixed_last_dual_under_gap3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hc₀ : ∀ i, -1 ≤ c₀ i ∧ c₀ i ≤ 1)
+    (hc₂ : ∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) (hc₃ : ∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawCG k₂ k₃ Q.val c₂ c₃)
+    (hB : ∀ Q : Omega, lattice3 (B Q) =
+      (rawCG k₂ k₃ Q.val c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j, coordinateGauge3 (rawCE k₀ Q.val c₀ (hQ Q.val Q.property))
+      (integerTripleReal3 (u Q j : IntegerTriple)) =
+      rawMin (B Q) (rawCE k₀ Q.val c₀ (hQ Q.val Q.property)) j)
+    (hgap : ∀ Q : Omega, rawMin (B Q) (rawCE k₀ Q.val c₀ (hQ Q.val Q.property)) 1 <
+      rawMin (B Q) (rawCE k₀ Q.val c₀ (hQ Q.val Q.property)) 2 * Q.val ^ (-delta)) :
+    ∃ v : IntegerTriple, v ≠ 0 ∧ ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+      ∀ Q : Omega, Q.val ∈ V →
+        Submodule.span ℚ {rawDual (fun j => (u Q j : IntegerTriple)) 2} =
+          Submodule.span ℚ {fun i => (v i : ℚ)} := by
+  exact JSP000334.cofactor_source_fixed_last_dual_under_gap3 k₀ k₂ k₃ delta hd c₀ c₂ c₃ hc₀ hc₂ hc₃ hb Omega hOmega hQ B u hB hu hatt hgap
+
+theorem raw_source_original_fixed_rank1_3 (k0 k2 k3 : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawG k2 k3 Q.val c2 c3)
+    (hB : ∀ Q : Omega, lattice3 (B Q) = (rawG k2 k3 Q.val c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (rawE k0 Q.val c0 (hQ Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) j)
+    (hgap : ∀ Q : Omega,
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) 0 <
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) 1*Q.val^(-delta)) :
+    ∃ b : IntegerTriple, b ≠ 0 ∧ ∃ W : Set ℝ, W ⊆ Omega ∧ ¬ BddAbove W ∧
+      ∀ Q : Omega, Q.val ∈ W →
+        Submodule.span ℚ {fun i => ((u Q 0 : IntegerTriple) i : ℚ)} =
+          Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  exact JSP000334.source_original_fixed_rank1_3 k0 k2 k3 delta hd c0 c2 c3 hc0 hc2 hc3 hb Omega hOmega hQ B u hB hu hatt hgap
+
+theorem raw_source_original_fixed_rank1_restricted3 (k0 k2 k3 : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawG k2 k3 Q.val c2 c3)
+    (hB : ∀ Q : Omega, lattice3 (B Q) = (rawG k2 k3 Q.val c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (rawE k0 Q.val c0 (hQ Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) j)
+    (hgap : ∀ Q : Omega,
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) 0 <
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) 1*Q.val^(-delta))
+    (U : Set ℝ) (hU : U ⊆ Omega) (hUb : ¬ BddAbove U) :
+    ∃ b : IntegerTriple, b ≠ 0 ∧ ∃ W : Set ℝ, W ⊆ U ∧ ¬ BddAbove W ∧
+      ∀ Q : Omega, Q.val ∈ W →
+        Submodule.span ℚ {fun i => ((u Q 0 : IntegerTriple) i : ℚ)} =
+          Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  exact JSP000334.source_original_fixed_rank1_restricted3 k0 k2 k3 delta hd c0 c2 c3 hc0 hc2 hc3 hb Omega hOmega hQ B u hB hu hatt hgap U hU hUb
+
+end
+end PersistenceRaw252R4
+#check PersistenceRaw252R4.rawA
+#print axioms PersistenceRaw252R4.rawA
+#check PersistenceRaw252R4.rawC
+#print axioms PersistenceRaw252R4.rawC
+#check PersistenceRaw252R4.rawG
+#print axioms PersistenceRaw252R4.rawG
+#check PersistenceRaw252R4.rawCG
+#print axioms PersistenceRaw252R4.rawCG
+#check PersistenceRaw252R4.rawReal
+#print axioms PersistenceRaw252R4.rawReal
+#check PersistenceRaw252R4.rawCReal
+#print axioms PersistenceRaw252R4.rawCReal
+#check PersistenceRaw252R4.rawE
+#print axioms PersistenceRaw252R4.rawE
+#check PersistenceRaw252R4.rawCE
+#print axioms PersistenceRaw252R4.rawCE
+#check PersistenceRaw252R4.rawMin
+#print axioms PersistenceRaw252R4.rawMin
+#check PersistenceRaw252R4.rawPair
+#print axioms PersistenceRaw252R4.rawPair
+#check PersistenceRaw252R4.rawProducts
+#print axioms PersistenceRaw252R4.rawProducts
+#check PersistenceRaw252R4.rawWedge
+#print axioms PersistenceRaw252R4.rawWedge
+#check PersistenceRaw252R4.rawFrame
+#print axioms PersistenceRaw252R4.rawFrame
+#check PersistenceRaw252R4.raw_minimum_eq
+#print axioms PersistenceRaw252R4.raw_minimum_eq
+#check PersistenceRaw252R4.rawDual
+#print axioms PersistenceRaw252R4.rawDual
+#check PersistenceRaw252R4.raw_cofactor_gap_rescaled_lattice3
+#print axioms PersistenceRaw252R4.raw_cofactor_gap_rescaled_lattice3
+#check PersistenceRaw252R4.raw_cofactor_gap_integer_real_lower3
+#print axioms PersistenceRaw252R4.raw_cofactor_gap_integer_real_lower3
+#check PersistenceRaw252R4.raw_cofactor_gap_source_product3
+#print axioms PersistenceRaw252R4.raw_cofactor_gap_source_product3
+#check PersistenceRaw252R4.raw_cofactor_gap_source_first_lower3
+#print axioms PersistenceRaw252R4.raw_cofactor_gap_source_first_lower3
+#check PersistenceRaw252R4.raw_cofactor_gap_source_last_upper3
+#print axioms PersistenceRaw252R4.raw_cofactor_gap_source_last_upper3
+#check PersistenceRaw252R4.raw_cofactor_gap_source_davenport3
+#print axioms PersistenceRaw252R4.raw_cofactor_gap_source_davenport3
+#check PersistenceRaw252R4.raw_cofactor_gap_deformed_data3
+#print axioms PersistenceRaw252R4.raw_cofactor_gap_deformed_data3
+#check PersistenceRaw252R4.raw_cofactor_source_gap_satz51_applicable3
+#print axioms PersistenceRaw252R4.raw_cofactor_source_gap_satz51_applicable3
+#check PersistenceRaw252R4.raw_cofactor_originalPlane_deformed_transport3
+#print axioms PersistenceRaw252R4.raw_cofactor_originalPlane_deformed_transport3
+#check PersistenceRaw252R4.raw_cofactor_originalPlane_pullback_unbounded3
+#print axioms PersistenceRaw252R4.raw_cofactor_originalPlane_pullback_unbounded3
+#check PersistenceRaw252R4.raw_cofactor_source_fixed_last_dual_under_gap3
+#print axioms PersistenceRaw252R4.raw_cofactor_source_fixed_last_dual_under_gap3
+#check PersistenceRaw252R4.raw_source_original_fixed_rank1_3
+#print axioms PersistenceRaw252R4.raw_source_original_fixed_rank1_3
+#check PersistenceRaw252R4.raw_source_original_fixed_rank1_restricted3
+#print axioms PersistenceRaw252R4.raw_source_original_fixed_rank1_restricted3

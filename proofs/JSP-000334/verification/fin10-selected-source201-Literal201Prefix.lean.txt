@@ -1,0 +1,93 @@
+import SubspaceBridge.SourceSelectedSet10
+import SubspaceBridge.SourcePrimitiveHeight10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M201Prefix.SourceSelectedUpper10
+open CompoundFeasibility.OriginalDual10 CompoundFeasibility.SourceSelectedSet10 CompoundFeasibility.SchmidtNormal10
+
+theorem finite_cofactor_rounded10 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1)
+    (q : ℝ) (c : Fin 10 → ℝ) (w : Fin 10 → Fin 10 → ℤ)
+    (hw : ∀ j, w j ∈ lattice10 p A (fun i => Nat.ceil (JSP000334.qThreshold p q (c i))))
+    (i : Fin 10) :
+    ‖((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ
+      (fun k => (integerLastDual10 w k : ℚ_[p]))) i‖ ≤
+      ∏ k : Fin 9, roundedRadius10 p q (c (i.succAbove k)) := by
+  have hb := finite_cofactor_fin10 p A hA _ w hw i
+  apply hb.trans_eq
+  have hp : (p : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (Fact.out : p.Prime).ne_zero
+  have he (s : Finset (Fin 9)) :
+      (p : ℝ)^(∑ k ∈ s, -(Nat.ceil (JSP000334.qThreshold p q (c (i.succAbove k))) : ℤ)) =
+      ∏ k ∈ s, roundedRadius10 p q (c (i.succAbove k)) := by
+    induction s using Finset.induction_on with
+    | empty => simp
+    | @insert a s ha ih =>
+      rw [Finset.sum_insert ha,Finset.prod_insert ha,zpow_add₀ hp,ih]
+      simp only [roundedRadius10,zpow_neg,zpow_natCast]
+  exact he Finset.univ
+
+theorem finite_cofactor_power10 (p : ℕ) [Fact p.Prime] (hp : 1 < p)
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1)
+    (q : ℝ) (hq : 1 < q) (c : Fin 10 → ℝ) (hc : ∀ i, c i ≤ 0)
+    (w : Fin 10 → Fin 10 → ℤ)
+    (hw : ∀ j, w j ∈ lattice10 p A (fun i => Nat.ceil (JSP000334.qThreshold p q (c i))))
+    (i : Fin 10) :
+    ‖((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ
+      (fun k => (integerLastDual10 w k : ℚ_[p]))) i‖ ≤
+      ∏ k : Fin 9, q^(c (i.succAbove k)) := by
+  apply (finite_cofactor_rounded10 p A hA q c w hw i).trans
+  apply Finset.prod_le_prod
+  · intro k _
+    exact (roundedRadius10_pos p hp q _).le
+  · intro k _
+    exact (roundedRadius10_bounds p hp q _ hq (hc _)).2
+
+theorem finite_cofactor_rescaled10 (p : ℕ) [Fact p.Prime] (hp : 1 < p)
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1)
+    (q : ℝ) (hq : 1 < q) (c : Fin 10 → ℝ) (hc : ∀ i, c i ≤ 0)
+    (w : Fin 10 → Fin 10 → ℤ)
+    (hw : ∀ j, w j ∈ lattice10 p A (fun i => Nat.ceil (JSP000334.qThreshold p q (c i))))
+    (i : Fin 10) :
+    ‖((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ
+      (fun k => (integerLastDual10 w k : ℚ_[p]))) i‖ ≤
+      ∏ k : Fin 9, (q^5)^(c (i.succAbove k)/5) := by
+  have he (x : ℝ) : (q^5)^(x/5) = q^x := by
+    rw [← Real.rpow_natCast_mul (zero_lt_one.trans hq).le]
+    congr 1
+    ring
+  simp_rw [he]
+  exact finite_cofactor_power10 p hp A hA q hq c hc w hw i
+
+def mixedProduct10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (M : Fin 10 → ℤ) (s : MixedIndex10) : ℝ :=
+  |(L⁻¹.transpose *ᵥ integerReal M) (s 0)| *
+    ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) (s 1)‖ *
+    ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) (s 2)‖
+
+theorem integer_vector_mul10 {ι K : Type*} [Fintype ι] [DecidableEq ι] [Field K]
+    (B : Matrix ι ι K) (g : ℤ) (M : ι → ℤ) (i : ι) :
+    (B *ᵥ (fun k => ((g*M k : ℤ) : K))) i =
+      (g : K)*(B *ᵥ (fun k => (M k : K))) i := by
+  simp only [Matrix.mulVec,dotProduct,Int.cast_mul,Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro k _
+  ring
+
+theorem mixedProduct10_nonneg (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (M : Fin 10 → ℤ) (s : MixedIndex10) :
+    0 ≤ mixedProduct10 A2 A3 L M s :=
+  mul_nonneg (mul_nonneg (abs_nonneg _) (norm_nonneg _)) (norm_nonneg _)
+
+end CompoundFeasibility.M201Prefix.SourceSelectedUpper10
+#check CompoundFeasibility.M201Prefix.SourceSelectedUpper10.finite_cofactor_rounded10
+#print axioms CompoundFeasibility.M201Prefix.SourceSelectedUpper10.finite_cofactor_rounded10
+#check CompoundFeasibility.M201Prefix.SourceSelectedUpper10.finite_cofactor_power10
+#print axioms CompoundFeasibility.M201Prefix.SourceSelectedUpper10.finite_cofactor_power10
+#check CompoundFeasibility.M201Prefix.SourceSelectedUpper10.finite_cofactor_rescaled10
+#print axioms CompoundFeasibility.M201Prefix.SourceSelectedUpper10.finite_cofactor_rescaled10
+#check CompoundFeasibility.M201Prefix.SourceSelectedUpper10.mixedProduct10
+#print axioms CompoundFeasibility.M201Prefix.SourceSelectedUpper10.mixedProduct10
+#check CompoundFeasibility.M201Prefix.SourceSelectedUpper10.integer_vector_mul10
+#print axioms CompoundFeasibility.M201Prefix.SourceSelectedUpper10.integer_vector_mul10
+#check CompoundFeasibility.M201Prefix.SourceSelectedUpper10.mixedProduct10_nonneg
+#print axioms CompoundFeasibility.M201Prefix.SourceSelectedUpper10.mixedProduct10_nonneg

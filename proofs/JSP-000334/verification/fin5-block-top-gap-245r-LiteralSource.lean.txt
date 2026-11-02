@@ -1,0 +1,275 @@
+import SubspaceBridge.SourceBlockNine245Q
+import SubspaceBridge.SourceBlockSeparation245Q
+import SubspaceBridge.SourceBlockLower245Q
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralBlock245R
+open BlockReduction245P BlockReduction245Q Exterior53_242
+
+theorem integerReal_single245R (i : Fin 5) :
+    integerReal (Pi.single i (1 : ℤ)) = Pi.single i (1 : ℝ) := by
+  funext j
+  by_cases h : j = i
+  · subst j
+    simp [integerReal]
+  · simp [integerReal, Pi.single_apply, h, Ne.symm h]
+
+theorem integerReal_join245Q (x y : Fin 5 → ℤ) :
+    integerReal (join245Q x y) = join245Q (integerReal x) (integerReal y) := by
+  ext j
+  change ((join245Q x y j : ℤ) : ℝ) = _
+  unfold join245Q
+  cases BlockReduction245P.blockIndex245P.symm j <;> rfl
+
+theorem nine_membership245R (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3) (j : Fin 9) :
+    nineFrame245Q (fun i => integerReal (u i : Fin 5 → ℤ)) j ∈
+      integerRealImage (originalSourceGroup10 (block245P A2) (block245P A3)
+        (Q^3) (weightp245P c2) (weightp245P c3)) := by
+  unfold nineFrame245Q
+  cases h : (finSumFinEquiv : Fin 4 ⊕ Fin 5 ≃ Fin 9).symm j with
+  | inl i =>
+    simp only [Sum.elim_inl]
+    refine ⟨join245Q (u i.castSucc : Fin 5 → ℤ) 0,?_,?_⟩
+    · apply (block_source_group245Q A2 A3 Q c2 c3 _).mpr
+      rw [first_join245Q]
+      exact (u i.castSucc).property
+    · rw [integerReal_join245Q,map_zero]
+  | inr i =>
+    simp only [Sum.elim_inr]
+    refine ⟨join245Q 0 (Pi.single i (1 : ℤ)),?_,?_⟩
+    · apply (block_source_group245Q A2 A3 Q c2 c3 _).mpr
+      rw [first_join245Q]
+      exact (originalSourceGroup5 A2 A3 Q c2 c3).zero_mem
+    · rw [integerReal_join245Q,map_zero]
+      rw [integerReal_single245R]
+
+theorem source_upper_of_separation245R (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (hsep : (Q^2)⁻¹ ≤ Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3) :
+    sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+      (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 ≤
+      Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3 := by
+  obtain ⟨u,hu,hpos,hmono,hatt,hpoint⟩ := exists_sourceMinima5_attaining A2 A3 L hL Q hQ c0 c2 c3
+  let v := nineFrame245Q (fun j => integerReal (u j : Fin 5 → ℤ))
+  apply (sourceMinima10_radius_set_properties (block245P A2) (block245P A3) (block245P L)
+    (block_unit245Q L hL) (Q^3) (powered_gt_one3242 Q hQ)
+    (weight0245P c0) (weightp245P c2) (weightp245P c3) 8).2.2.2
+  refine ⟨v,nine_independent245Q _ hu,?_,?_⟩
+  · exact nine_membership245R A2 A3 Q c2 c3 u
+  · intro j
+    change coordinateGauge10 _ (nineFrame245Q _ j) ≤ _
+    unfold nineFrame245Q
+    cases h : (finSumFinEquiv : Fin 4 ⊕ Fin 5 ≃ Fin 9).symm j with
+    | inl i =>
+      simp only [Sum.elim_inl]
+      rw [gauge_original245Q L hL Q hQ,hatt]
+      exact mul_le_mul_of_nonneg_left (hmono (show i.castSucc ≤ (3 : Fin 5) by change i.val ≤ 3; omega))
+        (sq_nonneg Q)
+    | inr i =>
+      simp only [Sum.elim_inr]
+      rw [gauge_dummy245Q L hL Q hQ]
+      exact hsep
+
+theorem source_comparisons245R (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+      (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+      (∀ i, |c0 i| ≤ 1) → T < Q →
+      (sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 ≤
+        Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3) ∧
+      (Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4 ≤
+        sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 9) := by
+  obtain ⟨D,T,hD,hT,hsep⟩ := source_separation245Q L hL
+  refine ⟨T,hT,?_⟩
+  intro A2 A3 Q hQ c0 c2 c3 hc hTQ
+  exact ⟨source_upper_of_separation245R A2 A3 L hL Q hQ c0 c2 c3
+    ((hsep A2 A3 Q hQ c0 c2 c3 hc).2 hTQ),source_lower245Q A2 A3 L hL Q hQ c0 c2 c3⟩
+
+theorem source_upper245R (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+      (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+      (∀ i, |c0 i| ≤ 1) → T < Q →
+      sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 ≤
+        Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3 := by
+  obtain ⟨T,hT,hcomp⟩ := source_comparisons245R L hL
+  exact ⟨T,hT,fun A2 A3 Q hQ c0 c2 c3 hc hTQ =>
+    (hcomp A2 A3 Q hQ c0 c2 c3 hc hTQ).1⟩
+
+end CompoundFeasibility.LiteralBlock245R
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralBlock245R
+open BlockReduction245P BlockReduction245Q Exterior53_242
+
+theorem source_block_gap245R (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ 0 < delta/3 ∧ ∀ (Q : ℝ) (hQ : 1 < Q), T < Q →
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3 <
+        sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4*Q^(-delta) →
+      sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 <
+      sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 9*
+          (Q^3)^(-delta/3) := by
+  obtain ⟨T,hT,hcomp⟩ := source_comparisons245R L hL
+  refine ⟨T,hT,by positivity,?_⟩
+  intro Q hQ hTQ hgap
+  obtain ⟨hupper,hlower⟩ := hcomp A2 A3 Q hQ c0 c2 c3 hc0 hTQ
+  have hq := zero_lt_one.trans hQ
+  have hp : (Q^3)^(-delta/3) = Q^(-delta) := by
+    simpa only [add_zero] using powered_rpow3242 Q (-delta) 0 0 hQ
+  rw [hp]
+  calc
+    _ ≤ Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3 := hupper
+    _ < Q^2*(sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4*Q^(-delta)) :=
+      mul_lt_mul_of_pos_left hgap (sq_pos_of_pos hq)
+    _ = (Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4)*Q^(-delta) := by ring
+    _ ≤ _ := mul_le_mul_of_nonneg_right hlower (Real.rpow_pos_of_pos hq _).le
+
+end CompoundFeasibility.LiteralBlock245R
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M245QOpenContract
+open CompoundFeasibility CompoundFeasibility.BlockReduction245P
+  CompoundFeasibility.BlockReduction245Q CompoundFeasibility.Exterior53_242
+
+def NineMembershipStatement245Q : Prop :=
+  ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3) (j : Fin 9),
+    nineFrame245Q (fun i => integerReal (u i : Fin 5 → ℤ)) j ∈
+      integerRealImage (originalSourceGroup10 (block245P A2) (block245P A3)
+        (Q^3) (weightp245P c2) (weightp245P c3))
+
+def SourceUpperStatement245Q : Prop :=
+  ∀ (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L),
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+      (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+      (∀ i, |c0 i| ≤ 1) → T < Q →
+      sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 ≤
+        Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3
+
+end M245QOpenContract
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M245POpenContracts
+open CompoundFeasibility CompoundFeasibility.BlockReduction245P
+
+def Fin5BlockLowerStatement245P : Prop :=
+  ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L),
+    ∃ hB0 : IsUnit (block245P L),
+      ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+        Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4 ≤
+          sourceMinima10 (block245P A2) (block245P A3) (block245P L) hB0 (Q^3)
+            (Exterior53_242.powered_gt_one3242 Q hQ)
+            (weight0245P c0) (weightp245P c2) (weightp245P c3) 9
+
+def Fin5BlockGapStatement245P : Prop :=
+  ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta),
+    ∃ hB0 : IsUnit (block245P L), ∃ T : ℝ, 1 < T ∧ 0 < delta/3 ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q), T < Q →
+        sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3 <
+          sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4*Q^(-delta) →
+        sourceMinima10 (block245P A2) (block245P A3) (block245P L) hB0 (Q^3)
+          (Exterior53_242.powered_gt_one3242 Q hQ)
+          (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 <
+        sourceMinima10 (block245P A2) (block245P A3) (block245P L) hB0 (Q^3)
+          (Exterior53_242.powered_gt_one3242 Q hQ)
+          (weight0245P c0) (weightp245P c2) (weightp245P c3) 9*(Q^3)^(-delta/3)
+
+end M245POpenContracts
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M245RChallenges
+open CompoundFeasibility CompoundFeasibility.BlockReduction245P
+  CompoundFeasibility.BlockReduction245Q CompoundFeasibility.LiteralBlock245R
+  CompoundFeasibility.Exterior53_242
+
+theorem prior_nine_contract : M245QOpenContract.NineMembershipStatement245Q :=
+  nine_membership245R
+
+theorem prior_uniform_upper_contract : M245QOpenContract.SourceUpperStatement245Q :=
+  source_upper245R
+
+theorem prior_original_gap_contract : M245POpenContracts.Fin5BlockGapStatement245P := by
+  intro A2 A3 L _ _ _ hL _ c0 c2 c3 hc0 _ _ _ delta hd
+  exact ⟨block_unit245Q L hL,source_block_gap245R A2 A3 L hL c0 c2 c3 hc0 delta hd⟩
+
+theorem single_at_coordinate (i j : Fin 5) :
+    (((Pi.single i (1 : ℤ) : Fin 5 → ℤ) j : ℤ) : ℝ) =
+      (Pi.single i (1 : ℝ) : Fin 5 → ℝ) j :=
+  congrFun (integerReal_single245R i) j
+
+theorem nine_native_integer_witness (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c2 c3 : Fin 5 → ℝ)
+    (u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3) (j : Fin 9) :
+    ∃ z : Fin 10 → ℤ,
+      (∀ i, padicNorm 2 ((block245P A2 *ᵥ (fun k => (z k : ℚ))) i) ≤
+        (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 (Q^3) (weightp245P c2 i)) : ℤ))) ∧
+      (∀ i, padicNorm 3 ((block245P A3 *ᵥ (fun k => (z k : ℚ))) i) ≤
+        (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 (Q^3) (weightp245P c3 i)) : ℤ))) ∧
+      (∀ k, (z k : ℝ) = nineFrame245Q (fun i => integerReal (u i : Fin 5 → ℤ)) j k) := by
+  obtain ⟨z,hz,he⟩ := nine_membership245R A2 A3 Q c2 c3 u j
+  change (z ∈ lattice10 2 (block245P A2) _ ∧ z ∈ lattice10 3 (block245P A3) _) at hz
+  rw [lattice10_spec,lattice10_spec] at hz
+  exact ⟨z,hz.1,hz.2,fun k => congrFun he k⟩
+
+theorem uniform_upper_native_sInf (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+      (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+      (∀ i, |c0 i| ≤ 1) → T < Q →
+      (sInf {r : ℝ | ∃ v : Fin 9 → (Fin 10 → ℝ), LinearIndependent ℝ v ∧ (∀ i, v i ∈ integerRealImage (originalSourceGroup10 (block245P A2) (block245P A3) (Q^3) (weightp245P c2) (weightp245P c3))) ∧ ∀ i, ‖(originalCoordinates10 (block245P L) (block_unit245Q L hL) (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0)) (v i)‖ ≤ r}) ≤
+        Q^2*(sInf {r : ℝ | ∃ v : Fin 4 → (Fin 5 → ℝ), LinearIndependent ℝ v ∧ (∀ i, v i ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧ ∀ i, ‖(originalCoordinates5 L hL Q hQ c0) (v i)‖ ≤ r}) := by
+  exact source_upper245R L hL
+
+theorem uniform_two_sided_native (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+      (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+      (∀ i, |c0 i| ≤ 1) → T < Q →
+      (sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 ≤
+        Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3) ∧
+      (Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4 ≤
+        sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 9) := by
+  exact source_comparisons245R L hL
+
+theorem gap_native_sInf (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ 0 < delta/3 ∧ ∀ (Q : ℝ) (hQ : 1 < Q), T < Q →
+      (sInf {r : ℝ | ∃ v : Fin 4 → (Fin 5 → ℝ), LinearIndependent ℝ v ∧ (∀ i, v i ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧ ∀ i, ‖(originalCoordinates5 L hL Q hQ c0) (v i)‖ ≤ r}) <
+        (sInf {r : ℝ | ∃ v : Fin 5 → (Fin 5 → ℝ), LinearIndependent ℝ v ∧ (∀ i, v i ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧ ∀ i, ‖(originalCoordinates5 L hL Q hQ c0) (v i)‖ ≤ r})*Q^(-delta) →
+      (sInf {r : ℝ | ∃ v : Fin 9 → (Fin 10 → ℝ), LinearIndependent ℝ v ∧ (∀ i, v i ∈ integerRealImage (originalSourceGroup10 (block245P A2) (block245P A3) (Q^3) (weightp245P c2) (weightp245P c3))) ∧ ∀ i, ‖(originalCoordinates10 (block245P L) (block_unit245Q L hL) (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0)) (v i)‖ ≤ r}) <
+      (sInf {r : ℝ | ∃ v : Fin 10 → (Fin 10 → ℝ), LinearIndependent ℝ v ∧ (∀ i, v i ∈ integerRealImage (originalSourceGroup10 (block245P A2) (block245P A3) (Q^3) (weightp245P c2) (weightp245P c3))) ∧ ∀ i, ‖(originalCoordinates10 (block245P L) (block_unit245Q L hL) (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0)) (v i)‖ ≤ r})*
+          (Q^3)^(-delta/3) := by
+  exact source_block_gap245R A2 A3 L hL c0 c2 c3 hc0 delta hd
+
+end M245RChallenges
+#check M245RChallenges.prior_nine_contract
+#print axioms M245RChallenges.prior_nine_contract
+#check M245RChallenges.prior_uniform_upper_contract
+#print axioms M245RChallenges.prior_uniform_upper_contract
+#check M245RChallenges.prior_original_gap_contract
+#print axioms M245RChallenges.prior_original_gap_contract
+#check M245RChallenges.single_at_coordinate
+#print axioms M245RChallenges.single_at_coordinate
+#check M245RChallenges.nine_native_integer_witness
+#print axioms M245RChallenges.nine_native_integer_witness
+#check M245RChallenges.uniform_upper_native_sInf
+#print axioms M245RChallenges.uniform_upper_native_sInf
+#check M245RChallenges.uniform_two_sided_native
+#print axioms M245RChallenges.uniform_two_sided_native
+#check M245RChallenges.gap_native_sInf
+#print axioms M245RChallenges.gap_native_sInf

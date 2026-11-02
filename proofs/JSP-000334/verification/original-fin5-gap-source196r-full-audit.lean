@@ -1,0 +1,417 @@
+import SubspaceBridge.OriginalVariableGap5
+
+#check CompoundFeasibility.Minkowski5.dyadicBasis
+#print CompoundFeasibility.Minkowski5.dyadicBasis
+#print axioms CompoundFeasibility.Minkowski5.dyadicBasis
+
+#check CompoundFeasibility.Minkowski5.dyadic_lattice_coordinates
+#print CompoundFeasibility.Minkowski5.dyadic_lattice_coordinates
+#print axioms CompoundFeasibility.Minkowski5.dyadic_lattice_coordinates
+
+#check CompoundFeasibility.Minkowski5.dyadic_lattice_avoids
+#print CompoundFeasibility.Minkowski5.dyadic_lattice_avoids
+#print axioms CompoundFeasibility.Minkowski5.dyadic_lattice_avoids
+
+#check CompoundFeasibility.Minkowski5.dyadic_fundamental_volume
+#print CompoundFeasibility.Minkowski5.dyadic_fundamental_volume
+#print axioms CompoundFeasibility.Minkowski5.dyadic_fundamental_volume
+
+#check CompoundFeasibility.Minkowski5.dyadic_volume_bound
+#print CompoundFeasibility.Minkowski5.dyadic_volume_bound
+#print axioms CompoundFeasibility.Minkowski5.dyadic_volume_bound
+
+#check CompoundFeasibility.Minkowski5.exists_dyadic_exponents
+#print CompoundFeasibility.Minkowski5.exists_dyadic_exponents
+#print axioms CompoundFeasibility.Minkowski5.exists_dyadic_exponents
+
+#check CompoundFeasibility.Minkowski5.normalized_product_volume_upper
+#print CompoundFeasibility.Minkowski5.normalized_product_volume_upper
+#print axioms CompoundFeasibility.Minkowski5.normalized_product_volume_upper
+
+#check CompoundFeasibility.Minkowski5.homogeneous_sublevel_dilate
+#print CompoundFeasibility.Minkowski5.homogeneous_sublevel_dilate
+#print axioms CompoundFeasibility.Minkowski5.homogeneous_sublevel_dilate
+
+#check CompoundFeasibility.Minkowski5.adapted_product_volume_upper
+#print CompoundFeasibility.Minkowski5.adapted_product_volume_upper
+#print axioms CompoundFeasibility.Minkowski5.adapted_product_volume_upper
+
+#check CompoundFeasibility.row5
+#print CompoundFeasibility.row5
+#print axioms CompoundFeasibility.row5
+
+#check CompoundFeasibility.lattice5
+#print CompoundFeasibility.lattice5
+#print axioms CompoundFeasibility.lattice5
+
+#check CompoundFeasibility.lattice5_spec
+#print CompoundFeasibility.lattice5_spec
+#print axioms CompoundFeasibility.lattice5_spec
+
+#check CompoundFeasibility.sourceLattice5
+#print CompoundFeasibility.sourceLattice5
+#print axioms CompoundFeasibility.sourceLattice5
+
+#check CompoundFeasibility.sourceLattice5_multiple
+#print CompoundFeasibility.sourceLattice5_multiple
+#print axioms CompoundFeasibility.sourceLattice5_multiple
+
+#check CompoundFeasibility.sourceLattice5_has_basis
+#print CompoundFeasibility.sourceLattice5_has_basis
+#print axioms CompoundFeasibility.sourceLattice5_has_basis
+
+#check CompoundFeasibility.sourceLattice5_isZLattice
+#print CompoundFeasibility.sourceLattice5_isZLattice
+#print axioms CompoundFeasibility.sourceLattice5_isZLattice
+
+#check CompoundFeasibility.sourceLattice5_covolume_det
+#print CompoundFeasibility.sourceLattice5_covolume_det
+#print axioms CompoundFeasibility.sourceLattice5_covolume_det
+
+#check CompoundFeasibility.sourceLattice5_covolume_index
+#print CompoundFeasibility.sourceLattice5_covolume_index
+#print axioms CompoundFeasibility.sourceLattice5_covolume_index
+
+#check CompoundFeasibility.integer_span5_index_det
+#print CompoundFeasibility.integer_span5_index_det
+#print axioms CompoundFeasibility.integer_span5_index_det
+
+#check CompoundFeasibility.integer_matrix_index_upper5
+#print CompoundFeasibility.integer_matrix_index_upper5
+#print axioms CompoundFeasibility.integer_matrix_index_upper5
+
+#check CompoundFeasibility.inverse_integral_frame5
+#print CompoundFeasibility.inverse_integral_frame5
+#print axioms CompoundFeasibility.inverse_integral_frame5
+
+#check CompoundFeasibility.lattice5_index_upper
+#print CompoundFeasibility.lattice5_index_upper
+#print axioms CompoundFeasibility.lattice5_index_upper
+
+#check CompoundFeasibility.sourceLattice5_uniform_index_upper
+#print CompoundFeasibility.sourceLattice5_uniform_index_upper
+#print axioms CompoundFeasibility.sourceLattice5_uniform_index_upper
+
+#check CompoundFeasibility.q_prime_powers_product_upper5
+#print CompoundFeasibility.q_prime_powers_product_upper5
+#print axioms CompoundFeasibility.q_prime_powers_product_upper5
+
+#check CompoundFeasibility.q_prime_powers_normalized_upper5
+#print CompoundFeasibility.q_prime_powers_normalized_upper5
+#print axioms CompoundFeasibility.q_prime_powers_normalized_upper5
+
+#check CompoundFeasibility.sourceLattice5_uniform_normalized_covolume_upper
+#print CompoundFeasibility.sourceLattice5_uniform_normalized_covolume_upper
+#print axioms CompoundFeasibility.sourceLattice5_uniform_normalized_covolume_upper
+
+#check CompoundFeasibility.lattice5Span
+#print CompoundFeasibility.lattice5Span
+#print axioms CompoundFeasibility.lattice5Span
+
+#check CompoundFeasibility.coordinateGauge5
+#print CompoundFeasibility.coordinateGauge5
+#print axioms CompoundFeasibility.coordinateGauge5
+
+#check CompoundFeasibility.lattice5Span_gauge_ball_finite
+#print CompoundFeasibility.lattice5Span_gauge_ball_finite
+#print axioms CompoundFeasibility.lattice5Span_gauge_ball_finite
+
+#check CompoundFeasibility.exists_shortest_lattice5Span_vector_outside
+#print CompoundFeasibility.exists_shortest_lattice5Span_vector_outside
+#print axioms CompoundFeasibility.exists_shortest_lattice5Span_vector_outside
+
+#check CompoundFeasibility.successiveRadius5
+#print CompoundFeasibility.successiveRadius5
+#print axioms CompoundFeasibility.successiveRadius5
+
+#check CompoundFeasibility.independent_family_escapes_subspace5
+#print CompoundFeasibility.independent_family_escapes_subspace5
+#print axioms CompoundFeasibility.independent_family_escapes_subspace5
+
+#check CompoundFeasibility.minimaPrefix5
+#print CompoundFeasibility.minimaPrefix5
+#print axioms CompoundFeasibility.minimaPrefix5
+
+#check CompoundFeasibility.minimaPrefix5_snoc_castSucc
+#print CompoundFeasibility.minimaPrefix5_snoc_castSucc
+#print axioms CompoundFeasibility.minimaPrefix5_snoc_castSucc
+
+#check CompoundFeasibility.minimaPrefix5_snoc_last
+#print CompoundFeasibility.minimaPrefix5_snoc_last
+#print axioms CompoundFeasibility.minimaPrefix5_snoc_last
+
+#check CompoundFeasibility.exists_greedy_prefix5
+#print CompoundFeasibility.exists_greedy_prefix5
+#print axioms CompoundFeasibility.exists_greedy_prefix5
+
+#check CompoundFeasibility.minimaPrefix5_not_mem
+#print CompoundFeasibility.minimaPrefix5_not_mem
+#print axioms CompoundFeasibility.minimaPrefix5_not_mem
+
+#check CompoundFeasibility.minimaPrefix5_finrank
+#print CompoundFeasibility.minimaPrefix5_finrank
+#print axioms CompoundFeasibility.minimaPrefix5_finrank
+
+#check CompoundFeasibility.exists_successive_minima5
+#print CompoundFeasibility.exists_successive_minima5
+#print axioms CompoundFeasibility.exists_successive_minima5
+
+#check CompoundFeasibility.minimaFlag5
+#print CompoundFeasibility.minimaFlag5
+#print axioms CompoundFeasibility.minimaFlag5
+
+#check CompoundFeasibility.minimaFlag5_finrank
+#print CompoundFeasibility.minimaFlag5_finrank
+#print axioms CompoundFeasibility.minimaFlag5_finrank
+
+#check CompoundFeasibility.minimaFlag5_mono
+#print CompoundFeasibility.minimaFlag5_mono
+#print axioms CompoundFeasibility.minimaFlag5_mono
+
+#check CompoundFeasibility.latticeFlag5
+#print CompoundFeasibility.latticeFlag5
+#print axioms CompoundFeasibility.latticeFlag5
+
+#check CompoundFeasibility.flagLattice5
+#print CompoundFeasibility.flagLattice5
+#print axioms CompoundFeasibility.flagLattice5
+
+#check CompoundFeasibility.latticeFlag5_saturated
+#print CompoundFeasibility.latticeFlag5_saturated
+#print axioms CompoundFeasibility.latticeFlag5_saturated
+
+#check CompoundFeasibility.latticeFlag5_equiv_flagLattice5
+#print CompoundFeasibility.latticeFlag5_equiv_flagLattice5
+#print axioms CompoundFeasibility.latticeFlag5_equiv_flagLattice5
+
+#check CompoundFeasibility.flagLattice5_discrete
+#print CompoundFeasibility.flagLattice5_discrete
+#print axioms CompoundFeasibility.flagLattice5_discrete
+
+#check CompoundFeasibility.flagLattice5_isZLattice
+#print CompoundFeasibility.flagLattice5_isZLattice
+#print axioms CompoundFeasibility.flagLattice5_isZLattice
+
+#check CompoundFeasibility.latticeFlag5_finrank
+#print CompoundFeasibility.latticeFlag5_finrank
+#print axioms CompoundFeasibility.latticeFlag5_finrank
+
+#check CompoundFeasibility.latticeFlag5_basis_real_span
+#print CompoundFeasibility.latticeFlag5_basis_real_span
+#print axioms CompoundFeasibility.latticeFlag5_basis_real_span
+
+#check CompoundFeasibility.exists_adapted_integer_basis5
+#print CompoundFeasibility.exists_adapted_integer_basis5
+#print axioms CompoundFeasibility.exists_adapted_integer_basis5
+
+#check CompoundFeasibility.weightedCoordinates5
+#print CompoundFeasibility.weightedCoordinates5
+#print axioms CompoundFeasibility.weightedCoordinates5
+
+#check CompoundFeasibility.originalFormEquiv5
+#print CompoundFeasibility.originalFormEquiv5
+#print axioms CompoundFeasibility.originalFormEquiv5
+
+#check CompoundFeasibility.originalFormEquiv5_apply
+#print CompoundFeasibility.originalFormEquiv5_apply
+#print axioms CompoundFeasibility.originalFormEquiv5_apply
+
+#check CompoundFeasibility.originalCoordinates5
+#print CompoundFeasibility.originalCoordinates5
+#print axioms CompoundFeasibility.originalCoordinates5
+
+#check CompoundFeasibility.originalBody5
+#print CompoundFeasibility.originalBody5
+#print axioms CompoundFeasibility.originalBody5
+
+#check CompoundFeasibility.originalCoordinates5_bounds
+#print CompoundFeasibility.originalCoordinates5_bounds
+#print axioms CompoundFeasibility.originalCoordinates5_bounds
+
+#check CompoundFeasibility.originalBody5_mem_iff
+#print CompoundFeasibility.originalBody5_mem_iff
+#print axioms CompoundFeasibility.originalBody5_mem_iff
+
+#check CompoundFeasibility.sourceRealBasis5
+#print CompoundFeasibility.sourceRealBasis5
+#print axioms CompoundFeasibility.sourceRealBasis5
+
+#check CompoundFeasibility.sourceRealBasis5_span
+#print CompoundFeasibility.sourceRealBasis5_span
+#print axioms CompoundFeasibility.sourceRealBasis5_span
+
+#check CompoundFeasibility.originalSourceGroup5
+#print CompoundFeasibility.originalSourceGroup5
+#print axioms CompoundFeasibility.originalSourceGroup5
+
+#check CompoundFeasibility.sourceMinima5
+#print CompoundFeasibility.sourceMinima5
+#print axioms CompoundFeasibility.sourceMinima5
+
+#check CompoundFeasibility.sourceMinima5_eq_radius
+#print CompoundFeasibility.sourceMinima5_eq_radius
+#print axioms CompoundFeasibility.sourceMinima5_eq_radius
+
+#check CompoundFeasibility.exists_sourceMinima5_attaining
+#print CompoundFeasibility.exists_sourceMinima5_attaining
+#print axioms CompoundFeasibility.exists_sourceMinima5_attaining
+
+#check CompoundFeasibility.sourceMinima5_admissible
+#print CompoundFeasibility.sourceMinima5_admissible
+#print axioms CompoundFeasibility.sourceMinima5_admissible
+
+#check CompoundFeasibility.sourceMinima5_radius_set_properties
+#print CompoundFeasibility.sourceMinima5_radius_set_properties
+#print axioms CompoundFeasibility.sourceMinima5_radius_set_properties
+
+#check CompoundFeasibility.sourceMinima5_pos_mono
+#print CompoundFeasibility.sourceMinima5_pos_mono
+#print axioms CompoundFeasibility.sourceMinima5_pos_mono
+
+#check CompoundFeasibility.weightedCoordinates5_det
+#print CompoundFeasibility.weightedCoordinates5_det
+#print axioms CompoundFeasibility.weightedCoordinates5_det
+
+#check CompoundFeasibility.originalCoordinates5_det
+#print CompoundFeasibility.originalCoordinates5_det
+#print axioms CompoundFeasibility.originalCoordinates5_det
+
+#check CompoundFeasibility.originalBody5_volume
+#print CompoundFeasibility.originalBody5_volume
+#print axioms CompoundFeasibility.originalBody5_volume
+
+#check CompoundFeasibility.integerPoint5
+#print CompoundFeasibility.integerPoint5
+#print axioms CompoundFeasibility.integerPoint5
+
+#check CompoundFeasibility.integerPoint5_coord
+#print CompoundFeasibility.integerPoint5_coord
+#print axioms CompoundFeasibility.integerPoint5_coord
+
+#check CompoundFeasibility.integerPoint5_outside
+#print CompoundFeasibility.integerPoint5_outside
+#print axioms CompoundFeasibility.integerPoint5_outside
+
+#check CompoundFeasibility.successive_minima5_product_volume_upper
+#print CompoundFeasibility.successive_minima5_product_volume_upper
+#print axioms CompoundFeasibility.successive_minima5_product_volume_upper
+
+#check CompoundFeasibility.q_width_product_le_prime_powers5
+#print CompoundFeasibility.q_width_product_le_prime_powers5
+#print axioms CompoundFeasibility.q_width_product_le_prime_powers5
+
+#check CompoundFeasibility.sourceLocalDetFactor5
+#print CompoundFeasibility.sourceLocalDetFactor5
+#print axioms CompoundFeasibility.sourceLocalDetFactor5
+
+#check CompoundFeasibility.sourceLocalDetFactor5_pos
+#print CompoundFeasibility.sourceLocalDetFactor5_pos
+#print axioms CompoundFeasibility.sourceLocalDetFactor5_pos
+
+#check CompoundFeasibility.sourceLattice5_covolume_width_lower
+#print CompoundFeasibility.sourceLattice5_covolume_width_lower
+#print axioms CompoundFeasibility.sourceLattice5_covolume_width_lower
+
+#check CompoundFeasibility.originalBody5_compact_convex
+#print CompoundFeasibility.originalBody5_compact_convex
+#print axioms CompoundFeasibility.originalBody5_compact_convex
+
+#check CompoundFeasibility.originalBody5_symmetric
+#print CompoundFeasibility.originalBody5_symmetric
+#print axioms CompoundFeasibility.originalBody5_symmetric
+
+#check CompoundFeasibility.originalBody5_zero_interior
+#print CompoundFeasibility.originalBody5_zero_interior
+#print axioms CompoundFeasibility.originalBody5_zero_interior
+
+#check CompoundFeasibility.originalBody5_volume_pos
+#print CompoundFeasibility.originalBody5_volume_pos
+#print axioms CompoundFeasibility.originalBody5_volume_pos
+
+#check CompoundFeasibility.originalSourceGroup5_isZLattice
+#print CompoundFeasibility.originalSourceGroup5_isZLattice
+#print axioms CompoundFeasibility.originalSourceGroup5_isZLattice
+
+#check CompoundFeasibility.scalar_product_comparison5
+#print CompoundFeasibility.scalar_product_comparison5
+#print axioms CompoundFeasibility.scalar_product_comparison5
+
+#check CompoundFeasibility.scalar_volume_ratio5
+#print CompoundFeasibility.scalar_volume_ratio5
+#print axioms CompoundFeasibility.scalar_volume_ratio5
+
+#check CompoundFeasibility.sourceMinima5_product_volume_upper
+#print CompoundFeasibility.sourceMinima5_product_volume_upper
+#print axioms CompoundFeasibility.sourceMinima5_product_volume_upper
+
+#check CompoundFeasibility.source_original_uniform_minima_two_sided5
+#print CompoundFeasibility.source_original_uniform_minima_two_sided5
+#print axioms CompoundFeasibility.source_original_uniform_minima_two_sided5
+
+#check CompoundFeasibility.sourceLattice5_full_rank
+#print CompoundFeasibility.sourceLattice5_full_rank
+#print axioms CompoundFeasibility.sourceLattice5_full_rank
+
+#check CompoundFeasibility.sourceLattice5_index_pos
+#print CompoundFeasibility.sourceLattice5_index_pos
+#print axioms CompoundFeasibility.sourceLattice5_index_pos
+
+#check CompoundFeasibility.source_original_uniform_volume_ratio5
+#print CompoundFeasibility.source_original_uniform_volume_ratio5
+#print axioms CompoundFeasibility.source_original_uniform_volume_ratio5
+
+#check CompoundFeasibility.OriginalVariableGap5.originalSourceSolution5
+#print CompoundFeasibility.OriginalVariableGap5.originalSourceSolution5
+#print axioms CompoundFeasibility.OriginalVariableGap5.originalSourceSolution5
+
+#check CompoundFeasibility.OriginalVariableGap5.originalRothProperty5
+#print CompoundFeasibility.OriginalVariableGap5.originalRothProperty5
+#print axioms CompoundFeasibility.OriginalVariableGap5.originalRothProperty5
+
+#check CompoundFeasibility.OriginalVariableGap5.nonroth_iff_unbounded_solutions5
+#print CompoundFeasibility.OriginalVariableGap5.nonroth_iff_unbounded_solutions5
+#print axioms CompoundFeasibility.OriginalVariableGap5.nonroth_iff_unbounded_solutions5
+
+#check CompoundFeasibility.OriginalVariableGap5.source_solution_lattice5
+#print CompoundFeasibility.OriginalVariableGap5.source_solution_lattice5
+#print axioms CompoundFeasibility.OriginalVariableGap5.source_solution_lattice5
+
+#check CompoundFeasibility.OriginalVariableGap5.source_solution_gauge5
+#print CompoundFeasibility.OriginalVariableGap5.source_solution_gauge5
+#print axioms CompoundFeasibility.OriginalVariableGap5.source_solution_gauge5
+
+#check CompoundFeasibility.OriginalVariableGap5.source_first_minimum_le_gauge5
+#print CompoundFeasibility.OriginalVariableGap5.source_first_minimum_le_gauge5
+#print axioms CompoundFeasibility.OriginalVariableGap5.source_first_minimum_le_gauge5
+
+#check CompoundFeasibility.OriginalVariableGap5.source_solution_small_first5
+#print CompoundFeasibility.OriginalVariableGap5.source_solution_small_first5
+#print axioms CompoundFeasibility.OriginalVariableGap5.source_solution_small_first5
+
+#check CompoundFeasibility.OriginalVariableGap5.finite5_adjacent_gap
+#print CompoundFeasibility.OriginalVariableGap5.finite5_adjacent_gap
+#print axioms CompoundFeasibility.OriginalVariableGap5.finite5_adjacent_gap
+
+#check CompoundFeasibility.OriginalVariableGap5.finite4_unbounded_cover
+#print CompoundFeasibility.OriginalVariableGap5.finite4_unbounded_cover
+#print axioms CompoundFeasibility.OriginalVariableGap5.finite4_unbounded_cover
+
+#check CompoundFeasibility.OriginalVariableGap5.first_minimum_cutoff5
+#print CompoundFeasibility.OriginalVariableGap5.first_minimum_cutoff5
+#print axioms CompoundFeasibility.OriginalVariableGap5.first_minimum_cutoff5
+
+#check CompoundFeasibility.OriginalVariableGap5.matrixUnit5
+#print CompoundFeasibility.OriginalVariableGap5.matrixUnit5
+#print axioms CompoundFeasibility.OriginalVariableGap5.matrixUnit5
+
+#check CompoundFeasibility.OriginalVariableGap5.completeFin5GapPackage
+#print CompoundFeasibility.OriginalVariableGap5.completeFin5GapPackage
+#print axioms CompoundFeasibility.OriginalVariableGap5.completeFin5GapPackage
+
+#check CompoundFeasibility.OriginalVariableGap5.source_fin5_nonroth_gap_units5
+#print CompoundFeasibility.OriginalVariableGap5.source_fin5_nonroth_gap_units5
+#print axioms CompoundFeasibility.OriginalVariableGap5.source_fin5_nonroth_gap_units5
+
+#check CompoundFeasibility.OriginalVariableGap5.source_fin5_nonroth_gap5
+#print CompoundFeasibility.OriginalVariableGap5.source_fin5_nonroth_gap5
+#print axioms CompoundFeasibility.OriginalVariableGap5.source_fin5_nonroth_gap5

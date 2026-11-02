@@ -1,0 +1,77 @@
+import SubspaceBridge.SourceSampleSchmidtGrowth10
+import SubspaceBridge.SourceSampleSchmidtParameters10
+import SubspaceBridge.SourceOriginalAuxiliaryFamily10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M203SourceContract
+open CompoundFeasibility CompoundFeasibility.SourceSchmidtGrowth10
+open CompoundFeasibility.SchmidtNormal10 CompoundFeasibility.OriginalDual10
+open CompoundFeasibility.SourceSampling10 CompoundFeasibility.SourceSelectedSet10
+open CompoundFeasibility.SchmidtCoordinate10 CompoundFeasibility.SchmidtPolynomial10
+open CompoundFeasibility.SchmidtRationalNormalization6 CompoundFeasibility.SchmidtScalar10
+
+theorem source_parameter_growth_contract10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j))
+    (c2 c3 : Fin 10 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (c : Fin 3 → Fin 10 → ℝ) (hweights : ∀ tau i, |c tau i| ≤ 1) (hb : (∑ tau, ∑ i, c tau i) = 0)
+    (hc : ∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5)
+    (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ alpha C_upper T C_sch : ℝ,
+      0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      C_sch = min (1/2 : ℝ) (alpha/180) ∧ 0 < C_sch ∧ C_sch ≤ 1 ∧
+      ∀ (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+        (eta D E : ℝ), 0 < eta → ∀ (m : ℕ) (hm : 0 < m),
+        (∀ rho : ℝ, 0 < rho → ∀ B : ℝ,
+          Nonempty (OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)) →
+        ∃ theta rho : ℝ, 0 < theta ∧ theta < 1/12 ∧ theta < (m : ℝ)*eta ∧
+          0 < rho ∧ rho ≤ 1/2 ∧ rho ≤ JSP000334.omega65 m theta ∧
+          (∀ B : ℝ, Nonempty
+            (OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)) ∧
+          ∀ B : ℝ, T ≤ B →
+        ∀ (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+          (s : Fin m → (Fin 3 → Fin 10)),
+          (∀ h, s h ∈ roundedSelector10 ((S.data.t h).val^5) (epsilon/2)
+            (fun i => ((S.data.t h).val^5)^(c 0 i)) (c 1) (c 2)) →
+          (∀ h, (L⁻¹.transpose *ᵥ integerReal (S.data.M h)) (s h 0) ≠ 0) →
+          (∀ h, ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[2]))) (s h 1) ≠ 0) →
+          (∀ h, ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[3]))) (s h 2) ≠ 0) →
+          (∀ (h : Fin m) (hh : h.val+1 < m),
+            (S.data.r ⟨h.val+1,hh⟩ : ℝ) ≤ JSP000334.omega65 m theta*(S.data.r h : ℝ)) ∧
+          ∃ (C : (h : Fin m) → NormalCoordinateChoice10 (S.data.M h))
+            (G : MvPolynomial (Fin m) ℤ),
+            G ≠ 0 ∧ JSP000334.rothIntegerHeight G ≤ height10 S.data.P ∧
+            (∀ h, G.degreeOf h ≤ S.data.r h) ∧
+            G.map (Int.castRingHom ℝ) ∈ monicIdeal6
+              (binaryLift6 (permutedNormals10 S.data.M (fun h => (C h).e))) S.data.r ((m : ℝ)*eta) ∧
+            ∀ h, let N := permutedNormals10 S.data.M (fun g => (C g).e)
+              let b := fun g => rootDenominator6 (N g 0) (N g 1)
+              N h 0 ≠ 0 ∧ Int.gcd (N h 0) (N h 1)^9 ≤ (N h 0).natAbs^8 ∧
+              b h ≠ 0 ∧ Int.gcd (rootNumerator6 (N h 0) (N h 1)) (b h) = 1 ∧
+              (normalHeight10 (S.data.M h) : ℝ)^(1/9 : ℝ) ≤ |(b h : ℝ)| ∧
+              |(b h : ℝ)| ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+              |(b ⟨0,hm⟩ : ℝ)|^((S.data.r ⟨0,hm⟩ : ℝ)*C_sch) ≤
+                |(b h : ℝ)|^(S.data.r h : ℝ) := by
+  obtain ⟨alpha,C_upper,T,C_sch,ha,hC,hT,hCs,hCspos,hCsone,hgrowth⟩ :=
+    original_sample_schmidt_growth10 A2 A3 L h2 h3 hL hAlg c2 c3 hc2 hc3
+      c (hweights 0) hb hc epsilon he
+  refine ⟨alpha,C_upper,T,C_sch,ha,hC,hT,hCs,hCspos,hCsone,?_⟩
+  intro V v eta D E heta m hm hfamily
+  obtain ⟨theta,rho,ht,htu,hte,hr,hrhalf,hrw,hconstruct,hsep⟩ :=
+    original_sample_schmidt_parameters10 A2 A3 L c2 c3 V v c epsilon eta D E heta m hm hfamily
+  refine ⟨theta,rho,ht,htu,hte,hr,hrhalf,hrw,hconstruct,?_⟩
+  intro B hB S s hs hn0 hn2 hn3
+  exact ⟨hsep B S,hgrowth V v eta D E B rho m hm hB S s hs hn0 hn2 hn3⟩
+
+set_option pp.deepTerms true
+#check @source_parameter_growth_contract10
+#print axioms source_parameter_growth_contract10
+#check CompoundFeasibility.SourceSampling10.source_fin10_original_auxiliary_family10
+#check CompoundFeasibility.SourceHeightEnvelope10.original_sample_height_envelope10
+#check CompoundFeasibility.SchmidtApplication10.primitive_scalar_reduction10
+#check JSP000334.SchmidtHilfssatz12.hilfssatz12_nonvanishing
+#print JSP000334.omega65
+end M203SourceContract

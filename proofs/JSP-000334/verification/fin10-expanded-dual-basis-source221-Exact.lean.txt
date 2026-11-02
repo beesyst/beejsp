@@ -1,0 +1,52 @@
+import verification.SourceDualBasisCheckpoint221
+#check M221MatrixRepresentation.matrix_of221
+#print M221MatrixRepresentation.matrix_of221
+#print axioms M221MatrixRepresentation.matrix_of221
+#check M221MatrixRepresentation.inverse_of221
+#print M221MatrixRepresentation.inverse_of221
+#print axioms M221MatrixRepresentation.inverse_of221
+#check M221MatrixRepresentation.dual_column221
+#print M221MatrixRepresentation.dual_column221
+#print axioms M221MatrixRepresentation.dual_column221
+#check M221MatrixRepresentation.raw_column221
+#print M221MatrixRepresentation.raw_column221
+#print axioms M221MatrixRepresentation.raw_column221
+#check M221SetRepresentation.raw_integral221
+#print M221SetRepresentation.raw_integral221
+#print axioms M221SetRepresentation.raw_integral221
+#check M221SetRepresentation.raw_scaled221
+#print M221SetRepresentation.raw_scaled221
+#print axioms M221SetRepresentation.raw_scaled221
+#check M221SpanRepresentation.raw_generator221
+#print M221SpanRepresentation.raw_generator221
+#print axioms M221SpanRepresentation.raw_generator221
+#check M221SpanRepresentation.raw_generators221
+#print M221SpanRepresentation.raw_generators221
+#print axioms M221SpanRepresentation.raw_generators221
+#check M221SpanRepresentation.raw_range221
+#print M221SpanRepresentation.raw_range221
+#print axioms M221SpanRepresentation.raw_range221
+#check M221SpanRepresentation.raw_span221
+#print M221SpanRepresentation.raw_span221
+#print axioms M221SpanRepresentation.raw_span221
+#check M221SpanRepresentation.raw_span_set221
+#print M221SpanRepresentation.raw_span_set221
+#print axioms M221SpanRepresentation.raw_span_set221
+#check M221SpanRepresentation.raw_kronecker221
+#print M221SpanRepresentation.raw_kronecker221
+#print axioms M221SpanRepresentation.raw_kronecker221
+#check M220SourceChallenge.expanded_basis_equality220
+#print M220SourceChallenge.expanded_basis_equality220
+#print axioms M220SourceChallenge.expanded_basis_equality220
+#check M220SourceChallenge.actual_original_equality220
+#print M220SourceChallenge.actual_original_equality220
+#print axioms M220SourceChallenge.actual_original_equality220
+#check M220SourceChallenge.expanded_matrix_pairing220
+#print M220SourceChallenge.expanded_matrix_pairing220
+#print axioms M220SourceChallenge.expanded_matrix_pairing220
+#check M220SourceChallenge.actual_old_basis_pairing220
+#print M220SourceChallenge.actual_old_basis_pairing220
+#print axioms M220SourceChallenge.actual_old_basis_pairing220
+#check M220SourceChallenge.actual_original_both_inclusions220
+#print M220SourceChallenge.actual_original_both_inclusions220
+#print axioms M220SourceChallenge.actual_original_both_inclusions220

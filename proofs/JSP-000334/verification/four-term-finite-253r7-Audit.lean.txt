@@ -1,0 +1,58 @@
+import SubspaceBridge.FourTermProjection3
+import SubspaceBridge.FourTermSource3
+import SubspaceBridge.FourTermCoefficientFiber3
+import SubspaceBridge.FourTermFiniteness3
+#check JSP000334.fourTermCoefficientFiber
+#print JSP000334.fourTermCoefficientFiber
+#print axioms JSP000334.fourTermCoefficientFiber
+#check JSP000334.four_term_weighted_projection_finite
+#print JSP000334.four_term_weighted_projection_finite
+#print axioms JSP000334.four_term_weighted_projection_finite
+#check JSP000334.four_term_coordinate_reconstruction
+#print JSP000334.four_term_coordinate_reconstruction
+#print axioms JSP000334.four_term_coordinate_reconstruction
+#check JSP000334.four_term_relation_facts
+#print JSP000334.four_term_relation_facts
+#print axioms JSP000334.four_term_relation_facts
+#check JSP000334.four_term_original_mem
+#print JSP000334.four_term_original_mem
+#print axioms JSP000334.four_term_original_mem
+#check JSP000334.four_term_proper_annihilator
+#print JSP000334.four_term_proper_annihilator
+#print axioms JSP000334.four_term_proper_annihilator
+#check JSP000334.four_term_fiber_all_nonzero
+#print JSP000334.four_term_fiber_all_nonzero
+#print axioms JSP000334.four_term_fiber_all_nonzero
+#check JSP000334.four_term_fiber_fixed_first
+#print JSP000334.four_term_fiber_fixed_first
+#print axioms JSP000334.four_term_fiber_fixed_first
+#check JSP000334.four_term_fiber_fixed_second
+#print JSP000334.four_term_fiber_fixed_second
+#print axioms JSP000334.four_term_fiber_fixed_second
+#check JSP000334.four_term_fiber_ratio
+#print JSP000334.four_term_fiber_ratio
+#print axioms JSP000334.four_term_fiber_ratio
+#check JSP000334.four_term_coefficient_fiber_finite
+#print JSP000334.four_term_coefficient_fiber_finite
+#print axioms JSP000334.four_term_coefficient_fiber_finite
+#check JSP000334.fourTermProperFiber
+#print JSP000334.fourTermProperFiber
+#print axioms JSP000334.fourTermProperFiber
+#check JSP000334.four_term_proper_fiber_finite
+#print JSP000334.four_term_proper_fiber_finite
+#print axioms JSP000334.four_term_proper_fiber_finite
+#check JSP000334.fixed_four_term_finite
+#print JSP000334.fixed_four_term_finite
+#print axioms JSP000334.fixed_four_term_finite
+#check JSP000334.source_four_term_finite_cover3
+#print JSP000334.source_four_term_finite_cover3
+#print axioms JSP000334.source_four_term_finite_cover3
+#check JSP000334.weighted_fixed_sunit_pair_finite
+#print JSP000334.weighted_fixed_sunit_pair_finite
+#print axioms JSP000334.weighted_fixed_sunit_pair_finite
+#check JSP000334.FixedSUnitFiniteness
+#print JSP000334.FixedSUnitFiniteness
+#print axioms JSP000334.FixedSUnitFiniteness
+#check JSP000334.newman_of_fixed_sunit_finiteness
+#print JSP000334.newman_of_fixed_sunit_finiteness
+#print axioms JSP000334.newman_of_fixed_sunit_finiteness

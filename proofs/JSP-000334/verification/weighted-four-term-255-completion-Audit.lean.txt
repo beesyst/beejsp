@@ -1,0 +1,83 @@
+import SubspaceBridge.WeightedFourTermInput3
+import SubspaceBridge.WeightedFourTermCover3
+import SubspaceBridge.WeightedFourTermProjection3
+import SubspaceBridge.WeightedFourTermCoefficientFiber3
+import SubspaceBridge.WeightedFourTermFiniteness3
+#check JSP000334.weighted_original_product_input3
+#print JSP000334.weighted_original_product_input3
+#print axioms JSP000334.weighted_original_product_input3
+#check JSP000334.weighted_four_term_proper_cover3
+#print JSP000334.weighted_four_term_proper_cover3
+#print axioms JSP000334.weighted_four_term_proper_cover3
+#check JSP000334.weightedFourTermValues3
+#print JSP000334.weightedFourTermValues3
+#print axioms JSP000334.weightedFourTermValues3
+#check JSP000334.weightedFourTermCoefficientFiber3
+#print JSP000334.weightedFourTermCoefficientFiber3
+#print axioms JSP000334.weightedFourTermCoefficientFiber3
+#check JSP000334.weighted_four_term_values_injective3
+#print JSP000334.weighted_four_term_values_injective3
+#print axioms JSP000334.weighted_four_term_values_injective3
+#check JSP000334.weighted_four_term_pair_sums3
+#print JSP000334.weighted_four_term_pair_sums3
+#print axioms JSP000334.weighted_four_term_pair_sums3
+#check JSP000334.weighted_four_term_projection_finite3
+#print JSP000334.weighted_four_term_projection_finite3
+#print axioms JSP000334.weighted_four_term_projection_finite3
+#check JSP000334.weighted_four_term_ratio_values3
+#print JSP000334.weighted_four_term_ratio_values3
+#print axioms JSP000334.weighted_four_term_ratio_values3
+#check JSP000334.weighted_four_term_fiber_all_nonzero3
+#print JSP000334.weighted_four_term_fiber_all_nonzero3
+#print axioms JSP000334.weighted_four_term_fiber_all_nonzero3
+#check JSP000334.weighted_four_term_fiber_zero_last3
+#print JSP000334.weighted_four_term_fiber_zero_last3
+#print axioms JSP000334.weighted_four_term_fiber_zero_last3
+#check JSP000334.weighted_four_term_fiber_zero_middle3
+#print JSP000334.weighted_four_term_fiber_zero_middle3
+#print axioms JSP000334.weighted_four_term_fiber_zero_middle3
+#check JSP000334.weighted_four_term_fiber_zero_first3
+#print JSP000334.weighted_four_term_fiber_zero_first3
+#print axioms JSP000334.weighted_four_term_fiber_zero_first3
+#check JSP000334.weighted_four_term_coefficient_fiber_finite3
+#print JSP000334.weighted_four_term_coefficient_fiber_finite3
+#print axioms JSP000334.weighted_four_term_coefficient_fiber_finite3
+#check JSP000334.weightedFourTermProperFiber3
+#print JSP000334.weightedFourTermProperFiber3
+#print axioms JSP000334.weightedFourTermProperFiber3
+#check JSP000334.weighted_four_term_proper_fiber_finite3
+#print JSP000334.weighted_four_term_proper_fiber_finite3
+#print axioms JSP000334.weighted_four_term_proper_fiber_finite3
+#check JSP000334.weighted_four_term_finite
+#print JSP000334.weighted_four_term_finite
+#print axioms JSP000334.weighted_four_term_finite
+#check JSP000334.weighted_coefficient_denominator3
+#print JSP000334.weighted_coefficient_denominator3
+#print axioms JSP000334.weighted_coefficient_denominator3
+#check JSP000334.weighted_primitive_sunit_coordinates3
+#print JSP000334.weighted_primitive_sunit_coordinates3
+#print axioms JSP000334.weighted_primitive_sunit_coordinates3
+#check JSP000334.weighted_diagonal_primitive3
+#print JSP000334.weighted_diagonal_primitive3
+#print axioms JSP000334.weighted_diagonal_primitive3
+#check JSP000334.weighted_diagonal_products3
+#print JSP000334.weighted_diagonal_products3
+#print axioms JSP000334.weighted_diagonal_products3
+#check JSP000334.weighted_diagonal_gcd_values_finite3
+#print JSP000334.weighted_diagonal_gcd_values_finite3
+#print axioms JSP000334.weighted_diagonal_gcd_values_finite3
+#check JSP000334.weighted_fixed_product_cover3
+#print JSP000334.weighted_fixed_product_cover3
+#print axioms JSP000334.weighted_fixed_product_cover3
+#check JSP000334.weighted_diagonal_comap_proper3
+#print JSP000334.weighted_diagonal_comap_proper3
+#print axioms JSP000334.weighted_diagonal_comap_proper3
+#check JSP000334.weighted_diagonal_original_mem3
+#print JSP000334.weighted_diagonal_original_mem3
+#print axioms JSP000334.weighted_diagonal_original_mem3
+#check JSP000334.weighted_fixed_sunit_pair_finite
+#print JSP000334.weighted_fixed_sunit_pair_finite
+#print axioms JSP000334.weighted_fixed_sunit_pair_finite
+#check JSP000334.four_term_proper_annihilator
+#print JSP000334.four_term_proper_annihilator
+#print axioms JSP000334.four_term_proper_annihilator

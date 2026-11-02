@@ -1,0 +1,50 @@
+import SubspaceBridge.SourceCofactorLattice231
+import SubspaceBridge.SourceCofactorSigns231
+import SubspaceBridge.SourceCofactorReal231
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.OriginalDual10
+  CompoundFeasibility.SourceLastDual231 CompoundFeasibility.SourceDualGeometry219
+  CompoundFeasibility.SourceSatz51Entry218
+namespace M232PriorSourceChallenge
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem original_pairing (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (x : originalSourceGroup10 A2 A3 q c2 c3) :
+    ∃ a : ℤ, (∑ i, ((x : Fin 10 → ℤ) i : ℚ) * (integerLastDual10 D.u i : ℚ)) =
+      ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) * (a : ℚ) := by
+  exact (scaledDual_pairing219 _ (Nat.ne_of_gt (sourceLattice10_index_pos A2 A3 _ _)) _).mp
+    (source_cofactor_dual231 D) x
+
+theorem original_genuine_dual (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (fun i => (integerLastDual10 D.u i : ℚ)) ∈
+      (fun z : Fin 10 → ℚ => ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) • z) ''
+        {z | ∀ x : originalSourceGroup10 A2 A3 q c2 c3, ∃ a : ℤ,
+          (∑ i, ((x : Fin 10 → ℤ) i : ℚ) * z i) = (a : ℚ)} := by
+  exact source_cofactor_dual231 D
+
+theorem original_real_bound (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (i : Fin 10) :
+    |(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i| ≤
+      362880 * q^(-9*delta) *
+        (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) / A i) := by
+  exact source_real_cofactor231 h2 h3 hLd D i
+
+theorem original_nonzero (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (fun i => Matrix.adjugate (D.u : Matrix (Fin 10) (Fin 10) ℤ) i (Fin.last 9)) ≠ 0 := by
+  exact source_cofactor_nonzero231 D
+
+end M232PriorSourceChallenge
+#check M232PriorSourceChallenge.original_pairing
+#print M232PriorSourceChallenge.original_pairing
+#print axioms M232PriorSourceChallenge.original_pairing
+#check M232PriorSourceChallenge.original_genuine_dual
+#print M232PriorSourceChallenge.original_genuine_dual
+#print axioms M232PriorSourceChallenge.original_genuine_dual
+#check M232PriorSourceChallenge.original_real_bound
+#print M232PriorSourceChallenge.original_real_bound
+#print axioms M232PriorSourceChallenge.original_real_bound
+#check M232PriorSourceChallenge.original_nonzero
+#print M232PriorSourceChallenge.original_nonzero
+#print axioms M232PriorSourceChallenge.original_nonzero

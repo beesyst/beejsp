@@ -1,0 +1,1871 @@
+import SubspaceBridge.NonrothVolumeGrowth5
+import Mathlib.Data.Fin.Tuple.Sort
+import Mathlib.Data.Matrix.Rank
+open scoped BigOperators Classical Matrix
+open MeasureTheory
+noncomputable section
+namespace CompoundFeasibility.Literal250
+open _root_.CompoundFeasibility
+namespace RestrictedSelectedIndex5
+
+theorem selected_rational_index_lower5 (n : ℕ)
+    (B₂ B₃ : Matrix (Fin n) (Fin n) ℚ)
+    (G : AddSubgroup (Fin n → ℤ)) (b : Basis (Fin n) ℤ G)
+    (e₂ e₃ : Fin n → ℕ)
+    (h₂ : ∀ (x : G) i, padicNorm 2 ((B₂ *ᵥ (fun k => ((x : Fin n → ℤ) k : ℚ))) i) ≤
+      (2 : ℚ)^(-(e₂ i : ℤ)))
+    (h₃ : ∀ (x : G) i, padicNorm 3 ((B₃ *ᵥ (fun k => ((x : Fin n → ℤ) k : ℚ))) i) ≤
+      (3 : ℚ)^(-(e₃ i : ℤ))) :
+    (padicNorm 2 B₂.det : ℝ) * (padicNorm 3 B₃.det : ℝ) *
+      (2 : ℝ)^(∑ i, e₂ i) * (3 : ℝ)^(∑ i, e₃ i) ≤ (G.index : ℝ) := by
+  let U : Matrix (Fin n) (Fin n) ℤ := fun k i => (b k : Fin n → ℤ) i
+  have hli : LinearIndependent ℤ (fun k => (b k : Fin n → ℤ)) :=
+    b.linearIndependent.map' G.toIntSubmodule.subtype (Submodule.ker_subtype _)
+  have hUne : U.det ≠ 0 := by
+    have h := (SourceRelativeIndex6.integer_span_index_det (Pi.basisFun ℤ (Fin n)) _ hli).2.2
+    change U.transpose.det ≠ 0 at h
+    simpa using h
+  have hUR : (U.map (Int.castRingHom ℝ)).det ≠ 0 := by
+    rw [← integer_matrix_det_cast]
+    exact_mod_cast hUne
+  have hreal := Matrix.linearIndependent_rows_of_det_ne_zero hUR
+  have hindex : |(U.map (Int.castRingHom ℝ)).det| = (G.index : ℝ) := by
+    have h := AddSubgroup.index_eq_natAbs_det (Pi.basisFun ℤ (Fin n)) G b
+    rw [Basis.det_apply] at h
+    have he : (Pi.basisFun ℤ (Fin n)).toMatrix (fun k => (b k : Fin n → ℤ)) = U.transpose := by rfl
+    rw [he,Matrix.det_transpose] at h
+    rw [← integer_matrix_det_cast,← Int.cast_abs,← Int.cast_natAbs,← h]
+  have hbase := integer_matrix_three_place_lower U hreal
+  rw [hindex] at hbase
+  have htwo := padic_det_frame_bound 2 B₂ e₂ U (fun k i => h₂ (b k) i)
+  have hthree := padic_det_frame_bound 3 B₃ e₃ U (fun k i => h₃ (b k) i)
+  have htwoR : (padicNorm 2 B₂.det : ℝ) * (padicNorm 2 (U.map (Int.castRingHom ℚ)).det : ℝ) ≤
+      ((2 : ℝ)^(∑ i, e₂ i))⁻¹ := by
+    have hh := (Rat.cast_le (K := ℝ)).mpr htwo
+    simpa only [Rat.cast_mul,Rat.cast_inv,Rat.cast_pow,Rat.cast_ofNat] using hh
+  have hthreeR : (padicNorm 3 B₃.det : ℝ) * (padicNorm 3 (U.map (Int.castRingHom ℚ)).det : ℝ) ≤
+      ((3 : ℝ)^(∑ i, e₃ i))⁻¹ := by
+    have hh := (Rat.cast_le (K := ℝ)).mpr hthree
+    simpa only [Rat.cast_mul,Rat.cast_inv,Rat.cast_pow,Rat.cast_ofNat] using hh
+  have hp₂ : 0 ≤ (padicNorm 2 B₂.det : ℝ) := by exact_mod_cast padicNorm.nonneg B₂.det
+  have hp₃ : 0 ≤ (padicNorm 3 B₃.det : ℝ) := by exact_mod_cast padicNorm.nonneg B₃.det
+  have hu₂ : 0 ≤ (padicNorm 2 (U.map (Int.castRingHom ℚ)).det : ℝ) := by exact_mod_cast padicNorm.nonneg _
+  have hu₃ : 0 ≤ (padicNorm 3 (U.map (Int.castRingHom ℚ)).det : ℝ) := by exact_mod_cast padicNorm.nonneg _
+  have hm := mul_le_mul htwoR hthreeR (mul_nonneg hp₃ hu₃) (by positivity)
+  have hstart := mul_le_mul_of_nonneg_right hbase (mul_nonneg hp₂ hp₃)
+  have hstep : (padicNorm 2 B₂.det : ℝ) * (padicNorm 3 B₃.det : ℝ) ≤
+      (G.index : ℝ) * (((2 : ℝ)^(∑ i, e₂ i))⁻¹ * ((3 : ℝ)^(∑ i, e₃ i))⁻¹) := by
+    calc
+      _ ≤ (G.index : ℝ) *
+          (((padicNorm 2 B₂.det : ℝ) * (padicNorm 2 (U.map (Int.castRingHom ℚ)).det : ℝ)) *
+           ((padicNorm 3 B₃.det : ℝ) * (padicNorm 3 (U.map (Int.castRingHom ℚ)).det : ℝ))) := by nlinarith [hstart]
+      _ ≤ _ := mul_le_mul_of_nonneg_left hm (by positivity)
+  have hlast := mul_le_mul_of_nonneg_right hstep
+    (show 0 ≤ (2 : ℝ)^(∑ i, e₂ i) * (3 : ℝ)^(∑ i, e₃ i) by positivity)
+  have hcancel : (G.index : ℝ) *
+      (((2 : ℝ)^(∑ i, e₂ i))⁻¹ * ((3 : ℝ)^(∑ i, e₃ i))⁻¹) *
+      ((2 : ℝ)^(∑ i, e₂ i) * (3 : ℝ)^(∑ i, e₃ i)) = (G.index : ℝ) := by
+    calc
+      _ = (G.index : ℝ) *
+          ((((2 : ℝ)^(∑ i, e₂ i))⁻¹ * (2 : ℝ)^(∑ i, e₂ i)) *
+           (((3 : ℝ)^(∑ i, e₃ i))⁻¹ * (3 : ℝ)^(∑ i, e₃ i))) := by ring
+      _ = _ := by rw [inv_mul_cancel₀ (by positivity),inv_mul_cancel₀ (by positivity),mul_one,mul_one]
+  rw [hcancel] at hlast
+  simpa only [mul_assoc] using hlast
+
+
+theorem selected_prime_powers_lower5 {d : ℕ} (p : ℕ) (hp : 1 < p)
+    (Q : ℝ) (hQ : 1 < Q) (c : Fin d → ℝ) :
+    Q^(-(∑ k, c k)) ≤ (p : ℝ)^(∑ k, Nat.ceil (JSP000334.qThreshold p Q (c k))) := by
+  have hQpos : 0 < Q := zero_lt_one.trans hQ
+  calc
+    _ = ∏ k, Q^(-c k) := by
+      rw [← Real.rpow_sum_of_pos hQpos]
+      simp
+    _ ≤ ∏ k, (p : ℝ)^Nat.ceil (JSP000334.qThreshold p Q (c k)) := by
+      apply Finset.prod_le_prod (fun _ _ => (Real.rpow_pos_of_pos hQpos _).le)
+      intro k hk
+      rw [← JSP000334.qThreshold_rpow p hp Q (c k) hQ,← Real.rpow_natCast]
+      exact Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast hp.le) (Nat.le_ceil _)
+    _ = _ := Finset.prod_pow_eq_pow_sum _ _ _
+
+
+end RestrictedSelectedIndex5
+
+namespace RestrictedWeightOrder5
+open RestrictedGeometry5
+noncomputable section
+
+def weightOrder5 (c : Fin 5 → ℝ) : Equiv.Perm (Fin 5) := Tuple.sort c
+
+def permutedRows5 {K : Type*} (A : Matrix (Fin 5) (Fin 5) K)
+    (sigma : Equiv.Perm (Fin 5)) : Matrix (Fin 5) (Fin 5) K := fun i k => A (sigma i) k
+
+theorem weightOrder5_bijective (c : Fin 5 → ℝ) : Function.Bijective (weightOrder5 c) :=
+  (weightOrder5 c).bijective
+
+theorem weightOrder5_monotone (c : Fin 5 → ℝ) :
+    Monotone (fun i => c (weightOrder5 c i)) := Tuple.monotone_sort c
+
+theorem weightOrder5_adjacent (c : Fin 5 → ℝ) (i : Fin 4) :
+    c (weightOrder5 c i.castSucc) ≤ c (weightOrder5 c i.succ) :=
+  weightOrder5_monotone c (by exact Fin.le_iff_val_le_val.mpr (by simp))
+
+theorem weightOrder5_forall_pair {α : Type*} (f : Fin 5 → α) (c : Fin 5 → ℝ)
+    (R : α → ℝ → Prop) :
+    (∀ i, R (f (weightOrder5 c i)) (c (weightOrder5 c i))) ↔ ∀ i, R (f i) (c i) := by
+  constructor
+  · intro h i
+    simpa using h ((weightOrder5 c).symm i)
+  · intro h i
+    exact h _
+
+theorem weightOrder5_ties (c : Fin 5 → ℝ) (sigma : Equiv.Perm (Fin 5))
+    (h : Monotone (fun i => c (sigma i))) :
+    (fun i => c (sigma i)) = (fun i => c (weightOrder5 c i)) := by
+  exact (Tuple.comp_sort_eq_comp_iff_monotone).mpr h
+
+theorem permutedRows5_mulVec {K : Type*} [CommRing K]
+    (A : Matrix (Fin 5) (Fin 5) K) (sigma : Equiv.Perm (Fin 5)) (x : Fin 5 → K) (i : Fin 5) :
+    (permutedRows5 A sigma *ᵥ x) i = (A *ᵥ x) (sigma i) := rfl
+
+theorem originalBody5_weightOrder (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c : Fin 5 → ℝ) :
+    originalBody5 (permutedRows5 L (weightOrder5 c)) Q (fun i => c (weightOrder5 c i)) =
+      originalBody5 L Q c := by
+  ext x
+  exact weightOrder5_forall_pair (fun i => (L *ᵥ x) i) c (fun y w => |y| ≤ Q^w)
+
+theorem lattice5_weightOrder (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c : Fin 5 → ℝ) :
+    lattice5 p (permutedRows5 A (weightOrder5 c))
+      (fun i => Nat.ceil (JSP000334.qThreshold p Q (c (weightOrder5 c i)))) =
+    lattice5 p A (fun i => Nat.ceil (JSP000334.qThreshold p Q (c i))) := by
+  ext x
+  rw [lattice5_spec,lattice5_spec]
+  exact weightOrder5_forall_pair (fun i => (A *ᵥ (fun k => (x k : ℚ))) i) c
+    (fun y w => padicNorm p y ≤ (p : ℚ)^(-(Nat.ceil (JSP000334.qThreshold p Q w) : ℤ)))
+
+theorem originalSourceGroup5_weightOrder
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) :
+    originalSourceGroup5 (permutedRows5 A₂ (weightOrder5 c₂))
+      (permutedRows5 A₃ (weightOrder5 c₃)) Q
+      (fun i => c₂ (weightOrder5 c₂ i)) (fun i => c₃ (weightOrder5 c₃ i)) =
+    originalSourceGroup5 A₂ A₃ Q c₂ c₃ := by
+  unfold originalSourceGroup5 sourceLattice5
+  rw [lattice5_weightOrder,lattice5_weightOrder]
+
+theorem restrictedBody5_weightOrder (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c : Fin 5 → ℝ) :
+    restrictedBody5 P (permutedRows5 L (weightOrder5 c)) Q (fun i => c (weightOrder5 c i)) =
+      restrictedBody5 P L Q c := by
+  unfold restrictedBody5
+  rw [originalBody5_weightOrder]
+
+theorem restrictedLattice5_weightOrder (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) :
+    restrictedLattice5 P (permutedRows5 A₂ (weightOrder5 c₂))
+      (permutedRows5 A₃ (weightOrder5 c₃)) Q
+      (fun i => c₂ (weightOrder5 c₂ i)) (fun i => c₃ (weightOrder5 c₃ i)) =
+    restrictedLattice5 P A₂ A₃ Q c₂ c₃ := by
+  unfold restrictedLattice5
+  rw [originalSourceGroup5_weightOrder]
+
+end
+end RestrictedWeightOrder5
+
+namespace RestrictedRows5
+open RestrictedGeometry5
+noncomputable section
+
+def rowCoordinates5 {K : Type*} [Field K] {d : ℕ}
+    (P : Submodule K (Fin 5 → K)) (b : Basis (Fin d) K P)
+    (A : Matrix (Fin 5) (Fin 5) K) : Matrix (Fin 5) (Fin d) K :=
+  fun i k => (A *ᵥ (b k : Fin 5 → K)) i
+
+theorem rowCoordinates5_span {K : Type*} [Field K] {d : ℕ}
+    (P : Submodule K (Fin 5 → K)) (b : Basis (Fin d) K P)
+    (A : Matrix (Fin 5) (Fin 5) K) (hA : IsUnit A) :
+    Submodule.span K (Set.range (rowCoordinates5 P b A).row) = ⊤ := by
+  let e := LinearEquiv.ofBijective (Matrix.toLin' A)
+    ⟨Matrix.mulVec_injective_iff_isUnit.mpr hA,Matrix.mulVec_surjective_iff_isUnit.mpr hA⟩
+  have hli : LinearIndependent K (fun k => (A *ᵥ (b k : Fin 5 → K))) :=
+    (b.linearIndependent.map' P.subtype P.ker_subtype).map' e.toLinearMap e.ker
+  have hcol : LinearIndependent K (rowCoordinates5 P b A).transpose.row := hli
+  have hrank : (rowCoordinates5 P b A).rank = d := by
+    rw [← Matrix.rank_transpose]
+    simpa only [Fintype.card_fin] using hcol.rank_matrix
+  apply Submodule.eq_top_of_finrank_eq
+  rw [← Matrix.rank_eq_finrank_span_row,hrank,Module.finrank_pi]
+  simp
+
+def rationalRowCoordinates5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A : Matrix (Fin 5) (Fin 5) ℚ) : Matrix (Fin 5) (Fin (Module.finrank ℚ P)) ℚ :=
+  rowCoordinates5 P (Module.finBasis ℚ P) A
+
+def realRowCoordinates5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) :
+    Matrix (Fin 5) (Fin (Module.finrank ℝ (rationalRealSpan5 P))) ℝ :=
+  rowCoordinates5 (rationalRealSpan5 P) (Module.finBasis ℝ (rationalRealSpan5 P)) L
+
+theorem rationalRowCoordinates5_span (P : Submodule ℚ (Fin 5 → ℚ))
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (hA : A.det = 1) :
+    Submodule.span ℚ (Set.range (rationalRowCoordinates5 P A).row) = ⊤ := by
+  exact rowCoordinates5_span P _ A ((Matrix.isUnit_iff_isUnit_det A).mpr (hA ▸ isUnit_one))
+
+theorem realRowCoordinates5_span (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) :
+    Submodule.span ℝ (Set.range (realRowCoordinates5 P L).row) = ⊤ := by
+  exact rowCoordinates5_span _ _ L ((Matrix.isUnit_iff_isUnit_det L).mpr (hL ▸ isUnit_one))
+
+end
+end RestrictedRows5
+
+namespace RestrictedGreedyRows5
+noncomputable section
+variable {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
+
+def rowPrefix5 (rows : Fin 5 → V) (n : ℕ) : Set V :=
+  rows '' {i : Fin 5 | i.val < n}
+
+def greedyPivot5 (rows : Fin 5 → V) (i : Fin 5) : Prop :=
+  rows i ∉ Submodule.span K (rowPrefix5 rows i.val)
+
+def greedyPrefix5 (rows : Fin 5 → V) (n : ℕ) : Set (Fin 5) :=
+  {i | i.val < n ∧ greedyPivot5 (K := K) rows i}
+
+theorem rowPrefix5_succ (rows : Fin 5 → V) (n : ℕ) (hn : n < 5) :
+    rowPrefix5 rows (n+1) = insert (rows ⟨n,hn⟩) (rowPrefix5 rows n) := by
+  have hs : {i : Fin 5 | i.val < n+1} = insert ⟨n,hn⟩ {i : Fin 5 | i.val < n} := by
+    ext i
+    simp only [Set.mem_setOf_eq,Set.mem_insert_iff,Fin.ext_iff]
+    omega
+  unfold rowPrefix5
+  rw [hs,Set.image_insert_eq]
+
+theorem greedyPrefix5_succ (rows : Fin 5 → V) (n : ℕ) (hn : n < 5) :
+    greedyPrefix5 (K := K) rows (n+1) =
+      if greedyPivot5 (K := K) rows ⟨n,hn⟩ then
+        insert ⟨n,hn⟩ (greedyPrefix5 (K := K) rows n)
+      else greedyPrefix5 (K := K) rows n := by
+  classical
+  ext k
+  by_cases hki : k = ⟨n,hn⟩
+  · subst k
+    by_cases hp : greedyPivot5 (K := K) rows ⟨n,hn⟩ <;> simp [greedyPrefix5,hp]
+  · have hv : k.val < n+1 ↔ k.val < n := by
+      have hne : k.val ≠ n := fun h => hki (Fin.ext h)
+      omega
+    by_cases hp : greedyPivot5 (K := K) rows ⟨n,hn⟩ <;> simp [greedyPrefix5,hp,hki,hv]
+
+theorem greedyPrefix5_independent_span (rows : Fin 5 → V) :
+    ∀ n : ℕ, n ≤ 5 →
+      LinearIndepOn K rows (greedyPrefix5 (K := K) rows n) ∧
+      Submodule.span K (rows '' greedyPrefix5 (K := K) rows n) =
+        Submodule.span K (rowPrefix5 rows n) := by
+  classical
+  intro n
+  induction n with
+  | zero => simp [greedyPrefix5,rowPrefix5]
+  | succ n ih =>
+    intro hn
+    have hnlt : n < 5 := by omega
+    obtain ⟨hli,hspan⟩ := ih (by omega)
+    rw [greedyPrefix5_succ rows n hnlt,rowPrefix5_succ rows n hnlt]
+    have hnot : (⟨n,hnlt⟩ : Fin 5) ∉ greedyPrefix5 (K := K) rows n := by
+      simp [greedyPrefix5]
+    by_cases hp : greedyPivot5 (K := K) rows ⟨n,hnlt⟩
+    · rw [if_pos hp,Set.image_insert_eq]
+      have hout : rows ⟨n,hnlt⟩ ∉ Submodule.span K (rows '' greedyPrefix5 (K := K) rows n) := by
+        rw [hspan]
+        exact hp
+      exact ⟨(linearIndepOn_insert hnot).mpr ⟨hli,hout⟩,by rw [Submodule.span_insert,hspan,Submodule.span_insert]⟩
+    · rw [if_neg hp]
+      have hmem : rows ⟨n,hnlt⟩ ∈ Submodule.span K (rowPrefix5 rows n) := not_not.mp hp
+      exact ⟨hli,by rw [Submodule.span_insert_eq_span hmem];exact hspan⟩
+
+def greedyFinset5 (rows : Fin 5 → V) : Finset (Fin 5) :=
+  Finset.univ.filter (greedyPivot5 (K := K) rows)
+
+theorem greedyFinset5_eq_prefix (rows : Fin 5 → V) :
+    (greedyFinset5 (K := K) rows : Set (Fin 5)) = greedyPrefix5 (K := K) rows 5 := by
+  ext i
+  simp [greedyFinset5,greedyPrefix5,i.isLt]
+
+theorem greedyFinset5_independent_span (rows : Fin 5 → V)
+    (hfull : Submodule.span K (Set.range rows) = ⊤) :
+    LinearIndepOn K rows (greedyFinset5 (K := K) rows : Set (Fin 5)) ∧
+      Submodule.span K (rows '' (greedyFinset5 (K := K) rows : Set (Fin 5))) = ⊤ := by
+  rw [greedyFinset5_eq_prefix]
+  obtain ⟨hi,hs⟩ := greedyPrefix5_independent_span (K := K) rows 5 (by omega)
+  have hall : rowPrefix5 rows 5 = Set.range rows := by
+    simp [rowPrefix5,show {i : Fin 5 | i.val < 5} = Set.univ by ext i; simp [i.isLt]]
+  exact ⟨hi,hs.trans (hall ▸ hfull)⟩
+
+theorem greedyFinset5_card [FiniteDimensional K V] (rows : Fin 5 → V)
+    (hfull : Submodule.span K (Set.range rows) = ⊤) :
+    (greedyFinset5 (K := K) rows).card = Module.finrank K V := by
+  obtain ⟨hli,hspan⟩ := greedyFinset5_independent_span (K := K) rows hfull
+  have hrange : Set.range (fun i : greedyFinset5 (K := K) rows => rows i.val) =
+      rows '' (greedyFinset5 (K := K) rows : Set (Fin 5)) := by
+    ext x
+    constructor
+    · rintro ⟨i,rfl⟩
+      exact ⟨i.val,i.property,rfl⟩
+    · rintro ⟨i,hi,rfl⟩
+      exact ⟨⟨i,hi⟩,rfl⟩
+  have hi : LinearIndependent K (fun i : greedyFinset5 (K := K) rows => rows i.val) := hli
+  let b : Basis (greedyFinset5 (K := K) rows) K V :=
+    Basis.mk hi (by rw [hrange,hspan])
+  simpa using (Module.finrank_eq_card_basis b).symm
+
+def greedyIndex5 [FiniteDimensional K V] (rows : Fin 5 → V)
+    (hfull : Submodule.span K (Set.range rows) = ⊤) (d : ℕ) (hdim : Module.finrank K V = d) :
+    Fin d ↪o Fin 5 :=
+  (greedyFinset5 (K := K) rows).orderEmbOfFin ((greedyFinset5_card (K := K) rows hfull).trans hdim)
+
+theorem greedyIndex5_pivot [FiniteDimensional K V] (rows : Fin 5 → V)
+    (hfull : Submodule.span K (Set.range rows) = ⊤) (d : ℕ) (hdim : Module.finrank K V = d)
+    (k : Fin d) : greedyPivot5 (K := K) rows (greedyIndex5 rows hfull d hdim k) := by
+  have h := (greedyFinset5 (K := K) rows).orderEmbOfFin_mem
+    ((greedyFinset5_card (K := K) rows hfull).trans hdim) k
+  exact (Finset.mem_filter.mp h).2
+
+theorem greedyIndex5_independent [FiniteDimensional K V] (rows : Fin 5 → V)
+    (hfull : Submodule.span K (Set.range rows) = ⊤) (d : ℕ) (hdim : Module.finrank K V = d) :
+    LinearIndependent K (fun k => rows (greedyIndex5 rows hfull d hdim k)) := by
+  have hli := (greedyFinset5_independent_span (K := K) rows hfull).1
+  let f : Fin d → greedyFinset5 (K := K) rows := fun k =>
+    ⟨greedyIndex5 rows hfull d hdim k,
+      (greedyFinset5 (K := K) rows).orderEmbOfFin_mem ((greedyFinset5_card (K := K) rows hfull).trans hdim) k⟩
+  have hf : Function.Injective f := fun k l h =>
+    (greedyIndex5 rows hfull d hdim).injective (congrArg Subtype.val h)
+  exact hli.comp f hf
+
+end
+end RestrictedGreedyRows5
+
+namespace SelectedRestriction5
+open RestrictedGeometry5 RestrictedWeightOrder5 RestrictedRows5 RestrictedGreedyRows5
+noncomputable section
+
+def sortedRows5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ) : Fin 5 → Fin d → K :=
+  fun i => M (weightOrder5 c i)
+
+theorem sortedRows5_span {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) :
+    Submodule.span K (Set.range (sortedRows5 M c)) = ⊤ := by
+  have hrange : Set.range (sortedRows5 M c) = Set.range M.row := by
+    ext x
+    constructor
+    · rintro ⟨i,rfl⟩
+      exact ⟨weightOrder5 c i,rfl⟩
+    · rintro ⟨i,rfl⟩
+      exact ⟨(weightOrder5 c).symm i,by simp [sortedRows5,Matrix.row_def]⟩
+  rw [hrange,hfull]
+
+def selectedIndex5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) : Fin d ↪o Fin 5 :=
+  greedyIndex5 (sortedRows5 M c) (sortedRows5_span M c hfull) d (by simp)
+
+def selectedMatrix5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) : Matrix (Fin d) (Fin d) K :=
+  fun k => M (weightOrder5 c (selectedIndex5 M c hfull k))
+
+theorem selectedMatrix5_independent {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) :
+    LinearIndependent K (selectedMatrix5 M c hfull).row :=
+  greedyIndex5_independent (sortedRows5 M c) (sortedRows5_span M c hfull) d (by simp)
+
+theorem selectedMatrix5_det_ne_zero {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) :
+    (selectedMatrix5 M c hfull).det ≠ 0 := by
+  exact isUnit_iff_ne_zero.mp ((Matrix.isUnit_iff_isUnit_det _).mp
+    (Matrix.linearIndependent_rows_iff_isUnit.mp (selectedMatrix5_independent M c hfull)))
+
+def realRestrictionBasis5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4) :
+    Basis (Fin (Module.finrank ℚ P)) ℝ (rationalRealSpan5 P) :=
+  (Module.finBasis ℝ (rationalRealSpan5 P)).reindex (finCongr (rationalRealSpan5_finrank P hP))
+
+def realRestrictionCoordinates5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) : Matrix (Fin 5) (Fin (Module.finrank ℚ P)) ℝ :=
+  rowCoordinates5 (rationalRealSpan5 P) (realRestrictionBasis5 P hP) L
+
+theorem realRestrictionCoordinates5_span (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) :
+    Submodule.span ℝ (Set.range (realRestrictionCoordinates5 P hP L).row) = ⊤ :=
+  rowCoordinates5_span _ _ L ((Matrix.isUnit_iff_isUnit_det L).mpr (hL ▸ isUnit_one))
+
+def sourceSelectedExponent5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h₂ : A₂.det = 1) (h₃ : A₃.det = 1) (hL : L.det = 1) (c₀ c₂ c₃ : Fin 5 → ℝ) : ℝ :=
+    (∑ k : Fin (Module.finrank ℚ P), c₀ (weightOrder5 c₀
+      (selectedIndex5 (realRestrictionCoordinates5 P hP L) c₀ (realRestrictionCoordinates5_span P hP L hL) k))) +
+    (∑ k : Fin (Module.finrank ℚ P), c₂ (weightOrder5 c₂
+      (selectedIndex5 (rationalRowCoordinates5 P A₂) c₂ (rationalRowCoordinates5_span P A₂ h₂) k))) +
+    (∑ k : Fin (Module.finrank ℚ P), c₃ (weightOrder5 c₃
+      (selectedIndex5 (rationalRowCoordinates5 P A₃) c₃ (rationalRowCoordinates5_span P A₃ h₃) k)))
+
+end
+end SelectedRestriction5
+
+namespace RestrictedGreedyRanks5
+open RestrictedGreedyRows5
+noncomputable section
+variable {K V : Type*} [Field K] [AddCommGroup V] [Module K V] [FiniteDimensional K V]
+
+theorem greedyIndex5_prefix_set (rows : Fin 5 → V)
+    (hfull : Submodule.span K (Set.range rows) = ⊤) (d : ℕ) (hdim : Module.finrank K V = d)
+    (k : Fin d) :
+    greedyPrefix5 (K := K) rows (greedyIndex5 rows hfull d hdim k).val =
+      Set.range (fun a : Fin k.val => greedyIndex5 rows hfull d hdim (Fin.castLE (by omega) a)) := by
+  let E := greedyIndex5 rows hfull d hdim
+  have hrange : Set.range E = (greedyFinset5 (K := K) rows : Set (Fin 5)) :=
+    (greedyFinset5 (K := K) rows).range_orderEmbOfFin ((greedyFinset5_card (K := K) rows hfull).trans hdim)
+  ext i
+  constructor
+  · intro hi
+    have himem : i ∈ (greedyFinset5 (K := K) rows : Set (Fin 5)) :=
+      Finset.mem_filter.mpr ⟨Finset.mem_univ _,hi.2⟩
+    rw [← hrange] at himem
+    obtain ⟨a,rfl⟩ := himem
+    have ha : a < k := E.lt_iff_lt.mp hi.1
+    refine ⟨⟨a.val,ha⟩,?_⟩
+    congr 1
+  · rintro ⟨a,rfl⟩
+    exact ⟨E.strictMono (show Fin.castLE (by omega) a < k from a.isLt),
+      greedyIndex5_pivot rows hfull d hdim _⟩
+
+theorem greedyIndex5_prefix_rank (rows : Fin 5 → V)
+    (hfull : Submodule.span K (Set.range rows) = ⊤) (d : ℕ) (hdim : Module.finrank K V = d)
+    (k : Fin d) :
+    Module.finrank K (Submodule.span K (rowPrefix5 rows (greedyIndex5 rows hfull d hdim k).val)) = k.val := by
+  have hs := (greedyPrefix5_independent_span (K := K) rows
+    (greedyIndex5 rows hfull d hdim k).val (by omega)).2
+  rw [← hs,greedyIndex5_prefix_set rows hfull d hdim k,← Set.range_comp]
+  have hli := (greedyIndex5_independent rows hfull d hdim).comp
+    (fun a : Fin k.val => Fin.castLE (by omega) a) (Fin.castLE_injective (by omega))
+  simpa only [Fintype.card_fin] using finrank_span_eq_card hli
+
+theorem greedyIndex5_first_rank_increase (rows : Fin 5 → V)
+    (hfull : Submodule.span K (Set.range rows) = ⊤) (d : ℕ) (hdim : Module.finrank K V = d)
+    (k : Fin d) :
+    Module.finrank K (Submodule.span K (rowPrefix5 rows
+      ((greedyIndex5 rows hfull d hdim k).val+1))) = k.val+1 ∧
+    ∀ i : Fin 5, i < greedyIndex5 rows hfull d hdim k →
+      Module.finrank K (Submodule.span K (rowPrefix5 rows (i.val+1))) ≤ k.val := by
+  let E := greedyIndex5 rows hfull d hdim
+  have hp := greedyIndex5_pivot rows hfull d hdim k
+  have hprev := greedyIndex5_prefix_rank rows hfull d hdim k
+  have hnonzero : rows (E k) ≠ 0 := by
+    intro hz
+    apply hp
+    rw [hz]
+    exact Submodule.zero_mem _
+  have hdisjoint := Submodule.disjoint_span_singleton_of_not_mem hp
+  have hdimstep := Submodule.finrank_sup_add_finrank_inf_eq
+    (Submodule.span K (rowPrefix5 rows (E k).val)) (K ∙ rows (E k))
+  rw [hdisjoint.eq_bot,finrank_bot,add_zero,finrank_span_singleton hnonzero,hprev] at hdimstep
+  constructor
+  · rw [rowPrefix5_succ rows (E k).val (E k).isLt,Submodule.span_insert,sup_comm]
+    exact hdimstep
+  · intro i hi
+    calc
+      _ ≤ Module.finrank K (Submodule.span K (rowPrefix5 rows (E k).val)) := by
+        apply Submodule.finrank_mono
+        apply Submodule.span_mono
+        rintro x ⟨a,ha,rfl⟩
+        have hle : i.val+1 ≤ (E k).val := by
+          change i.val < (E k).val at hi
+          omega
+        exact ⟨a,lt_of_lt_of_le ha hle,rfl⟩
+      _ = _ := hprev
+
+end
+end RestrictedGreedyRanks5
+
+namespace RestrictedRelaxed5
+open RestrictedGeometry5
+noncomputable section
+
+def relaxedBody5 {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c : Fin 5 → ℝ) (s : Fin d → Fin 5) :
+    Set (rationalRealSpan5 P) :=
+  {x | ∀ k, |(L *ᵥ (x : Fin 5 → ℝ)) (s k)| ≤ Q^(c (s k))}
+
+def selectedLocalGroup5 {d : ℕ} (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c : Fin 5 → ℝ) (s : Fin d → Fin 5) :
+    AddSubgroup (Fin 5 → ℤ) :=
+  ⨅ k, (normBall p (Nat.ceil (JSP000334.qThreshold p Q (c (s k))))).comap (row5 A (s k))
+
+def selectedSourceGroup5 {d : ℕ} (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) : AddSubgroup (Fin 5 → ℤ) :=
+  selectedLocalGroup5 2 A₂ Q c₂ s₂ ⊓ selectedLocalGroup5 3 A₃ Q c₃ s₃
+
+def relaxedLattice5 {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ)
+    (s₂ s₃ : Fin d → Fin 5) : Submodule ℤ (rationalRealSpan5 P) :=
+  (integerRealImage (selectedSourceGroup5 A₂ A₃ Q c₂ c₃ s₂ s₃)).comap
+    ((rationalRealSpan5 P).subtype.restrictScalars ℤ)
+
+theorem restrictedBody5_subset_relaxed {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c : Fin 5 → ℝ) (s : Fin d → Fin 5) :
+    restrictedBody5 P L Q c ⊆ relaxedBody5 P L Q c s := by
+  intro x hx k
+  exact hx (s k)
+
+theorem lattice5_le_selectedLocalGroup5 {d : ℕ} (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c : Fin 5 → ℝ) (s : Fin d → Fin 5) :
+    lattice5 p A (fun i => Nat.ceil (JSP000334.qThreshold p Q (c i))) ≤
+      selectedLocalGroup5 p A Q c s := by
+  intro x hx
+  simp only [selectedLocalGroup5,AddSubgroup.mem_iInf,AddSubgroup.mem_comap]
+  intro k
+  exact (show x ∈ (normBall p (Nat.ceil (JSP000334.qThreshold p Q (c (s k))))).comap
+    (row5 A (s k)) from (AddSubgroup.mem_iInf.mp hx) (s k))
+
+theorem originalSourceGroup5_le_selected {d : ℕ}
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    originalSourceGroup5 A₂ A₃ Q c₂ c₃ ≤ selectedSourceGroup5 A₂ A₃ Q c₂ c₃ s₂ s₃ := by
+  exact inf_le_inf (lattice5_le_selectedLocalGroup5 2 A₂ Q c₂ s₂)
+    (lattice5_le_selectedLocalGroup5 3 A₃ Q c₃ s₃)
+
+theorem restrictedLattice5_le_relaxed {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    restrictedLattice5 P A₂ A₃ Q c₂ c₃ ≤ relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃ := by
+  rintro x ⟨z,hz,hx⟩
+  exact ⟨z,originalSourceGroup5_le_selected A₂ A₃ Q c₂ c₃ s₂ s₃ hz,hx⟩
+
+instance relaxedLattice5_discrete {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    DiscreteTopology (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃) := by
+  let G := integerRealImage (selectedSourceGroup5 A₂ A₃ Q c₂ c₃ s₂ s₃)
+  let f : relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃ → G :=
+    fun x => ⟨x.val.val,x.property⟩
+  apply DiscreteTopology.of_continuous_injective (f := f)
+  · exact (continuous_subtype_val.comp continuous_subtype_val).subtype_mk _
+  · intro x y h
+    apply Subtype.ext
+    apply Subtype.ext
+    exact congrArg (fun z : G => (z : Fin 5 → ℝ)) h
+
+instance relaxedLattice5_isZLattice {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    IsZLattice ℝ (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃) where
+  span_top := by
+    apply top_unique
+    calc
+      ⊤ = Submodule.span ℝ (restrictedLattice5 P A₂ A₃ Q c₂ c₃ : Set (rationalRealSpan5 P)) :=
+        (IsZLattice.span_top (K := ℝ) (L := restrictedLattice5 P A₂ A₃ Q c₂ c₃)).symm
+      _ ≤ _ := Submodule.span_mono (restrictedLattice5_le_relaxed P A₂ A₃ Q c₂ c₃ s₂ s₃)
+
+theorem relaxedLattice5_rank {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    Module.finrank ℤ (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃) = Module.finrank ℚ P := by
+  rw [ZLattice.rank ℝ,rationalRealSpan5_finrank P hP]
+
+theorem relaxedLattice5_covolume_pos {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    0 < ZLattice.covolume (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃) (restrictedMeasure5 P) :=
+  ZLattice.covolume_pos _ _
+
+end
+end RestrictedRelaxed5
+
+namespace RestrictedCovolumeOrder5
+open RestrictedGeometry5
+noncomputable section
+
+theorem covolume_antitone5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (L₁ L₂ : Submodule ℤ (rationalRealSpan5 P))
+    [DiscreteTopology L₁] [DiscreteTopology L₂] [IsZLattice ℝ L₁] [IsZLattice ℝ L₂]
+    (hle : L₁ ≤ L₂) :
+    ZLattice.covolume L₂ (restrictedMeasure5 P) ≤ ZLattice.covolume L₁ (restrictedMeasure5 P) := by
+  let n := Module.finrank ℝ (rationalRealSpan5 P)
+  let b₁ : Basis (Fin n) ℤ L₁ := (Module.finBasis ℤ L₁).reindex (finCongr (ZLattice.rank ℝ L₁))
+  let b₂ : Basis (Fin n) ℤ L₂ := (Module.finBasis ℤ L₂).reindex (finCongr (ZLattice.rank ℝ L₂))
+  let u : Fin n → L₂ := fun k => Submodule.inclusion hle (b₁ k)
+  let T : Matrix (Fin n) (Fin n) ℤ := b₂.toMatrix u
+  have hli : LinearIndependent ℤ u :=
+    b₁.linearIndependent.map' (Submodule.inclusion hle) (Submodule.ker_inclusion _ _ hle)
+  have hT : T.det ≠ 0 := (SourceRelativeIndex6.integer_span_index_det b₂ u hli).2.2
+  let bR := b₂.ofZLatticeBasis ℝ L₂
+  have hcoord : bR.toMatrix (fun k => (b₁ k : rationalRealSpan5 P)) = T.map (Int.castRingHom ℝ) := by
+    ext i k
+    change bR.repr (u k : rationalRealSpan5 P) i = (b₂.repr (u k) i : ℝ)
+    exact Basis.ofZLatticeBasis_repr_apply ℝ L₂ b₂ (u k) i
+  have hfund : (restrictedMeasure5 P).real (ZSpan.fundamentalDomain bR) =
+      ZLattice.covolume L₂ (restrictedMeasure5 P) :=
+    (ZLattice.covolume_eq_measure_fundamentalDomain L₂ (restrictedMeasure5 P)
+      (ZLattice.isAddFundamentalDomain b₂ (restrictedMeasure5 P))).symm
+  have hcov : ZLattice.covolume L₁ (restrictedMeasure5 P) =
+      |(T.map (Int.castRingHom ℝ)).det| * ZLattice.covolume L₂ (restrictedMeasure5 P) := by
+    rw [ZLattice.covolume_eq_det_mul_measureReal L₁ (restrictedMeasure5 P) b₁ bR,Basis.det_apply]
+    simp only [Function.comp_def]
+    rw [hcoord,hfund]
+  have hone : (1 : ℝ) ≤ |(T.map (Int.castRingHom ℝ)).det| := by
+    rw [← integer_matrix_det_cast,← Int.cast_abs,← Int.cast_natAbs]
+    exact_mod_cast (Int.natAbs_pos.mpr hT)
+  rw [hcov]
+  simpa only [one_mul] using mul_le_mul_of_nonneg_right hone
+    (ZLattice.covolume_pos L₂ (restrictedMeasure5 P)).le
+
+end
+end RestrictedCovolumeOrder5
+
+namespace RestrictedRationalMembership5
+open RestrictedGeometry5
+noncomputable section
+
+theorem rationalRealSpan5_mem_rational (P : Submodule ℚ (Fin 5 → ℚ)) (x : Fin 5 → ℚ) :
+    (fun i => (x i : ℝ)) ∈ rationalRealSpan5 P ↔ x ∈ P := by
+  constructor
+  · intro hx
+    obtain ⟨g,hg⟩ := P.subtype.exists_leftInverse_of_injective P.ker_subtype
+    let f : (Fin 5 → ℚ) →ₗ[ℚ] (Fin 5 → ℚ) := P.subtype.comp g
+    let M : Matrix (Fin 5) (Fin 5) ℚ := LinearMap.toMatrix' f
+    let fR := Matrix.toLin' (M.map (algebraMap ℚ ℝ))
+    have hfixQ : ∀ y ∈ P, M *ᵥ y = y := by
+      intro y hy
+      have h := congrArg (fun z : P => (z : Fin 5 → ℚ)) (LinearMap.congr_fun hg ⟨y,hy⟩)
+      change (Matrix.toLin' (LinearMap.toMatrix' f)) y = y
+      rw [Matrix.toLin'_toMatrix']
+      exact h
+    have hle : rationalRealSpan5 P ≤ LinearMap.ker (fR-LinearMap.id) := by
+      apply Submodule.span_le.mpr
+      rintro _ ⟨y,hy,rfl⟩
+      change fR (fun i => (y i : ℝ)) - (fun i => (y i : ℝ)) = 0
+      apply sub_eq_zero.mpr
+      ext i
+      have h := congrFun (hfixQ y hy) i
+      change ∑ k, (M i k : ℝ)*(y k : ℝ) = (y i : ℝ)
+      simp only [Matrix.mulVec,dotProduct] at h
+      exact_mod_cast h
+    have hfixR : fR (fun i => (x i : ℝ)) = (fun i => (x i : ℝ)) :=
+      sub_eq_zero.mp (hle hx)
+    have hfix : M *ᵥ x = x := by
+      ext i
+      have h := congrFun hfixR i
+      change (∑ k, (M i k : ℝ)*(x k : ℝ)) = (x i : ℝ) at h
+      simp only [Matrix.mulVec,dotProduct]
+      exact_mod_cast h
+    have hm : M *ᵥ x ∈ P := by
+      change (Matrix.toLin' (LinearMap.toMatrix' f)) x ∈ P
+      rw [Matrix.toLin'_toMatrix']
+      exact (g x).property
+    rwa [hfix] at hm
+  · intro hx
+    exact Submodule.subset_span ⟨x,hx,rfl⟩
+
+end
+end RestrictedRationalMembership5
+
+namespace RestrictedIntegerCoordinates5
+open RestrictedGeometry5 RestrictedRelaxed5
+noncomputable section
+
+def baseLattice5 (P : Submodule ℚ (Fin 5 → ℚ)) : Submodule ℤ (rationalRealSpan5 P) :=
+  restrictedLattice5 P 0 0 2 (fun _ => 0) (fun _ => 0)
+
+theorem baseLattice5_mem (P : Submodule ℚ (Fin 5 → ℚ)) (x : rationalRealSpan5 P) :
+    x ∈ baseLattice5 P ↔ ∃ z : Fin 5 → ℤ, integerReal z = (x : Fin 5 → ℝ) := by
+  constructor
+  · rintro ⟨z,hz,hx⟩
+    exact ⟨z,hx⟩
+  · rintro ⟨z,hz⟩
+    refine ⟨z,?_,hz⟩
+    change z ∈ lattice5 2 0 _ ∧ z ∈ lattice5 3 0 _
+    constructor
+    · apply (lattice5_spec 2 0 _ z).mpr
+      intro i
+      simp only [Matrix.zero_mulVec,Pi.zero_apply,padicNorm.zero]
+      positivity
+    · apply (lattice5_spec 3 0 _ z).mpr
+      intro i
+      simp only [Matrix.zero_mulVec,Pi.zero_apply,padicNorm.zero]
+      positivity
+
+theorem relaxedLattice5_le_base {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃ ≤ baseLattice5 P := by
+  rintro x ⟨z,hz,hx⟩
+  exact (baseLattice5_mem P x).mpr ⟨z,hx⟩
+
+def baseIntegerBasis5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4) :
+    Basis (Fin (Module.finrank ℚ P)) ℤ (baseLattice5 P) := by
+  letI : DiscreteTopology (baseLattice5 P) := by
+    dsimp only [baseLattice5]
+    infer_instance
+  letI : IsZLattice ℝ (baseLattice5 P) := by
+    dsimp only [baseLattice5]
+    infer_instance
+  letI : Module.Free ℤ (baseLattice5 P) := ZLattice.module_free ℝ (baseLattice5 P)
+  letI : Module.Finite ℤ (baseLattice5 P) := ZLattice.module_finite ℝ (baseLattice5 P)
+  exact (Module.finBasis ℤ (baseLattice5 P)).reindex
+    (finCongr (restrictedLattice5_rank P hP 0 0 2 (fun _ => 0) (fun _ => 0)))
+
+def integerCoordinateMap5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4) :
+    (Fin (Module.finrank ℚ P) → ℤ) →ₗ[ℤ] rationalRealSpan5 P :=
+  (baseLattice5 P).subtype.comp (baseIntegerBasis5 P hP).equivFun.symm.toLinearMap
+
+theorem integerCoordinateMap5_injective (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4) :
+    Function.Injective (integerCoordinateMap5 P hP) :=
+  (baseLattice5 P).subtype_injective.comp (baseIntegerBasis5 P hP).equivFun.symm.injective
+
+theorem integerCoordinateMap5_equivFun (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (x : baseLattice5 P) :
+    integerCoordinateMap5 P hP ((baseIntegerBasis5 P hP).equivFun x) = (x : rationalRealSpan5 P) := by
+  change (((baseIntegerBasis5 P hP).equivFun.symm ((baseIntegerBasis5 P hP).equivFun x) :
+    baseLattice5 P) : rationalRealSpan5 P) = (x : rationalRealSpan5 P)
+  rw [LinearEquiv.symm_apply_apply]
+
+def relaxedIntegerGroup5 {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    AddSubgroup (Fin (Module.finrank ℚ P) → ℤ) :=
+  (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃).toAddSubgroup.comap
+    (integerCoordinateMap5 P hP).toAddMonoidHom
+
+def relaxedIntegerEquiv5 {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    relaxedIntegerGroup5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃ ≃ₗ[ℤ] relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃ where
+  toFun z := ⟨integerCoordinateMap5 P hP z,z.property⟩
+  invFun x := ⟨(baseIntegerBasis5 P hP).equivFun
+    ⟨x.val,relaxedLattice5_le_base P A₂ A₃ Q c₂ c₃ s₂ s₃ x.property⟩,by
+      change integerCoordinateMap5 P hP _ ∈ relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃
+      rw [integerCoordinateMap5_equivFun]
+      exact x.property⟩
+  left_inv z := by
+    apply Subtype.ext
+    apply integerCoordinateMap5_injective P hP
+    rw [integerCoordinateMap5_equivFun]
+  right_inv x := by
+    apply Subtype.ext
+    change integerCoordinateMap5 P hP ((baseIntegerBasis5 P hP).equivFun
+      ⟨x.val,relaxedLattice5_le_base P A₂ A₃ Q c₂ c₃ s₂ s₃ x.property⟩) = x.val
+    rw [integerCoordinateMap5_equivFun]
+  map_add' x y := by
+    apply Subtype.ext
+    exact (integerCoordinateMap5 P hP).map_add x y
+  map_smul' a x := by
+    apply Subtype.ext
+    exact (integerCoordinateMap5 P hP).map_smul a x
+
+theorem relaxedIntegerGroup5_rank {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    Module.finrank ℤ (relaxedIntegerGroup5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃) = Module.finrank ℚ P :=
+  (relaxedIntegerEquiv5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃).finrank_eq.trans
+    (relaxedLattice5_rank P hP A₂ A₃ Q c₂ c₃ s₂ s₃)
+
+def baseIntegerVector5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (k : Fin (Module.finrank ℚ P)) : Fin 5 → ℤ :=
+  Classical.choose ((baseLattice5_mem P (baseIntegerBasis5 P hP k)).mp (baseIntegerBasis5 P hP k).property)
+
+theorem baseIntegerVector5_values (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (k : Fin (Module.finrank ℚ P)) :
+    integerReal (baseIntegerVector5 P hP k) = ((baseIntegerBasis5 P hP k : rationalRealSpan5 P) : Fin 5 → ℝ) :=
+  Classical.choose_spec ((baseLattice5_mem P (baseIntegerBasis5 P hP k)).mp (baseIntegerBasis5 P hP k).property)
+
+theorem baseIntegerVector5_rational_mem (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (k : Fin (Module.finrank ℚ P)) : (fun i => (baseIntegerVector5 P hP k i : ℚ)) ∈ P := by
+  apply (RestrictedRationalMembership5.rationalRealSpan5_mem_rational P _).mp
+  have he : (fun i => ((baseIntegerVector5 P hP k i : ℚ) : ℝ)) =
+      integerReal (baseIntegerVector5 P hP k) := by
+    ext i
+    simp [integerReal]
+  rw [he,baseIntegerVector5_values]
+  exact (baseIntegerBasis5 P hP k).val.property
+
+def baseRationalVector5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (k : Fin (Module.finrank ℚ P)) : P :=
+  ⟨fun i => (baseIntegerVector5 P hP k i : ℚ),baseIntegerVector5_rational_mem P hP k⟩
+
+theorem baseRationalVector5_independent (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4) :
+    LinearIndependent ℚ (baseRationalVector5 P hP) := by
+  letI : DiscreteTopology (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  letI : IsZLattice ℝ (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  let b := (baseIntegerBasis5 P hP).ofZLatticeBasis ℝ (baseLattice5 P)
+  have hli := b.linearIndependent.map' (rationalRealSpan5 P).subtype (rationalRealSpan5 P).ker_subtype
+  have hreal : LinearIndependent ℝ (fun k => integerReal (baseIntegerVector5 P hP k)) := by
+    convert hli using 1
+    funext k
+    rw [baseIntegerVector5_values]
+    simp [b,Function.comp_def]
+  let ratReal : (Fin 5 → ℚ) →ₗ[ℚ] (Fin 5 → ℝ) :=
+    LinearMap.pi (fun i => (Algebra.linearMap ℚ ℝ).comp (LinearMap.proj i))
+  have hcast : LinearIndependent ℚ (fun k => ratReal (baseRationalVector5 P hP k : Fin 5 → ℚ)) := by
+    convert hreal.restrict_scalars' ℚ using 1
+  have hambient := LinearIndependent.of_comp ratReal hcast
+  exact LinearIndependent.of_comp P.subtype hambient
+
+def baseRationalBasis5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4) :
+    Basis (Fin (Module.finrank ℚ P)) ℚ P :=
+  Basis.mk (baseRationalVector5_independent P hP)
+    ((baseRationalVector5_independent P hP).span_eq_top_of_card_eq_finrank' (by simp)).ge
+
+end
+end RestrictedIntegerCoordinates5
+
+namespace RestrictedSelectedBasis5
+open RestrictedRows5 RestrictedWeightOrder5 SelectedRestriction5 RestrictedIntegerCoordinates5
+noncomputable section
+
+theorem rowCoordinates5_change_basis {K : Type*} [Field K] {d : ℕ}
+    (P : Submodule K (Fin 5 → K)) (b b' : Basis (Fin d) K P)
+    (A : Matrix (Fin 5) (Fin 5) K) :
+    rowCoordinates5 P b' A = rowCoordinates5 P b A * b.toMatrix b' := by
+  ext i k
+  let f : P →ₗ[K] K := (LinearMap.proj i).comp ((Matrix.toLin' A).comp P.subtype)
+  have h := congrArg f (b.sum_repr (b' k))
+  change f (b' k) = ∑ a, f (b a) * b.repr (b' k) a
+  simpa only [map_sum,map_smul,smul_eq_mul,mul_comm] using h.symm
+
+theorem selected_basis_matrix_det5 {K : Type*} [Field K] {d : ℕ}
+    (P : Submodule K (Fin 5 → K)) (b b' : Basis (Fin d) K P)
+    (A : Matrix (Fin 5) (Fin 5) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range (rowCoordinates5 P b A).row) = ⊤) :
+    (Matrix.of (fun k => rowCoordinates5 P b' A
+      (weightOrder5 c (selectedIndex5 (rowCoordinates5 P b A) c hfull k)))).det ≠ 0 := by
+  let T := b.toMatrix b'
+  have hT : T.det ≠ 0 := by
+    have h : T.det * (b'.toMatrix b).det = 1 := by
+      rw [← Matrix.det_mul,Basis.toMatrix_mul_toMatrix_flip,Matrix.det_one]
+    intro hz
+    rw [hz,zero_mul] at h
+    exact zero_ne_one h
+  have he : Matrix.of (fun k => rowCoordinates5 P b' A
+      (weightOrder5 c (selectedIndex5 (rowCoordinates5 P b A) c hfull k))) =
+      selectedMatrix5 (rowCoordinates5 P b A) c hfull * T := by
+    ext k a
+    exact congrFun (congrFun (rowCoordinates5_change_basis P b b' A)
+      (weightOrder5 c (selectedIndex5 (rowCoordinates5 P b A) c hfull k))) a
+  rw [he,Matrix.det_mul]
+  exact mul_ne_zero (selectedMatrix5_det_ne_zero _ c hfull) hT
+
+def finiteSelectedMatrix5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (hA : A.det = 1) (c : Fin 5 → ℝ) :
+    Matrix (Fin (Module.finrank ℚ P)) (Fin (Module.finrank ℚ P)) ℚ :=
+  fun k => rowCoordinates5 P (baseRationalBasis5 P hP) A
+    (weightOrder5 c (selectedIndex5 (rationalRowCoordinates5 P A) c (rationalRowCoordinates5_span P A hA) k))
+
+theorem finiteSelectedMatrix5_det_ne_zero (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (hA : A.det = 1) (c : Fin 5 → ℝ) :
+    (finiteSelectedMatrix5 P hP A hA c).det ≠ 0 :=
+  selected_basis_matrix_det5 P (Module.finBasis ℚ P) (baseRationalBasis5 P hP) A c
+    (rationalRowCoordinates5_span P A hA)
+
+end
+end RestrictedSelectedBasis5
+
+namespace RestrictedFiniteCoordinates5
+open RestrictedGeometry5 RestrictedRelaxed5 RestrictedIntegerCoordinates5 RestrictedRows5
+noncomputable section
+
+theorem integerCoordinateMap5_integerReal (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (z : Fin (Module.finrank ℚ P) → ℤ) :
+    ((integerCoordinateMap5 P hP z : rationalRealSpan5 P) : Fin 5 → ℝ) =
+      integerReal (fun i => ∑ k, z k * baseIntegerVector5 P hP k i) := by
+  change ((((baseIntegerBasis5 P hP).equivFun.symm z : baseLattice5 P) : rationalRealSpan5 P) : Fin 5 → ℝ) = _
+  rw [Basis.equivFun_symm_apply]
+  ext i
+  simp only [Submodule.coe_sum,Submodule.coe_smul,Submodule.coe_smul_of_tower,Finset.sum_apply,Pi.smul_apply,smul_eq_mul]
+  simp_rw [← baseIntegerVector5_values P hP]
+  simp [integerReal]
+
+theorem selected_local_coordinates5 {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (p : ℕ) [Fact p.Prime] (A : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c : Fin 5 → ℝ)
+    (s : Fin d → Fin 5) (z : Fin (Module.finrank ℚ P) → ℤ)
+    (hz : ((integerCoordinateMap5 P hP z : rationalRealSpan5 P) : Fin 5 → ℝ) ∈
+      integerRealImage (selectedLocalGroup5 p A Q c s)) :
+    ∀ k, padicNorm p (((fun a b => rowCoordinates5 P (baseRationalBasis5 P hP) A (s a) b) *ᵥ
+      (fun i => (z i : ℚ))) k) ≤ (p : ℚ)^(-(Nat.ceil (JSP000334.qThreshold p Q (c (s k))) : ℤ)) := by
+  obtain ⟨w,hw,hval⟩ := hz
+  have hwval : w = fun i => ∑ k, z k * baseIntegerVector5 P hP k i :=
+    integerReal_injective (hval.trans (integerCoordinateMap5_integerReal P hP z))
+  subst w
+  intro k
+  have hk := (AddSubgroup.mem_iInf.mp hw) k
+  change padicNorm p ((A *ᵥ (fun i => ((∑ a, z a * baseIntegerVector5 P hP a i : ℤ) : ℚ))) (s k)) ≤
+    ((p : ℚ)^Nat.ceil (JSP000334.qThreshold p Q (c (s k))))⁻¹ at hk
+  have heval : (((fun a b => rowCoordinates5 P (baseRationalBasis5 P hP) A (s a) b) *ᵥ
+      (fun i => (z i : ℚ))) k) =
+      (A *ᵥ (fun i => ((∑ a, z a * baseIntegerVector5 P hP a i : ℤ) : ℚ))) (s k) := by
+    simp only [Matrix.mulVec,dotProduct,rowCoordinates5,baseRationalBasis5,Basis.mk_apply,
+      baseRationalVector5,Int.cast_sum,Int.cast_mul]
+    simp_rw [Finset.sum_mul,Finset.mul_sum]
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro i hi
+    apply Finset.sum_congr rfl
+    intro a ha
+    ring
+  rw [heval]
+  simpa only [zpow_neg,zpow_natCast] using hk
+
+end
+end RestrictedFiniteCoordinates5
+
+namespace RestrictedCoordinateCovolume5
+open RestrictedGeometry5 RestrictedRelaxed5 RestrictedIntegerCoordinates5
+noncomputable section
+
+theorem relaxedLattice5_covolume_index {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    ZLattice.covolume (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃) (restrictedMeasure5 P) =
+      ((relaxedIntegerGroup5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃).index : ℝ) *
+        ZLattice.covolume (baseLattice5 P) (restrictedMeasure5 P) := by
+  let H := relaxedIntegerGroup5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃
+  let L := relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃
+  let e : H ≃ₗ[ℤ] L := relaxedIntegerEquiv5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃
+  letI : Module.Free ℤ H := Module.Free.of_equiv e.symm
+  letI : Module.Finite ℤ H := Module.Finite.equiv e.symm
+  let bH : Basis (Fin (Module.finrank ℚ P)) ℤ H :=
+    Module.finBasisOfFinrankEq ℤ H (relaxedIntegerGroup5_rank P hP A₂ A₃ Q c₂ c₃ s₂ s₃)
+  let bL : Basis (Fin (Module.finrank ℚ P)) ℤ L := bH.map e
+  letI : DiscreteTopology (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  letI : IsZLattice ℝ (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  let b₀ := baseIntegerBasis5 P hP
+  let bR := b₀.ofZLatticeBasis ℝ (baseLattice5 P)
+  let U : Matrix (Fin (Module.finrank ℚ P)) (Fin (Module.finrank ℚ P)) ℤ :=
+    fun i k => (bH k : Fin (Module.finrank ℚ P) → ℤ) i
+  have hcoord : bR.toMatrix (fun k => (bL k : rationalRealSpan5 P)) = U.map (Int.castRingHom ℝ) := by
+    ext i k
+    change (bR.repr (integerCoordinateMap5 P hP (bH k)) i) = ((bH k : Fin (Module.finrank ℚ P) → ℤ) i : ℝ)
+    change ((b₀.ofZLatticeBasis ℝ (baseLattice5 P)).repr
+      ((b₀.equivFun.symm (bH k : Fin (Module.finrank ℚ P) → ℤ) : baseLattice5 P) : rationalRealSpan5 P)) i = _
+    rw [Basis.ofZLatticeBasis_repr_apply]
+    change (((b₀.equivFun (b₀.equivFun.symm (bH k : Fin (Module.finrank ℚ P) → ℤ))) i : ℤ) : ℝ) = _
+    rw [LinearEquiv.apply_symm_apply]
+  have hindex : |(U.map (Int.castRingHom ℝ)).det| = (H.index : ℝ) := by
+    have h := AddSubgroup.index_eq_natAbs_det (Pi.basisFun ℤ (Fin (Module.finrank ℚ P))) H bH
+    rw [Basis.det_apply] at h
+    have he : (Pi.basisFun ℤ (Fin (Module.finrank ℚ P))).toMatrix
+        (fun k => (bH k : Fin (Module.finrank ℚ P) → ℤ)) = U := by rfl
+    rw [he] at h
+    rw [← integer_matrix_det_cast,← Int.cast_abs,← Int.cast_natAbs,← h]
+  have hfund : (restrictedMeasure5 P).real (ZSpan.fundamentalDomain bR) =
+      ZLattice.covolume (baseLattice5 P) (restrictedMeasure5 P) :=
+    (ZLattice.covolume_eq_measure_fundamentalDomain (baseLattice5 P) (restrictedMeasure5 P)
+      (ZLattice.isAddFundamentalDomain b₀ (restrictedMeasure5 P))).symm
+  change ZLattice.covolume L (restrictedMeasure5 P) = _
+  rw [ZLattice.covolume_eq_det_mul_measureReal L (restrictedMeasure5 P) bL bR,Basis.det_apply]
+  simp only [Function.comp_def]
+  rw [hcoord,hindex,hfund]
+
+end
+end RestrictedCoordinateCovolume5
+
+namespace SelectedBoxVolume5
+noncomputable section
+
+def weightedBox5 {d : ℕ} (r : Fin d → ℝ) : Set (Fin d → ℝ) :=
+  Set.pi Set.univ (fun i => Set.Icc (-r i) (r i))
+
+theorem weightedBox5_compact_convex {d : ℕ} (r : Fin d → ℝ)
+    (e : (Fin d → ℝ) ≃ₗ[ℝ] (Fin d → ℝ)) :
+    IsCompact (e ⁻¹' weightedBox5 r) ∧ Convex ℝ (e ⁻¹' weightedBox5 r) := by
+  have hc : IsCompact (weightedBox5 r) := isCompact_univ_pi (fun _ => isCompact_Icc)
+  constructor
+  · have hh : IsCompact (e.symm '' weightedBox5 r) :=
+      hc.image e.symm.toContinuousLinearEquiv.continuous
+    simpa only [LinearEquiv.image_eq_preimage,LinearEquiv.symm_symm] using hh
+  · exact (convex_pi (fun _ _ => convex_Icc _ _)).linear_preimage e.toLinearMap
+
+theorem weightedBox5_volume {d : ℕ} (r : Fin d → ℝ) (hr : ∀ i, 0 < r i)
+    (e : (Fin d → ℝ) ≃ₗ[ℝ] (Fin d → ℝ)) :
+    volume.real (e ⁻¹' weightedBox5 r) =
+      (2 : ℝ)^d * (∏ i, r i) / |LinearMap.det e.toLinearMap| := by
+  rw [measureReal_def,weightedBox5,Measure.addHaar_preimage_linearEquiv,volume_pi,Measure.pi_pi]
+  simp only [Real.volume_Icc,sub_neg_eq_add,← two_mul,
+    ENNReal.toReal_mul,ENNReal.toReal_prod,LinearEquiv.det_coe_symm,abs_inv,
+    ENNReal.toReal_ofReal,abs_nonneg,div_eq_mul_inv]
+  have hnonneg : ∀ i, 0 ≤ 2*r i := fun i => le_of_lt (mul_pos (by norm_num) (hr i))
+  simp only [ENNReal.toReal_ofReal (hnonneg _),Finset.prod_mul_distrib,Finset.prod_const,
+    Finset.card_univ,Fintype.card_fin]
+  rw [ENNReal.toReal_ofReal (inv_nonneg.mpr (abs_nonneg _))]
+  ring
+
+end
+end SelectedBoxVolume5
+
+namespace RestrictedRealBody5
+open RestrictedGeometry5 RestrictedRelaxed5 RestrictedIntegerCoordinates5 RestrictedRows5
+open RestrictedWeightOrder5 SelectedRestriction5 RestrictedSelectedBasis5 SelectedBoxVolume5
+noncomputable section
+
+def baseRealBasis5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4) :
+    Basis (Fin (Module.finrank ℚ P)) ℝ (rationalRealSpan5 P) := by
+  letI : DiscreteTopology (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  letI : IsZLattice ℝ (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  exact (baseIntegerBasis5 P hP).ofZLatticeBasis ℝ (baseLattice5 P)
+
+def realSelection5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) : Fin (Module.finrank ℚ P) → Fin 5 :=
+  fun k => weightOrder5 c (selectedIndex5 (realRestrictionCoordinates5 P hP L) c
+    (realRestrictionCoordinates5_span P hP L hL) k)
+
+def realSelectedMatrix5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) :
+    Matrix (Fin (Module.finrank ℚ P)) (Fin (Module.finrank ℚ P)) ℝ :=
+  fun k => rowCoordinates5 (rationalRealSpan5 P) (baseRealBasis5 P hP) L (realSelection5 P hP L hL c k)
+
+theorem realSelectedMatrix5_det_ne_zero (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) :
+    (realSelectedMatrix5 P hP L hL c).det ≠ 0 :=
+  selected_basis_matrix_det5 (rationalRealSpan5 P) (realRestrictionBasis5 P hP) (baseRealBasis5 P hP)
+    L c (realRestrictionCoordinates5_span P hP L hL)
+
+def selectedRealEquiv5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) :
+    (Fin (Module.finrank ℚ P) → ℝ) ≃ₗ[ℝ] (Fin (Module.finrank ℚ P) → ℝ) :=
+  LinearEquiv.ofBijective (Matrix.toLin' (realSelectedMatrix5 P hP L hL c)) (by
+    have hu : IsUnit (realSelectedMatrix5 P hP L hL c) :=
+      (Matrix.isUnit_iff_isUnit_det _).mpr (isUnit_iff_ne_zero.mpr (realSelectedMatrix5_det_ne_zero P hP L hL c))
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr hu,Matrix.mulVec_surjective_iff_isUnit.mpr hu⟩)
+
+theorem rowCoordinates5_mulVec_basis {K : Type*} [Field K] {d : ℕ}
+    (P : Submodule K (Fin 5 → K)) (b : Basis (Fin d) K P)
+    (A : Matrix (Fin 5) (Fin 5) K) (x : P) :
+    rowCoordinates5 P b A *ᵥ b.equivFun x = A *ᵥ (x : Fin 5 → K) := by
+  ext i
+  let f : P →ₗ[K] K := (LinearMap.proj i).comp ((Matrix.toLin' A).comp P.subtype)
+  have h := congrArg f (b.sum_repr x)
+  change ∑ k, f (b k) * b.repr x k = f x
+  simpa only [map_sum,map_smul,smul_eq_mul,mul_comm] using h
+
+theorem relaxedBody5_coordinates (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (Q : ℝ) (c : Fin 5 → ℝ) :
+    relaxedBody5 P L Q c (realSelection5 P hP L hL c) =
+      (baseRealBasis5 P hP).equivFun ⁻¹' ((selectedRealEquiv5 P hP L hL c) ⁻¹'
+        weightedBox5 (fun k => Q^(c (realSelection5 P hP L hL c k)))) := by
+  have heval (x : rationalRealSpan5 P) (k : Fin (Module.finrank ℚ P)) :
+      selectedRealEquiv5 P hP L hL c ((baseRealBasis5 P hP).equivFun x) k =
+        (L *ᵥ (x : Fin 5 → ℝ)) (realSelection5 P hP L hL c k) :=
+    congrFun (rowCoordinates5_mulVec_basis (rationalRealSpan5 P) (baseRealBasis5 P hP) L x)
+      (realSelection5 P hP L hL c k)
+  ext x
+  simp only [relaxedBody5,Set.mem_setOf_eq,Set.mem_preimage,weightedBox5,Set.mem_pi,
+    Set.mem_univ,forall_const,Set.mem_Icc,heval,abs_le]
+
+theorem source_relaxed_body_geometry5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (Q : ℝ) (hQ : 1 < Q) (c : Fin 5 → ℝ) :
+    IsCompact (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) ∧
+    Convex ℝ (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) ∧
+    (0 : rationalRealSpan5 P) ∈ interior (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) ∧
+    0 < (restrictedMeasure5 P).real (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) ∧
+    (restrictedMeasure5 P) (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) < ⊤ := by
+  let r := fun k => Q^(c (realSelection5 P hP L hL c k))
+  let e := selectedRealEquiv5 P hP L hL c
+  let b := baseRealBasis5 P hP
+  obtain ⟨hbox,hconvex⟩ := weightedBox5_compact_convex r e
+  have hcompact : IsCompact (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) := by
+    rw [relaxedBody5_coordinates]
+    have hh : IsCompact (b.equivFun.symm '' (e ⁻¹' weightedBox5 r)) :=
+      hbox.image b.equivFunL.symm.continuous
+    simpa only [LinearEquiv.image_eq_preimage,LinearEquiv.symm_symm] using hh
+  have hconv : Convex ℝ (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) := by
+    rw [relaxedBody5_coordinates]
+    exact hconvex.linear_preimage b.equivFun.toLinearMap
+  have hi : (0 : rationalRealSpan5 P) ∈ interior (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) :=
+    interior_mono (restrictedBody5_subset_relaxed P L Q c _) (restrictedBody5_zero_interior P L ((Matrix.isUnit_iff_isUnit_det L).mpr (hL ▸ isUnit_one)) Q hQ c)
+  have hfinite := hcompact.measure_lt_top (μ := restrictedMeasure5 P)
+  have hpos := Measure.measure_pos_of_nonempty_interior (restrictedMeasure5 P) ⟨0,hi⟩
+  exact ⟨hcompact,hconv,hi,ENNReal.toReal_pos hpos.ne' hfinite.ne,hfinite⟩
+
+theorem source_uniform_real_volume5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) :
+    ∃ K : ℝ, 0 < K ∧ ∀ (Q : ℝ), 1 < Q →
+      (restrictedMeasure5 P).real (relaxedBody5 P L Q c (realSelection5 P hP L hL c)) =
+      K * Q^(∑ k, c (realSelection5 P hP L hL c k)) := by
+  letI : DiscreteTopology (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  letI : IsZLattice ℝ (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  let b₀ := baseIntegerBasis5 P hP
+  let b := baseRealBasis5 P hP
+  let M := realSelectedMatrix5 P hP L hL c
+  let e := selectedRealEquiv5 P hP L hL c
+  let s := realSelection5 P hP L hL c
+  let C₀ := ZLattice.covolume (baseLattice5 P) (restrictedMeasure5 P)
+  let K := C₀ * (2 : ℝ)^(Module.finrank ℚ P) / |M.det|
+  have hC₀ : 0 < C₀ := ZLattice.covolume_pos _ _
+  have hM : 0 < |M.det| := abs_pos.mpr (realSelectedMatrix5_det_ne_zero P hP L hL c)
+  have hK : 0 < K := div_pos (mul_pos hC₀ (by positivity)) hM
+  refine ⟨K,hK,?_⟩
+  intro Q hQ
+  have hQpos : 0 < Q := zero_lt_one.trans hQ
+  let r := fun k => Q^(c (s k))
+  have hc := (source_relaxed_body_geometry5 P hP L hL Q hQ c).1
+  have himage : b.equivFun '' relaxedBody5 P L Q c s = e ⁻¹' weightedBox5 r := by
+    rw [relaxedBody5_coordinates,Set.image_preimage_eq _ b.equivFun.surjective]
+  have hratio := restrictedBasis5_volume_ratio (P := P) (A₂ := 0) (A₃ := 0) (Q := 2)
+    (c₂ := fun _ => 0) (c₃ := fun _ => 0) b₀ (relaxedBody5 P L Q c s) hc
+  change volume.real (b.equivFun '' relaxedBody5 P L Q c s) =
+    (restrictedMeasure5 P).real (relaxedBody5 P L Q c s) / C₀ at hratio
+  have hdet : LinearMap.det e.toLinearMap = M.det := LinearMap.det_toLin' M
+  rw [himage,weightedBox5_volume r (fun k => Real.rpow_pos_of_pos hQpos _) e,hdet] at hratio
+  have hprod : (∏ k, r k) = Q^(∑ k, c (s k)) := by
+    dsimp [r]
+    rw [← Real.rpow_sum_of_pos hQpos _ Finset.univ]
+  rw [hprod] at hratio
+  calc
+    _ = ((2 : ℝ)^(Module.finrank ℚ P) * Q^(∑ k, c (s k)) / |M.det|) * C₀ :=
+      ((eq_div_iff hC₀.ne').mp hratio).symm
+    _ = _ := by dsimp [K];ring
+
+end
+end RestrictedRealBody5
+
+namespace RestrictedFiniteBound5
+open RestrictedGeometry5 RestrictedRelaxed5 RestrictedIntegerCoordinates5 RestrictedRows5
+open RestrictedWeightOrder5 SelectedRestriction5 RestrictedSelectedBasis5 RestrictedFiniteCoordinates5
+open RestrictedCoordinateCovolume5 RestrictedSelectedIndex5
+noncomputable section
+
+def finiteSelection5 (P : Submodule ℚ (Fin 5 → ℚ)) (A : Matrix (Fin 5) (Fin 5) ℚ)
+    (hA : A.det = 1) (c : Fin 5 → ℝ) : Fin (Module.finrank ℚ P) → Fin 5 :=
+  fun k => weightOrder5 c (selectedIndex5 (rationalRowCoordinates5 P A) c (rationalRowCoordinates5_span P A hA) k)
+
+theorem source_finite_inverse_covolume5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (h₂ : A₂.det = 1) (h₃ : A₃.det = 1) (c₂ c₃ : Fin 5 → ℝ) :
+    ∃ K : ℝ, 0 < K ∧ ∀ (Q : ℝ), 1 < Q →
+      1 / ZLattice.covolume
+        (relaxedLattice5 P A₂ A₃ Q c₂ c₃ (finiteSelection5 P A₂ h₂ c₂) (finiteSelection5 P A₃ h₃ c₃))
+        (restrictedMeasure5 P) ≤
+      K * Q^((∑ k, c₂ (finiteSelection5 P A₂ h₂ c₂ k)) + (∑ k, c₃ (finiteSelection5 P A₃ h₃ c₃ k))) := by
+  letI : DiscreteTopology (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  letI : IsZLattice ℝ (baseLattice5 P) := by dsimp only [baseLattice5];infer_instance
+  let s₂ := finiteSelection5 P A₂ h₂ c₂
+  let s₃ := finiteSelection5 P A₃ h₃ c₃
+  let B₂ := finiteSelectedMatrix5 P hP A₂ h₂ c₂
+  let B₃ := finiteSelectedMatrix5 P hP A₃ h₃ c₃
+  let D : ℝ := (padicNorm 2 B₂.det : ℝ) * (padicNorm 3 B₃.det : ℝ)
+  let C₀ := ZLattice.covolume (baseLattice5 P) (restrictedMeasure5 P)
+  have hD₂ : 0 < (padicNorm 2 B₂.det : ℝ) := by
+    exact_mod_cast lt_of_le_of_ne (padicNorm.nonneg B₂.det)
+      (Ne.symm (padicNorm.nonzero (finiteSelectedMatrix5_det_ne_zero P hP A₂ h₂ c₂)))
+  have hD₃ : 0 < (padicNorm 3 B₃.det : ℝ) := by
+    exact_mod_cast lt_of_le_of_ne (padicNorm.nonneg B₃.det)
+      (Ne.symm (padicNorm.nonzero (finiteSelectedMatrix5_det_ne_zero P hP A₃ h₃ c₃)))
+  have hD : 0 < D := mul_pos hD₂ hD₃
+  have hC₀ : 0 < C₀ := ZLattice.covolume_pos _ _
+  refine ⟨1/(D*C₀),div_pos zero_lt_one (mul_pos hD hC₀),?_⟩
+  intro Q hQ
+  let F := (∑ k, c₂ (s₂ k)) + ∑ k, c₃ (s₃ k)
+  let e₂ := fun k => Nat.ceil (JSP000334.qThreshold 2 Q (c₂ (s₂ k)))
+  let e₃ := fun k => Nat.ceil (JSP000334.qThreshold 3 Q (c₃ (s₃ k)))
+  let H := relaxedIntegerGroup5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃
+  let E := relaxedIntegerEquiv5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃
+  letI : Module.Free ℤ H := Module.Free.of_equiv E.symm
+  letI : Module.Finite ℤ H := Module.Finite.equiv E.symm
+  let bH : Basis (Fin (Module.finrank ℚ P)) ℤ H :=
+    Module.finBasisOfFinrankEq ℤ H (relaxedIntegerGroup5_rank P hP A₂ A₃ Q c₂ c₃ s₂ s₃)
+  have hnorm₂ (z : H) : ∀ k, padicNorm 2 ((B₂ *ᵥ (fun i => ((z : Fin (Module.finrank ℚ P) → ℤ) i : ℚ))) k) ≤
+      (2 : ℚ)^(-(e₂ k : ℤ)) := by
+    apply selected_local_coordinates5 P hP 2 A₂ Q c₂ s₂ z
+    obtain ⟨w,hw,hval⟩ := z.property
+    exact ⟨w,hw.1,hval⟩
+  have hnorm₃ (z : H) : ∀ k, padicNorm 3 ((B₃ *ᵥ (fun i => ((z : Fin (Module.finrank ℚ P) → ℤ) i : ℚ))) k) ≤
+      (3 : ℚ)^(-(e₃ k : ℤ)) := by
+    apply selected_local_coordinates5 P hP 3 A₃ Q c₃ s₃ z
+    obtain ⟨w,hw,hval⟩ := z.property
+    exact ⟨w,hw.2,hval⟩
+  have hindex := selected_rational_index_lower5 (Module.finrank ℚ P)
+    B₂ B₃ H bH e₂ e₃ hnorm₂ hnorm₃
+  have hlow₂ := selected_prime_powers_lower5 2 (by decide) Q hQ (fun k => c₂ (s₂ k))
+  have hlow₃ := selected_prime_powers_lower5 3 (by decide) Q hQ (fun k => c₃ (s₃ k))
+  have hQpos : 0 < Q := zero_lt_one.trans hQ
+  have hQlow : Q^(-F) ≤ (2 : ℝ)^(∑ k, e₂ k) * (3 : ℝ)^(∑ k, e₃ k) := by
+    calc
+      _ = Q^(-(∑ k, c₂ (s₂ k))) * Q^(-(∑ k, c₃ (s₃ k))) := by
+        rw [← Real.rpow_add hQpos]
+        congr 1
+        dsimp [F]
+        ring
+      _ ≤ _ := mul_le_mul hlow₂ hlow₃ (by positivity) (by positivity)
+  have hidxlo : D*Q^(-F) ≤ (H.index : ℝ) := by
+    calc
+      _ ≤ D * ((2 : ℝ)^(∑ k, e₂ k) * (3 : ℝ)^(∑ k, e₃ k)) :=
+        mul_le_mul_of_nonneg_left hQlow hD.le
+      _ ≤ _ := by convert hindex using 1 <;> ring
+  have hcvlo : D*C₀*Q^(-F) ≤
+      ZLattice.covolume (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃) (restrictedMeasure5 P) := by
+    rw [relaxedLattice5_covolume_index P hP]
+    convert mul_le_mul_of_nonneg_right hidxlo hC₀.le using 1 <;> ring
+  have hcancel : Q^(-F)*Q^F = 1 := by rw [← Real.rpow_add hQpos];simp
+  have hbound : D*C₀ ≤ ZLattice.covolume (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃)
+      (restrictedMeasure5 P) * Q^F := by
+    calc
+      _ = (D*C₀*Q^(-F))*Q^F := by
+        calc
+          D*C₀ = D*C₀*(Q^(-F)*Q^F) := by rw [hcancel,mul_one]
+          _ = _ := by ring
+      _ ≤ _ := mul_le_mul_of_nonneg_right hcvlo (Real.rpow_pos_of_pos hQpos _).le
+  change 1 / ZLattice.covolume (relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃) (restrictedMeasure5 P) ≤
+    (1/(D*C₀))*Q^F
+  rw [div_mul_eq_mul_div,one_mul]
+  apply (div_le_div_iff₀ (relaxedLattice5_covolume_pos P A₂ A₃ Q c₂ c₃ s₂ s₃) (mul_pos hD hC₀)).mpr
+  simpa only [one_mul,mul_comm] using hbound
+
+end
+end RestrictedFiniteBound5
+
+namespace RestrictedOpposite5
+open RestrictedGeometry5 RestrictedRelaxed5 RestrictedWeightOrder5 SelectedRestriction5
+open RestrictedRealBody5 RestrictedFiniteBound5 RestrictedCovolumeOrder5
+noncomputable section
+
+theorem selectedLocalGroup5_rpow_spec {d : ℕ} (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (hQ : 1 < Q) (c : Fin 5 → ℝ)
+    (hc : ∀ i, c i ≤ 0) (s : Fin d → Fin 5) (z : Fin 5 → ℤ) :
+    z ∈ selectedLocalGroup5 p A Q c s ↔
+      ∀ k, (padicNorm p ((A *ᵥ (fun i => (z i : ℚ))) (s k)) : ℝ) ≤ Q^(c (s k)) := by
+  simp only [selectedLocalGroup5,AddSubgroup.mem_iInf,AddSubgroup.mem_comap]
+  exact forall_congr' (fun k => (padic_rpow_ceil42 p Q (c (s k)) hQ (hc _) _).symm)
+
+def oppositePoint5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h₂ : A₂.det = 1) (h₃ : A₃.det = 1) (hL : L.det = 1)
+    (c₀ c₂ c₃ : Fin 5 → ℝ) (Q K : ℝ) : Prop :=
+  let s₀ := realSelection5 P hP L hL c₀
+  let s₂ := finiteSelection5 P A₂ h₂ c₂
+  let s₃ := finiteSelection5 P A₃ h₃ c₃
+  let G := relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃
+  let C := relaxedBody5 P L Q c₀ s₀
+  restrictedBody5 P L Q c₀ ⊆ C ∧
+  restrictedLattice5 P A₂ A₃ Q c₂ c₃ ≤ G ∧
+  IsCompact C ∧ Convex ℝ C ∧ (0 : rationalRealSpan5 P) ∈ interior C ∧
+  0 < (restrictedMeasure5 P).real C ∧ (restrictedMeasure5 P) C < ⊤ ∧
+  Module.finrank ℤ G = Module.finrank ℚ P ∧
+  0 < ZLattice.covolume G (restrictedMeasure5 P) ∧
+  ZLattice.covolume G (restrictedMeasure5 P) ≤
+    ZLattice.covolume (restrictedLattice5 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ∧
+  (∀ z : Fin 5 → ℤ, z ∈ selectedSourceGroup5 A₂ A₃ Q c₂ c₃ s₂ s₃ ↔
+    (∀ k, (padicNorm 2 ((A₂ *ᵥ (fun i => (z i : ℚ))) (s₂ k)) : ℝ) ≤ Q^(c₂ (s₂ k))) ∧
+    (∀ k, (padicNorm 3 ((A₃ *ᵥ (fun i => (z i : ℚ))) (s₃ k)) : ℝ) ≤ Q^(c₃ (s₃ k)))) ∧
+  (restrictedMeasure5 P).real (restrictedBody5 P L Q c₀) /
+    ZLattice.covolume (restrictedLattice5 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ≤
+      (restrictedMeasure5 P).real C / ZLattice.covolume G (restrictedMeasure5 P) ∧
+  (restrictedMeasure5 P).real C / ZLattice.covolume G (restrictedMeasure5 P) ≤
+    K * Q^(sourceSelectedExponent5 P hP A₂ A₃ L h₂ h₃ hL c₀ c₂ c₃) ∧
+  (restrictedMeasure5 P).real (restrictedBody5 P L Q c₀) /
+    ZLattice.covolume (restrictedLattice5 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ≤
+      K * Q^(sourceSelectedExponent5 P hP A₂ A₃ L h₂ h₃ hL c₀ c₂ c₃)
+
+theorem source_restricted_opposite_uniform5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h₂ : A₂.det = 1) (h₃ : A₃.det = 1) (hL : L.det = 1)
+    (c₀ c₂ c₃ : Fin 5 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0) :
+    ∃ K : ℝ, 0 < K ∧ ∀ (Q : ℝ), 1 < Q → oppositePoint5 P hP A₂ A₃ L h₂ h₃ hL c₀ c₂ c₃ Q K := by
+  obtain ⟨Kreal,hKreal,hreal⟩ := source_uniform_real_volume5 P hP L hL c₀
+  obtain ⟨Kfinite,hKfinite,hfinite⟩ := source_finite_inverse_covolume5 P hP A₂ A₃ h₂ h₃ c₂ c₃
+  refine ⟨Kreal*Kfinite,mul_pos hKreal hKfinite,?_⟩
+  intro Q hQ
+  let s₀ := realSelection5 P hP L hL c₀
+  let s₂ := finiteSelection5 P A₂ h₂ c₂
+  let s₃ := finiteSelection5 P A₃ h₃ c₃
+  let G := relaxedLattice5 P A₂ A₃ Q c₂ c₃ s₂ s₃
+  let C := relaxedBody5 P L Q c₀ s₀
+  obtain ⟨hcompact,hconv,hinterior,hvol,hvolfinite⟩ := source_relaxed_body_geometry5 P hP L hL Q hQ c₀
+  have hbody := restrictedBody5_subset_relaxed P L Q c₀ s₀
+  have hlattice := restrictedLattice5_le_relaxed P A₂ A₃ Q c₂ c₃ s₂ s₃
+  have hcov := relaxedLattice5_covolume_pos P A₂ A₃ Q c₂ c₃ s₂ s₃
+  have hcovorder := covolume_antitone5 P _ _ hlattice
+  have hvolorder := measureReal_mono (μ := restrictedMeasure5 P) hbody hvolfinite.ne
+  have hratio : (restrictedMeasure5 P).real (restrictedBody5 P L Q c₀) /
+      ZLattice.covolume (restrictedLattice5 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ≤
+      (restrictedMeasure5 P).real C / ZLattice.covolume G (restrictedMeasure5 P) := by
+    calc
+      _ ≤ (restrictedMeasure5 P).real C /
+          ZLattice.covolume (restrictedLattice5 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) :=
+        div_le_div_of_nonneg_right hvolorder (restrictedLattice5_covolume_pos P A₂ A₃ Q c₂ c₃).le
+      _ ≤ _ := div_le_div_of_nonneg_left (measureReal_nonneg) hcov hcovorder
+  have hQpos : 0 < Q := zero_lt_one.trans hQ
+  have hupper : (restrictedMeasure5 P).real C / ZLattice.covolume G (restrictedMeasure5 P) ≤
+      (Kreal*Kfinite) * Q^(sourceSelectedExponent5 P hP A₂ A₃ L h₂ h₃ hL c₀ c₂ c₃) := by
+    calc
+      _ = (restrictedMeasure5 P).real C * (1 / ZLattice.covolume G (restrictedMeasure5 P)) := by ring
+      _ ≤ (restrictedMeasure5 P).real C *
+          (Kfinite*Q^((∑ k, c₂ (s₂ k))+(∑ k, c₃ (s₃ k)))) :=
+        mul_le_mul_of_nonneg_left (hfinite Q hQ) measureReal_nonneg
+      _ = (Kreal*Q^(∑ k, c₀ (s₀ k))) *
+          (Kfinite*Q^((∑ k, c₂ (s₂ k))+(∑ k, c₃ (s₃ k)))) := by rw [hreal Q hQ]
+      _ = (Kreal*Kfinite) * (Q^(∑ k, c₀ (s₀ k)) * Q^((∑ k, c₂ (s₂ k))+(∑ k, c₃ (s₃ k)))) := by ring
+      _ = _ := by
+        rw [← Real.rpow_add hQpos]
+        congr 2
+        dsimp [sourceSelectedExponent5,s₀,s₂,s₃,realSelection5,finiteSelection5]
+        ring
+  refine ⟨hbody,hlattice,hcompact,hconv,hinterior,hvol,hvolfinite,
+    relaxedLattice5_rank P hP A₂ A₃ Q c₂ c₃ s₂ s₃,hcov,hcovorder,?_,hratio,hupper,hratio.trans hupper⟩
+  intro z
+  change (z ∈ selectedLocalGroup5 2 A₂ Q c₂ s₂ ∧ z ∈ selectedLocalGroup5 3 A₃ Q c₃ s₃) ↔ _
+  rw [selectedLocalGroup5_rpow_spec 2 A₂ Q hQ c₂ hc₂ s₂ z,
+    selectedLocalGroup5_rpow_spec 3 A₃ Q hQ c₃ hc₃ s₃ z]
+
+theorem source_finite_greedy_indices5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (hA : A.det = 1) (c : Fin 5 → ℝ) :
+    let M := RestrictedRows5.rationalRowCoordinates5 P A
+    let hf := RestrictedRows5.rationalRowCoordinates5_span P A hA
+    let E := selectedIndex5 M c hf
+    StrictMono E ∧ ∀ k : Fin (Module.finrank ℚ P),
+      Module.finrank ℚ (Submodule.span ℚ (RestrictedGreedyRows5.rowPrefix5 (sortedRows5 M c) ((E k).val+1))) = k.val+1 ∧
+      ∀ i : Fin 5, i < E k → Module.finrank ℚ (Submodule.span ℚ
+        (RestrictedGreedyRows5.rowPrefix5 (sortedRows5 M c) (i.val+1))) ≤ k.val := by
+  refine ⟨(selectedIndex5 _ c _).strictMono,?_⟩
+  intro k
+  exact RestrictedGreedyRanks5.greedyIndex5_first_rank_increase _
+    (sortedRows5_span _ c (RestrictedRows5.rationalRowCoordinates5_span P A hA))
+    (Module.finrank ℚ P) (by simp) k
+
+theorem source_real_greedy_indices5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) :
+    let M := realRestrictionCoordinates5 P hP L
+    let hf := realRestrictionCoordinates5_span P hP L hL
+    let E := selectedIndex5 M c hf
+    StrictMono E ∧ ∀ k : Fin (Module.finrank ℚ P),
+      Module.finrank ℝ (Submodule.span ℝ (RestrictedGreedyRows5.rowPrefix5 (sortedRows5 M c) ((E k).val+1))) = k.val+1 ∧
+      ∀ i : Fin 5, i < E k → Module.finrank ℝ (Submodule.span ℝ
+        (RestrictedGreedyRows5.rowPrefix5 (sortedRows5 M c) (i.val+1))) ≤ k.val := by
+  refine ⟨(selectedIndex5 _ c _).strictMono,?_⟩
+  intro k
+  exact RestrictedGreedyRanks5.greedyIndex5_first_rank_increase _
+    (sortedRows5_span _ c (realRestrictionCoordinates5_span P hP L hL))
+    (Module.finrank ℚ P) (by simp) k
+
+end
+end RestrictedOpposite5
+
+namespace RestrictedSelectedTies5
+open RestrictedWeightOrder5 RestrictedGreedyRows5 RestrictedGreedyRanks5 SelectedRestriction5
+
+def weightedRowSet5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ) (t : ℝ) : Set (Fin d → K) :=
+  M.row '' {i | c i ≤ t}
+
+theorem selected_weight_le_iff_rank5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) (k : Fin d) (t : ℝ) :
+    c (weightOrder5 c (selectedIndex5 M c hfull k)) ≤ t ↔
+      k.val < Module.finrank K (Submodule.span K (weightedRowSet5 M c t)) := by
+  let E := selectedIndex5 M c hfull
+  let rows := sortedRows5 M c
+  have hpre := greedyIndex5_prefix_rank rows (sortedRows5_span M c hfull) d (by simp) k
+  have hstep := (greedyIndex5_first_rank_increase rows (sortedRows5_span M c hfull) d (by simp) k).1
+  constructor
+  · intro h
+    have hs : rowPrefix5 rows ((E k).val+1) ⊆ weightedRowSet5 M c t := by
+      rintro _ ⟨i,hi,rfl⟩
+      change i.val < (E k).val+1 at hi
+      refine ⟨weightOrder5 c i,?_,rfl⟩
+      exact ((weightOrder5_monotone c) (show i ≤ E k by change i.val ≤ (E k).val; omega)).trans h
+    have hd := Submodule.finrank_mono (Submodule.span_mono (R := K) hs)
+    change Module.finrank K (Submodule.span K (rowPrefix5 rows ((E k).val+1))) = k.val+1 at hstep
+    rw [hstep] at hd
+    omega
+  · intro h
+    by_contra hn
+    have hs : weightedRowSet5 M c t ⊆ rowPrefix5 rows (E k).val := by
+      rintro _ ⟨i,hi,rfl⟩
+      let a := (weightOrder5 c).symm i
+      have ha : a < E k := by
+        apply lt_of_not_ge
+        intro hna
+        have hm := weightOrder5_monotone c hna
+        have hv : c (weightOrder5 c a) = c i := by simp [a]
+        change c (weightOrder5 c (E k)) ≤ c (weightOrder5 c a) at hm
+        rw [hv] at hm
+        exact hn (hm.trans hi)
+      exact ⟨a,ha,by simp [rows,sortedRows5,a,Matrix.row_def]⟩
+    have hd := Submodule.finrank_mono (Submodule.span_mono (R := K) hs)
+    change Module.finrank K (Submodule.span K (rowPrefix5 rows (E k).val)) = k.val at hpre
+    rw [hpre] at hd
+    omega
+
+theorem selected_weights_permutation5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) (sigma : Equiv.Perm (Fin 5))
+    (hfull' : Submodule.span K (Set.range (fun i => M (sigma i))) = ⊤) :
+    (fun k : Fin d => c (weightOrder5 c (selectedIndex5 M c hfull k))) =
+      (fun k : Fin d => (c ∘ sigma) (weightOrder5 (c ∘ sigma)
+        (selectedIndex5 (fun i => M (sigma i)) (c ∘ sigma) hfull' k))) := by
+  have hset (t : ℝ) : weightedRowSet5 (fun i => M (sigma i)) (c ∘ sigma) t = weightedRowSet5 M c t := by
+    ext x
+    constructor
+    · rintro ⟨i,hi,rfl⟩
+      exact ⟨sigma i,hi,rfl⟩
+    · rintro ⟨i,hi,rfl⟩
+      exact ⟨sigma.symm i,by simpa [Function.comp_apply,Set.mem_setOf_eq] using hi,by simp [Matrix.row_def]⟩
+  funext k
+  apply le_antisymm
+  · apply (selected_weight_le_iff_rank5 M c hfull k _).mpr
+    rw [← hset]
+    exact (selected_weight_le_iff_rank5 _ _ hfull' k _).mp le_rfl
+  · apply (selected_weight_le_iff_rank5 _ _ hfull' k _).mpr
+    rw [hset]
+    exact (selected_weight_le_iff_rank5 M c hfull k _).mp le_rfl
+
+theorem selected_weight_sum_permutation5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) (sigma : Equiv.Perm (Fin 5))
+    (hfull' : Submodule.span K (Set.range (fun i => M (sigma i))) = ⊤) :
+    (∑ k, c (weightOrder5 c (selectedIndex5 M c hfull k))) =
+      ∑ k, (c ∘ sigma) (weightOrder5 (c ∘ sigma)
+        (selectedIndex5 (fun i => M (sigma i)) (c ∘ sigma) hfull' k)) := by
+  exact congrArg (fun v : Fin d → ℝ => ∑ k, v k) (selected_weights_permutation5 M c hfull sigma hfull')
+
+end RestrictedSelectedTies5
+
+namespace OriginalFlagAssembly5
+open _root_.CompoundFeasibility.OriginalFlagAssembly5
+open OriginalVariableGap5 RestrictedGrowth5 RestrictedOpposite5
+
+theorem source_nonroth_selected_opposite_growth5
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (hn : ¬ originalRothProperty5 A2 A3 L c0 c2 c3) :
+    ∃ hL : IsUnit L,
+    ∃ epsilon deltaGap c5 C5 B : ℝ, ∃ U V : Set ℝ, ∃ j : Fin 4,
+      0 < epsilon ∧ deltaGap = (epsilon/2)/5 ∧ 0 < deltaGap ∧
+      0 < c5 ∧ 0 < C5 ∧ 1 < B ∧
+      U = {Q : ℝ | ∃ x : Fin 5 → ℤ,
+        originalSourceSolution5 A2 A3 L c0 c2 c3 Q epsilon x} ∧
+      ¬ BddAbove U ∧
+      (∀ Q ∈ U, ∃ hQ : 1 < Q, ∃ x : Fin 5 → ℤ,
+        originalSourceSolution5 A2 A3 L c0 c2 c3 Q epsilon x ∧
+        x ∈ originalSourceGroup5 A2 A3 Q c2 c3 ∧
+        coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) (integerReal x) ≤ Q^(-epsilon) ∧
+        sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 0 < Q^(-(epsilon/2))) ∧
+      (∀ (Q : ℝ) (hQ : 1 < Q),
+        c5 ≤ (∏ i : Fin 5, sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+        (∏ i : Fin 5, sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ≤ C5) ∧
+      V ⊆ U ∧ ¬ BddAbove V ∧ 1 ≤ j.val+1 ∧ j.val+1 ≤ 4 ∧
+      (∀ Q ∈ V, B < Q ∧ ∃ hQ : 1 < Q,
+        sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j.castSucc <
+          sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j.succ * Q^(-deltaGap)) ∧
+      ∃ hq : ∀ Q ∈ V, 1 < Q,
+      ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = j.val+1 ∧ P ≠ ⊥ ∧ P ≠ ⊤ ∧
+      ∃ hPbounds : 1 ≤ Module.finrank ℚ P ∧ Module.finrank ℚ P ≤ 4,
+      ∃ W : Set ℝ, ∃ hWV : W ⊆ V, ¬ BddAbove W ∧ W ⊆ U ∧
+        0 < MinimaPower5.decayExponent5 j deltaGap ∧ 0 < growthConstant5 j C5 ∧
+        ∃ K2 : ℝ, 0 < K2 ∧
+        MinimaPower5.decayExponent5 j deltaGap ≤ SelectedRestriction5.sourceSelectedExponent5 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3 ∧
+        0 < SelectedRestriction5.sourceSelectedExponent5 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3 ∧
+        ∀ (Q : ℝ) (hQW : Q ∈ W),
+          ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+            LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+            (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q (hq Q (hWV hQW)) c0)
+              (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 i) ∧
+            P = originalFirstFlag5 j (fun i => (u i : Fin 5 → ℤ)) ∧
+            (∀ i : Fin (Module.finrank ℚ P),
+              integerReal (u (RestrictedGeometry5.ambientPrefixIndex5 P hPbounds.2 i) : Fin 5 → ℤ) ∈
+                RestrictedGeometry5.rationalRealSpan5 P) ∧
+            (∀ k, RestrictedGeometry5.restrictedMinima5 P A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 k =
+              sourceMinima5 A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 (RestrictedGeometry5.ambientPrefixIndex5 P hPbounds.2 k)) ∧
+            quantitativeOriginalPoint5 P hPbounds.2 j A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 deltaGap C5 ∧
+            RestrictedOpposite5.oppositePoint5 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3 Q K2 := by
+  obtain ⟨hL,epsilon,deltaGap,c5,C5,B,U,V,j,he,hdEq,hd,hc,hC,hB,hUeq,hU,hsol,hproduct,
+    hVU,hV,hjlo,hjhi,hg,hq,P,hP,hPb,hPt,hPbounds,W,hWV,hW,hWU,hEta,hK,hframes⟩ :=
+    source_normalized_nonroth_restricted_growth5 A2 A3 L h2d h3d hLd hAlg c0 c2 c3 hc0 hc2 hc3 hb hn
+  obtain ⟨K2,hK2,hUpper⟩ := source_restricted_opposite_uniform5 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3
+    (fun i => (hc2 i).2) (fun i => (hc3 i).2)
+  have hBound (Q : ℝ) (hQW : Q ∈ W) : growthConstant5 j C5 * Q^(MinimaPower5.decayExponent5 j deltaGap) ≤
+      K2 * Q^(SelectedRestriction5.sourceSelectedExponent5 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3) := by
+    obtain ⟨u,hu,ha,hflag,hm,heq,hquant⟩ := hframes Q hQW
+    obtain ⟨_,_,_,_,_,_,_,_,_,_,hLower⟩ := hquant
+    have hcopy := hUpper Q (hq Q (hWV hQW))
+    obtain ⟨_,_,_,_,_,_,_,_,_,_,_,_,_,hOriginalUpper⟩ := hcopy
+    exact hLower.trans hOriginalUpper
+  have hCompare := ExponentOrder4.exponent_le_of_unbounded_power_bound W hW
+    (fun Q hQW => hq Q (hWV hQW)) (growthConstant5 j C5) K2
+    (MinimaPower5.decayExponent5 j deltaGap)
+    (SelectedRestriction5.sourceSelectedExponent5 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3)
+    hK hK2 hBound
+  refine ⟨hL,epsilon,deltaGap,c5,C5,B,U,V,j,he,hdEq,hd,hc,hC,hB,hUeq,hU,hsol,hproduct,
+    hVU,hV,hjlo,hjhi,hg,hq,P,hP,hPb,hPt,hPbounds,W,hWV,hW,hWU,hEta,hK,K2,hK2,hCompare,
+    hEta.trans_le hCompare,?_⟩
+  intro Q hQW
+  obtain ⟨u,hu,ha,hflag,hm,heq,hquant⟩ := hframes Q hQW
+  exact ⟨u,hu,ha,hflag,hm,heq,hquant,hUpper Q (hq Q (hWV hQW))⟩
+
+end OriginalFlagAssembly5
+
+namespace SourceCriterion5
+open OriginalVariableGap5 SelectedRestriction5
+
+theorem source_nonroth_positive_exponent5
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (hn : ¬ originalRothProperty5 A2 A3 L c0 c2 c3) :
+    ∃ P : Submodule ℚ (Fin 5 → ℚ), ∃ hP : 1 ≤ Module.finrank ℚ P ∧ Module.finrank ℚ P ≤ 4,
+      P ≠ ⊤ ∧ 0 < sourceSelectedExponent5 P hP.2 A2 A3 L h2d h3d hLd c0 c2 c3 := by
+  obtain ⟨hL,epsilon,deltaGap,c5,C5,B,U,V,j,he,hdEq,hd,hc,hC,hB,hUeq,hU,hsol,hproduct,
+    hVU,hV,hjlo,hjhi,hg,hq,P,hP,hPb,hPt,hPbounds,W,hWV,hW,hWU,hEta,hK,K2,hK2,hCompare,hPositive,hframes⟩ :=
+    OriginalFlagAssembly5.source_nonroth_selected_opposite_growth5 A2 A3 L h2d h3d hLd hAlg c0 c2 c3 hc0 hc2 hc3 hb hn
+  exact ⟨P,hPbounds,hPt,hPositive⟩
+
+def sourceNonpositiveCriterion5
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (c0 c2 c3 : Fin 5 → ℝ) : Prop :=
+  ∀ P : Submodule ℚ (Fin 5 → ℚ), 1 ≤ Module.finrank ℚ P → ∀ hP : Module.finrank ℚ P ≤ 4,
+    sourceSelectedExponent5 P hP A2 A3 L h2d h3d hLd c0 c2 c3 ≤ 0
+
+theorem source_fin5_criterion_implies_roth5
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (hCriterion : sourceNonpositiveCriterion5 A2 A3 L h2d h3d hLd c0 c2 c3) :
+    originalRothProperty5 A2 A3 L c0 c2 c3 := by
+  by_contra hn
+  obtain ⟨P,hP,hproper,hpos⟩ := source_nonroth_positive_exponent5 A2 A3 L h2d h3d hLd hAlg c0 c2 c3 hc0 hc2 hc3 hb hn
+  exact (not_lt_of_ge (hCriterion P hP.1 hP.2)) hpos
+
+end SourceCriterion5
+
+end CompoundFeasibility.Literal250
+#check CompoundFeasibility.Literal250.RestrictedSelectedIndex5.selected_rational_index_lower5
+#print CompoundFeasibility.Literal250.RestrictedSelectedIndex5.selected_rational_index_lower5
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedIndex5.selected_rational_index_lower5
+#check CompoundFeasibility.Literal250.RestrictedSelectedIndex5.selected_prime_powers_lower5
+#print CompoundFeasibility.Literal250.RestrictedSelectedIndex5.selected_prime_powers_lower5
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedIndex5.selected_prime_powers_lower5
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.permutedRows5
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.permutedRows5
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.permutedRows5
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_bijective
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_bijective
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_bijective
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_monotone
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_monotone
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_monotone
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_adjacent
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_adjacent
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_adjacent
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_forall_pair
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_forall_pair
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_forall_pair
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_ties
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_ties
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.weightOrder5_ties
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.permutedRows5_mulVec
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.permutedRows5_mulVec
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.permutedRows5_mulVec
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.originalBody5_weightOrder
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.originalBody5_weightOrder
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.originalBody5_weightOrder
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.lattice5_weightOrder
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.lattice5_weightOrder
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.lattice5_weightOrder
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.originalSourceGroup5_weightOrder
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.originalSourceGroup5_weightOrder
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.originalSourceGroup5_weightOrder
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.restrictedBody5_weightOrder
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.restrictedBody5_weightOrder
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.restrictedBody5_weightOrder
+#check CompoundFeasibility.Literal250.RestrictedWeightOrder5.restrictedLattice5_weightOrder
+#print CompoundFeasibility.Literal250.RestrictedWeightOrder5.restrictedLattice5_weightOrder
+#print axioms CompoundFeasibility.Literal250.RestrictedWeightOrder5.restrictedLattice5_weightOrder
+#check CompoundFeasibility.Literal250.RestrictedRows5.rowCoordinates5
+#print CompoundFeasibility.Literal250.RestrictedRows5.rowCoordinates5
+#print axioms CompoundFeasibility.Literal250.RestrictedRows5.rowCoordinates5
+#check CompoundFeasibility.Literal250.RestrictedRows5.rowCoordinates5_span
+#print CompoundFeasibility.Literal250.RestrictedRows5.rowCoordinates5_span
+#print axioms CompoundFeasibility.Literal250.RestrictedRows5.rowCoordinates5_span
+#check CompoundFeasibility.Literal250.RestrictedRows5.rationalRowCoordinates5
+#print CompoundFeasibility.Literal250.RestrictedRows5.rationalRowCoordinates5
+#print axioms CompoundFeasibility.Literal250.RestrictedRows5.rationalRowCoordinates5
+#check CompoundFeasibility.Literal250.RestrictedRows5.realRowCoordinates5
+#print CompoundFeasibility.Literal250.RestrictedRows5.realRowCoordinates5
+#print axioms CompoundFeasibility.Literal250.RestrictedRows5.realRowCoordinates5
+#check CompoundFeasibility.Literal250.RestrictedRows5.rationalRowCoordinates5_span
+#print CompoundFeasibility.Literal250.RestrictedRows5.rationalRowCoordinates5_span
+#print axioms CompoundFeasibility.Literal250.RestrictedRows5.rationalRowCoordinates5_span
+#check CompoundFeasibility.Literal250.RestrictedRows5.realRowCoordinates5_span
+#print CompoundFeasibility.Literal250.RestrictedRows5.realRowCoordinates5_span
+#print axioms CompoundFeasibility.Literal250.RestrictedRows5.realRowCoordinates5_span
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.rowPrefix5
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.rowPrefix5
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.rowPrefix5
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPivot5
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPivot5
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPivot5
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.rowPrefix5_succ
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.rowPrefix5_succ
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.rowPrefix5_succ
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5_succ
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5_succ
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5_succ
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5_independent_span
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5_independent_span
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyPrefix5_independent_span
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_eq_prefix
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_eq_prefix
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_eq_prefix
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_independent_span
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_independent_span
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_independent_span
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_card
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_card
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyFinset5_card
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5_pivot
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5_pivot
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5_pivot
+#check CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5_independent
+#print CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5_independent
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRows5.greedyIndex5_independent
+#check CompoundFeasibility.Literal250.SelectedRestriction5.sortedRows5
+#print CompoundFeasibility.Literal250.SelectedRestriction5.sortedRows5
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.sortedRows5
+#check CompoundFeasibility.Literal250.SelectedRestriction5.sortedRows5_span
+#print CompoundFeasibility.Literal250.SelectedRestriction5.sortedRows5_span
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.sortedRows5_span
+#check CompoundFeasibility.Literal250.SelectedRestriction5.selectedIndex5
+#print CompoundFeasibility.Literal250.SelectedRestriction5.selectedIndex5
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.selectedIndex5
+#check CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5
+#print CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5
+#check CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5_independent
+#print CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5_independent
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5_independent
+#check CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5_det_ne_zero
+#print CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5_det_ne_zero
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.selectedMatrix5_det_ne_zero
+#check CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionBasis5
+#print CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionBasis5
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionBasis5
+#check CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionCoordinates5
+#print CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionCoordinates5
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionCoordinates5
+#check CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionCoordinates5_span
+#print CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionCoordinates5_span
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.realRestrictionCoordinates5_span
+#check CompoundFeasibility.Literal250.SelectedRestriction5.sourceSelectedExponent5
+#print CompoundFeasibility.Literal250.SelectedRestriction5.sourceSelectedExponent5
+#print axioms CompoundFeasibility.Literal250.SelectedRestriction5.sourceSelectedExponent5
+#check CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_prefix_set
+#print CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_prefix_set
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_prefix_set
+#check CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_prefix_rank
+#print CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_prefix_rank
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_prefix_rank
+#check CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_first_rank_increase
+#print CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_first_rank_increase
+#print axioms CompoundFeasibility.Literal250.RestrictedGreedyRanks5.greedyIndex5_first_rank_increase
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedBody5
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedBody5
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedBody5
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.selectedLocalGroup5
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.selectedLocalGroup5
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.selectedLocalGroup5
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.selectedSourceGroup5
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.selectedSourceGroup5
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.selectedSourceGroup5
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.restrictedBody5_subset_relaxed
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.restrictedBody5_subset_relaxed
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.restrictedBody5_subset_relaxed
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.lattice5_le_selectedLocalGroup5
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.lattice5_le_selectedLocalGroup5
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.lattice5_le_selectedLocalGroup5
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.originalSourceGroup5_le_selected
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.originalSourceGroup5_le_selected
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.originalSourceGroup5_le_selected
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.restrictedLattice5_le_relaxed
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.restrictedLattice5_le_relaxed
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.restrictedLattice5_le_relaxed
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_discrete
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_discrete
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_discrete
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_isZLattice
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_isZLattice
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_isZLattice
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_rank
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_rank
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_rank
+#check CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_covolume_pos
+#print CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_covolume_pos
+#print axioms CompoundFeasibility.Literal250.RestrictedRelaxed5.relaxedLattice5_covolume_pos
+#check CompoundFeasibility.Literal250.RestrictedCovolumeOrder5.covolume_antitone5
+#print CompoundFeasibility.Literal250.RestrictedCovolumeOrder5.covolume_antitone5
+#print axioms CompoundFeasibility.Literal250.RestrictedCovolumeOrder5.covolume_antitone5
+#check CompoundFeasibility.Literal250.RestrictedRationalMembership5.rationalRealSpan5_mem_rational
+#print CompoundFeasibility.Literal250.RestrictedRationalMembership5.rationalRealSpan5_mem_rational
+#print axioms CompoundFeasibility.Literal250.RestrictedRationalMembership5.rationalRealSpan5_mem_rational
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseLattice5
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseLattice5
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseLattice5
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseLattice5_mem
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseLattice5_mem
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseLattice5_mem
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedLattice5_le_base
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedLattice5_le_base
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedLattice5_le_base
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerBasis5
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerBasis5
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerBasis5
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5_injective
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5_injective
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5_injective
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5_equivFun
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5_equivFun
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.integerCoordinateMap5_equivFun
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerGroup5
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerGroup5
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerGroup5
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerEquiv5
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerEquiv5
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerEquiv5
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerGroup5_rank
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerGroup5_rank
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.relaxedIntegerGroup5_rank
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5_values
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5_values
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5_values
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5_rational_mem
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5_rational_mem
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseIntegerVector5_rational_mem
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalVector5
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalVector5
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalVector5
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalVector5_independent
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalVector5_independent
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalVector5_independent
+#check CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalBasis5
+#print CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalBasis5
+#print axioms CompoundFeasibility.Literal250.RestrictedIntegerCoordinates5.baseRationalBasis5
+#check CompoundFeasibility.Literal250.RestrictedSelectedBasis5.rowCoordinates5_change_basis
+#print CompoundFeasibility.Literal250.RestrictedSelectedBasis5.rowCoordinates5_change_basis
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedBasis5.rowCoordinates5_change_basis
+#check CompoundFeasibility.Literal250.RestrictedSelectedBasis5.selected_basis_matrix_det5
+#print CompoundFeasibility.Literal250.RestrictedSelectedBasis5.selected_basis_matrix_det5
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedBasis5.selected_basis_matrix_det5
+#check CompoundFeasibility.Literal250.RestrictedSelectedBasis5.finiteSelectedMatrix5
+#print CompoundFeasibility.Literal250.RestrictedSelectedBasis5.finiteSelectedMatrix5
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedBasis5.finiteSelectedMatrix5
+#check CompoundFeasibility.Literal250.RestrictedSelectedBasis5.finiteSelectedMatrix5_det_ne_zero
+#print CompoundFeasibility.Literal250.RestrictedSelectedBasis5.finiteSelectedMatrix5_det_ne_zero
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedBasis5.finiteSelectedMatrix5_det_ne_zero
+#check CompoundFeasibility.Literal250.RestrictedFiniteCoordinates5.integerCoordinateMap5_integerReal
+#print CompoundFeasibility.Literal250.RestrictedFiniteCoordinates5.integerCoordinateMap5_integerReal
+#print axioms CompoundFeasibility.Literal250.RestrictedFiniteCoordinates5.integerCoordinateMap5_integerReal
+#check CompoundFeasibility.Literal250.RestrictedFiniteCoordinates5.selected_local_coordinates5
+#print CompoundFeasibility.Literal250.RestrictedFiniteCoordinates5.selected_local_coordinates5
+#print axioms CompoundFeasibility.Literal250.RestrictedFiniteCoordinates5.selected_local_coordinates5
+#check CompoundFeasibility.Literal250.RestrictedCoordinateCovolume5.relaxedLattice5_covolume_index
+#print CompoundFeasibility.Literal250.RestrictedCoordinateCovolume5.relaxedLattice5_covolume_index
+#print axioms CompoundFeasibility.Literal250.RestrictedCoordinateCovolume5.relaxedLattice5_covolume_index
+#check CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5
+#print CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5
+#print axioms CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5
+#check CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5_compact_convex
+#print CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5_compact_convex
+#print axioms CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5_compact_convex
+#check CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5_volume
+#print CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5_volume
+#print axioms CompoundFeasibility.Literal250.SelectedBoxVolume5.weightedBox5_volume
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.baseRealBasis5
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.baseRealBasis5
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.baseRealBasis5
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.realSelection5
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.realSelection5
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.realSelection5
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.realSelectedMatrix5
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.realSelectedMatrix5
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.realSelectedMatrix5
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.realSelectedMatrix5_det_ne_zero
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.realSelectedMatrix5_det_ne_zero
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.realSelectedMatrix5_det_ne_zero
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.selectedRealEquiv5
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.selectedRealEquiv5
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.selectedRealEquiv5
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.rowCoordinates5_mulVec_basis
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.rowCoordinates5_mulVec_basis
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.rowCoordinates5_mulVec_basis
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.relaxedBody5_coordinates
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.relaxedBody5_coordinates
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.relaxedBody5_coordinates
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.source_relaxed_body_geometry5
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.source_relaxed_body_geometry5
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.source_relaxed_body_geometry5
+#check CompoundFeasibility.Literal250.RestrictedRealBody5.source_uniform_real_volume5
+#print CompoundFeasibility.Literal250.RestrictedRealBody5.source_uniform_real_volume5
+#print axioms CompoundFeasibility.Literal250.RestrictedRealBody5.source_uniform_real_volume5
+#check CompoundFeasibility.Literal250.RestrictedFiniteBound5.finiteSelection5
+#print CompoundFeasibility.Literal250.RestrictedFiniteBound5.finiteSelection5
+#print axioms CompoundFeasibility.Literal250.RestrictedFiniteBound5.finiteSelection5
+#check CompoundFeasibility.Literal250.RestrictedFiniteBound5.source_finite_inverse_covolume5
+#print CompoundFeasibility.Literal250.RestrictedFiniteBound5.source_finite_inverse_covolume5
+#print axioms CompoundFeasibility.Literal250.RestrictedFiniteBound5.source_finite_inverse_covolume5
+#check CompoundFeasibility.Literal250.RestrictedOpposite5.selectedLocalGroup5_rpow_spec
+#print CompoundFeasibility.Literal250.RestrictedOpposite5.selectedLocalGroup5_rpow_spec
+#print axioms CompoundFeasibility.Literal250.RestrictedOpposite5.selectedLocalGroup5_rpow_spec
+#check CompoundFeasibility.Literal250.RestrictedOpposite5.oppositePoint5
+#print CompoundFeasibility.Literal250.RestrictedOpposite5.oppositePoint5
+#print axioms CompoundFeasibility.Literal250.RestrictedOpposite5.oppositePoint5
+#check CompoundFeasibility.Literal250.RestrictedOpposite5.source_restricted_opposite_uniform5
+#print CompoundFeasibility.Literal250.RestrictedOpposite5.source_restricted_opposite_uniform5
+#print axioms CompoundFeasibility.Literal250.RestrictedOpposite5.source_restricted_opposite_uniform5
+#check CompoundFeasibility.Literal250.RestrictedOpposite5.source_finite_greedy_indices5
+#print CompoundFeasibility.Literal250.RestrictedOpposite5.source_finite_greedy_indices5
+#print axioms CompoundFeasibility.Literal250.RestrictedOpposite5.source_finite_greedy_indices5
+#check CompoundFeasibility.Literal250.RestrictedOpposite5.source_real_greedy_indices5
+#print CompoundFeasibility.Literal250.RestrictedOpposite5.source_real_greedy_indices5
+#print axioms CompoundFeasibility.Literal250.RestrictedOpposite5.source_real_greedy_indices5
+#check CompoundFeasibility.Literal250.RestrictedSelectedTies5.weightedRowSet5
+#print CompoundFeasibility.Literal250.RestrictedSelectedTies5.weightedRowSet5
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedTies5.weightedRowSet5
+#check CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weight_le_iff_rank5
+#print CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weight_le_iff_rank5
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weight_le_iff_rank5
+#check CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weights_permutation5
+#print CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weights_permutation5
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weights_permutation5
+#check CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weight_sum_permutation5
+#print CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weight_sum_permutation5
+#print axioms CompoundFeasibility.Literal250.RestrictedSelectedTies5.selected_weight_sum_permutation5
+#check CompoundFeasibility.Literal250.OriginalFlagAssembly5.source_nonroth_selected_opposite_growth5
+#print CompoundFeasibility.Literal250.OriginalFlagAssembly5.source_nonroth_selected_opposite_growth5
+#print axioms CompoundFeasibility.Literal250.OriginalFlagAssembly5.source_nonroth_selected_opposite_growth5
+#check CompoundFeasibility.Literal250.SourceCriterion5.source_nonroth_positive_exponent5
+#print CompoundFeasibility.Literal250.SourceCriterion5.source_nonroth_positive_exponent5
+#print axioms CompoundFeasibility.Literal250.SourceCriterion5.source_nonroth_positive_exponent5
+#check CompoundFeasibility.Literal250.SourceCriterion5.sourceNonpositiveCriterion5
+#print CompoundFeasibility.Literal250.SourceCriterion5.sourceNonpositiveCriterion5
+#print axioms CompoundFeasibility.Literal250.SourceCriterion5.sourceNonpositiveCriterion5
+#check CompoundFeasibility.Literal250.SourceCriterion5.source_fin5_criterion_implies_roth5
+#print CompoundFeasibility.Literal250.SourceCriterion5.source_fin5_criterion_implies_roth5
+#print axioms CompoundFeasibility.Literal250.SourceCriterion5.source_fin5_criterion_implies_roth5
