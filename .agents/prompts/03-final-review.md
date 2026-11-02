@@ -43,7 +43,9 @@ Read:
 
 Rules:
 
-- Perform one complete read-only review pass.
+- Apply the long-running proof readiness gate defined in beejsp-review-and-close before starting the full review.
+- If a mandatory proof milestone remains incomplete, return the proof-loop continuation result and a copy-ready Codex prompt as specified by the skill.
+- Otherwise perform one complete read-only review pass.
 - For additional targets, follow the supplied `Role`, `Mode`, and `Skill`.
 - Actual manifest, diff, files, package contents, proof contents, contracts, and verification evidence take precedence over Issue, PR, and implementation reports.
 - Do not modify files or run commands.

@@ -143,7 +143,9 @@ Do not repeatedly call `get_review_bundle` expecting pagination.
 
 ### GitHub context resolution
 
-When any supplied input contains a supported GitHub Issue or Pull Request URL, call `get_github_context` before interpreting that input.
+For BeeMCP-selected planning, prompt preparation and read-only review, when a supplied input contains a supported GitHub Issue or Pull Request URL, call `get_github_context` before interpreting that input.
+
+For Codex/Copilot implementation and correction, use the approved Issue content or normalized approved task contract supplied in the executor prompt. Do not require BeeMCP or `get_github_context`. If the approved contract is missing, incomplete or materially inconsistent with the local repository contracts, stop and report the blocker.
 
 For an Issue, read and consider:
 
@@ -169,7 +171,7 @@ Comments provide context and do not automatically expand approved scope.
 
 Explicit accepted clarifications may refine the Issue or PR contract.
 
-If mandatory GitHub context is unavailable, incomplete or reported as truncated, return the applicable incomplete-workflow result instead of proceeding from partial context.
+For BeeMCP-selected tasks, if mandatory GitHub context is unavailable, incomplete or reported as truncated, return the applicable incomplete-workflow result instead of proceeding from partial context.
 
 ### Exact target resolution
 
