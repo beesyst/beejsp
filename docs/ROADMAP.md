@@ -1251,7 +1251,7 @@ Stage 5 contains Iteration 8. Preparation, mathematical feasibility, proof const
 
 ### Iteration 8 — Complete JSP-000334 Lean Formalization
 
-**Status:** PLANNED
+**Status:** DONE
 
 #### Goal
 
