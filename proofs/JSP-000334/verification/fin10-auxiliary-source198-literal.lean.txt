@@ -1,0 +1,2654 @@
+import SubspaceBridge.AlgebraicLiouville10
+import SubspaceBridge.OriginalDual10
+import SubspaceBridge.AuxiliaryCount10
+import SubspaceBridge.SchmidtPolynomial10
+import SubspaceBridge.AuxiliaryFeasibility6
+import Lean.Util.FoldConsts
+namespace M198Literal
+open _root_.CompoundFeasibility _root_.CompoundFeasibility.Auxiliary10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceForms10
+
+def forms10 {n : ℕ} (A2 A3 : Matrix (Fin n) (Fin n) ℚ) (L : Matrix (Fin n) (Fin n) ℝ)
+    (tau : Fin 3) : Matrix (Fin n) (Fin n) ℝ :=
+  if tau = 0 then L else if tau = 1 then A2.map (algebraMap ℚ ℝ) else A3.map (algebraMap ℚ ℝ)
+
+def finiteMatrix10 {n : ℕ} (p : ℕ) [Fact p.Prime] (A : Matrix (Fin n) (Fin n) ℚ) :
+    Matrix (Fin n) (Fin n) ℚ_[p] := A.map (algebraMap ℚ ℚ_[p])
+
+theorem source_det_one10 {n : ℕ} (A2 A3 : Matrix (Fin n) (Fin n) ℚ)
+    (L : Matrix (Fin n) (Fin n) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1) :
+    ∀ tau, (forms10 A2 A3 L tau).det = 1 := by
+  intro tau
+  fin_cases tau
+  · simp only [forms10, ↓reduceIte]
+    exact hL
+  · simp only [forms10, show (1 : Fin 3) ≠ 0 by decide, ↓reduceIte]
+    exact OriginalDual10.mapped_det_one10 (K := ℝ) A2 h2
+  · simp only [forms10, show (2 : Fin 3) ≠ 0 by decide, show (2 : Fin 3) ≠ 1 by decide, ↓reduceIte]
+    exact OriginalDual10.mapped_det_one10 (K := ℝ) A3 h3
+
+theorem source_unit10 {n : ℕ} (A2 A3 : Matrix (Fin n) (Fin n) ℚ)
+    (L : Matrix (Fin n) (Fin n) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1) :
+    ∀ tau, IsUnit (forms10 A2 A3 L tau) := by
+  intro tau
+  apply (Matrix.isUnit_iff_isUnit_det _).mpr
+  rw [source_det_one10 A2 A3 L h2 h3 hL tau]
+  exact isUnit_one
+
+theorem finite_det_one10 {n : ℕ} (p : ℕ) [Fact p.Prime] (A : Matrix (Fin n) (Fin n) ℚ)
+    (hA : A.det = 1) : (finiteMatrix10 p A).det = 1 := by
+  unfold finiteMatrix10
+  exact OriginalDual10.mapped_det_one10 (K := ℚ_[p]) A hA
+
+theorem source_algebraic10 {n : ℕ} (A2 A3 : Matrix (Fin n) (Fin n) ℚ)
+    (L : Matrix (Fin n) (Fin n) ℝ) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∀ tau i j, IsAlgebraic ℚ (forms10 A2 A3 L tau i j) := by
+  intro tau i j
+  fin_cases tau
+  · exact ha i j
+  · exact isAlgebraic_algebraMap _
+  · exact isAlgebraic_algebraMap _
+
+theorem common_source_field10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∀ tau i j, forms10 A2 A3 L tau i j ∈ K := by
+  obtain ⟨K,hK,hmem⟩ := liouville10_common_field L ha
+  refine ⟨K,hK,?_⟩
+  intro tau i j
+  fin_cases tau
+  · exact hmem i j
+  · exact K.algebraMap_mem _
+  · exact K.algebraMap_mem _
+
+theorem source_rows_nonzero10 {n : ℕ} (A2 A3 : Matrix (Fin n) (Fin n) ℚ)
+    (L : Matrix (Fin n) (Fin n) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1) :
+    ∀ tau i, ∃ j, forms10 A2 A3 L tau i j ≠ 0 := by
+  intro tau i
+  by_contra! hz
+  have he := Matrix.det_eq_zero_of_row_eq_zero i hz
+  rw [source_det_one10 A2 A3 L h2 h3 hL tau] at he
+  exact one_ne_zero he
+
+end CompoundFeasibility.SourceForms10
+end
+
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+
+def exponent10 {m : ℕ} {r : Fin m → ℕ} (b : RothAuxCoefficients r) : Vars10 m →₀ ℕ :=
+  Finsupp.equivFunOnFinite.symm (fun u => ((b u.1).val u.2).val)
+
+theorem exponent10_injective {m : ℕ} (r : Fin m → ℕ) : Function.Injective (@exponent10 m r) := by
+  intro b c h
+  funext g
+  apply Subtype.ext
+  funext j
+  apply Fin.ext
+  exact congrArg (fun e : Vars10 m →₀ ℕ => e (g,j)) h
+
+def polynomial10 {m : ℕ} {r : Fin m → ℕ} {R : Type*} [CommRing R] (c : RothAuxCoefficients r → R) : MvPolynomial (Vars10 m) R :=
+  ∑ b, MvPolynomial.monomial (exponent10 b) (c b)
+
+theorem polynomial10_coeff {m : ℕ} {r : Fin m → ℕ} {R : Type*} [CommRing R] (c : RothAuxCoefficients r → R) (b : RothAuxCoefficients r) :
+    (polynomial10 c).coeff (exponent10 b) = c b := by
+  simp only [polynomial10,MvPolynomial.coeff_sum,MvPolynomial.coeff_monomial,(exponent10_injective r).eq_iff]
+  simp
+
+theorem polynomial10_homogeneous {m : ℕ} {r : Fin m → ℕ} {R : Type*} [CommRing R] (c : RothAuxCoefficients r → R) : homogeneous10 r (polynomial10 c) := by
+  intro d hd h
+  obtain ⟨b,_,hb⟩ := Finset.mem_biUnion.mp (MvPolynomial.support_sum hd)
+  have hab := Finset.mem_singleton.mp (MvPolynomial.support_monomial_subset hb)
+  subst d
+  exact (b h).property
+
+
+variable {R : Type*} [CommRing R]
+
+def chart10 {m : ℕ} (a : Fin 10 → R) (k : Fin 10) (u : Vars10 m) : MvPolynomial (Vars10 m) R :=
+  if u.2 = k then -(∑ j ∈ Finset.univ.erase k, MvPolynomial.C (a j) * MvPolynomial.X (u.1,j))
+  else MvPolynomial.C (a k) * MvPolynomial.X u
+
+def substitute10 {m : ℕ} (a : Fin 10 → R) (k : Fin 10) : MvPolynomial (Vars10 m) R →+* MvPolynomial (Vars10 m) R :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (chart10 a k)
+
+def pivotDerivative10 {m : ℕ} (k : Fin 10) (i : Fin m → ℕ) : Vars10 m →₀ ℕ :=
+  Finsupp.equivFunOnFinite.symm (fun u => if u.2 = k then i u.1 else 0)
+
+theorem transformed_monomial10 {m : ℕ} (a : Fin 10 → R) (k : Fin 10) (J b : Vars10 m →₀ ℕ) :
+    substitute10 a k (derivative10 J (MvPolynomial.monomial b 1)) =
+      MvPolynomial.C (∏ u : Vars10 m, (Nat.choose (b u) (J u) : R)) *
+        ∏ u : Vars10 m, chart10 a k u ^ (b-J) u := by
+  rw [derivative10_monomial]
+  change MvPolynomial.eval₂ MvPolynomial.C (chart10 a k) (MvPolynomial.monomial (b-J)
+    (1 * ∏ u : Vars10 m, (Nat.choose (b u) (J u) : R))) = _
+  rw [MvPolynomial.eval₂_monomial,one_mul]
+  congr 1
+  exact Finsupp.prod_fintype _ _ (fun _ => pow_zero _)
+
+theorem exponent10_sum {m : ℕ} {r : Fin m → ℕ} (b : RothAuxCoefficients r) :
+    (∑ u : Vars10 m, exponent10 b u) = ∑ h, r h := by
+  rw [Fintype.sum_prod_type]
+  exact Finset.sum_congr rfl (fun h _ => (b h).property)
+
+
+theorem transformed_coeff_sum10 {m : ℕ} {ι : Type*} [Fintype ι]
+    (e : ι → Vars10 m →₀ ℕ) (c : ι → R)
+    (J d : Vars10 m →₀ ℕ)
+    (a : Fin 10 → R) (k : Fin 10) :
+    let S := substitute10 (m := m) a k;
+    (S (derivative10 J (∑ b, MvPolynomial.monomial (e b) (c b)))).coeff d =
+      ∑ b, c b * (S (derivative10 J
+        (MvPolynomial.monomial (e b) 1))).coeff d := by
+  dsimp only
+  let S := substitute10 (m := m) a k
+  have hadd : derivative10 J
+      (∑ b, MvPolynomial.monomial (e b) (c b)) =
+      ∑ b, derivative10 J (MvPolynomial.monomial (e b) (c b)) := by
+    apply MvPolynomial.ext
+    intro a
+    simp only [derivative10_coeff, MvPolynomial.coeff_sum,
+      Finset.sum_mul]
+  rw [hadd, map_sum, MvPolynomial.coeff_sum]
+  apply Finset.sum_congr rfl
+  intro b _
+  rw [derivative10_monomial, derivative10_monomial]
+  simp only [one_mul]
+  have hc : MvPolynomial.monomial (e b - J)
+      (c b * ∏ u : Vars10 m, (Nat.choose (e b u) (J u) : R)) =
+      MvPolynomial.C (c b) * MvPolynomial.monomial (e b - J)
+        (∏ u : Vars10 m, (Nat.choose (e b u) (J u) : R)) := by
+    rw [MvPolynomial.C_mul_monomial]
+  rw [hc, map_mul]
+  have hC : S (MvPolynomial.C (c b)) = MvPolynomial.C (c b) := by
+    simp [S,substitute10]
+  rw [hC, MvPolynomial.coeff_C_mul]
+
+
+theorem rothAux_weight_pivot {m : ℕ} (d : Vars10 m →₀ ℕ) (k : Fin 10) :
+    Finsupp.weight (fun u : Vars10 m => if u.2 = k then 1 else 0) d =
+      ∑ h : Fin m, d (h,k) := by
+  rw [Finsupp.weight_apply, Finsupp.sum_fintype _ _ (by simp)]
+  simp [Fintype.sum_prod_type, nsmul_eq_mul]
+
+theorem weighted_neg_ring10 {m : ℕ} (w : Vars10 m → ℕ)
+    (P : MvPolynomial (Vars10 m) R) (n : ℕ)
+    (hP : MvPolynomial.IsWeightedHomogeneous w P n) :
+    MvPolynomial.IsWeightedHomogeneous w (-P) n := by
+  intro d hd
+  apply hP
+  simpa using hd
+
+theorem chart10_block_weight {m : ℕ} (a : Fin 10 → R) (k : Fin 10)
+    (h : Fin m) (u : Vars10 m) :
+    MvPolynomial.IsWeightedHomogeneous (fun v : Vars10 m => if v.1 = h then 1 else 0)
+      (chart10 a k u) (if u.1 = h then 1 else 0) := by
+  let w := fun v : Vars10 m => if v.1 = h then 1 else 0
+  have hx (j : Fin 10) : MvPolynomial.IsWeightedHomogeneous w
+      (MvPolynomial.C (a j) * MvPolynomial.X (u.1,j)) (if u.1 = h then 1 else 0) := by
+    simpa only [zero_add] using
+      (MvPolynomial.isWeightedHomogeneous_C w (a j)).mul (MvPolynomial.isWeightedHomogeneous_X R w (u.1,j))
+  unfold chart10
+  by_cases hu : u.2 = k
+  · rw [if_pos hu]
+    exact weighted_neg_ring10 w _ _
+      (MvPolynomial.IsWeightedHomogeneous.sum _ _ _ (fun j _ => hx j))
+  · rw [if_neg hu]
+    simpa only [zero_add] using
+      (MvPolynomial.isWeightedHomogeneous_C w (a k)).mul (MvPolynomial.isWeightedHomogeneous_X R w u)
+
+theorem chart10_pivot_weight {m : ℕ} (a : Fin 10 → R) (k : Fin 10)
+    (u : Vars10 m) :
+    MvPolynomial.IsWeightedHomogeneous (fun v : Vars10 m => if v.2 = k then 1 else 0)
+      (chart10 a k u) 0 := by
+  let w := fun v : Vars10 m => if v.2 = k then 1 else 0
+  have hx (j : Fin 10) (hj : j ≠ k) : MvPolynomial.IsWeightedHomogeneous w
+      (MvPolynomial.C (a j) * MvPolynomial.X (u.1,j)) 0 := by
+    simpa only [w, hj, if_false, zero_add] using
+      (MvPolynomial.isWeightedHomogeneous_C w (a j)).mul (MvPolynomial.isWeightedHomogeneous_X R w (u.1,j))
+  unfold chart10
+  split_ifs with hu
+  · exact weighted_neg_ring10 w _ 0
+      (MvPolynomial.IsWeightedHomogeneous.sum _ _ 0 (fun j hj => hx j (Finset.mem_erase.mp hj).1))
+  · simpa only [w, hu, if_false, zero_add] using
+      (MvPolynomial.isWeightedHomogeneous_C w (a k)).mul (MvPolynomial.isWeightedHomogeneous_X R w u)
+
+theorem rothAux_scaled_monomial_weighted {m : ℕ} (a : Fin 10 → R) (k : Fin 10)
+    (J b : Vars10 m →₀ ℕ) (w : Vars10 m → ℕ) (v : Vars10 m → ℕ)
+    (hv : ∀ u, MvPolynomial.IsWeightedHomogeneous w (chart10 a k u) (v u)) :
+    MvPolynomial.IsWeightedHomogeneous w
+      (substitute10 a k
+        (derivative10 J (MvPolynomial.monomial b 1)))
+      (∑ u : Vars10 m, (b - J) u * v u) := by
+  rw [transformed_monomial10]
+  have hp := MvPolynomial.IsWeightedHomogeneous.prod Finset.univ
+    (fun u : Vars10 m => chart10 a k u ^ (b - J) u)
+    (fun u => (b - J) u * v u) (fun u _ => by simpa only [nsmul_eq_mul] using (hv u).pow ((b - J) u))
+  simpa only [zero_add] using (MvPolynomial.isWeightedHomogeneous_C w _).mul hp
+
+
+
+theorem rothAux_transformed_polynomial {m : ℕ} {r : Fin m → ℕ}
+    (a : Fin 10 → R) (k : Fin 10) (J : Vars10 m →₀ ℕ)
+    (c : RothAuxCoefficients r → R) :
+    substitute10 a k (derivative10 J (polynomial10 c)) =
+      ∑ b, MvPolynomial.C (c b) * substitute10 a k
+        (derivative10 J (MvPolynomial.monomial (exponent10 b) 1)) := by
+  apply MvPolynomial.ext
+  intro d
+  rw [polynomial10, transformed_coeff_sum10]
+  simp only [MvPolynomial.coeff_sum, MvPolynomial.coeff_C_mul]
+
+theorem rothAux_pivot_monomial_block_weight {m : ℕ} {r : Fin m → ℕ}
+    (a : Fin 10 → R) (k : Fin 10) (i : Fin m → ℕ) (b : RothAuxCoefficients r) (h : Fin m) :
+    MvPolynomial.IsWeightedHomogeneous (fun u : Vars10 m => if u.1 = h then 1 else 0)
+      (substitute10 a k (derivative10
+        (pivotDerivative10 k i) (MvPolynomial.monomial (exponent10 b) 1)))
+      (r h - i h) := by
+  let J := pivotDerivative10 k i
+  let w := fun u : Vars10 m => if u.1 = h then 1 else 0
+  by_cases hle : J ≤ exponent10 b
+  · have hw := rothAux_scaled_monomial_weighted a k J (exponent10 b) w w
+      (chart10_block_weight a k h)
+    have heq : (∑ u : Vars10 m, (exponent10 b - J) u * w u) =
+        ∑ j : Fin 10, (exponent10 b - J) (h,j) := by
+      have he := rothAux_weight_block (exponent10 b - J) h
+      rw [Finsupp.weight_apply] at he
+      rw [Finsupp.sum_fintype (exponent10 b - J)
+        (fun u (n : ℕ) => n • w u) (by intro u; simp)] at he
+      simpa only [nsmul_eq_mul, Nat.cast_id, w] using he
+    have hdeg : (∑ j : Fin 10, (exponent10 b - J) (h,j)) = r h - i h := by
+      change (∑ j : Fin 10, (exponent10 b (h,j) - J (h,j))) = _
+      rw [Finset.sum_tsub_distrib _ (fun j _ => hle (h,j))]
+      have hb : (∑ j : Fin 10, exponent10 b (h,j)) = r h := (b h).property
+      rw [hb]
+      congr 1
+      simp [J, pivotDerivative10]
+    rw [heq, hdeg] at hw
+    exact hw
+  · change ¬ ∀ u, J u ≤ exponent10 b u at hle
+    push_neg at hle
+    obtain ⟨u, hu⟩ := hle
+    have hz : (∏ v : Vars10 m, (Nat.choose (exponent10 b v) (J v) : R)) = 0 := by
+      apply Finset.prod_eq_zero (Finset.mem_univ u)
+      simp [Nat.choose_eq_zero_of_lt hu]
+    rw [transformed_monomial10, hz, map_zero, zero_mul]
+    exact MvPolynomial.isWeightedHomogeneous_zero R w _
+
+theorem rothAux_transformed_block_weight {m : ℕ} {r : Fin m → ℕ}
+    (a : Fin 10 → R) (k : Fin 10) (i : Fin m → ℕ)
+    (c : RothAuxCoefficients r → R) (h : Fin m) :
+    MvPolynomial.IsWeightedHomogeneous (fun u : Vars10 m => if u.1 = h then 1 else 0)
+      (substitute10 a k (derivative10
+        (pivotDerivative10 k i) (polynomial10 c))) (r h - i h) := by
+  rw [rothAux_transformed_polynomial]
+  apply MvPolynomial.IsWeightedHomogeneous.sum
+  intro b _
+  simpa only [zero_add] using (MvPolynomial.isWeightedHomogeneous_C _ (c b)).mul
+    (rothAux_pivot_monomial_block_weight a k i b h)
+
+theorem rothAux_transformed_block_homogeneous {m : ℕ} {r : Fin m → ℕ}
+    (a : Fin 10 → R) (k : Fin 10) (i : Fin m → ℕ)
+    (c : RothAuxCoefficients r → R) :
+    homogeneous10 (fun h => r h - i h)
+      (substitute10 a k (derivative10
+        (pivotDerivative10 k i) (polynomial10 c))) := by
+  intro d hd h
+  rw [← rothAux_weight_block]
+  exact rothAux_transformed_block_weight a k i c h (MvPolynomial.mem_support_iff.mp hd)
+
+theorem rothAux_transformed_pivot_weight {m : ℕ} {r : Fin m → ℕ}
+    (a : Fin 10 → R) (k : Fin 10) (J : Vars10 m →₀ ℕ)
+    (c : RothAuxCoefficients r → R) :
+    MvPolynomial.IsWeightedHomogeneous (fun u : Vars10 m => if u.2 = k then 1 else 0)
+      (substitute10 a k (derivative10 J (polynomial10 c))) 0 := by
+  rw [rothAux_transformed_polynomial]
+  apply MvPolynomial.IsWeightedHomogeneous.sum
+  intro b _
+  have hb := rothAux_scaled_monomial_weighted a k J (exponent10 b)
+    (fun u : Vars10 m => if u.2 = k then 1 else 0) (fun _ => 0)
+    (chart10_pivot_weight a k)
+  simp only [mul_zero, Finset.sum_const_zero] at hb
+  simpa only [zero_add] using (MvPolynomial.isWeightedHomogeneous_C _ (c b)).mul hb
+
+theorem rothAux_transformed_pivot_zero {m : ℕ} {r : Fin m → ℕ}
+    (a : Fin 10 → R) (k : Fin 10) (J : Vars10 m →₀ ℕ)
+    (c : RothAuxCoefficients r → R) (d : Vars10 m →₀ ℕ)
+    (hd : (substitute10 a k
+      (derivative10 J (polynomial10 c))).coeff d ≠ 0) (h : Fin m) :
+    d (h,k) = 0 := by
+  have hw := rothAux_transformed_pivot_weight a k J c hd
+  rw [rothAux_weight_pivot] at hw
+  have hle : d (h,k) ≤ ∑ g : Fin m, d (g,k) :=
+    Finset.single_le_sum (fun g _ => Nat.zero_le (d (g,k))) (Finset.mem_univ h)
+  omega
+
+
+
+def freeExponent10 {m : ℕ} (s : Fin m → ℕ) (k : Fin 10)
+    (j : (h : Fin m) → Block9 (s h)) : Vars10 m →₀ ℕ :=
+  Finsupp.equivFunOnFinite.symm (fun u => Fin.insertNth (α := fun _ : Fin 10 => ℕ) k 0 (fun t : Fin 9 => ((j u.1).val t).val) u.2)
+
+theorem freeExponent10_reconstruct {m : ℕ} (s : Fin m → ℕ) (k : Fin 10)
+    (d : Vars10 m →₀ ℕ) (hs : ∀ h, ∑ t : Fin 10, d (h,t) = s h)
+    (hz : ∀ h, d (h,k) = 0) :
+    ∃ j : (h : Fin m) → Block9 (s h), freeExponent10 s k j = d := by
+  have hsum (h : Fin m) : (∑ t : Fin 9, d (h,k.succAbove t)) = s h := by
+    have he := Fin.sum_univ_succAbove (fun t => d (h,t)) k
+    rw [hs h,hz h,zero_add] at he
+    exact he.symm
+  let j : (h : Fin m) → Block9 (s h) := fun h => ⟨fun t => ⟨d (h,k.succAbove t),by
+    have hh : d (h,k.succAbove t) ≤ ∑ u : Fin 10, d (h,u) :=
+      Finset.single_le_sum (s := Finset.univ) (f := fun u : Fin 10 => d (h,u)) (fun u _ => Nat.zero_le _) (Finset.mem_univ _)
+    rw [hs h] at hh
+    omega⟩,hsum h⟩
+  refine ⟨j,?_⟩
+  ext u
+  rcases u with ⟨h,t⟩
+  change Fin.insertNth (α := fun _ : Fin 10 => ℕ) k 0 (fun v : Fin 9 => ((j h).val v).val) t = d (h,t)
+  refine Fin.succAboveCases k ?_ (fun v => ?_) t
+  · simpa only [Fin.insertNth_apply_same] using (hz h).symm
+  · rw [Fin.insertNth_apply_succAbove]
+
+
+
+end CompoundFeasibility.Auxiliary10
+namespace Aux10Height
+open CompoundFeasibility.SourceMultiblock10 CompoundFeasibility.SourceNormalHighIndex10 CompoundFeasibility.SchmidtPolynomial10
+open CompoundFeasibility.Auxiliary10 Aux6Mass
+variable {R : Type*} [NormedCommRing R] [NormOneClass R]
+
+theorem chart_mass10 {m : ℕ} (a : Fin 10 → R) (k : Fin 10)
+    (A : ℝ) (hA : 1 ≤ A) (ha : ∀ j, ‖a j‖ ≤ A) (u : Vars10 m) :
+    mass (chart10 a k u) ≤ 10 * A := by
+  unfold chart10
+  split_ifs
+  · rw [mass_neg]
+    calc
+      _ ≤ ∑ j ∈ Finset.univ.erase k, mass (MvPolynomial.C (a j) * MvPolynomial.X (u.1,j)) := mass_sum _ _
+      _ ≤ ∑ _j ∈ Finset.univ.erase k, A := by
+        apply Finset.sum_le_sum
+        intro j _
+        rw [mass_C_mul_X]
+        exact ha j
+      _ ≤ 10 * A := by simp; linarith
+  · rw [mass_C_mul_X]
+    exact (ha k).trans (by linarith)
+
+theorem binomial_norm10 {m : ℕ} {r : Fin m → ℕ} (b : RothAuxCoefficients r) (J : Vars10 m →₀ ℕ) :
+    ‖∏ u : Vars10 m, (Nat.choose (exponent10 b u) (J u) : R)‖ ≤ (2 : ℝ)^(∑ h, r h) := by
+  have hnat (n : ℕ) : ‖(n : R)‖ ≤ (n : ℝ) := by
+    rw [← nsmul_one]
+    exact (norm_nsmul_le (n := n) (a := (1 : R))).trans_eq (by simp)
+  calc
+    _ ≤ ∏ u : Vars10 m, ‖(Nat.choose (exponent10 b u) (J u) : R)‖ := Finset.norm_prod_le _ _
+    _ ≤ ∏ u : Vars10 m, (2 : ℝ)^exponent10 b u := by
+      apply Finset.prod_le_prod
+      · intro u _; exact norm_nonneg _
+      · intro u _
+        apply (hnat _).trans
+        have hc : (exponent10 b u).choose (J u) ≤ 2 ^ exponent10 b u := by
+          rcases Nat.eq_zero_or_pos (exponent10 b u) with hz | hp
+          · rw [hz]; cases J u <;> simp
+          · exact (Nat.choose_le_two_pow _ _ hp).le
+        exact_mod_cast hc
+    _ = _ := by rw [Finset.prod_pow_eq_pow_sum,exponent10_sum]
+
+theorem transformed_entry_norm10 {m : ℕ} {r : Fin m → ℕ}
+    (a : Fin 10 → R) (k : Fin 10) (A : ℝ) (hA : 1 ≤ A) (ha : ∀ j, ‖a j‖ ≤ A)
+    (b : RothAuxCoefficients r) (J d : Vars10 m →₀ ℕ) :
+    ‖(substitute10 a k (derivative10 J (MvPolynomial.monomial (exponent10 b) 1))).coeff d‖ ≤
+      (20 * A)^(∑ h, r h) := by
+  have hbase : 1 ≤ 10 * A := by linarith
+  have hsum : (∑ u : Vars10 m, (exponent10 b-J) u) ≤ ∑ h, r h := by
+    rw [← exponent10_sum b]
+    exact Finset.sum_le_sum (fun u _ => Nat.sub_le _ _)
+  rw [transformed_monomial10]
+  calc
+    _ ≤ mass (MvPolynomial.C (∏ u : Vars10 m, (Nat.choose (exponent10 b u) (J u) : R)) *
+        ∏ u : Vars10 m, chart10 a k u ^ (exponent10 b-J) u) := coeff_le_mass _ _
+    _ ≤ mass (MvPolynomial.C (∏ u : Vars10 m, (Nat.choose (exponent10 b u) (J u) : R))) *
+        mass (∏ u : Vars10 m, chart10 a k u ^ (exponent10 b-J) u) := mass_mul _ _
+    _ ≤ (2 : ℝ)^(∑ h, r h) * (10*A)^(∑ h, r h) := by
+      apply mul_le_mul
+      · simpa only [MvPolynomial.C_apply,mass_monomial] using binomial_norm10 (R := R) b J
+      · calc
+          _ ≤ ∏ u : Vars10 m, mass (chart10 a k u ^ (exponent10 b-J) u) := mass_prod _ _
+          _ ≤ ∏ u : Vars10 m, (10*A)^(exponent10 b-J) u := by
+            apply Finset.prod_le_prod
+            · intro u _; exact mass_nonneg _
+            · intro u _
+              exact (mass_pow _ _).trans (pow_le_pow_left₀ (mass_nonneg _) (chart_mass10 a k A hA ha u) _)
+          _ = (10*A)^(∑ u : Vars10 m, (exponent10 b-J) u) := Finset.prod_pow_eq_pow_sum _ _ _
+          _ ≤ _ := pow_le_pow_right₀ hbase hsum
+      · exact mass_nonneg _
+      · positivity
+    _ = _ := by rw [← mul_pow]; congr 1; ring
+
+end Aux10Height
+
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+variable {K : Type*} [CommRing K]
+
+noncomputable def formEquiv10 : Fin 30 ≃ Fin 3 × Fin 10 :=
+  (finProdFinEquiv : Fin 3 × Fin 10 ≃ Fin (3 * 10)).symm
+
+noncomputable def equation10 {m : ℕ} {r : Fin m → ℕ} {eta : ℝ}
+    (a : Fin 3 → Fin 10 → Fin 10 → K) (p : Fin 3 → Fin 10 → Fin 10)
+    (f : Fin 30) (i : {i : RothAuxPivots r // rothAuxPivotCondition r eta i})
+    (j : (h : Fin m) → Block9 (r h - (i.val h).val))
+    (P : MvPolynomial (Vars10 m) K) : K :=
+  (substitute10 (a (formEquiv10 f).1 (formEquiv10 f).2)
+    (p (formEquiv10 f).1 (formEquiv10 f).2)
+    (derivative10 (pivotDerivative10 (p (formEquiv10 f).1 (formEquiv10 f).2)
+      (fun h => (i.val h).val)) P)).coeff
+    (freeExponent10 (fun h => r h - (i.val h).val)
+      (p (formEquiv10 f).1 (formEquiv10 f).2) j)
+
+noncomputable def matrix10 {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → K) (p : Fin 3 → Fin 10 → Fin 10) :
+    Matrix (Equations10 r eta) (RothAuxCoefficients r) K :=
+  fun q b => equation10 a p q.1 (badPivotEquiv4 r eta q.2).1
+    (badPivotEquiv4 r eta q.2).2 (MvPolynomial.monomial (exponent10 b) 1)
+
+theorem matrix10_mulVec {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → K) (p : Fin 3 → Fin 10 → Fin 10)
+    (c : RothAuxCoefficients r → K) (q : Equations10 r eta) :
+    (matrix10 r eta a p).mulVec c q =
+      equation10 a p q.1 (badPivotEquiv4 r eta q.2).1
+        (badPivotEquiv4 r eta q.2).2 (polynomial10 c) := by
+  unfold equation10 polynomial10
+  rw [transformed_coeff_sum10]
+  simp only [Matrix.mulVec, dotProduct, matrix10, equation10]
+  apply Finset.sum_congr rfl
+  intro b _
+  ring
+
+theorem matrix10_kernel_iff_coefficients {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → K) (p : Fin 3 → Fin 10 → Fin 10)
+    (c : RothAuxCoefficients r → K) :
+    (matrix10 r eta a p).mulVec c = 0 ↔
+      ∀ (f : Fin 30) (i : {i : RothAuxPivots r // rothAuxPivotCondition r eta i})
+        (j : (h : Fin m) → Block9 (r h - (i.val h).val)),
+        equation10 a p f i j (polynomial10 c) = 0 := by
+  constructor
+  · intro hz f i j
+    have h := congrFun hz (f, (badPivotEquiv4 r eta).symm ⟨i,j⟩)
+    rw [matrix10_mulVec] at h
+    simpa only [Equiv.apply_symm_apply, Pi.zero_apply] using h
+  · intro hz
+    funext q
+    rw [matrix10_mulVec]
+    exact hz q.1 (badPivotEquiv4 r eta q.2).1 (badPivotEquiv4 r eta q.2).2
+
+theorem restriction10_zero_iff_coefficients {m : ℕ} {r : Fin m → ℕ}
+    (a : Fin 10 → K) (k : Fin 10) (i : RothAuxPivots r)
+    (c : RothAuxCoefficients r → K) :
+    substitute10 a k (derivative10 (pivotDerivative10 k (fun h => (i h).val))
+      (polynomial10 c)) = 0 ↔
+      ∀ j : (h : Fin m) → Block9 (r h - (i h).val),
+        (substitute10 a k (derivative10 (pivotDerivative10 k (fun h => (i h).val))
+          (polynomial10 c))).coeff
+          (freeExponent10 (fun h => r h - (i h).val) k j) = 0 := by
+  constructor
+  · intro hz j
+    rw [hz, MvPolynomial.coeff_zero]
+  · intro hz
+    apply MvPolynomial.ext
+    intro d
+    by_cases hd : (substitute10 a k (derivative10 (pivotDerivative10 k (fun h => (i h).val))
+        (polynomial10 c))).coeff d = 0
+    · exact hd
+    · have hhom := rothAux_transformed_block_homogeneous a k (fun h => (i h).val) c
+      have hdeg := hhom d (MvPolynomial.mem_support_iff.mpr hd)
+      have hp := rothAux_transformed_pivot_zero a k
+        (pivotDerivative10 k (fun h => (i h).val)) c d hd
+      obtain ⟨j, hj⟩ := freeExponent10_reconstruct (fun h => r h - (i h).val) k d hdeg hp
+      rw [← hj]
+      exact hz j
+
+theorem matrix10_kernel_iff_restrictions {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → K) (p : Fin 3 → Fin 10 → Fin 10)
+    (c : RothAuxCoefficients r → K) :
+    (matrix10 r eta a p).mulVec c = 0 ↔
+      ∀ (tau : Fin 3) (s : Fin 10)
+        (i : {i : RothAuxPivots r // rothAuxPivotCondition r eta i}),
+        substitute10 (a tau s) (p tau s)
+          (derivative10 (pivotDerivative10 (p tau s) (fun h => (i.val h).val))
+            (polynomial10 c)) = 0 := by
+  rw [matrix10_kernel_iff_coefficients]
+  constructor
+  · intro hz tau s i
+    apply (restriction10_zero_iff_coefficients (a tau s) (p tau s) i.val c).mpr
+    intro j
+    have hh := hz (formEquiv10.symm (tau,s)) i j
+    simpa only [equation10, Equiv.apply_symm_apply] using hh
+  · intro hz f i j
+    exact (restriction10_zero_iff_coefficients _ _ i.val c).mp
+      (hz (formEquiv10 f).1 (formEquiv10 f).2 i) j
+
+end CompoundFeasibility.Auxiliary10
+
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+variable {𝕂 : Type*} [Field 𝕂] [CharZero 𝕂]
+
+theorem rothSource_scaled_chart_pderiv {m : ℕ} (a : Fin 10 → 𝕂) (k j : Fin 10)
+    (h : Fin m) (hj : j ≠ k) (v : Vars10 m) :
+    MvPolynomial.pderiv (h,j) (chart10 a k v) =
+      MvPolynomial.C (a k) * (if v = (h,j) then 1 else 0) -
+        MvPolynomial.C (a j) * (if v = (h,k) then 1 else 0) := by
+  classical
+  rcases v with ⟨g,l⟩
+  by_cases hg : g = h
+  · subst g
+    by_cases hl : l = k
+    · subst l
+      simp [chart10, MvPolynomial.pderiv_C_mul, MvPolynomial.pderiv_X,
+        Pi.single_apply, Prod.mk.injEq, hj, Ne.symm hj, map_sum, mul_ite,
+        Finset.sum_ite_eq', Finset.sum_ite_eq, eq_comm]
+    · simp [chart10, hl, MvPolynomial.pderiv_C_mul, MvPolynomial.pderiv_X,
+        Pi.single_apply, Prod.mk.injEq, hl, Ne.symm hl, eq_comm]
+  · by_cases hl : l = k <;>
+      simp [chart10, hl, MvPolynomial.pderiv_C_mul, MvPolynomial.pderiv_X,
+        Pi.single_apply, Prod.mk.injEq, hg, Ne.symm hg, map_sum]
+
+theorem rothSource_scaled_chain {m : ℕ} (a : Fin 10 → 𝕂) (k j : Fin 10)
+    (h : Fin m) (hj : j ≠ k) (P : MvPolynomial (Vars10 m) 𝕂) :
+    MvPolynomial.pderiv (h,j) (substitute10 a k P) =
+      MvPolynomial.C (a k) * substitute10 a k (MvPolynomial.pderiv (h,j) P) -
+        MvPolynomial.C (a j) * substitute10 a k (MvPolynomial.pderiv (h,k) P) := by
+  classical
+  induction P using MvPolynomial.induction_on with
+  | C c => simp [substitute10]
+  | add P Q hP hQ => simp only [map_add, hP, hQ]; ring
+  | mul_X P v hP =>
+    simp only [map_mul, MvPolynomial.pderiv_mul, map_add, hP]
+    rw [show substitute10 a k (MvPolynomial.X v) = chart10 a k v by simp [substitute10],
+      rothSource_scaled_chart_pderiv a k j h hj v]
+    simp only [MvPolynomial.pderiv_X, Pi.single_apply, apply_ite, map_one, map_zero]
+    split_ifs <;> simp_all <;> ring
+
+theorem rothSource_weight_mono {m : ℕ} (r : Fin m → ℕ)
+    (J K : Vars10 m →₀ ℕ) (hJK : J ≤ K) :
+    rothSourceDerivativeWeight r J ≤ rothSourceDerivativeWeight r K := by
+  apply Finset.sum_le_sum
+  intro h _
+  apply div_le_div_of_nonneg_right _ (Nat.cast_nonneg _)
+  apply Finset.sum_le_sum
+  intro i _
+  exact_mod_cast hJK (h,i)
+
+theorem rothSource_weight_pivot {m : ℕ} (r : Fin m → ℕ) (k : Fin 10) (i : Fin m → ℕ) :
+    rothSourceDerivativeWeight r (pivotDerivative10 k i) = ∑ h, (i h : ℝ) / r h := by
+  simp [rothSourceDerivativeWeight, pivotDerivative10, Finset.sum_ite_eq,
+    Finset.sum_ite_eq']
+
+noncomputable def rothSourceFreeOrder {m : ℕ} (k : Fin 10) (J : Vars10 m →₀ ℕ) : ℕ :=
+  ∑ u ∈ Finset.univ.filter (fun u : Vars10 m => u.2 ≠ k), J u
+
+theorem rothSource_free_add {m : ℕ} (k : Fin 10) (J K : Vars10 m →₀ ℕ) :
+    rothSourceFreeOrder k (J + K) = rothSourceFreeOrder k J + rothSourceFreeOrder k K := by
+  simp [rothSourceFreeOrder, Finsupp.add_apply, Finset.sum_add_distrib]
+
+theorem rothSource_free_single {m : ℕ} (k : Fin 10) (u : Vars10 m) :
+    rothSourceFreeOrder k (Finsupp.single u 1) = if u.2 = k then 0 else 1 := by
+  classical
+  simp [rothSourceFreeOrder, Finsupp.single_apply, Finset.sum_ite_eq', Finset.sum_ite_eq]
+
+theorem rothSource_free_zero_pivot {m : ℕ} (k : Fin 10) (J : Vars10 m →₀ ℕ)
+    (hJ : rothSourceFreeOrder k J = 0) :
+    J = pivotDerivative10 k (fun h => J (h,k)) := by
+  classical
+  ext u
+  by_cases hu : u.2 = k
+  · have he : u = (u.1,k) := Prod.ext rfl hu
+    simpa [pivotDerivative10, hu] using congrArg J he
+  · have hle : J u ≤ rothSourceFreeOrder k J :=
+      Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_filter.mpr ⟨Finset.mem_univ u,hu⟩)
+    have hz : J u = 0 := by omega
+    simp [pivotDerivative10, hu, hz]
+
+theorem rothSource_scaled_mixed_vanishing {m : ℕ} (r : Fin m → ℕ)
+    (a : Fin 10 → 𝕂) (k : Fin 10) (ha : a k ≠ 0) (T : ℝ)
+    (P : MvPolynomial (Vars10 m) 𝕂)
+    (hpivot : ∀ i : Fin m → ℕ, (∑ h, (i h : ℝ) / r h) < T →
+      substitute10 a k
+        (derivative10 (pivotDerivative10 k i) P) = 0)
+    (J : Vars10 m →₀ ℕ) (hw : rothSourceDerivativeWeight r J < T) :
+    substitute10 a k (derivative10 J P) = 0 := by
+  classical
+  have go : ∀ n : ℕ, ∀ J : Vars10 m →₀ ℕ,
+      rothSourceFreeOrder k J = n → rothSourceDerivativeWeight r J < T →
+      substitute10 a k (derivative10 J P) = 0 := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | h n ih =>
+      intro J hn hw
+      by_cases hz : n = 0
+      · have he := rothSource_free_zero_pivot k J (hn.trans hz)
+        have hweight : (∑ h, (J (h,k) : ℝ) / r h) < T := by
+          rw [← rothSource_weight_pivot r k, ← he]
+          exact hw
+        rw [he]
+        exact hpivot _ hweight
+      · have hex : ∃ u : Vars10 m, u.2 ≠ k ∧ J u ≠ 0 := by
+          by_contra! hno
+          have hzero : rothSourceFreeOrder k J = 0 := by
+            apply Finset.sum_eq_zero
+            intro u hu
+            exact hno u (Finset.mem_filter.mp hu).2
+          omega
+        obtain ⟨u, hu, hJu⟩ := hex
+        let K := J - Finsupp.single u 1
+        let Kp := K + Finsupp.single (u.1,k) 1
+        have hle : Finsupp.single u 1 ≤ J := by
+          rw [Finsupp.single_le_iff]
+          omega
+        have hKeq : K + Finsupp.single u 1 = J := tsub_add_cancel_of_le hle
+        have hKcount : rothSourceFreeOrder k K + 1 = n := by
+          have hc := congrArg (rothSourceFreeOrder k) hKeq
+          simpa [rothSource_free_add, rothSource_free_single, hu, hn] using hc
+        have hKpcount : rothSourceFreeOrder k Kp = rothSourceFreeOrder k K := by
+          simp [Kp, rothSource_free_add, rothSource_free_single]
+        have hKweight : rothSourceDerivativeWeight r K ≤ rothSourceDerivativeWeight r J :=
+          rothSource_weight_mono r K J tsub_le_self
+        have hKpweight : rothSourceDerivativeWeight r Kp = rothSourceDerivativeWeight r J := by
+          calc
+            _ = rothSourceDerivativeWeight r K + 1 / (r u.1 : ℝ) := by
+              rw [rothSource_weight_add, rothSource_weight_single]
+            _ = _ := by rw [← hKeq, rothSource_weight_add, rothSource_weight_single]
+        have hK := ih (rothSourceFreeOrder k K) (by omega) K rfl (lt_of_le_of_lt hKweight hw)
+        have hKp := ih (rothSourceFreeOrder k Kp) (by omega) Kp rfl (hKpweight ▸ hw)
+        change substitute10 a k
+          (derivative10 (K + Finsupp.single (u.1,k) 1) P) = 0 at hKp
+        have hc := rothSource_scaled_chain a k u.2 u.1 hu
+          (derivative10 K P)
+        rw [SourceMultiblock10.source10_pderiv_hasse, SourceMultiblock10.source10_pderiv_hasse] at hc
+        simp only [hK, map_zero, map_nsmul, hKp, nsmul_zero, mul_zero, sub_zero] at hc
+        rw [hKeq] at hc
+        have hcoeff : (MvPolynomial.C (a k) : MvPolynomial (Vars10 m) 𝕂) ≠ 0 := by
+          intro hz
+          apply ha
+          apply MvPolynomial.C_injective (σ := Vars10 m)
+          simpa only [map_zero] using hz
+        have hsm := (mul_eq_zero.mp hc.symm).resolve_left hcoeff
+        rw [nsmul_eq_mul] at hsm
+        exact (mul_eq_zero.mp hsm).resolve_left (by
+          intro hh
+          have hz : ((K (u.1,u.2) + 1 : ℕ) : 𝕂) = 0 := by
+            apply MvPolynomial.C_injective (σ := Vars10 m)
+            simpa only [map_natCast, map_zero] using hh
+          exact (Nat.cast_ne_zero.mpr (Nat.succ_ne_zero _)) hz)
+  exact go _ J rfl hw
+
+
+end CompoundFeasibility.Auxiliary10
+
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+variable {𝕂 : Type*} [Field 𝕂] [CharZero 𝕂]
+
+def kernelChart10 {m : ℕ} (a : Fin 10 → 𝕂) (k : Fin m → Fin 10)
+    (u : Vars10 m) : MvPolynomial (Vars10 m) 𝕂 :=
+  if u.2 = k u.1 then
+    -(∑ j ∈ Finset.univ.erase (k u.1),
+      MvPolynomial.C (a j / a (k u.1)) * MvPolynomial.X (u.1,j))
+  else MvPolynomial.X u
+
+def kernelRestriction10 {m : ℕ} (a : Fin 10 → 𝕂) (k : Fin m → Fin 10) :
+    MvPolynomial (Vars10 m) 𝕂 →+* MvPolynomial (Vars10 m) 𝕂 :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (kernelChart10 a k)
+
+theorem kernelChart10_form {m : ℕ} (a : Fin 10 → 𝕂)
+    (k : Fin m → Fin 10) (hk : ∀ h, a (k h) ≠ 0) (h : Fin m) :
+    (∑ j : Fin 10, MvPolynomial.C (a j) * kernelChart10 a k (h,j)) = 0 := by
+  rw [← Finset.sum_erase_add Finset.univ _ (Finset.mem_univ (k h))]
+  have hfree : (∑ j ∈ Finset.univ.erase (k h), MvPolynomial.C (a j) *
+      kernelChart10 a k (h,j)) =
+      ∑ j ∈ Finset.univ.erase (k h), MvPolynomial.C (a j) * MvPolynomial.X (h,j) := by
+    apply Finset.sum_congr rfl
+    intro j hj
+    simp [kernelChart10, (Finset.mem_erase.mp hj).1]
+  rw [hfree]
+  have hpivot : MvPolynomial.C (a (k h)) * kernelChart10 a k (h,k h) =
+      -(∑ j ∈ Finset.univ.erase (k h), MvPolynomial.C (a j) * MvPolynomial.X (h,j)) := by
+    simp only [kernelChart10, Prod.fst, Prod.snd, if_pos rfl, ite_true, mul_neg, Finset.mul_sum]
+    congr 1
+    apply Finset.sum_congr rfl
+    intro j hj
+    rw [← mul_assoc, ← MvPolynomial.C_mul]
+    congr 1
+    field_simp [hk h]
+  rw [hpivot]
+  ring
+
+def chartTransport10 {m : ℕ} (a : Fin 10 → 𝕂) (p : Fin 10) (k : Fin m → Fin 10) :
+    MvPolynomial (Vars10 m) 𝕂 →+* MvPolynomial (Vars10 m) 𝕂 :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u =>
+    MvPolynomial.C ((a p)⁻¹) * kernelChart10 a k u)
+
+theorem chartTransport10_variable {m : ℕ} (a : Fin 10 → 𝕂)
+    (p : Fin 10) (hp : a p ≠ 0) (k : Fin m → Fin 10)
+    (hk : ∀ h, a (k h) ≠ 0) (u : Vars10 m) :
+    chartTransport10 a p k (chart10 a p u) = kernelChart10 a k u := by
+  have hcancel : (MvPolynomial.C (a p) : MvPolynomial (Vars10 m) 𝕂) *
+      MvPolynomial.C ((a p)⁻¹) = 1 := by
+    rw [← MvPolynomial.C_mul, mul_inv_cancel₀ hp, map_one]
+  by_cases hu : u.2 = p
+  · have hsum := kernelChart10_form a k hk u.1
+    rw [← Finset.sum_erase_add Finset.univ _ (Finset.mem_univ p)] at hsum
+    have hrel : -(∑ j ∈ Finset.univ.erase p, MvPolynomial.C (a j) *
+        kernelChart10 a k (u.1,j)) =
+        MvPolynomial.C (a p) * kernelChart10 a k (u.1,p) := by
+      linear_combination -hsum
+    simp only [chart10, if_pos hu, map_neg, map_sum, map_mul]
+    simp only [chartTransport10, MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X']
+    calc
+      _ = MvPolynomial.C ((a p)⁻¹) *
+          -(∑ j ∈ Finset.univ.erase p, MvPolynomial.C (a j) *
+            kernelChart10 a k (u.1,j)) := by
+        rw [mul_neg, Finset.mul_sum]
+        congr 1
+        apply Finset.sum_congr rfl
+        intro j hj
+        ring
+      _ = _ := by
+        rw [hrel, ← mul_assoc, mul_comm _ (MvPolynomial.C (a p)), hcancel]
+        simp [← hu]
+  · simp only [chart10, if_neg hu, map_mul]
+    simp only [chartTransport10, MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X']
+    rw [← mul_assoc, hcancel, one_mul]
+
+theorem chartTransport10_substitute {m : ℕ} (a : Fin 10 → 𝕂)
+    (p : Fin 10) (hp : a p ≠ 0) (k : Fin m → Fin 10)
+    (hk : ∀ h, a (k h) ≠ 0) (P : MvPolynomial (Vars10 m) 𝕂) :
+    chartTransport10 a p k (substitute10 a p P) = kernelRestriction10 a k P := by
+  have he : (chartTransport10 a p k).comp (substitute10 a p) = kernelRestriction10 a k := by
+    apply MvPolynomial.ringHom_ext
+    · intro z
+      simp [substitute10, chartTransport10, kernelRestriction10]
+    · intro u
+      simpa [substitute10, kernelRestriction10] using chartTransport10_variable a p hp k hk u
+  exact congrArg (fun f => f P) he
+
+theorem derivative10_zero_of_block_excess {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (Vars10 m) 𝕂) (hP : homogeneous10 r P)
+    (J : Vars10 m →₀ ℕ) (h : Fin m) (hJ : r h < ∑ j : Fin 10, J (h,j)) :
+    derivative10 J P = 0 := by
+  apply MvPolynomial.ext
+  intro d
+  rw [derivative10_coeff, MvPolynomial.coeff_zero]
+  have hz : P.coeff (d + J) = 0 := by
+    by_contra hn
+    have hdegree := hP (d + J) (MvPolynomial.mem_support_iff.mpr hn) h
+    have hle : (∑ j : Fin 10, J (h,j)) ≤ ∑ j : Fin 10, (d + J) (h,j) := by
+      apply Finset.sum_le_sum
+      intro j _
+      simp only [Finsupp.add_apply]
+      omega
+    omega
+  rw [hz, zero_mul]
+
+theorem matrix10_kernel_all_derivatives {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → 𝕂) (p : Fin 3 → Fin 10 → Fin 10)
+    (hp : ∀ tau s, a tau s (p tau s) ≠ 0)
+    (c : RothAuxCoefficients r → 𝕂)
+    (hc : (matrix10 r eta a p).mulVec c = 0)
+    (tau : Fin 3) (s : Fin 10) (J : Vars10 m →₀ ℕ)
+    (hJ : rothSourceDerivativeWeight r J < (1 / 10 - eta) * m)
+    (k : Fin m → Fin 10) (hk : ∀ h, a tau s (k h) ≠ 0) :
+    kernelRestriction10 (a tau s) k (derivative10 J (polynomial10 c)) = 0 := by
+  have hpivot := (matrix10_kernel_iff_restrictions r eta a p c).mp hc
+  have hall : ∀ i : Fin m → ℕ, (∑ h, (i h : ℝ) / r h) < (1 / 10 - eta) * m →
+      substitute10 (a tau s) (p tau s)
+        (derivative10 (pivotDerivative10 (p tau s) i) (polynomial10 c)) = 0 := by
+    intro i hi
+    by_cases hb : ∀ h, i h ≤ r h
+    · let iFin : RothAuxPivots r := fun h => ⟨i h, by have hh := hb h; omega⟩
+      exact hpivot tau s ⟨iFin, hi⟩
+    · push_neg at hb
+      obtain ⟨h, hh⟩ := hb
+      have hsum : (∑ j : Fin 10, pivotDerivative10 (p tau s) i (h,j)) = i h := by
+        simp [pivotDerivative10, Finset.sum_ite_eq, Finset.sum_ite_eq']
+      have hz := derivative10_zero_of_block_excess r (polynomial10 c) (polynomial10_homogeneous c)
+        (pivotDerivative10 (p tau s) i) h (by rw [hsum]; exact hh)
+      simp [hz]
+  rw [← chartTransport10_substitute (a tau s) (p tau s) (hp tau s) k hk]
+  rw [rothSource_scaled_mixed_vanishing r (a tau s) (p tau s) (hp tau s) _
+    (polynomial10 c) hall J hJ, map_zero]
+
+end CompoundFeasibility.Auxiliary10
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+variable {R S : Type*} [CommRing R] [CommRing S]
+
+theorem chart10_map {m : ℕ} (f : R →+* S) (a : Fin 10 → R) (k : Fin 10) (u : Vars10 m) :
+    (chart10 a k u).map f = chart10 (fun j => f (a j)) k u := by
+  unfold chart10
+  split_ifs <;> simp [map_sum, map_mul]
+
+theorem substitute10_map {m : ℕ} (f : R →+* S) (a : Fin 10 → R) (k : Fin 10)
+    (P : MvPolynomial (Vars10 m) R) :
+    (substitute10 a k P).map f = substitute10 (fun j => f (a j)) k (P.map f) := by
+  induction P using MvPolynomial.induction_on with
+  | C c => simp [substitute10]
+  | add P Q hP hQ => simp only [map_add, hP, hQ]
+  | mul_X P v hP =>
+    simp only [map_mul, hP]
+    rw [show substitute10 a k (MvPolynomial.X v) = chart10 a k v by simp [substitute10]]
+    rw [chart10_map]
+    simp [substitute10]
+
+theorem polynomial10_map {m : ℕ} {r : Fin m → ℕ} (f : R →+* S)
+    (c : RothAuxCoefficients r → R) :
+    (polynomial10 c).map f = polynomial10 (fun b => f (c b)) := by
+  simp [polynomial10]
+
+theorem matrix10_map {m : ℕ} (f : R →+* S) (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → R) (p : Fin 3 → Fin 10 → Fin 10)
+    (q : Equations10 r eta) (b : RothAuxCoefficients r) :
+    f (matrix10 r eta a p q b) = matrix10 r eta (fun tau s j => f (a tau s j)) p q b := by
+  unfold matrix10 equation10
+  rw [← MvPolynomial.coeff_map, substitute10_map, derivative10_map]
+  simp
+
+end CompoundFeasibility.Auxiliary10
+end
+
+open scoped BigOperators Matrix Classical NumberField
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+variable {𝕂 : Type*} [Field 𝕂] [NumberField 𝕂]
+
+noncomputable def integralMatrix10 {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂) (p : Fin 3 → Fin 10 → Fin 10) :
+    Matrix (Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂)))
+      (RothAuxCoefficients r) ℤ :=
+  fun q b => (Module.finBasis ℤ (𝓞 𝕂)).repr (matrix10 r eta a p q.1 b) q.2
+
+theorem integralMatrix10_strict_count {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (eta : ℝ) (heta : 0 < eta)
+    (hm : 4 * (eta^2)⁻¹ * Real.log (60 * (Module.finrank ℚ 𝕂 : ℝ)) ≤ (m : ℝ)) :
+    Fintype.card (Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂))) <
+      Fintype.card (RothAuxCoefficients r) := by
+  have hlt := coordinate_rows10_lt r hr eta heta (Module.finrank ℚ 𝕂)
+    Module.finrank_pos hm
+  simpa only [Fintype.card_prod, Fintype.card_fin, NumberField.RingOfIntegers.rank,
+    Nat.mul_comm] using hlt
+
+theorem integralMatrix10_kernel {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂) (p : Fin 3 → Fin 10 → Fin 10)
+    (c : RothAuxCoefficients r → ℤ) :
+    (integralMatrix10 r eta a p).mulVec c = 0 ↔
+      (matrix10 r eta a p).mulVec (fun b => (c b : 𝓞 𝕂)) = 0 := by
+  let b := Module.finBasis ℤ (𝓞 𝕂)
+  have he (q : Equations10 r eta) (k : Fin (Module.finrank ℤ (𝓞 𝕂))) :
+      (integralMatrix10 r eta a p).mulVec c (q,k) =
+        b.repr ((matrix10 r eta a p).mulVec (fun j => (c j : 𝓞 𝕂)) q) k := by
+    simp only [Matrix.mulVec, dotProduct, integralMatrix10, map_sum, Finsupp.finset_sum_apply]
+    apply Finset.sum_congr rfl
+    intro j _
+    have h := congrArg (fun x => x k) (b.repr.map_smul (c j) (matrix10 r eta a p q j))
+    simpa only [Finsupp.smul_apply, smul_eq_mul, Algebra.smul_def, map_intCast, mul_comm, eq_intCast, b] using h.symm
+  constructor
+  · intro hz
+    funext q
+    apply b.repr.injective
+    ext k
+    rw [Pi.zero_apply, map_zero]
+    simpa only [← he, Pi.zero_apply] using congrFun hz (q,k)
+  · intro hz
+    funext q
+    rw [he, hz, Pi.zero_apply, map_zero]
+    rfl
+
+noncomputable def integralHeightBase10 (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂) : ℝ :=
+  letI := Aux6Norm.integralNormModel 𝕂
+  max 1 (∑ tau : Fin 3, ∑ s : Fin 10, ∑ j : Fin 10, ‖a tau s j‖)
+
+noncomputable def integralCoordinateConstant10 (𝕂 : Type*) [Field 𝕂] [NumberField 𝕂] : ℝ :=
+  max 1 ‖(fun i => (Module.finBasis ℤ (𝓞 𝕂)).repr (1 : 𝓞 𝕂) i)‖
+
+theorem integralMatrix10_entry_bound {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂) (p : Fin 3 → Fin 10 → Fin 10)
+    (q : Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂)))
+    (b : RothAuxCoefficients r) :
+    ‖integralMatrix10 r eta a p q b‖ ≤ integralCoordinateConstant10 𝕂 *
+      (20 * integralHeightBase10 a)^(∑ h, r h) := by
+  letI := Aux6Norm.integralNormModel 𝕂
+  letI : NormOneClass (𝓞 𝕂) := ⟨Aux6Norm.integralNormModel_one⟩
+  have ha : ∀ tau s j, ‖a tau s j‖ ≤ integralHeightBase10 a := by
+    intro tau s j
+    apply le_trans _ (le_max_right _ _)
+    apply le_trans (Finset.single_le_sum (fun j _ => norm_nonneg (a tau s j)) (Finset.mem_univ j))
+    apply le_trans (Finset.single_le_sum (fun s _ => Finset.sum_nonneg (fun j _ => norm_nonneg (a tau s j))) (Finset.mem_univ s))
+    exact Finset.single_le_sum (fun tau _ => Finset.sum_nonneg (fun s _ => Finset.sum_nonneg (fun j _ => norm_nonneg (a tau s j)))) (Finset.mem_univ tau)
+  have hx : ‖matrix10 r eta a p q.1 b‖ ≤ (20 * integralHeightBase10 a)^(∑ h, r h) := by
+    apply Aux10Height.transformed_entry_norm10
+    · exact le_max_left _ _
+    · exact ha _ _
+  have hc := Aux6Norm.integralNormModel_coordinates (matrix10 r eta a p q.1 b)
+  have hcoord := norm_le_pi_norm (fun i => (Module.finBasis ℤ (𝓞 𝕂)).repr
+    (matrix10 r eta a p q.1 b) i) q.2
+  calc
+    _ ≤ ‖(fun i => (Module.finBasis ℤ (𝓞 𝕂)).repr (matrix10 r eta a p q.1 b) i)‖ := hcoord
+    _ ≤ ‖matrix10 r eta a p q.1 b‖ *
+        ‖(fun i => (Module.finBasis ℤ (𝓞 𝕂)).repr (1 : 𝓞 𝕂) i)‖ := hc
+    _ ≤ (20 * integralHeightBase10 a)^(∑ h, r h) * integralCoordinateConstant10 𝕂 :=
+      mul_le_mul hx (le_max_right _ _) (norm_nonneg _) (pow_nonneg (by have hh : 1 ≤ integralHeightBase10 a := le_max_left _ _; linarith) _)
+    _ = _ := mul_comm _ _
+
+end CompoundFeasibility.Auxiliary10
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+variable {𝕂 : Type*} [Field 𝕂] [NumberField 𝕂]
+attribute [local instance] Matrix.seminormedAddCommGroup
+
+theorem dimension10_le_pow {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h) :
+    rothAuxDimension r ≤ 1024^(∑ h, r h) := by
+  rw [rothAuxDimension_eq]
+  calc
+    _ ≤ ∏ h, 1024^r h := by
+      apply Finset.prod_le_prod (fun _ _ => Nat.zero_le _)
+      intro h _
+      calc
+        (r h + 9).choose 9 ≤ 2^(r h + 9) :=
+          (Nat.choose_le_two_pow _ _ (by omega)).le
+        _ ≤ 2^(10 * r h) := Nat.pow_le_pow_right (by decide) (by have hh := hr h; omega)
+        _ = 1024^r h := by rw [pow_mul]; norm_num
+    _ = _ := Finset.prod_pow_eq_pow_sum _ _ _
+
+noncomputable def integralSiegelConstant10 (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂) : ℝ :=
+  1024 * (20 * integralHeightBase10 a * integralCoordinateConstant10 𝕂)
+
+theorem integralSiegelConstant10_ge_one (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂) :
+    1 ≤ integralSiegelConstant10 a := by
+  have hA : 1 ≤ integralHeightBase10 a := le_max_left _ _
+  have hC : 1 ≤ integralCoordinateConstant10 𝕂 := le_max_left _ _
+  dsimp [integralSiegelConstant10]
+  nlinarith
+
+theorem integralMatrix10_uniform_bound {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (hm : 0 < m) (eta : ℝ)
+    (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂) (p : Fin 3 → Fin 10 → Fin 10) :
+    (Fintype.card (RothAuxCoefficients r) : ℝ) * max 1 ‖integralMatrix10 r eta a p‖ ≤
+      integralSiegelConstant10 a ^ (∑ h, r h) := by
+  let A := integralHeightBase10 a
+  let C := integralCoordinateConstant10 𝕂
+  have hA : 1 ≤ A := le_max_left _ _
+  have hC : 1 ≤ C := le_max_left _ _
+  have hR : 1 ≤ ∑ h, r h := by
+    have hp := hr ⟨0, hm⟩
+    have hh : r ⟨0, hm⟩ ≤ ∑ h, r h :=
+      Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_univ _)
+    omega
+  have hbase : 1 ≤ 20 * A * C := by nlinarith
+  have hnorm : ‖integralMatrix10 r eta a p‖ ≤ (20 * A * C)^(∑ h, r h) := by
+    apply (Matrix.norm_le_iff (by positivity)).mpr
+    intro q b
+    calc
+      _ ≤ C * (20 * A)^(∑ h, r h) := integralMatrix10_entry_bound r eta a p q b
+      _ ≤ C^(∑ h, r h) * (20 * A)^(∑ h, r h) :=
+        mul_le_mul_of_nonneg_right (by simpa using pow_le_pow_right₀ hC hR) (by positivity)
+      _ = _ := by rw [← mul_pow]; congr 1; ring
+  calc
+    _ ≤ (1024 : ℝ)^(∑ h, r h) * (20 * A * C)^(∑ h, r h) :=
+      mul_le_mul (by exact_mod_cast dimension10_le_pow r hr)
+        (max_le (one_le_pow₀ hbase) hnorm) (by positivity) (by positivity)
+    _ = _ := by rw [← mul_pow]; rfl
+
+theorem integralMatrix10_bounded_kernel {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (eta : ℝ) (heta : 0 < eta)
+    (hm : 4 * (eta^2)⁻¹ * Real.log (60 * (Module.finrank ℚ 𝕂 : ℝ)) ≤ (m : ℝ))
+    (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂) (p : Fin 3 → Fin 10 → Fin 10) :
+    ∃ c : RothAuxCoefficients r → ℤ, c ≠ 0 ∧
+      (integralMatrix10 r eta a p).mulVec c = 0 ∧
+      ‖c‖ ≤ integralSiegelConstant10 a ^ (∑ h, r h) := by
+  have hd : 0 < Module.finrank ℚ 𝕂 := Module.finrank_pos
+  have hN := dimension10_pos r
+  have hhalf := coordinate_rows10_le_half r hr eta heta (Module.finrank ℚ 𝕂) hd hm
+  have hlt := coordinate_rows10_lt r hr eta heta (Module.finrank ℚ 𝕂) hd hm
+  have hmpos : 0 < m := by
+    have hd' : (1 : ℝ) ≤ Module.finrank ℚ 𝕂 := by exact_mod_cast hd
+    have hlog : 0 < Real.log (60 * (Module.finrank ℚ 𝕂 : ℝ)) := Real.log_pos (by linarith)
+    have hh : 0 < (m : ℝ) := lt_of_lt_of_le (mul_pos (by positivity) hlog) hm
+    exact_mod_cast hh
+  have hD := integralSiegelConstant10_ge_one a
+  by_cases hrows : Fintype.card (Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂))) = 0
+  · obtain ⟨b₀⟩ := Fintype.card_pos_iff.mp hN
+    let c : RothAuxCoefficients r → ℤ := fun b => if b = b₀ then 1 else 0
+    refine ⟨c, ?_, ?_, ?_⟩
+    · intro hc
+      have hh := congrFun hc b₀
+      simp [c] at hh
+    · funext q
+      have hh := Fintype.card_pos_iff.mpr (Nonempty.intro q)
+      omega
+    · have hc : ‖c‖ ≤ (1 : ℝ) := by
+        apply (pi_norm_le_iff_of_nonneg zero_le_one).mpr
+        intro b
+        dsimp [c]
+        split_ifs <;> norm_num
+      exact hc.trans (one_le_pow₀ hD)
+  · have hcount : Fintype.card (Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂))) <
+        Fintype.card (RothAuxCoefficients r) := by
+      simpa only [Fintype.card_prod, Fintype.card_fin, NumberField.RingOfIntegers.rank,
+        Nat.mul_comm] using hlt
+    obtain ⟨c, hc, hker, hbound⟩ := Int.Matrix.exists_ne_zero_int_vec_norm_le
+      (integralMatrix10 r eta a p) hcount (Nat.pos_of_ne_zero hrows)
+    refine ⟨c, hc, hker, ?_⟩
+    have hrowsR : (Fintype.card (Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂))) : ℝ) ≤
+        (Fintype.card (RothAuxCoefficients r) : ℝ) / 2 := by
+      simpa only [Fintype.card_prod, Fintype.card_fin, NumberField.RingOfIntegers.rank,
+        Nat.mul_comm, Nat.cast_mul, rothAuxDimension] using hhalf
+    have hden : 0 < (Fintype.card (RothAuxCoefficients r) : ℝ) -
+        Fintype.card (Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂))) := by
+      exact sub_pos.mpr (by exact_mod_cast hcount)
+    have hexp : (Fintype.card (Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂))) : ℝ) /
+        ((Fintype.card (RothAuxCoefficients r) : ℝ) -
+        Fintype.card (Equations10 r eta × Fin (Module.finrank ℤ (𝓞 𝕂)))) ≤ 1 := by
+      apply (div_le_one hden).mpr
+      linarith
+    have hbase : 1 ≤ (Fintype.card (RothAuxCoefficients r) : ℝ) *
+        max 1 ‖integralMatrix10 r eta a p‖ := by
+      have hn : (1 : ℝ) ≤ Fintype.card (RothAuxCoefficients r) := by exact_mod_cast hN
+      nlinarith [le_max_left (1 : ℝ) ‖integralMatrix10 r eta a p‖]
+    exact hbound.trans ((Real.rpow_le_self_of_one_le hbase hexp).trans
+      (integralMatrix10_uniform_bound r hr hmpos eta a p))
+
+end CompoundFeasibility.Auxiliary10
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+
+theorem polynomial10_ne_zero {m : ℕ} {r : Fin m → ℕ} (c : RothAuxCoefficients r → ℤ)
+    (hc : c ≠ 0) : polynomial10 c ≠ 0 := by
+  intro hz
+  apply hc
+  funext b
+  have hh := polynomial10_coeff c b
+  rw [hz, MvPolynomial.coeff_zero] at hh
+  exact hh.symm
+
+theorem polynomial10_height_le {m : ℕ} {r : Fin m → ℕ} (c : RothAuxCoefficients r → ℤ) :
+    (height10 (polynomial10 c) : ℝ) ≤ ‖c‖ := by
+  have hs : ∀ d ∈ (polynomial10 c).support,
+      ((polynomial10 c).coeff d).natAbs ≤ Nat.floor ‖c‖ := by
+    intro d hd
+    obtain ⟨b, _, hb⟩ := Finset.mem_biUnion.mp (MvPolynomial.support_sum hd)
+    have he := Finset.mem_singleton.mp (MvPolynomial.support_monomial_subset hb)
+    subst d
+    rw [polynomial10_coeff]
+    apply Nat.le_floor
+    simpa only [Int.norm_eq_abs, Int.cast_natAbs, Int.cast_abs] using norm_le_pi_norm c b
+  have hh : height10 (polynomial10 c) ≤ Nat.floor ‖c‖ := Finset.sup_le hs
+  exact (by exact_mod_cast hh : (height10 (polynomial10 c) : ℝ) ≤ Nat.floor ‖c‖).trans
+    (Nat.floor_le (norm_nonneg _))
+
+variable {𝕂 : Type*} [Field 𝕂]
+
+theorem kernelChart10_scale {m : ℕ} (a : Fin 10 → 𝕂) (M : 𝕂) (hM : M ≠ 0)
+    (k : Fin m → Fin 10) (u : Vars10 m) :
+    kernelChart10 (fun j => M * a j) k u = kernelChart10 a k u := by
+  unfold kernelChart10
+  split_ifs
+  · congr 1
+    apply Finset.sum_congr rfl
+    intro j hj
+    rw [mul_div_mul_left _ _ hM]
+  · rfl
+
+theorem kernelRestriction10_scale {m : ℕ} (a : Fin 10 → 𝕂) (M : 𝕂) (hM : M ≠ 0)
+    (k : Fin m → Fin 10) (P : MvPolynomial (Vars10 m) 𝕂) :
+    kernelRestriction10 (fun j => M * a j) k P = kernelRestriction10 a k P := by
+  have he : kernelChart10 (m := m) (fun j => M * a j) k = kernelChart10 a k :=
+    funext (kernelChart10_scale a M hM k)
+  simp only [kernelRestriction10, he]
+
+theorem kernelRestriction10_map {𝕃 : Type*} [Field 𝕃] {m : ℕ}
+    (f : 𝕂 →+* 𝕃) (a : Fin 10 → 𝕂) (k : Fin m → Fin 10)
+    (P : MvPolynomial (Vars10 m) 𝕂) :
+    (kernelRestriction10 a k P).map f =
+      kernelRestriction10 (fun j => f (a j)) k (P.map f) := by
+  have hchart (u : Vars10 m) :
+      (kernelChart10 a k u).map f = kernelChart10 (fun j => f (a j)) k u := by
+    unfold kernelChart10
+    split_ifs <;> simp [map_sum, map_mul, map_div₀]
+  induction P using MvPolynomial.induction_on with
+  | C c => simp [kernelRestriction10]
+  | add P Q hP hQ => simp only [map_add, hP, hQ]
+  | mul_X P v hP =>
+    simp only [map_mul, hP]
+    rw [show kernelRestriction10 a k (MvPolynomial.X v) = kernelChart10 a k v by simp [kernelRestriction10]]
+    rw [hchart]
+    simp [kernelRestriction10]
+
+variable [NumberField 𝕂]
+
+theorem integral_auxiliary10
+    (a : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂)
+    (ha : ∀ tau s, ∃ j, a tau s j ≠ 0) :
+    ∃ D : ℝ, 1 ≤ D ∧
+      ∀ eta : ℝ, 0 < eta →
+      ∀ m : ℕ, 4 * (eta^2)⁻¹ * Real.log (60 * (Module.finrank ℚ 𝕂 : ℝ)) ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars10 m) ℤ,
+        P ≠ 0 ∧ homogeneous10 r P ∧ (height10 P : ℝ) ≤ D^(∑ h, r h) ∧
+        ∀ tau s (J : Vars10 m →₀ ℕ),
+          rothSourceDerivativeWeight r J < (1 / 10 - eta) * m →
+          ∀ k : Fin m → Fin 10, (∀ h, (a tau s (k h) : 𝕂) ≠ 0) →
+          kernelRestriction10 (fun j => (a tau s j : 𝕂)) k
+            (derivative10 J (P.map (Int.castRingHom 𝕂))) = 0 := by
+  let p : Fin 3 → Fin 10 → Fin 10 := fun tau s => Classical.choose (ha tau s)
+  have hp : ∀ tau s, a tau s (p tau s) ≠ 0 := fun tau s => Classical.choose_spec (ha tau s)
+  refine ⟨integralSiegelConstant10 a, integralSiegelConstant10_ge_one a, ?_⟩
+  intro eta heta m hm r hr
+  obtain ⟨c, hc, hker, hbound⟩ := integralMatrix10_bounded_kernel r hr eta heta hm a p
+  refine ⟨polynomial10 c, polynomial10_ne_zero c hc, polynomial10_homogeneous c,
+    (polynomial10_height_le c).trans hbound, ?_⟩
+  let f : 𝓞 𝕂 →+* 𝕂 := algebraMap _ _
+  have hkerO := (integralMatrix10_kernel r eta a p c).mp hker
+  have hkerK : (matrix10 r eta (fun tau s j => f (a tau s j)) p).mulVec
+      (fun b => (c b : 𝕂)) = 0 := by
+    funext q
+    have hh := congrArg f (congrFun hkerO q)
+    simpa only [Matrix.mulVec, dotProduct, map_sum, map_mul, map_intCast,
+      matrix10_map, Pi.zero_apply, map_zero] using hh
+  intro tau s J hJ k hk
+  have hpK : ∀ tau s, f (a tau s (p tau s)) ≠ 0 := fun tau s =>
+    (map_ne_zero_iff f (IsFractionRing.injective (𝓞 𝕂) 𝕂)).mpr (hp tau s)
+  have hh := matrix10_kernel_all_derivatives r eta (fun tau s j => f (a tau s j)) p
+    hpK (fun b => (c b : 𝕂)) hkerK tau s J hJ k hk
+  simpa only [polynomial10_map, map_intCast] using hh
+
+end CompoundFeasibility.Auxiliary10
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+variable {𝕂 : Type*} [Field 𝕂] [NumberField 𝕂]
+
+theorem source_integral_scaling10 (a : Fin 3 → Fin 10 → Fin 10 → 𝕂) :
+    ∃ M : ℤ, M ≠ 0 ∧ ∃ b : Fin 3 → Fin 10 → Fin 10 → 𝓞 𝕂,
+      ∀ tau s j, (b tau s j : 𝕂) = (M : 𝕂) * a tau s j := by
+  haveI : Algebra.IsAlgebraic ℚ 𝕂 := Algebra.IsAlgebraic.of_finite ℚ 𝕂
+  haveI : Algebra.IsAlgebraic ℤ 𝕂 :=
+    (IsFractionRing.comap_isAlgebraic_iff (A := ℤ) (K := ℚ) (C := 𝕂)).mpr inferInstance
+  obtain ⟨M, hM, hi⟩ := Algebra.IsAlgebraic.exists_integral_multiples ℤ
+    (Finset.univ.image (fun q : Fin 3 × Fin 10 × Fin 10 => a q.1 q.2.1 q.2.2))
+  have hint : ∀ tau s j, IsIntegral ℤ ((M : 𝕂) * a tau s j) := by
+    intro tau s j
+    simpa only [Algebra.smul_def, eq_intCast] using
+      hi (a tau s j) (Finset.mem_image.mpr ⟨(tau,s,j),Finset.mem_univ _,rfl⟩)
+  exact ⟨M, hM, (fun tau s j => ⟨(M : 𝕂) * a tau s j, hint tau s j⟩), fun _ _ _ => rfl⟩
+
+theorem algebraic_auxiliary10 (a : Fin 3 → Fin 10 → Fin 10 → 𝕂)
+    (ha : ∀ tau s, ∃ j, a tau s j ≠ 0) :
+    ∃ D : ℝ, 1 ≤ D ∧
+      ∀ eta : ℝ, 0 < eta →
+      ∀ m : ℕ, 4 * (eta^2)⁻¹ * Real.log (60 * (Module.finrank ℚ 𝕂 : ℝ)) ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars10 m) ℤ,
+        P ≠ 0 ∧ homogeneous10 r P ∧ (height10 P : ℝ) ≤ D^(∑ h, r h) ∧
+        ∀ tau s (J : Vars10 m →₀ ℕ),
+          rothSourceDerivativeWeight r J < (1 / 10 - eta) * m →
+          ∀ k : Fin m → Fin 10, (∀ h, a tau s (k h) ≠ 0) →
+          kernelRestriction10 (a tau s) k
+            (derivative10 J (P.map (Int.castRingHom 𝕂))) = 0 := by
+  obtain ⟨M, hM, b, hb⟩ := source_integral_scaling10 a
+  have hMK : (M : 𝕂) ≠ 0 := by exact_mod_cast hM
+  have hbn : ∀ tau s, ∃ j, b tau s j ≠ 0 := by
+    intro tau s
+    obtain ⟨j, hj⟩ := ha tau s
+    refine ⟨j, ?_⟩
+    intro hz
+    exact (mul_ne_zero hMK hj) (by rw [← hb tau s j, hz]; rfl)
+  obtain ⟨D, hD, hconstruction⟩ := integral_auxiliary10 b hbn
+  refine ⟨D, hD, ?_⟩
+  intro eta heta m hm r hr
+  obtain ⟨P, hP, hhom, hheight, hderiv⟩ := hconstruction eta heta m hm r hr
+  refine ⟨P, hP, hhom, hheight, ?_⟩
+  intro tau s J hJ k hk
+  have hbk : ∀ h, (b tau s (k h) : 𝕂) ≠ 0 := by
+    intro h
+    rw [hb]
+    exact mul_ne_zero hMK (hk h)
+  have hh := hderiv tau s J hJ k hbk
+  simp only [hb] at hh
+  rw [kernelRestriction10_scale (a tau s) (M : 𝕂) hMK] at hh
+  exact hh
+
+end CompoundFeasibility.Auxiliary10
+
+
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+
+theorem source_restriction10_real (K : IntermediateField ℚ ℝ) {m : ℕ}
+    (a : Fin 10 → K) (k : Fin m → Fin 10) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) :
+    (kernelRestriction10 a k (derivative10 J (P.map (Int.castRingHom K)))).map
+      K.val.toRingHom =
+      kernelRestriction10 (fun j => (a j : ℝ)) k
+        (derivative10 J (P.map (Int.castRingHom ℝ))) := by
+  rw [kernelRestriction10_map, derivative10_map, MvPolynomial.map_map]
+  have hf : K.val.toRingHom.comp (Int.castRingHom K) = Int.castRingHom ℝ :=
+    Subsingleton.elim _ _
+  rw [hf]
+  rfl
+
+theorem source_auxiliary10_field (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (hL : L.det = 1) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ hmem : ∀ tau s j, SourceForms10.forms10 A2 A3 L tau s j ∈ K,
+      ∃ D : ℝ, 1 ≤ D ∧
+      ∀ eta : ℝ, 0 < eta →
+      ∀ m : ℕ, 4 * (eta^2)⁻¹ * Real.log (60 * (Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars10 m) ℤ,
+        P ≠ 0 ∧ homogeneous10 r P ∧ (height10 P : ℝ) ≤ D^(∑ h, r h) ∧
+        (∀ tau s (J : Vars10 m →₀ ℕ),
+          rothSourceDerivativeWeight r J < (1 / 10 - eta) * m →
+          ∀ k : Fin m → Fin 10,
+            (∀ h, (⟨SourceForms10.forms10 A2 A3 L tau s (k h), hmem tau s (k h)⟩ : K) ≠ 0) →
+            kernelRestriction10 (fun j => (⟨SourceForms10.forms10 A2 A3 L tau s j, hmem tau s j⟩ : K)) k
+              (derivative10 J (P.map (Int.castRingHom K))) = 0) ∧
+        (∀ tau s (J : Vars10 m →₀ ℕ),
+          rothSourceDerivativeWeight r J < (1 / 10 - eta) * m →
+          ∀ k : Fin m → Fin 10, (∀ h, SourceForms10.forms10 A2 A3 L tau s (k h) ≠ 0) →
+            kernelRestriction10 (SourceForms10.forms10 A2 A3 L tau s) k
+              (derivative10 J (P.map (Int.castRingHom ℝ))) = 0) := by
+  obtain ⟨K, hK, hmem⟩ := SourceForms10.common_source_field10 A2 A3 L ha
+  letI : FiniteDimensional ℚ K := hK
+  letI : NumberField K := {}
+  let a : Fin 3 → Fin 10 → Fin 10 → K := fun tau s j =>
+    ⟨SourceForms10.forms10 A2 A3 L tau s j, hmem tau s j⟩
+  have hnonzero : ∀ tau s, ∃ j, a tau s j ≠ 0 := by
+    intro tau s
+    obtain ⟨j, hj⟩ := SourceForms10.source_rows_nonzero10 A2 A3 L h2 h3 hL tau s
+    refine ⟨j, ?_⟩
+    intro hh
+    exact hj (congrArg Subtype.val hh)
+  obtain ⟨D, hD, hconstruction⟩ := algebraic_auxiliary10 a hnonzero
+  refine ⟨K, hK, hmem, D, hD, ?_⟩
+  intro eta heta m hm r hr
+  obtain ⟨P, hP, hhom, hheight, hderiv⟩ := hconstruction eta heta m hm r hr
+  refine ⟨P, hP, hhom, hheight, hderiv, ?_⟩
+  intro tau s J hJ k hk
+  have hkK : ∀ h, a tau s (k h) ≠ 0 := by
+    intro h hh
+    exact hk h (congrArg Subtype.val hh)
+  have he := source_restriction10_real K (a tau s) k J P
+  rw [hderiv tau s J hJ k hkK, map_zero] at he
+  exact he.symm
+
+theorem source_auxiliary10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (hL : L.det = 1) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      (∀ tau s j, SourceForms10.forms10 A2 A3 L tau s j ∈ K) ∧
+      ∃ D : ℝ, 1 ≤ D ∧
+      ∀ eta : ℝ, 0 < eta →
+      ∀ m : ℕ, 4 * (eta^2)⁻¹ * Real.log (60 * (Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars10 m) ℤ,
+        P ≠ 0 ∧ homogeneous10 r P ∧ (height10 P : ℝ) ≤ D^(∑ h, r h) ∧
+        ∀ tau s (J : Vars10 m →₀ ℕ),
+          rothSourceDerivativeWeight r J < (1 / 10 - eta) * m →
+          ∀ k : Fin m → Fin 10, (∀ h, SourceForms10.forms10 A2 A3 L tau s (k h) ≠ 0) →
+          kernelRestriction10 (SourceForms10.forms10 A2 A3 L tau s) k
+            (derivative10 J (P.map (Int.castRingHom ℝ))) = 0 := by
+  obtain ⟨K, hK, hmem, D, hD, hconstruction⟩ := source_auxiliary10_field A2 A3 L h2 h3 hL ha
+  refine ⟨K, hK, hmem, D, hD, ?_⟩
+  intro eta heta m hm r hr
+  obtain ⟨P, hP, hhom, hheight, hfield, hreal⟩ := hconstruction eta heta m hm r hr
+  exact ⟨P, hP, hhom, hheight, hreal⟩
+
+end CompoundFeasibility.Auxiliary10
+
+namespace CompoundFeasibility.Auxiliary10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10
+
+def matrixIndex10 {K : Type*} [Field K] [CharZero K] {m : ℕ}
+    (B : Matrix (Fin 10) (Fin 10) K) (r : Fin m → ℕ) (eta : ℝ)
+    (P : MvPolynomial (Vars10 m) ℤ) : Prop :=
+  ∀ i (J : Vars10 m →₀ ℕ), rothSourceDerivativeWeight r J < (1/10-eta)*m →
+    ∀ k : Fin m → Fin 10, (∀ h, B i (k h) ≠ 0) →
+      kernelRestriction10 (B i) k (derivative10 J (P.map (Int.castRingHom K))) = 0
+
+theorem restriction10_map_int {K E : Type*} [Field K] [CharZero K] [Field E] [CharZero E]
+    (f : K →+* E) {m : ℕ} (a : Fin 10 → K) (k : Fin m → Fin 10)
+    (J : Vars10 m →₀ ℕ) (P : MvPolynomial (Vars10 m) ℤ) :
+    (kernelRestriction10 a k (derivative10 J (P.map (Int.castRingHom K)))).map f =
+      kernelRestriction10 (fun j => f (a j)) k (derivative10 J (P.map (Int.castRingHom E))) := by
+  rw [kernelRestriction10_map,derivative10_map,MvPolynomial.map_map]
+  have hf : f.comp (Int.castRingHom K) = Int.castRingHom E := Subsingleton.elim _ _
+  rw [hf]
+
+theorem padic_restriction10_zero (p : ℕ) [Fact p.Prime] {m : ℕ}
+    (a : Fin 10 → ℚ) (k : Fin m → Fin 10) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ)
+    (hz : kernelRestriction10 (fun j => (a j : ℝ)) k
+      (derivative10 J (P.map (Int.castRingHom ℝ))) = 0) :
+    kernelRestriction10 (fun j => (algebraMap ℚ ℚ_[p]) (a j)) k
+      (derivative10 J (P.map (Int.castRingHom ℚ_[p]))) = 0 := by
+  have hq : kernelRestriction10 a k (derivative10 J (P.map (Int.castRingHom ℚ))) = 0 := by
+    apply MvPolynomial.map_injective (algebraMap ℚ ℝ) (algebraMap ℚ ℝ).injective
+    rw [map_zero,restriction10_map_int]
+    exact hz
+  have he := congrArg (MvPolynomial.map (algebraMap ℚ ℚ_[p])) hq
+  rw [restriction10_map_int,map_zero] at he
+  exact he
+
+theorem finite_matrix_index10 (p : ℕ) [Fact p.Prime] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (r : Fin m → ℕ) (eta : ℝ)
+    (P : MvPolynomial (Vars10 m) ℤ)
+    (hreal : matrixIndex10 (A.map (algebraMap ℚ ℝ)) r eta P) :
+    matrixIndex10 (SourceForms10.finiteMatrix10 p A) r eta P := by
+  intro i J hJ k hk
+  apply padic_restriction10_zero p (A i) k J P
+  apply hreal i J hJ k
+  intro h hz
+  have hq : A i (k h) = 0 := by
+    change (A i (k h) : ℝ) = 0 at hz
+    exact_mod_cast hz
+  apply hk h
+  simp [SourceForms10.finiteMatrix10,hq]
+
+theorem source_auxiliary10_all_places (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (hL : L.det = 1) (ha : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ hmem : ∀ tau i j, SourceForms10.forms10 A2 A3 L tau i j ∈ K,
+      ∃ D : ℝ, 1 ≤ D ∧ ∀ eta : ℝ, 0 < eta →
+      ∀ m : ℕ, 4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) →
+      ∀ r : Fin m → ℕ, (∀ h, 0 < r h) →
+      ∃ P : MvPolynomial (Vars10 m) ℤ, P ≠ 0 ∧ homogeneous10 r P ∧
+      (height10 P : ℝ) ≤ D^(∑ h, r h) ∧
+      (∀ tau, matrixIndex10 (fun i j => (⟨SourceForms10.forms10 A2 A3 L tau i j,hmem tau i j⟩ : K)) r eta P) ∧
+      (∀ tau, matrixIndex10 (SourceForms10.forms10 A2 A3 L tau) r eta P) ∧
+      matrixIndex10 (SourceForms10.finiteMatrix10 2 A2) r eta P ∧
+      matrixIndex10 (SourceForms10.finiteMatrix10 3 A3) r eta P := by
+  obtain ⟨K,hK,hmem,D,hD,hconstruction⟩ := source_auxiliary10_field A2 A3 L h2 h3 hL ha
+  refine ⟨K,hK,hmem,D,hD,?_⟩
+  intro eta heta m hm r hr
+  obtain ⟨P,hP,hhom,hheight,hfield,hreal⟩ := hconstruction eta heta m hm r hr
+  refine ⟨P,hP,hhom,hheight,hfield,hreal,?_,?_⟩
+  · apply finite_matrix_index10 2 A2 r eta P
+    exact hreal 1
+  · apply finite_matrix_index10 3 A3 r eta P
+    exact hreal 2
+
+end CompoundFeasibility.Auxiliary10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceExpansion10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10 Aux6Mass
+
+def linearChart {K : Type*} [CommRing K] {m : ℕ}
+    (B : Matrix (Fin 10) (Fin 10) K) (u : Vars10 m) : MvPolynomial (Vars10 m) K :=
+  ∑ j : Fin 10, MvPolynomial.C (B u.2 j) * MvPolynomial.X (u.1,j)
+
+def substitution {K : Type*} [CommRing K] {m : ℕ}
+    (B : Matrix (Fin 10) (Fin 10) K) :
+    MvPolynomial (Vars10 m) K →+* MvPolynomial (Vars10 m) K :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (linearChart B)
+
+def expansion {K : Type*} [Field K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) : MvPolynomial (Vars10 m) K :=
+  substitution A⁻¹ (derivative10 J (P.map (Int.castRingHom K)))
+
+theorem chart_one {K : Type*} [CommRing K] {m : ℕ} (u : Vars10 m) :
+    linearChart (1 : Matrix (Fin 10) (Fin 10) K) u = MvPolynomial.X u := by
+  simp [linearChart, Matrix.one_apply, mul_ite, Finset.sum_ite_eq, Finset.sum_ite_eq']
+
+theorem chart_comp {K : Type*} [CommRing K] {m : ℕ}
+    (A B : Matrix (Fin 10) (Fin 10) K) (u : Vars10 m) :
+    substitution A (linearChart B u) = linearChart (B * A) u := by
+  simp only [linearChart, substitution, map_sum, map_mul,
+    MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X']
+  simp_rw [Finset.mul_sum]
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro j hj
+  simp only [Matrix.mul_apply]
+  rw [map_sum, Finset.sum_mul]
+  apply Finset.sum_congr rfl
+  intro i hi
+  rw [map_mul]
+  ring
+
+theorem substitution_comp {K : Type*} [CommRing K] {m : ℕ}
+    (A B : Matrix (Fin 10) (Fin 10) K) (P : MvPolynomial (Vars10 m) K) :
+    substitution A (substitution B P) = substitution (B * A) P := by
+  have he : (substitution (m := m) A).comp (substitution B) = substitution (B * A) := by
+    apply MvPolynomial.ringHom_ext
+    · intro c; simp [substitution]
+    · intro u
+      simp only [RingHom.comp_apply, substitution, MvPolynomial.eval₂Hom_X']
+      exact chart_comp A B u
+  exact congrArg (fun f => f P) he
+
+theorem substitution_one {K : Type*} [CommRing K] {m : ℕ}
+    (P : MvPolynomial (Vars10 m) K) : substitution 1 P = P := by
+  induction P using MvPolynomial.induction_on with
+  | C c => simp [substitution]
+  | add P Q hP hQ => simp [hP, hQ]
+  | mul_X P u hP =>
+    rw [map_mul, hP]
+    simp [substitution, chart_one]
+
+theorem reconstruct {K : Type*} [Field K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (hA : A.det ≠ 0)
+    (J : Vars10 m →₀ ℕ) (P : MvPolynomial (Vars10 m) ℤ) :
+    substitution A (expansion A J P) = derivative10 J (P.map (Int.castRingHom K)) := by
+  rw [expansion, substitution_comp, Matrix.nonsing_inv_mul A (isUnit_iff_ne_zero.mpr hA),
+    substitution_one]
+
+theorem unique {K : Type*} [Field K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (hA : A.det ≠ 0)
+    (J : Vars10 m →₀ ℕ) (P : MvPolynomial (Vars10 m) ℤ)
+    (Q : MvPolynomial (Vars10 m) K)
+    (hQ : substitution A Q = derivative10 J (P.map (Int.castRingHom K))) :
+    Q = expansion A J P := by
+  have he := congrArg (substitution A⁻¹) hQ
+  rw [substitution_comp, Matrix.mul_nonsing_inv A (isUnit_iff_ne_zero.mpr hA),
+    substitution_one] at he
+  exact he
+
+theorem chart_mass {K : Type*} [NormedField K] {m : ℕ}
+    (B : Matrix (Fin 10) (Fin 10) K) (G : ℝ)
+    (hB : ∀ i j, ‖B i j‖ ≤ G) (u : Vars10 m) : mass (linearChart B u) ≤ 10 * G := by
+  calc
+    _ ≤ ∑ j : Fin 10, mass (MvPolynomial.C (B u.2 j) * MvPolynomial.X (u.1,j)) := mass_sum _ _
+    _ ≤ ∑ _j : Fin 10, G := by
+      apply Finset.sum_le_sum
+      intro j _
+      rw [mass_C_mul_X]
+      exact hB _ _
+    _ = _ := by simp
+
+theorem monomial_mass {K : Type*} [NormedField K] {m : ℕ} {r : Fin m → ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (G : ℝ) (hG : 1 ≤ G)
+    (hentry : ∀ i j, ‖A⁻¹ i j‖ ≤ G)
+    (b : RothAuxCoefficients r) (J : Vars10 m →₀ ℕ) (c : ℤ) :
+    mass (expansion A J (MvPolynomial.monomial (exponent10 b) c)) ≤
+      (c.natAbs : ℝ) * (20 * G) ^ (∑ h, r h) := by
+  let R := ∑ h, r h
+  have hbase : 1 ≤ 10 * G := by linarith
+  have hsum : (∑ u : Vars10 m, (exponent10 b - J) u) ≤ R := by
+    change (∑ u : Vars10 m, (exponent10 b - J) u) ≤ ∑ h, r h
+    rw [← exponent10_sum b]
+    exact Finset.sum_le_sum (fun u _ => Nat.sub_le _ _)
+  have hprod : mass (∏ u : Vars10 m, linearChart A⁻¹ u ^ (exponent10 b - J) u) ≤ (10 * G) ^ R := by
+    calc
+      _ ≤ ∏ u : Vars10 m, mass (linearChart A⁻¹ u ^ (exponent10 b - J) u) := mass_prod _ _
+      _ ≤ ∏ u : Vars10 m, (10 * G) ^ (exponent10 b - J) u := by
+        apply Finset.prod_le_prod
+        · intro u _; exact mass_nonneg _
+        · intro u _
+          exact (mass_pow _ _).trans
+            (pow_le_pow_left₀ (mass_nonneg _) (chart_mass A⁻¹ G hentry u) _)
+      _ = (10 * G) ^ (∑ u : Vars10 m, (exponent10 b - J) u) := Finset.prod_pow_eq_pow_sum _ _ _
+      _ ≤ _ := pow_le_pow_right₀ hbase hsum
+  have hc : ‖(c : K)‖ ≤ (c.natAbs : ℝ) := by
+    simpa only [zsmul_eq_mul, mul_one, norm_one, Int.norm_eq_abs, Int.cast_abs, Int.cast_natAbs] using (norm_zsmul_le (n := c) (a := (1 : K)))
+  have he : expansion A J (MvPolynomial.monomial (exponent10 b) c) =
+      MvPolynomial.C ((c : K) * ∏ u : Vars10 m, (Nat.choose (exponent10 b u) (J u) : K)) *
+        ∏ u : Vars10 m, linearChart A⁻¹ u ^ (exponent10 b - J) u := by
+    rw [expansion, MvPolynomial.map_monomial, derivative10_monomial, substitution,
+      MvPolynomial.eval₂Hom_monomial, Finsupp.prod_fintype _ _ (fun _ => pow_zero _)]
+    rfl
+  rw [he]
+  calc
+    _ ≤ mass (MvPolynomial.C ((c : K) * ∏ u : Vars10 m,
+        (Nat.choose (exponent10 b u) (J u) : K))) *
+        mass (∏ u : Vars10 m, linearChart A⁻¹ u ^ (exponent10 b - J) u) := mass_mul _ _
+    _ ≤ ((c.natAbs : ℝ) * (2 : ℝ)^R) * (10 * G)^R := by
+      apply mul_le_mul
+      · rw [MvPolynomial.C_apply, mass_monomial]
+        exact (norm_mul_le _ _).trans
+          (mul_le_mul hc (Aux10Height.binomial_norm10 b J) (norm_nonneg _) (Nat.cast_nonneg _))
+      · exact hprod
+      · exact mass_nonneg _
+      · positivity
+    _ = _ := by rw [mul_assoc, ← mul_pow]; congr 2; ring
+
+
+
+theorem support_index {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (d : Vars10 m →₀ ℕ) (hd : d ∈ P.support) :
+    ∃ b : RothAuxCoefficients r, exponent10 b = d := by
+  have hle (h : Fin m) (i : Fin 10) : d (h,i) ≤ r h := by
+    rw [← hP d hd h]
+    exact Finset.single_le_sum (f := fun j : Fin 10 => d (h,j)) (fun _ _ => Nat.zero_le _) (Finset.mem_univ i)
+  refine ⟨fun h => ⟨fun i => ⟨d (h,i), by have hh := hle h i; omega⟩, hP d hd h⟩, ?_⟩
+  ext u
+  rfl
+
+theorem support_card {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P) :
+    P.support.card ≤ 1024 ^ (∑ h, r h) := by
+  have hs : P.support ⊆ Finset.univ.image (@exponent10 m r) := by
+    intro d hd
+    obtain ⟨b,hb⟩ := support_index r P hP d hd
+    exact Finset.mem_image.mpr ⟨b,Finset.mem_univ _,hb⟩
+  calc
+    _ ≤ (Finset.univ.image (@exponent10 m r)).card := Finset.card_le_card hs
+    _ ≤ Fintype.card (RothAuxCoefficients r) := Finset.card_image_le
+    _ ≤ _ := dimension10_le_pow r hr
+
+theorem expansion_sum {K : Type*} [Field K] {m : ℕ}
+    (A : Matrix (Fin 10) (Fin 10) K) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) :
+    expansion A J P = ∑ d ∈ P.support, expansion A J (MvPolynomial.monomial d (P.coeff d)) := by
+  unfold expansion
+  rw [← derivative10_map, derivative10, MvPolynomial.sum_def, map_sum, map_sum]
+  apply Finset.sum_congr rfl
+  intro d hd
+  simp only [MvPolynomial.map_monomial, derivative10_monomial, map_mul, map_prod, map_natCast]
+
+theorem coefficient_bound {K : Type*} [NormedField K] {m : ℕ}
+    (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (D : ℝ) (hD : 1 ≤ D) (hheight : (height10 P : ℝ) ≤ D ^ (∑ h, r h))
+    (A : Matrix (Fin 10) (Fin 10) K) (G : ℝ) (hG : 1 ≤ G)
+    (hentry : ∀ i j, ‖A⁻¹ i j‖ ≤ G) (J b : Vars10 m →₀ ℕ) :
+    ‖(expansion A J P).coeff b‖ ≤ (20480 * D * G) ^ (∑ h, r h) := by
+  have hDpos : 0 ≤ D := by linarith
+  have hGpos : 0 ≤ G := by linarith
+  apply (coeff_le_mass _ _).trans
+  rw [expansion_sum]
+  calc
+    _ ≤ ∑ d ∈ P.support, mass (expansion A J (MvPolynomial.monomial d (P.coeff d))) := mass_sum _ _
+    _ ≤ ∑ _d ∈ P.support, D^(∑ h, r h) * (20 * G)^(∑ h, r h) := by
+      apply Finset.sum_le_sum
+      intro d hd
+      obtain ⟨a,ha⟩ := support_index r P hP d hd
+      have hc : ((P.coeff d).natAbs : ℝ) ≤ D^(∑ h, r h) := by
+        have hh : (P.coeff d).natAbs ≤ height10 P := Finset.le_sup (f := fun e => (P.coeff e).natAbs) hd
+        exact (by exact_mod_cast hh : ((P.coeff d).natAbs : ℝ) ≤ (height10 P : ℝ)).trans hheight
+      have hm := monomial_mass A G hG hentry a J (P.coeff d)
+      rw [ha] at hm
+      exact hm.trans (mul_le_mul_of_nonneg_right hc (by positivity))
+    _ = (P.support.card : ℝ) * (D^(∑ h, r h) * (20 * G)^(∑ h, r h)) := by simp
+    _ ≤ (1024 : ℝ)^(∑ h, r h) * (D^(∑ h, r h) * (20 * G)^(∑ h, r h)) := by
+      have hc : (P.support.card : ℝ) ≤ (1024 : ℝ)^(∑ h, r h) := by exact_mod_cast support_card r hr P hP
+      exact mul_le_mul_of_nonneg_right hc (by positivity)
+    _ = _ := by rw [← mul_pow, ← mul_pow]; congr 1; ring
+
+
+
+def inverseBudget {K : Type*} [NormedField K] (A : Matrix (Fin 10) (Fin 10) K) : ℝ :=
+  1 + ∑ i : Fin 10, ∑ j : Fin 10, ‖A⁻¹ i j‖
+
+theorem inverseBudget_one {K : Type*} [NormedField K]
+    (A : Matrix (Fin 10) (Fin 10) K) : 1 ≤ inverseBudget A := by
+  unfold inverseBudget
+  exact le_add_of_nonneg_right (Finset.sum_nonneg (fun _ _ => Finset.sum_nonneg (fun _ _ => norm_nonneg _)))
+
+theorem inverseBudget_entry {K : Type*} [NormedField K]
+    (A : Matrix (Fin 10) (Fin 10) K) (i j : Fin 10) : ‖A⁻¹ i j‖ ≤ inverseBudget A := by
+  have hrow : ‖A⁻¹ i j‖ ≤ ∑ k : Fin 10, ‖A⁻¹ i k‖ :=
+    Finset.single_le_sum (fun _ _ => norm_nonneg _) (Finset.mem_univ j)
+  have hall : (∑ k : Fin 10, ‖A⁻¹ i k‖) ≤ ∑ h : Fin 10, ∑ k : Fin 10, ‖A⁻¹ h k‖ :=
+    Finset.single_le_sum (fun _ _ => Finset.sum_nonneg (fun _ _ => norm_nonneg _)) (Finset.mem_univ i)
+  unfold inverseBudget
+  linarith
+
+theorem source_coefficient_bounds (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (D : ℝ) (hD : 1 ≤ D) :
+    ∃ E : ℝ, 1 ≤ E ∧ ∀ (m : ℕ) (r : Fin m → ℕ), (∀ h, 0 < r h) →
+      ∀ P : MvPolynomial (Vars10 m) ℤ, homogeneous10 r P →
+      (height10 P : ℝ) ≤ D^(∑ h, r h) → ∀ J b : Vars10 m →₀ ℕ,
+      ‖(expansion L J P).coeff b‖ ≤ E^(∑ h, r h) ∧
+      ‖(expansion (SourceForms10.finiteMatrix10 2 A2) J P).coeff b‖ ≤ E^(∑ h, r h) ∧
+      ‖(expansion (SourceForms10.finiteMatrix10 3 A3) J P).coeff b‖ ≤ E^(∑ h, r h) := by
+  let G := max (inverseBudget L)
+    (max (inverseBudget (SourceForms10.finiteMatrix10 2 A2)) (inverseBudget (SourceForms10.finiteMatrix10 3 A3)))
+  have h0 : inverseBudget L ≤ G := le_max_left _ _
+  have h2 : inverseBudget (SourceForms10.finiteMatrix10 2 A2) ≤ G := (le_max_left _ _).trans (le_max_right _ _)
+  have h3 : inverseBudget (SourceForms10.finiteMatrix10 3 A3) ≤ G := (le_max_right _ _).trans (le_max_right _ _)
+  have hG : 1 ≤ G := (inverseBudget_one _).trans h0
+  refine ⟨20480 * D * G, by nlinarith, ?_⟩
+  intro m r hr P hP hheight J b
+  exact ⟨coefficient_bound r hr P hP D hD hheight _ G hG
+      (fun i j => (inverseBudget_entry _ i j).trans h0) J b,
+    coefficient_bound r hr P hP D hD hheight _ G hG
+      (fun i j => (inverseBudget_entry _ i j).trans h2) J b,
+    coefficient_bound r hr P hP D hD hheight _ G hG
+      (fun i j => (inverseBudget_entry _ i j).trans h3) J b⟩
+
+
+end CompoundFeasibility.Auxiliary10.SourceExpansion10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceSupport10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10 SourceExpansion10
+variable {K : Type*} [Field K] [CharZero K]
+theorem chart_pderiv {m : ℕ} (B : Matrix (Fin 10) (Fin 10) K)
+    (h : Fin m) (i : Fin 10) (u : Vars10 m) :
+    MvPolynomial.pderiv (h,i) (linearChart B u) =
+      if u.1 = h then MvPolynomial.C (B u.2 i) else 0 := by
+  classical
+  rcases u with ⟨g,j⟩
+  by_cases hg : g = h
+  · subst g
+    simp [linearChart, map_sum, MvPolynomial.pderiv_C_mul, MvPolynomial.pderiv_X,
+      Pi.single_apply, Prod.mk.injEq, mul_ite, Finset.sum_ite_eq, Finset.sum_ite_eq', eq_comm]
+  · simp [linearChart, map_sum, MvPolynomial.pderiv_C_mul, MvPolynomial.pderiv_X,
+      Pi.single_apply, Prod.mk.injEq, hg, Ne.symm hg]
+
+theorem substitution_chain {m : ℕ} (B : Matrix (Fin 10) (Fin 10) K)
+    (h : Fin m) (i : Fin 10) (P : MvPolynomial (Vars10 m) K) :
+    MvPolynomial.pderiv (h,i) (substitution B P) =
+      ∑ j : Fin 10, MvPolynomial.C (B j i) *
+        substitution B (MvPolynomial.pderiv (h,j) P) := by
+  classical
+  induction P using MvPolynomial.induction_on with
+  | C c => simp [substitution]
+  | add P Q hP hQ => simp only [map_add, hP, hQ, mul_add, Finset.sum_add_distrib]
+  | mul_X P u hP =>
+    have hdelta : (∑ j : Fin 10, (MvPolynomial.C (B j i) * substitution B P) *
+        (if (h,j) = u then 1 else 0)) =
+        substitution B P * (if u.1 = h then MvPolynomial.C (B u.2 i) else 0) := by
+      rcases u with ⟨g,l⟩
+      by_cases hg : g = h
+      · subst g
+        simp [Prod.mk.injEq, mul_ite, Finset.sum_ite_eq, Finset.sum_ite_eq', mul_comm]
+      · simp [Prod.mk.injEq, hg, Ne.symm hg]
+    have hX : substitution B (MvPolynomial.X u) = linearChart B u := by
+      simp [substitution]
+    have hD (j : Fin 10) :
+        substitution B (MvPolynomial.pderiv (h,j) (P * MvPolynomial.X u)) =
+          substitution B (MvPolynomial.pderiv (h,j) P) * linearChart B u +
+          substitution B P * (if (h,j) = u then 1 else 0) := by
+      by_cases he : (h,j) = u <;>
+        simp [MvPolynomial.pderiv_mul, hX, MvPolynomial.pderiv_X, Pi.single_apply, he, eq_comm] <;> ring
+    rw [map_mul, MvPolynomial.pderiv_mul, hP, hX, chart_pderiv]
+    simp_rw [hD, mul_add, ← mul_assoc]
+    rw [Finset.sum_add_distrib, ← Finset.sum_mul, hdelta]
+
+noncomputable def zeroCoordinate {m : ℕ} (i : Fin 10) :
+    MvPolynomial (Vars10 m) K →+* MvPolynomial (Vars10 m) K :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u => if u.2 = i then 0 else MvPolynomial.X u)
+
+noncomputable def kernelImage {m : ℕ} (L : Matrix (Fin 10) (Fin 10) K)
+    (i : Fin 10) (u : Vars10 m) : MvPolynomial (Vars10 m) K :=
+  zeroCoordinate i (linearChart (L)⁻¹ u)
+
+theorem kernel_image_form {m : ℕ} (L : Matrix (Fin 10) (Fin 10) K)
+    (hL : (L).det ≠ 0) (i : Fin 10) (h : Fin m) :
+    (∑ j : Fin 10, MvPolynomial.C (L i j : K) * kernelImage L i (h,j)) = 0 := by
+  have he := chart_comp (L)⁻¹ (L) (h,i)
+  rw [Matrix.mul_nonsing_inv _ (isUnit_iff_ne_zero.mpr hL), chart_one] at he
+  change substitution (L)⁻¹
+    (∑ j : Fin 10, MvPolynomial.C (L i j) * MvPolynomial.X (h,j)) =
+      MvPolynomial.X (h,i) at he
+  simp only [map_sum, map_mul, substitution,
+    MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X'] at he
+  have hz := congrArg (zeroCoordinate i) he
+  have hC (q : K) : zeroCoordinate (m := m) i (MvPolynomial.C q) = MvPolynomial.C q := by
+    simp [zeroCoordinate]
+  simp only [map_sum, map_mul, hC] at hz
+  rw [show zeroCoordinate i (MvPolynomial.X (h,i)) = 0 by
+    simp [zeroCoordinate]] at hz
+  exact hz
+
+theorem kernel_factor_variable {m : ℕ} (L : Matrix (Fin 10) (Fin 10) K)
+    (hL : (L).det ≠ 0) (i p : Fin 10) (hp : L i p ≠ 0)
+    (u : Vars10 m) :
+    MvPolynomial.eval₂Hom MvPolynomial.C (kernelImage L i)
+      (kernelChart10 (L i) (fun _ => p) u) =
+      kernelImage L i u := by
+  classical
+  have ha : (L i p : K) ≠ 0 := by exact_mod_cast hp
+  have hcancel : (MvPolynomial.C ((L i p : K)⁻¹) : MvPolynomial (Vars10 m) K) *
+      MvPolynomial.C (L i p : K) = 1 := by
+    rw [← MvPolynomial.C_mul, inv_mul_cancel₀ ha, map_one]
+  by_cases hu : u.2 = p
+  · have hs := kernel_image_form L hL i u.1
+    rw [← Finset.sum_erase_add Finset.univ _ (Finset.mem_univ p)] at hs
+    have hr : -(∑ j ∈ Finset.univ.erase p,
+        MvPolynomial.C (L i j : K) * kernelImage L i (u.1,j)) =
+        MvPolynomial.C (L i p : K) * kernelImage L i (u.1,p) := by
+      linear_combination -hs
+    simp only [kernelChart10, hu, if_pos rfl, ite_true, map_neg, map_sum, map_mul,
+      MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X']
+    calc
+      _ = MvPolynomial.C ((L i p : K)⁻¹) *
+          -(∑ j ∈ Finset.univ.erase p,
+            MvPolynomial.C (L i j : K) * kernelImage L i (u.1,j)) := by
+        rw [mul_neg, Finset.mul_sum]
+        congr 1
+        apply Finset.sum_congr rfl
+        intro j hj
+        rw [div_eq_mul_inv, MvPolynomial.C_mul]
+        ring
+      _ = _ := by rw [hr, ← mul_assoc, hcancel, one_mul]; simp [← hu]
+  · simp [kernelChart10, hu]
+
+theorem zero_monomial {m : ℕ} (i : Fin 10)
+    (b : Vars10 m →₀ ℕ) (c : K) :
+    zeroCoordinate i (MvPolynomial.monomial b c) =
+      if (∀ h, b (h,i) = 0) then MvPolynomial.monomial b c else 0 := by
+  classical
+  rw [zeroCoordinate, MvPolynomial.eval₂Hom_monomial]
+  rw [Finsupp.prod_fintype _ _ (fun _ => by simp)]
+  by_cases hb : ∀ h, b (h,i) = 0
+  · rw [if_pos hb, MvPolynomial.monomial_eq]
+    congr 1
+    rw [Finsupp.prod_fintype _ _ (fun _ => by simp)]
+    apply Finset.prod_congr rfl
+    intro u _
+    by_cases hu : u.2 = i
+    · have he : u = (u.1,i) := Prod.ext rfl hu
+      have hz : b u = 0 := (congrArg b he).trans (hb u.1)
+      simp [hu, hz]
+    · simp [hu]
+  · rw [if_neg hb]
+    push_neg at hb
+    obtain ⟨h, hh⟩ := hb
+    have hz : (∏ u : Vars10 m, (if u.2 = i then 0 else MvPolynomial.X u) ^ b u) =
+        (0 : MvPolynomial (Vars10 m) K) := by
+      apply Finset.prod_eq_zero (Finset.mem_univ (h,i))
+      simp [hh]
+    rw [hz, mul_zero]
+
+theorem zero_coeff {m : ℕ} (i : Fin 10)
+    (Q : MvPolynomial (Vars10 m) K) (b : Vars10 m →₀ ℕ) :
+    (zeroCoordinate i Q).coeff b = if (∀ h, b (h,i) = 0) then Q.coeff b else 0 := by
+  classical
+  induction Q using MvPolynomial.induction_on' with
+  | monomial a c =>
+    rw [zero_monomial]
+    by_cases ha : ∀ h, a (h,i) = 0
+    · rw [if_pos ha]
+      by_cases hb : ∀ h, b (h,i) = 0
+      · simp [hb]
+      · have hab : a ≠ b := by intro he; subst a; exact hb ha
+        simp [hb, hab]
+    · rw [if_neg ha]
+      by_cases hb : ∀ h, b (h,i) = 0
+      · have hab : a ≠ b := by intro he; subst a; exact ha hb
+        simp [hb, hab]
+      · simp [hb]
+  | add P Q hP hQ =>
+    rw [map_add, MvPolynomial.coeff_add, hP, hQ, MvPolynomial.coeff_add]
+    split_ifs <;> simp
+
+theorem pderiv_coeff {m : ℕ} (u : Vars10 m)
+    (Q : MvPolynomial (Vars10 m) K) (b : Vars10 m →₀ ℕ) :
+    (MvPolynomial.pderiv u Q).coeff b =
+      (b u + 1 : ℕ) * Q.coeff (b + Finsupp.single u 1) := by
+  classical
+  induction Q using MvPolynomial.induction_on' with
+  | add P Q hP hQ => simp only [map_add, MvPolynomial.coeff_add, hP, hQ]; ring
+  | monomial a c =>
+    by_cases ha : a u = 0
+    · have hab : a ≠ b + Finsupp.single u 1 := by
+        intro he
+        have h := congrArg (fun d : Vars10 m →₀ ℕ => d u) he
+        simp [ha, Finsupp.add_apply, Finsupp.single_apply] at h
+      simp [MvPolynomial.pderiv_monomial, ha, MvPolynomial.coeff_monomial, hab]
+    · have hle : Finsupp.single u 1 ≤ a := by rw [Finsupp.single_le_iff]; omega
+      have heq : a - Finsupp.single u 1 = b ↔ a = b + Finsupp.single u 1 := by
+        constructor
+        · intro he
+          rw [← he]
+          exact (tsub_add_cancel_of_le hle).symm
+        · intro he
+          rw [he, add_tsub_cancel_right]
+      simp only [MvPolynomial.pderiv_monomial, MvPolynomial.coeff_monomial, heq]
+      split_ifs with he
+      · subst a
+        simp only [Finsupp.add_apply, Finsupp.single_eq_same, Nat.cast_add, Nat.cast_one]
+        ring
+      · simp
+
+theorem kernel_factor {m : ℕ} (L : Matrix (Fin 10) (Fin 10) K)
+    (hL : L.det ≠ 0) (i p : Fin 10) (hp : L i p ≠ 0)
+    (Q : MvPolynomial (Vars10 m) K) :
+    MvPolynomial.eval₂Hom MvPolynomial.C (kernelImage L i)
+      (kernelRestriction10 (L i) (fun _ => p) Q) =
+      zeroCoordinate i (substitution L⁻¹ Q) := by
+  have he : (MvPolynomial.eval₂Hom MvPolynomial.C (kernelImage (m := m) L i)).comp
+      (kernelRestriction10 (L i) (fun _ => p)) =
+      (zeroCoordinate i).comp (substitution L⁻¹) := by
+    apply MvPolynomial.ringHom_ext
+    · intro z
+      simp [kernelRestriction10, substitution, zeroCoordinate]
+    · intro u
+      simp only [RingHom.comp_apply, kernelRestriction10, substitution, MvPolynomial.eval₂Hom_X']
+      exact kernel_factor_variable L hL i p hp u
+  exact congrArg (fun f => f Q) he
+
+theorem index_zero_slice {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 10) (Fin 10) K) (hL : L.det ≠ 0)
+    (i p : Fin 10) (hp : L i p ≠ 0) (T : ℝ)
+    (P : MvPolynomial (Vars10 m) ℤ)
+    (hindex : ∀ J : Vars10 m →₀ ℕ, rothSourceDerivativeWeight r J < T →
+      kernelRestriction10 (L i) (fun _ => p) (derivative10 J (P.map (Int.castRingHom K))) = 0)
+    (J : Vars10 m →₀ ℕ) (hJ : rothSourceDerivativeWeight r J < T) :
+    zeroCoordinate i (expansion L J P) = 0 := by
+  rw [expansion, ← kernel_factor L hL i p hp, hindex J hJ, map_zero]
+
+theorem expansion_chain {m : ℕ} (L : Matrix (Fin 10) (Fin 10) K)
+    (h : Fin m) (i : Fin 10) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) :
+    MvPolynomial.pderiv (h,i) (expansion L J P) =
+      ∑ j : Fin 10, MvPolynomial.C (L⁻¹ j i) *
+        (J (h,j) + 1) • expansion L (J + Finsupp.single (h,j) 1) P := by
+  rw [expansion, substitution_chain]
+  simp only [source10_pderiv_hasse, map_nsmul, expansion]
+
+noncomputable def coordinateWeight {m : ℕ} (r : Fin m → ℕ) (i : Fin 10)
+    (b : Vars10 m →₀ ℕ) : ℝ := ∑ h, (b (h,i) : ℝ) / r h
+
+theorem coordinate_weight_add {m : ℕ} (r : Fin m → ℕ) (i : Fin 10)
+    (b c : Vars10 m →₀ ℕ) :
+    coordinateWeight r i (b + c) =
+      coordinateWeight r i b + coordinateWeight r i c := by
+  simp [coordinateWeight, Finsupp.add_apply, Nat.cast_add, add_div, Finset.sum_add_distrib]
+
+theorem coordinate_weight_single {m : ℕ} (r : Fin m → ℕ)
+    (i : Fin 10) (h : Fin m) :
+    coordinateWeight r i (Finsupp.single (h,i) 1) = 1 / (r h : ℝ) := by
+  simp [coordinateWeight, Finsupp.single_apply, Prod.mk.injEq,
+    ite_div, Finset.sum_ite_eq, Finset.sum_ite_eq']
+
+theorem coeff_zero_below_index {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 10) (Fin 10) K) (hL : (L).det ≠ 0)
+    (i p : Fin 10) (hp : L i p ≠ 0) (T : ℝ)
+    (P : MvPolynomial (Vars10 m) ℤ)
+    (hindex : ∀ J : Vars10 m →₀ ℕ, rothSourceDerivativeWeight r J < T →
+      kernelRestriction10 (L i) (fun _ => p) (derivative10 J (P.map (Int.castRingHom K))) = 0)
+    (J b : Vars10 m →₀ ℕ)
+    (hbad : rothSourceDerivativeWeight r J + coordinateWeight r i b < T) :
+    (expansion L J P).coeff b = 0 := by
+  classical
+  have go : ∀ n : ℕ, ∀ J b : Vars10 m →₀ ℕ,
+      (∑ h : Fin m, b (h,i)) = n →
+      rothSourceDerivativeWeight r J + coordinateWeight r i b < T →
+      (expansion L J P).coeff b = 0 := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | h n ih =>
+      intro J b hn hw
+      by_cases hnzero : n = 0
+      · have hbzero : ∀ h, b (h,i) = 0 := by
+          intro h
+          have hle : b (h,i) ≤ ∑ g : Fin m, b (g,i) :=
+            Finset.single_le_sum (f := fun g : Fin m => b (g,i)) (fun _ _ => Nat.zero_le _) (Finset.mem_univ h)
+          omega
+        have hnonneg : 0 ≤ coordinateWeight r i b := by
+          unfold coordinateWeight
+          positivity
+        have hJ : rothSourceDerivativeWeight r J < T := by linarith
+        have hz := index_zero_slice r L hL i p hp T P hindex J hJ
+        have he := congrArg (MvPolynomial.coeff b) hz
+        rw [zero_coeff, if_pos hbzero, MvPolynomial.coeff_zero] at he
+        exact he
+      · have hex : ∃ h : Fin m, b (h,i) ≠ 0 := by
+          by_contra hzero
+          push_neg at hzero
+          have hs : (∑ h : Fin m, b (h,i)) = 0 := Finset.sum_eq_zero (fun h _ => hzero h)
+          omega
+        obtain ⟨h, hh⟩ := hex
+        let c := b - Finsupp.single (h,i) 1
+        have hle : Finsupp.single (h,i) 1 ≤ b := by rw [Finsupp.single_le_iff]; omega
+        have hceq : c + Finsupp.single (h,i) 1 = b := tsub_add_cancel_of_le hle
+        have hcount : (∑ g : Fin m, c (g,i)) + 1 = n := by
+          have hs := congrArg (fun d : Vars10 m →₀ ℕ => ∑ g : Fin m, d (g,i)) hceq
+          simpa [Finsupp.add_apply, Finsupp.single_apply, Prod.mk.injEq,
+            Finset.sum_add_distrib, Finset.sum_ite_eq, Finset.sum_ite_eq', hn] using hs
+        have hcoord : coordinateWeight r i c + 1 / (r h : ℝ) =
+            coordinateWeight r i b := by
+          rw [← coordinate_weight_single r i h, ← coordinate_weight_add, hceq]
+        have hz (j : Fin 10) : (expansion L (J + Finsupp.single (h,j) 1) P).coeff c = 0 := by
+          apply ih (∑ g : Fin m, c (g,i)) (by omega) _ c rfl
+          rw [rothSource_weight_add, rothSource_weight_single]
+          linarith
+        have hd : (MvPolynomial.pderiv (h,i) (expansion L J P)).coeff c = 0 := by
+          rw [expansion_chain, MvPolynomial.coeff_sum]
+          apply Finset.sum_eq_zero
+          intro j hj
+          rw [MvPolynomial.coeff_C_mul, MvPolynomial.coeff_smul, hz j, smul_zero, mul_zero]
+        rw [pderiv_coeff, hceq] at hd
+        exact (mul_eq_zero.mp hd).resolve_left (Nat.cast_ne_zero.mpr (by omega))
+  exact go _ J b rfl hbad
+
+
+
+
+end CompoundFeasibility.Auxiliary10.SourceSupport10
+end
+
+open scoped BigOperators Matrix Classical
+noncomputable section
+namespace CompoundFeasibility.Auxiliary10.SourceBalance10
+open SourceMultiblock10 SourceNormalHighIndex10 SchmidtPolynomial10 SourceExpansion10 SourceSupport10
+
+variable {K : Type*} [Field K] [CharZero K]
+theorem chart_block_weight {m : ℕ} (B : Matrix (Fin 10) (Fin 10) K)
+    (h : Fin m) (u : Vars10 m) :
+    MvPolynomial.IsWeightedHomogeneous (fun v : Vars10 m => if v.1 = h then 1 else 0)
+      (linearChart B u) (if u.1 = h then 1 else 0) := by
+  unfold linearChart
+  apply MvPolynomial.IsWeightedHomogeneous.sum
+  intro j hj
+  simpa only [zero_add] using
+    (MvPolynomial.isWeightedHomogeneous_C _ (B u.2 j)).mul
+      (MvPolynomial.isWeightedHomogeneous_X K (fun v : Vars10 m => if v.1 = h then 1 else 0) (u.1,j))
+
+theorem expansion_block_weight {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 10) (Fin 10) K) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P) (h : Fin m) :
+    MvPolynomial.IsWeightedHomogeneous (fun v : Vars10 m => if v.1 = h then 1 else 0)
+      (expansion L J P) (r h - ∑ j : Fin 10, J (h,j)) := by
+  classical
+  let Q := derivative10 J (P.map (Int.castRingHom K))
+  let w := fun v : Vars10 m => if v.1 = h then 1 else 0
+  have hdegree (d : Vars10 m →₀ ℕ) (hd : d ∈ Q.support) :
+      (∑ j : Fin 10, d (h,j)) = r h - ∑ j : Fin 10, J (h,j) := by
+    have hcoeff : P.coeff (d + J) ≠ 0 := by
+      intro hz
+      have hn := MvPolynomial.mem_support_iff.mp hd
+      rw [derivative10_coeff, MvPolynomial.coeff_map, hz, map_zero, zero_mul] at hn
+      exact hn rfl
+    have hh := hP (d + J) (MvPolynomial.mem_support_iff.mpr hcoeff) h
+    simp only [Finsupp.add_apply, Finset.sum_add_distrib] at hh
+    omega
+  change MvPolynomial.IsWeightedHomogeneous w
+    (MvPolynomial.eval₂Hom MvPolynomial.C
+      (linearChart (L)⁻¹) Q) _
+  conv_lhs => arg 2; rw [MvPolynomial.as_sum Q]
+  rw [map_sum]
+  apply MvPolynomial.IsWeightedHomogeneous.sum
+  intro d hd
+  rw [MvPolynomial.eval₂Hom_monomial, Finsupp.prod_fintype _ _ (fun _ => by simp)]
+  have hw : (∑ u : Vars10 m, d u * w u) = ∑ j : Fin 10, d (h,j) := by
+    have he := rothAux_weight_block d h
+    rw [Finsupp.weight_apply, Finsupp.sum_fintype d (fun u (n : ℕ) => n • w u) (by intro u; simp)] at he
+    simpa only [nsmul_eq_mul, Nat.cast_id, w] using he
+  have hprod := MvPolynomial.IsWeightedHomogeneous.prod Finset.univ
+    (fun u : Vars10 m => linearChart (L)⁻¹ u ^ d u)
+    (fun u => d u * w u)
+    (fun u _ => by simpa only [nsmul_eq_mul] using
+      (chart_block_weight (L)⁻¹ h u).pow (d u))
+  simpa only [zero_add, hw, hdegree d hd] using
+    (MvPolynomial.isWeightedHomogeneous_C w (Q.coeff d)).mul hprod
+
+theorem expansion_block_degree {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 10) (Fin 10) K) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (b : Vars10 m →₀ ℕ) (hb : (expansion L J P).coeff b ≠ 0) (h : Fin m) :
+    (∑ j : Fin 10, b (h,j)) = r h - ∑ j : Fin 10, J (h,j) := by
+  have hw := expansion_block_weight r L J P hP h hb
+  rwa [rothAux_weight_block] at hw
+
+theorem total_coordinate_weight_le {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (L : Matrix (Fin 10) (Fin 10) K) (J : Vars10 m →₀ ℕ)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (b : Vars10 m →₀ ℕ) (hb : (expansion L J P).coeff b ≠ 0) :
+    (∑ i : Fin 10, coordinateWeight r i b) ≤ (m : ℝ) := by
+  unfold coordinateWeight
+  rw [Finset.sum_comm]
+  calc
+    _ ≤ ∑ h : Fin m, (1 : ℝ) := by
+      apply Finset.sum_le_sum
+      intro h hh
+      rw [← Finset.sum_div]
+      have hrh : (0 : ℝ) < r h := by exact_mod_cast hr h
+      apply (div_le_one hrh).mpr
+      have hdeg := expansion_block_degree r L J P hP b hb h
+      exact_mod_cast (show (∑ i : Fin 10, b (h,i)) ≤ r h by omega)
+    _ = _ := by simp
+
+
+
+
+theorem balance_from_weights (m : ℕ) (eta : ℝ) (heta : 0 ≤ eta)
+    (x : Fin 10 → ℝ) (hsum : (∑ i, x i) ≤ m)
+    (hlower : ∀ i, (m : ℝ)/10 - 3*eta*m ≤ x i) :
+    ∀ i, |x i - (m : ℝ)/10| ≤ 54*eta*m := by
+  intro i
+  have hc : (Finset.univ.erase i : Finset (Fin 10)).card = 9 := by simp
+  have ho := Finset.sum_le_sum (s := Finset.univ.erase i) (fun j _ => hlower j)
+  have ho' : 9*((m : ℝ)/10 - 3*eta*m) ≤ ∑ j ∈ Finset.univ.erase i, x j := by
+    simpa only [Finset.sum_const, hc, nsmul_eq_mul] using ho
+  have ht : (∑ j ∈ Finset.univ.erase i, x j) + x i ≤ m := by
+    rw [Finset.sum_erase_add _ _ (Finset.mem_univ i)]
+    exact hsum
+  have hn : 0 ≤ eta*(m : ℝ) := mul_nonneg heta (Nat.cast_nonneg _)
+  exact abs_le.mpr ⟨by nlinarith [hlower i], by nlinarith⟩
+
+theorem balanced_of_vanishing {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (A : Matrix (Fin 10) (Fin 10) K)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (hz : ∀ (i : Fin 10) (J b : Vars10 m →₀ ℕ),
+      rothSourceDerivativeWeight r J + coordinateWeight r i b < (1/10-eta)*m →
+      (expansion A J P).coeff b = 0)
+    (J b : Vars10 m →₀ ℕ) (hJ : rothSourceDerivativeWeight r J ≤ 2*eta*m)
+    (hb : (expansion A J P).coeff b ≠ 0) :
+    ∀ i, |coordinateWeight r i b - (m : ℝ)/10| ≤ 54*eta*m := by
+  have hlower (i : Fin 10) : (m : ℝ)/10 - 3*eta*m ≤ coordinateWeight r i b := by
+    have ht : (1/10-eta)*m ≤ rothSourceDerivativeWeight r J + coordinateWeight r i b := by
+      by_contra! hbad
+      exact hb (hz i J b hbad)
+    nlinarith
+  exact balance_from_weights m eta heta.le (fun i => coordinateWeight r i b)
+    (total_coordinate_weight_le r hr A J P hP b hb) hlower
+
+def Claims {m : ℕ} (r : Fin m → ℕ) (eta : ℝ)
+    (A : Matrix (Fin 10) (Fin 10) K) (P : MvPolynomial (Vars10 m) ℤ) : Prop :=
+  (∀ J, substitution A (expansion A J P) = derivative10 J (P.map (Int.castRingHom K))) ∧
+  (∀ (i : Fin 10) (J b : Vars10 m →₀ ℕ),
+    rothSourceDerivativeWeight r J + coordinateWeight r i b < (1/10-eta)*m →
+    (expansion A J P).coeff b = 0) ∧
+  (∀ (J b : Vars10 m →₀ ℕ), (expansion A J P).coeff b ≠ 0 →
+    ∀ h, (∑ j : Fin 10, b (h,j)) = r h - ∑ j : Fin 10, J (h,j)) ∧
+  (∀ (J b : Vars10 m →₀ ℕ), (expansion A J P).coeff b ≠ 0 →
+    (∑ i : Fin 10, coordinateWeight r i b) ≤ m) ∧
+  (∀ (J b : Vars10 m →₀ ℕ), rothSourceDerivativeWeight r J ≤ 2*eta*m →
+    (expansion A J P).coeff b ≠ 0 →
+    ∀ i, |coordinateWeight r i b - (m : ℝ)/10| ≤ 54*eta*m)
+
+theorem claims_of_charts {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (A : Matrix (Fin 10) (Fin 10) K) (hA : A.det ≠ 0)
+    (P : MvPolynomial (Vars10 m) ℤ) (hP : homogeneous10 r P)
+    (hindex : ∀ (i : Fin 10) (J : Vars10 m →₀ ℕ),
+      rothSourceDerivativeWeight r J < (1/10-eta)*m →
+      ∀ p : Fin 10, A i p ≠ 0 → kernelRestriction10 (A i) (fun _ => p)
+        (derivative10 J (P.map (Int.castRingHom K))) = 0) : Claims r eta A P := by
+  have hz (i : Fin 10) (J b : Vars10 m →₀ ℕ)
+      (hb : rothSourceDerivativeWeight r J + coordinateWeight r i b < (1/10-eta)*m) :
+      (expansion A J P).coeff b = 0 := by
+    have hn : ∃ p, A i p ≠ 0 := by
+      by_contra! hh
+      exact hA (Matrix.det_eq_zero_of_row_eq_zero i hh)
+    obtain ⟨p,hp⟩ := hn
+    apply coeff_zero_below_index r A hA i p hp ((1/10-eta)*m) P
+    · intro D hD
+      exact hindex i D hD p hp
+    · exact hb
+  exact ⟨fun J => reconstruct A hA J P, hz,
+    fun J b hb h => expansion_block_degree r A J P hP b hb h,
+    fun J b hb => total_coordinate_weight_le r hr A J P hP b hb,
+    fun J b hJ hb => balanced_of_vanishing r hr eta heta A P hP hz J b hJ hb⟩
+
+
+
+theorem claims_of_matrix_index10 {F : Type*} [Field F] [CharZero F]
+    {m : ℕ} (B : Matrix (Fin 10) (Fin 10) F) (hB : B.det = 1)
+    (r : Fin m → ℕ) (hr : ∀ h, 0 < r h) (eta : ℝ) (heta : 0 < eta)
+    (P : MvPolynomial (Vars10 m) ℤ) (hhom : homogeneous10 r P)
+    (hi : matrixIndex10 B r eta P) : Claims r eta B P := by
+  apply claims_of_charts r hr eta heta B (by rw [hB]; exact one_ne_zero) P hhom
+  intro i J hJ k hk
+  exact hi i J hJ (fun _ => k) (fun _ => hk)
+
+end CompoundFeasibility.Auxiliary10.SourceBalance10
+end
+
+end M198Literal
+#check M198Literal.CompoundFeasibility.SourceForms10.forms10
+#print axioms M198Literal.CompoundFeasibility.SourceForms10.forms10
+#check M198Literal.CompoundFeasibility.SourceForms10.finiteMatrix10
+#print axioms M198Literal.CompoundFeasibility.SourceForms10.finiteMatrix10
+#check M198Literal.CompoundFeasibility.SourceForms10.source_det_one10
+#print axioms M198Literal.CompoundFeasibility.SourceForms10.source_det_one10
+#check M198Literal.CompoundFeasibility.SourceForms10.source_unit10
+#print axioms M198Literal.CompoundFeasibility.SourceForms10.source_unit10
+#check M198Literal.CompoundFeasibility.SourceForms10.finite_det_one10
+#print axioms M198Literal.CompoundFeasibility.SourceForms10.finite_det_one10
+#check M198Literal.CompoundFeasibility.SourceForms10.source_algebraic10
+#print axioms M198Literal.CompoundFeasibility.SourceForms10.source_algebraic10
+#check M198Literal.CompoundFeasibility.SourceForms10.common_source_field10
+#print axioms M198Literal.CompoundFeasibility.SourceForms10.common_source_field10
+#check M198Literal.CompoundFeasibility.SourceForms10.source_rows_nonzero10
+#print axioms M198Literal.CompoundFeasibility.SourceForms10.source_rows_nonzero10
+#check M198Literal.CompoundFeasibility.Auxiliary10.exponent10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.exponent10
+#check M198Literal.CompoundFeasibility.Auxiliary10.exponent10_injective
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.exponent10_injective
+#check M198Literal.CompoundFeasibility.Auxiliary10.polynomial10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.polynomial10
+#check M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_coeff
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_coeff
+#check M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_homogeneous
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_homogeneous
+#check M198Literal.CompoundFeasibility.Auxiliary10.chart10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.chart10
+#check M198Literal.CompoundFeasibility.Auxiliary10.substitute10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.substitute10
+#check M198Literal.CompoundFeasibility.Auxiliary10.pivotDerivative10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.pivotDerivative10
+#check M198Literal.CompoundFeasibility.Auxiliary10.transformed_monomial10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.transformed_monomial10
+#check M198Literal.CompoundFeasibility.Auxiliary10.exponent10_sum
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.exponent10_sum
+#check M198Literal.CompoundFeasibility.Auxiliary10.transformed_coeff_sum10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.transformed_coeff_sum10
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothAux_weight_pivot
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothAux_weight_pivot
+#check M198Literal.CompoundFeasibility.Auxiliary10.weighted_neg_ring10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.weighted_neg_ring10
+#check M198Literal.CompoundFeasibility.Auxiliary10.chart10_block_weight
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.chart10_block_weight
+#check M198Literal.CompoundFeasibility.Auxiliary10.chart10_pivot_weight
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.chart10_pivot_weight
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothAux_scaled_monomial_weighted
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothAux_scaled_monomial_weighted
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_polynomial
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_polynomial
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothAux_pivot_monomial_block_weight
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothAux_pivot_monomial_block_weight
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_block_weight
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_block_weight
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_block_homogeneous
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_block_homogeneous
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_pivot_weight
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_pivot_weight
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_pivot_zero
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_pivot_zero
+#check M198Literal.CompoundFeasibility.Auxiliary10.freeExponent10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.freeExponent10
+#check M198Literal.CompoundFeasibility.Auxiliary10.freeExponent10_reconstruct
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.freeExponent10_reconstruct
+#check M198Literal.Aux10Height.chart_mass10
+#print axioms M198Literal.Aux10Height.chart_mass10
+#check M198Literal.Aux10Height.binomial_norm10
+#print axioms M198Literal.Aux10Height.binomial_norm10
+#check M198Literal.Aux10Height.transformed_entry_norm10
+#print axioms M198Literal.Aux10Height.transformed_entry_norm10
+#check M198Literal.CompoundFeasibility.Auxiliary10.formEquiv10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.formEquiv10
+#check M198Literal.CompoundFeasibility.Auxiliary10.equation10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.equation10
+#check M198Literal.CompoundFeasibility.Auxiliary10.matrix10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.matrix10
+#check M198Literal.CompoundFeasibility.Auxiliary10.matrix10_mulVec
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.matrix10_mulVec
+#check M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_iff_coefficients
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_iff_coefficients
+#check M198Literal.CompoundFeasibility.Auxiliary10.restriction10_zero_iff_coefficients
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.restriction10_zero_iff_coefficients
+#check M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_iff_restrictions
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_iff_restrictions
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_chart_pderiv
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_chart_pderiv
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_chain
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_chain
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSource_weight_mono
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSource_weight_mono
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSource_weight_pivot
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSource_weight_pivot
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSourceFreeOrder
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSourceFreeOrder
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_add
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_add
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_single
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_single
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_zero_pivot
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_zero_pivot
+#check M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_mixed_vanishing
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_mixed_vanishing
+#check M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10
+#check M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10
+#check M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10_form
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10_form
+#check M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10
+#check M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10_variable
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10_variable
+#check M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10_substitute
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10_substitute
+#check M198Literal.CompoundFeasibility.Auxiliary10.derivative10_zero_of_block_excess
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.derivative10_zero_of_block_excess
+#check M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_all_derivatives
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_all_derivatives
+#check M198Literal.CompoundFeasibility.Auxiliary10.chart10_map
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.chart10_map
+#check M198Literal.CompoundFeasibility.Auxiliary10.substitute10_map
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.substitute10_map
+#check M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_map
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_map
+#check M198Literal.CompoundFeasibility.Auxiliary10.matrix10_map
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.matrix10_map
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_strict_count
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_strict_count
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_kernel
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_kernel
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralHeightBase10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralHeightBase10
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralCoordinateConstant10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralCoordinateConstant10
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_entry_bound
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_entry_bound
+#check M198Literal.CompoundFeasibility.Auxiliary10.dimension10_le_pow
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.dimension10_le_pow
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralSiegelConstant10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralSiegelConstant10
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralSiegelConstant10_ge_one
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralSiegelConstant10_ge_one
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_uniform_bound
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_uniform_bound
+#check M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_bounded_kernel
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_bounded_kernel
+#check M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_ne_zero
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_ne_zero
+#check M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_height_le
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_height_le
+#check M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10_scale
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10_scale
+#check M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10_scale
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10_scale
+#check M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10_map
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10_map
+#check M198Literal.CompoundFeasibility.Auxiliary10.integral_auxiliary10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.integral_auxiliary10
+#check M198Literal.CompoundFeasibility.Auxiliary10.source_integral_scaling10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.source_integral_scaling10
+#check M198Literal.CompoundFeasibility.Auxiliary10.algebraic_auxiliary10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.algebraic_auxiliary10
+#check M198Literal.CompoundFeasibility.Auxiliary10.source_restriction10_real
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.source_restriction10_real
+#check M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10_field
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10_field
+#check M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10
+#check M198Literal.CompoundFeasibility.Auxiliary10.matrixIndex10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.matrixIndex10
+#check M198Literal.CompoundFeasibility.Auxiliary10.restriction10_map_int
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.restriction10_map_int
+#check M198Literal.CompoundFeasibility.Auxiliary10.padic_restriction10_zero
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.padic_restriction10_zero
+#check M198Literal.CompoundFeasibility.Auxiliary10.finite_matrix_index10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.finite_matrix_index10
+#check M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10_all_places
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10_all_places
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.linearChart
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.linearChart
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_one
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_one
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_comp
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_comp
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution_comp
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution_comp
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution_one
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution_one
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.reconstruct
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.reconstruct
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.unique
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.unique
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_mass
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_mass
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.monomial_mass
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.monomial_mass
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.support_index
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.support_index
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.support_card
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.support_card
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion_sum
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion_sum
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.coefficient_bound
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.coefficient_bound
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget_one
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget_one
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget_entry
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget_entry
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.source_coefficient_bounds
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.source_coefficient_bounds
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.chart_pderiv
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.chart_pderiv
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.substitution_chain
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.substitution_chain
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zeroCoordinate
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zeroCoordinate
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernelImage
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernelImage
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_image_form
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_image_form
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_factor_variable
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_factor_variable
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zero_monomial
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zero_monomial
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zero_coeff
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zero_coeff
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.pderiv_coeff
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.pderiv_coeff
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_factor
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_factor
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.index_zero_slice
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.index_zero_slice
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.expansion_chain
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.expansion_chain
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinateWeight
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinateWeight
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinate_weight_add
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinate_weight_add
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinate_weight_single
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinate_weight_single
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coeff_zero_below_index
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coeff_zero_below_index
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.chart_block_weight
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.chart_block_weight
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.expansion_block_weight
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.expansion_block_weight
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.expansion_block_degree
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.expansion_block_degree
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.total_coordinate_weight_le
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.total_coordinate_weight_le
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.balance_from_weights
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.balance_from_weights
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.balanced_of_vanishing
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.balanced_of_vanishing
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.Claims
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.Claims
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_charts
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_charts
+#check M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_matrix_index10
+#print axioms M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_matrix_index10
+
+open Lean in
+run_cmd do
+  let env ← getEnv
+  let names : Array Name := #[
+``M198Literal.CompoundFeasibility.SourceForms10.forms10,
+``M198Literal.CompoundFeasibility.SourceForms10.finiteMatrix10,
+``M198Literal.CompoundFeasibility.SourceForms10.source_det_one10,
+``M198Literal.CompoundFeasibility.SourceForms10.source_unit10,
+``M198Literal.CompoundFeasibility.SourceForms10.finite_det_one10,
+``M198Literal.CompoundFeasibility.SourceForms10.source_algebraic10,
+``M198Literal.CompoundFeasibility.SourceForms10.common_source_field10,
+``M198Literal.CompoundFeasibility.SourceForms10.source_rows_nonzero10,
+``M198Literal.CompoundFeasibility.Auxiliary10.exponent10,
+``M198Literal.CompoundFeasibility.Auxiliary10.exponent10_injective,
+``M198Literal.CompoundFeasibility.Auxiliary10.polynomial10,
+``M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_coeff,
+``M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_homogeneous,
+``M198Literal.CompoundFeasibility.Auxiliary10.chart10,
+``M198Literal.CompoundFeasibility.Auxiliary10.substitute10,
+``M198Literal.CompoundFeasibility.Auxiliary10.pivotDerivative10,
+``M198Literal.CompoundFeasibility.Auxiliary10.transformed_monomial10,
+``M198Literal.CompoundFeasibility.Auxiliary10.exponent10_sum,
+``M198Literal.CompoundFeasibility.Auxiliary10.transformed_coeff_sum10,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothAux_weight_pivot,
+``M198Literal.CompoundFeasibility.Auxiliary10.weighted_neg_ring10,
+``M198Literal.CompoundFeasibility.Auxiliary10.chart10_block_weight,
+``M198Literal.CompoundFeasibility.Auxiliary10.chart10_pivot_weight,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothAux_scaled_monomial_weighted,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_polynomial,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothAux_pivot_monomial_block_weight,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_block_weight,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_block_homogeneous,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_pivot_weight,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothAux_transformed_pivot_zero,
+``M198Literal.CompoundFeasibility.Auxiliary10.freeExponent10,
+``M198Literal.CompoundFeasibility.Auxiliary10.freeExponent10_reconstruct,
+``M198Literal.Aux10Height.chart_mass10,
+``M198Literal.Aux10Height.binomial_norm10,
+``M198Literal.Aux10Height.transformed_entry_norm10,
+``M198Literal.CompoundFeasibility.Auxiliary10.formEquiv10,
+``M198Literal.CompoundFeasibility.Auxiliary10.equation10,
+``M198Literal.CompoundFeasibility.Auxiliary10.matrix10,
+``M198Literal.CompoundFeasibility.Auxiliary10.matrix10_mulVec,
+``M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_iff_coefficients,
+``M198Literal.CompoundFeasibility.Auxiliary10.restriction10_zero_iff_coefficients,
+``M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_iff_restrictions,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_chart_pderiv,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_chain,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSource_weight_mono,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSource_weight_pivot,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSourceFreeOrder,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_add,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_single,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSource_free_zero_pivot,
+``M198Literal.CompoundFeasibility.Auxiliary10.rothSource_scaled_mixed_vanishing,
+``M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10,
+``M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10,
+``M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10_form,
+``M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10,
+``M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10_variable,
+``M198Literal.CompoundFeasibility.Auxiliary10.chartTransport10_substitute,
+``M198Literal.CompoundFeasibility.Auxiliary10.derivative10_zero_of_block_excess,
+``M198Literal.CompoundFeasibility.Auxiliary10.matrix10_kernel_all_derivatives,
+``M198Literal.CompoundFeasibility.Auxiliary10.chart10_map,
+``M198Literal.CompoundFeasibility.Auxiliary10.substitute10_map,
+``M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_map,
+``M198Literal.CompoundFeasibility.Auxiliary10.matrix10_map,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_strict_count,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_kernel,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralHeightBase10,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralCoordinateConstant10,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_entry_bound,
+``M198Literal.CompoundFeasibility.Auxiliary10.dimension10_le_pow,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralSiegelConstant10,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralSiegelConstant10_ge_one,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_uniform_bound,
+``M198Literal.CompoundFeasibility.Auxiliary10.integralMatrix10_bounded_kernel,
+``M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_ne_zero,
+``M198Literal.CompoundFeasibility.Auxiliary10.polynomial10_height_le,
+``M198Literal.CompoundFeasibility.Auxiliary10.kernelChart10_scale,
+``M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10_scale,
+``M198Literal.CompoundFeasibility.Auxiliary10.kernelRestriction10_map,
+``M198Literal.CompoundFeasibility.Auxiliary10.integral_auxiliary10,
+``M198Literal.CompoundFeasibility.Auxiliary10.source_integral_scaling10,
+``M198Literal.CompoundFeasibility.Auxiliary10.algebraic_auxiliary10,
+``M198Literal.CompoundFeasibility.Auxiliary10.source_restriction10_real,
+``M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10_field,
+``M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10,
+``M198Literal.CompoundFeasibility.Auxiliary10.matrixIndex10,
+``M198Literal.CompoundFeasibility.Auxiliary10.restriction10_map_int,
+``M198Literal.CompoundFeasibility.Auxiliary10.padic_restriction10_zero,
+``M198Literal.CompoundFeasibility.Auxiliary10.finite_matrix_index10,
+``M198Literal.CompoundFeasibility.Auxiliary10.source_auxiliary10_all_places,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.linearChart,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_one,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_comp,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution_comp,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution_one,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.reconstruct,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.unique,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_mass,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.monomial_mass,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.support_index,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.support_card,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion_sum,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.coefficient_bound,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget_one,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget_entry,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceExpansion10.source_coefficient_bounds,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.chart_pderiv,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.substitution_chain,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zeroCoordinate,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernelImage,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_image_form,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_factor_variable,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zero_monomial,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.zero_coeff,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.pderiv_coeff,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_factor,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.index_zero_slice,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.expansion_chain,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinateWeight,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinate_weight_add,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coordinate_weight_single,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceSupport10.coeff_zero_below_index,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.chart_block_weight,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.expansion_block_weight,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.expansion_block_degree,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.total_coordinate_weight_le,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.balance_from_weights,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.balanced_of_vanishing,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.Claims,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_charts,
+``M198Literal.CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_matrix_index10]
+  let forbidden : Array Name := #[
+"CompoundFeasibility.SourceForms10.forms10".toName,
+"CompoundFeasibility.SourceForms10.finiteMatrix10".toName,
+"CompoundFeasibility.SourceForms10.source_det_one10".toName,
+"CompoundFeasibility.SourceForms10.source_unit10".toName,
+"CompoundFeasibility.SourceForms10.finite_det_one10".toName,
+"CompoundFeasibility.SourceForms10.source_algebraic10".toName,
+"CompoundFeasibility.SourceForms10.common_source_field10".toName,
+"CompoundFeasibility.SourceForms10.source_rows_nonzero10".toName,
+"CompoundFeasibility.Auxiliary10.exponent10".toName,
+"CompoundFeasibility.Auxiliary10.exponent10_injective".toName,
+"CompoundFeasibility.Auxiliary10.polynomial10".toName,
+"CompoundFeasibility.Auxiliary10.polynomial10_coeff".toName,
+"CompoundFeasibility.Auxiliary10.polynomial10_homogeneous".toName,
+"CompoundFeasibility.Auxiliary10.chart10".toName,
+"CompoundFeasibility.Auxiliary10.substitute10".toName,
+"CompoundFeasibility.Auxiliary10.pivotDerivative10".toName,
+"CompoundFeasibility.Auxiliary10.transformed_monomial10".toName,
+"CompoundFeasibility.Auxiliary10.exponent10_sum".toName,
+"CompoundFeasibility.Auxiliary10.transformed_coeff_sum10".toName,
+"CompoundFeasibility.Auxiliary10.rothAux_weight_pivot".toName,
+"CompoundFeasibility.Auxiliary10.weighted_neg_ring10".toName,
+"CompoundFeasibility.Auxiliary10.chart10_block_weight".toName,
+"CompoundFeasibility.Auxiliary10.chart10_pivot_weight".toName,
+"CompoundFeasibility.Auxiliary10.rothAux_scaled_monomial_weighted".toName,
+"CompoundFeasibility.Auxiliary10.rothAux_transformed_polynomial".toName,
+"CompoundFeasibility.Auxiliary10.rothAux_pivot_monomial_block_weight".toName,
+"CompoundFeasibility.Auxiliary10.rothAux_transformed_block_weight".toName,
+"CompoundFeasibility.Auxiliary10.rothAux_transformed_block_homogeneous".toName,
+"CompoundFeasibility.Auxiliary10.rothAux_transformed_pivot_weight".toName,
+"CompoundFeasibility.Auxiliary10.rothAux_transformed_pivot_zero".toName,
+"CompoundFeasibility.Auxiliary10.freeExponent10".toName,
+"CompoundFeasibility.Auxiliary10.freeExponent10_reconstruct".toName,
+"Aux10Height.chart_mass10".toName,
+"Aux10Height.binomial_norm10".toName,
+"Aux10Height.transformed_entry_norm10".toName,
+"CompoundFeasibility.Auxiliary10.formEquiv10".toName,
+"CompoundFeasibility.Auxiliary10.equation10".toName,
+"CompoundFeasibility.Auxiliary10.matrix10".toName,
+"CompoundFeasibility.Auxiliary10.matrix10_mulVec".toName,
+"CompoundFeasibility.Auxiliary10.matrix10_kernel_iff_coefficients".toName,
+"CompoundFeasibility.Auxiliary10.restriction10_zero_iff_coefficients".toName,
+"CompoundFeasibility.Auxiliary10.matrix10_kernel_iff_restrictions".toName,
+"CompoundFeasibility.Auxiliary10.rothSource_scaled_chart_pderiv".toName,
+"CompoundFeasibility.Auxiliary10.rothSource_scaled_chain".toName,
+"CompoundFeasibility.Auxiliary10.rothSource_weight_mono".toName,
+"CompoundFeasibility.Auxiliary10.rothSource_weight_pivot".toName,
+"CompoundFeasibility.Auxiliary10.rothSourceFreeOrder".toName,
+"CompoundFeasibility.Auxiliary10.rothSource_free_add".toName,
+"CompoundFeasibility.Auxiliary10.rothSource_free_single".toName,
+"CompoundFeasibility.Auxiliary10.rothSource_free_zero_pivot".toName,
+"CompoundFeasibility.Auxiliary10.rothSource_scaled_mixed_vanishing".toName,
+"CompoundFeasibility.Auxiliary10.kernelChart10".toName,
+"CompoundFeasibility.Auxiliary10.kernelRestriction10".toName,
+"CompoundFeasibility.Auxiliary10.kernelChart10_form".toName,
+"CompoundFeasibility.Auxiliary10.chartTransport10".toName,
+"CompoundFeasibility.Auxiliary10.chartTransport10_variable".toName,
+"CompoundFeasibility.Auxiliary10.chartTransport10_substitute".toName,
+"CompoundFeasibility.Auxiliary10.derivative10_zero_of_block_excess".toName,
+"CompoundFeasibility.Auxiliary10.matrix10_kernel_all_derivatives".toName,
+"CompoundFeasibility.Auxiliary10.chart10_map".toName,
+"CompoundFeasibility.Auxiliary10.substitute10_map".toName,
+"CompoundFeasibility.Auxiliary10.polynomial10_map".toName,
+"CompoundFeasibility.Auxiliary10.matrix10_map".toName,
+"CompoundFeasibility.Auxiliary10.integralMatrix10".toName,
+"CompoundFeasibility.Auxiliary10.integralMatrix10_strict_count".toName,
+"CompoundFeasibility.Auxiliary10.integralMatrix10_kernel".toName,
+"CompoundFeasibility.Auxiliary10.integralHeightBase10".toName,
+"CompoundFeasibility.Auxiliary10.integralCoordinateConstant10".toName,
+"CompoundFeasibility.Auxiliary10.integralMatrix10_entry_bound".toName,
+"CompoundFeasibility.Auxiliary10.dimension10_le_pow".toName,
+"CompoundFeasibility.Auxiliary10.integralSiegelConstant10".toName,
+"CompoundFeasibility.Auxiliary10.integralSiegelConstant10_ge_one".toName,
+"CompoundFeasibility.Auxiliary10.integralMatrix10_uniform_bound".toName,
+"CompoundFeasibility.Auxiliary10.integralMatrix10_bounded_kernel".toName,
+"CompoundFeasibility.Auxiliary10.polynomial10_ne_zero".toName,
+"CompoundFeasibility.Auxiliary10.polynomial10_height_le".toName,
+"CompoundFeasibility.Auxiliary10.kernelChart10_scale".toName,
+"CompoundFeasibility.Auxiliary10.kernelRestriction10_scale".toName,
+"CompoundFeasibility.Auxiliary10.kernelRestriction10_map".toName,
+"CompoundFeasibility.Auxiliary10.integral_auxiliary10".toName,
+"CompoundFeasibility.Auxiliary10.source_integral_scaling10".toName,
+"CompoundFeasibility.Auxiliary10.algebraic_auxiliary10".toName,
+"CompoundFeasibility.Auxiliary10.source_restriction10_real".toName,
+"CompoundFeasibility.Auxiliary10.source_auxiliary10_field".toName,
+"CompoundFeasibility.Auxiliary10.source_auxiliary10".toName,
+"CompoundFeasibility.Auxiliary10.matrixIndex10".toName,
+"CompoundFeasibility.Auxiliary10.restriction10_map_int".toName,
+"CompoundFeasibility.Auxiliary10.padic_restriction10_zero".toName,
+"CompoundFeasibility.Auxiliary10.finite_matrix_index10".toName,
+"CompoundFeasibility.Auxiliary10.source_auxiliary10_all_places".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.linearChart".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_one".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_comp".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution_comp".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.substitution_one".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.reconstruct".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.unique".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.chart_mass".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.monomial_mass".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.support_index".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.support_card".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.expansion_sum".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.coefficient_bound".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget_one".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.inverseBudget_entry".toName,
+"CompoundFeasibility.Auxiliary10.SourceExpansion10.source_coefficient_bounds".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.chart_pderiv".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.substitution_chain".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.zeroCoordinate".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.kernelImage".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_image_form".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_factor_variable".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.zero_monomial".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.zero_coeff".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.pderiv_coeff".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.kernel_factor".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.index_zero_slice".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.expansion_chain".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.coordinateWeight".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.coordinate_weight_add".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.coordinate_weight_single".toName,
+"CompoundFeasibility.Auxiliary10.SourceSupport10.coeff_zero_below_index".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.chart_block_weight".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.expansion_block_weight".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.expansion_block_degree".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.total_coordinate_weight_le".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.balance_from_weights".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.balanced_of_vanishing".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.Claims".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_charts".toName,
+"CompoundFeasibility.Auxiliary10.SourceBalance10.claims_of_matrix_index10".toName]
+  for n in names do
+    let some info := env.find? n | throwError "missing literal {n}"
+    for used in info.getUsedConstantsAsSet.toArray do
+      if forbidden.any (fun bad => bad.isPrefixOf used) then
+        throwError "literal {n} depends on production {used}"
+  logInfo m!"checked {names.size} isolated literal dependency gates"

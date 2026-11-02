@@ -1,0 +1,539 @@
+import SubspaceBridge.SourceOriginalSatz215
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M218ScopedLiteral
+
+def roundedExponent218 (p : ℕ) (q c : ℝ) : ℤ := ⌊c*Real.log q/Real.log (p : ℝ)⌋
+
+theorem rounded_local218 (p : ℕ) (hp : 1 < p) (q c : ℝ) (hq : 1 < q) (hc : c ≤ 0) :
+    roundedExponent218 p q c ≤ 0 ∧
+    q^c/(p : ℝ) < (p : ℝ)^(roundedExponent218 p q c) ∧
+    (p : ℝ)^(roundedExponent218 p q c) ≤ q^c ∧
+    1 ≤ q^c/(p : ℝ)^(roundedExponent218 p q c) ∧
+    q^c/(p : ℝ)^(roundedExponent218 p q c) < p := by
+  have hpR : (1 : ℝ) < p := by exact_mod_cast hp
+  have hp0 : (0 : ℝ) < p := zero_lt_one.trans hpR
+  have hq0 : 0 < q := zero_lt_one.trans hq
+  let x := c*Real.log q/Real.log (p : ℝ)
+  have hx : x ≤ 0 := div_nonpos_of_nonpos_of_nonneg
+    (mul_nonpos_of_nonpos_of_nonneg hc (Real.log_pos hq).le) (Real.log_pos hpR).le
+  have he : (p : ℝ)^x = q^c := by
+    rw [Real.rpow_def_of_pos hp0,Real.rpow_def_of_pos hq0]
+    congr 1
+    dsimp only [x]
+    field_simp [(Real.log_pos hpR).ne']
+    ring
+  have hlo : (p : ℝ)^(roundedExponent218 p q c) ≤ q^c := by
+    rw [← he,← Real.rpow_intCast]
+    exact Real.rpow_le_rpow_of_exponent_le hpR.le (Int.floor_le x)
+  have hhi : q^c < (p : ℝ)*(p : ℝ)^(roundedExponent218 p q c) := by
+    calc
+      _ = (p : ℝ)^x := he.symm
+      _ < (p : ℝ)^((⌊x⌋ : ℝ)+1) :=
+        Real.rpow_lt_rpow_of_exponent_lt hpR (Int.lt_floor_add_one x)
+      _ = _ := by rw [Real.rpow_add hp0,Real.rpow_one,Real.rpow_intCast]; exact mul_comm _ _
+  have hf0 : 0 < (p : ℝ)^(roundedExponent218 p q c) := zpow_pos hp0 _
+  refine ⟨Int.floor_nonpos hx,(div_lt_iff₀ hp0).mpr ?_,hlo,?_,?_⟩
+  · simpa only [mul_comm] using hhi
+  · exact (le_div_iff₀ hf0).mpr (by simpa using hlo)
+  · exact (div_lt_iff₀ hf0).mpr hhi
+
+def roundingRatio218 (q : ℝ) (c2 c3 : Fin 10 → ℝ) : ℝ :=
+  ∏ i, (q^(c2 i)/(2 : ℝ)^(roundedExponent218 2 q (c2 i))) *
+    (q^(c3 i)/(3 : ℝ)^(roundedExponent218 3 q (c3 i)))
+
+def widthScale218 (q : ℝ) (c2 c3 : Fin 10 → ℝ) : ℝ := roundingRatio218 q c2 c3 ^ ((1 : ℝ)/10)
+
+theorem rounding_ratio_bounds218 (q : ℝ) (hq : 1 < q) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, c2 i ≤ 0) (h3 : ∀ i, c3 i ≤ 0) :
+    1 ≤ roundingRatio218 q c2 c3 ∧ roundingRatio218 q c2 c3 < 6^10 := by
+  have hb (i : Fin 10) :
+      1 ≤ (q^(c2 i)/(2 : ℝ)^(roundedExponent218 2 q (c2 i))) *
+        (q^(c3 i)/(3 : ℝ)^(roundedExponent218 3 q (c3 i))) ∧
+      (q^(c2 i)/(2 : ℝ)^(roundedExponent218 2 q (c2 i))) *
+        (q^(c3 i)/(3 : ℝ)^(roundedExponent218 3 q (c3 i))) < 6 := by
+    have ha := rounded_local218 2 (by decide) q (c2 i) hq (h2 i)
+    have hb := rounded_local218 3 (by decide) q (c3 i) hq (h3 i)
+    constructor
+    · nlinarith [ha.2.2.2.1,hb.2.2.2.1]
+    · have hm1 := mul_lt_mul_of_pos_right ha.2.2.2.2 (zero_lt_one.trans_le hb.2.2.2.1)
+      have hm2 := mul_lt_mul_of_pos_left hb.2.2.2.2 (by norm_num : (0 : ℝ) < 2)
+      exact hm1.trans (by norm_num at hm2 ⊢; exact hm2)
+  constructor
+  · have h := Finset.prod_le_prod (s := Finset.univ) (f := fun _ : Fin 10 => (1 : ℝ))
+      (fun i _ => zero_le_one) (fun i _ => (hb i).1)
+    simpa using h
+  · have h := Finset.prod_lt_prod_of_nonempty (s := Finset.univ)
+      (f := fun i => (q^(c2 i)/(2 : ℝ)^(roundedExponent218 2 q (c2 i))) *
+        (q^(c3 i)/(3 : ℝ)^(roundedExponent218 3 q (c3 i))))
+      (g := fun _ => (6 : ℝ)) (fun i _ => zero_lt_one.trans_le (hb i).1)
+      (fun i _ => (hb i).2) Finset.univ_nonempty
+    simpa only [Finset.prod_const,Finset.card_univ,Fintype.card_fin] using h
+
+theorem width_scale_bounds218 (q : ℝ) (hq : 1 < q) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, c2 i ≤ 0) (h3 : ∀ i, c3 i ≤ 0) :
+    1 ≤ widthScale218 q c2 c3 ∧ widthScale218 q c2 c3 < 6 ∧
+    0 < widthScale218 q c2 c3 ∧ (widthScale218 q c2 c3)^10 = roundingRatio218 q c2 c3 := by
+  have hr := rounding_ratio_bounds218 q hq c2 c3 h2 h3
+  have hr0 := zero_lt_one.trans_le hr.1
+  have hlo : 1 ≤ widthScale218 q c2 c3 := Real.one_le_rpow hr.1 (by norm_num)
+  have hhi := Real.rpow_lt_rpow hr0.le hr.2 (by norm_num : 0 < (1 : ℝ)/10)
+  have he : ((6 : ℝ)^10)^((1 : ℝ)/10) = 6 := by
+    rw [← Real.rpow_natCast_mul (by norm_num : (0 : ℝ) ≤ 6)]
+    norm_num
+  refine ⟨hlo,hhi.trans_eq he,zero_lt_one.trans_le hlo,?_⟩
+  rw [widthScale218,← Real.rpow_mul_natCast hr0.le]
+  norm_num
+
+theorem corrected_width_balance218 (q : ℝ) (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+    (h2 : ∀ i, c2 i ≤ 0) (h3 : ∀ i, c3 i ≤ 0)
+    (hbal : (∏ i, A i*q^(c2 i)*q^(c3 i)) = 1) :
+    (∏ i, (widthScale218 q c2 c3*A i)*(2 : ℝ)^(roundedExponent218 2 q (c2 i))*
+      (3 : ℝ)^(roundedExponent218 3 q (c3 i))) = 1 := by
+  have hr := width_scale_bounds218 q hq c2 c3 h2 h3
+  have he : (∏ i, A i*(2 : ℝ)^(roundedExponent218 2 q (c2 i))*
+      (3 : ℝ)^(roundedExponent218 3 q (c3 i))) * roundingRatio218 q c2 c3 = 1 := by
+    unfold roundingRatio218
+    rw [← Finset.prod_mul_distrib]
+    convert hbal using 1
+    apply Finset.prod_congr rfl
+    intro i _
+    field_simp
+    ring
+  have ht : (∏ i, (widthScale218 q c2 c3*A i)*(2 : ℝ)^(roundedExponent218 2 q (c2 i))*
+      (3 : ℝ)^(roundedExponent218 3 q (c3 i))) =
+      (widthScale218 q c2 c3)^10 * (∏ i, A i*(2 : ℝ)^(roundedExponent218 2 q (c2 i))*
+        (3 : ℝ)^(roundedExponent218 3 q (c3 i))) := by
+    simp_rw [show ∀ i, (widthScale218 q c2 c3*A i)*(2 : ℝ)^(roundedExponent218 2 q (c2 i))*
+      (3 : ℝ)^(roundedExponent218 3 q (c3 i)) = widthScale218 q c2 c3*
+      (A i*(2 : ℝ)^(roundedExponent218 2 q (c2 i))*(3 : ℝ)^(roundedExponent218 3 q (c3 i))) from fun i => by ring]
+    rw [Finset.prod_mul_distrib]
+    simp
+  rw [ht,hr.2.2.2,mul_comm]
+  exact he
+
+end CompoundFeasibility.M218ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M218ScopedLiteral
+open SourceOriginalVariable10
+
+theorem rounding_threshold218 (p : ℕ) (q c : ℝ) :
+    Nat.ceil (JSP000334.qThreshold p q c) = (-roundedExponent218 p q c).toNat := by
+  have he : JSP000334.qThreshold p q c = -(c*Real.log q/Real.log (p : ℝ)) := by
+    unfold JSP000334.qThreshold
+    ring
+  rw [he,← Int.ceil_toNat,Int.ceil_neg]
+  rfl
+
+theorem rounding_lattice218 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (q : ℝ) (hq : 1 < q) (c2 c3 : Fin 10 → ℝ) :
+    originalSourceGroup10 A2 A3 q c2 c3 =
+      sourceLattice10 A2 A3 (fun i => (-roundedExponent218 2 q (c2 i)).toNat)
+        (fun i => (-roundedExponent218 3 q (c3 i)).toNat) ∧
+    originalSourceGroup10 A2 A3 (q^2)
+      (fun i => normalizedFinite10 2 (q^2) (roundedExponent218 2 q (c2 i)))
+      (fun i => normalizedFinite10 3 (q^2) (roundedExponent218 3 q (c3 i))) =
+      originalSourceGroup10 A2 A3 q c2 c3 := by
+  have hq2 : 1 < q^2 := by nlinarith [sq_nonneg (q-1)]
+  constructor
+  · unfold originalSourceGroup10
+    simp_rw [rounding_threshold218]
+  · unfold originalSourceGroup10
+    simp_rw [normalized_threshold_exact10 2 (by decide) (q^2) hq2,
+      normalized_threshold_exact10 3 (by decide) (q^2) hq2,rounding_threshold218]
+
+end CompoundFeasibility.M218ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M218ScopedLiteral
+open SourceOriginalVariable10
+
+theorem source_minima_scale218
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L)
+    (q Q : ℝ) (hq : 1 < q) (hQ : 1 < Q) (c0 c2 c3 d0 d2 d3 : Fin 10 → ℝ)
+    (t : ℝ) (ht : 0 < t)
+    (hG : originalSourceGroup10 A2 A3 Q d2 d3 = originalSourceGroup10 A2 A3 q c2 c3)
+    (hGauge : ∀ x, coordinateGauge10 (originalCoordinates10 L hL Q hQ d0) x =
+      coordinateGauge10 (originalCoordinates10 L hL q hq c0) x/t) (j : Fin 10) :
+    sourceMinima10 A2 A3 L hL Q hQ d0 d2 d3 j =
+      sourceMinima10 A2 A3 L hL q hq c0 c2 c3 j/t := by
+  have ho := (sourceMinima10_radius_set_properties A2 A3 L hL q hq c0 c2 c3 j).2.2
+  have hn := (sourceMinima10_radius_set_properties A2 A3 L hL Q hQ d0 d2 d3 j).2.2
+  apply le_antisymm
+  · apply hn.2
+    obtain ⟨u,hu,hm,hg⟩ := ho.1
+    refine ⟨u,hu,?_,?_⟩
+    · intro i
+      rw [hG]
+      exact hm i
+    · intro i
+      rw [hGauge]
+      exact div_le_div_of_nonneg_right (hg i) ht.le
+  · apply (div_le_iff₀ ht).mpr
+    apply ho.2
+    obtain ⟨u,hu,hm,hg⟩ := hn.1
+    refine ⟨u,hu,?_,?_⟩
+    · intro i
+      rw [← hG]
+      exact hm i
+    · intro i
+      apply (div_le_iff₀ ht).mp
+      rw [← hGauge]
+      exact hg i
+
+theorem source_gauge_width_scale218
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L)
+    (q Q : ℝ) (hq : 1 < q) (hQ : 1 < Q) (A : Fin 10 → ℝ) (hA : ∀ i, 0 < A i)
+    (t : ℝ) (ht : 0 < t) (x : Fin 10 → ℝ) :
+    coordinateGauge10 (originalCoordinates10 L hL Q hQ (fun i => normalizedWidth10 Q (t*A i))) x =
+      coordinateGauge10 (originalCoordinates10 L hL q hq (fun i => normalizedWidth10 q (A i))) x/t := by
+  have he : originalCoordinates10 L hL Q hQ (fun i => normalizedWidth10 Q (t*A i)) x =
+      t⁻¹ • originalCoordinates10 L hL q hq (fun i => normalizedWidth10 q (A i)) x := by
+    ext i
+    change (L *ᵥ x) i / Q^(normalizedWidth10 Q (t*A i)) =
+      t⁻¹*((L *ᵥ x) i / q^(normalizedWidth10 q (A i)))
+    rw [normalized_width_exact10 Q _ hQ (mul_pos ht (hA i)),normalized_width_exact10 q _ hq (hA i)]
+    field_simp
+  change ‖originalCoordinates10 L hL Q hQ (fun i => normalizedWidth10 Q (t*A i)) x‖ = _
+  rw [he,norm_smul,Real.norm_eq_abs,abs_inv,abs_of_pos ht]
+  simp only [coordinateGauge10,div_eq_mul_inv,mul_comm]
+
+end CompoundFeasibility.M218ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M218ScopedLiteral
+
+def sourceSet218 (q delta : ℝ) (A c2 c3 : Fin 10 → ℝ) : Finset (Fin 3 → Fin 10) :=
+  Finset.univ.filter (fun s => 1 ≤ A (s 0)*q^(c2 (s 1))*q^(c3 (s 2))*q^(delta/4))
+
+theorem source_set_nonempty218 (q delta : ℝ) (hq : 1 < q) (hd : 0 < delta)
+    (A c2 c3 : Fin 10 → ℝ) (hA : ∀ i, 0 < A i)
+    (hbal : (∏ i, A i*q^(c2 i)*q^(c3 i)) = 1) : (sourceSet218 q delta A c2 c3).Nonempty := by
+  have hp (i : Fin 10) : 0 < A i*q^(c2 i)*q^(c3 i) :=
+    mul_pos (mul_pos (hA i) (Real.rpow_pos_of_pos (zero_lt_one.trans hq) _))
+      (Real.rpow_pos_of_pos (zero_lt_one.trans hq) _)
+  have hi : ∃ i, 1 ≤ A i*q^(c2 i)*q^(c3 i) := by
+    by_contra hh
+    push_neg at hh
+    have h := Finset.prod_lt_prod_of_nonempty (s := Finset.univ)
+      (f := fun i => A i*q^(c2 i)*q^(c3 i)) (g := fun _ => (1 : ℝ))
+      (fun i _ => hp i) (fun i _ => hh i) Finset.univ_nonempty
+    simp [hbal] at h
+  obtain ⟨i,hi⟩ := hi
+  refine ⟨fun _ => i,Finset.mem_filter.mpr ⟨Finset.mem_univ _,?_⟩⟩
+  have hr := Real.one_le_rpow hq.le (show (0 : ℝ) ≤ delta/4 by linarith)
+  nlinarith
+
+theorem source_set_unbounded_selection218 (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (delta : ℝ) (A : ℝ → Fin 10 → ℝ) (c2 c3 : Fin 10 → ℝ)
+    (hne : ∀ q ∈ Omega, (sourceSet218 q delta (A q) c2 c3).Nonempty) :
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧ ∀ q ∈ U, sourceSet218 q delta (A q) c2 c3 = S0 := by
+  by_contra hn
+  have hb (S0 : Finset (Fin 3 → Fin 10)) :
+      BddAbove {q | q ∈ Omega ∧ sourceSet218 q delta (A q) c2 c3 = S0} := by
+    by_contra hu
+    obtain ⟨q,hq,hS⟩ := nonempty_of_not_bddAbove hu
+    exact hn ⟨S0,hS ▸ hne q hq,_,fun _ h => h.1,hu,fun _ h => h.2⟩
+  choose b hb using hb
+  obtain ⟨B,hB⟩ := (Set.finite_range b).bddAbove
+  apply hO
+  refine ⟨B,?_⟩
+  intro q hq
+  exact (hb _ (show q ∈ {x | x ∈ Omega ∧ sourceSet218 x delta (A x) c2 c3 =
+    sourceSet218 q delta (A q) c2 c3} from ⟨hq,rfl⟩)).trans (hB (Set.mem_range_self _))
+
+theorem rounded_inverse_upper218 (p : ℕ) (hp : 1 < p) (q c : ℝ)
+    (hq : 1 < q) (hc : -1 ≤ c ∧ c ≤ 0) :
+    (p : ℝ)^(-roundedExponent218 p q c) < (p : ℝ)*q := by
+  have h := rounded_local218 p hp q c hq hc.2
+  have hp0 : (0 : ℝ) < p := by exact_mod_cast (lt_trans Nat.zero_lt_one hp)
+  have hq0 := zero_lt_one.trans hq
+  have hi : (p : ℝ)^(-roundedExponent218 p q c) < (p : ℝ)/q^c := by
+    rw [zpow_neg]
+    rw [← one_div]
+    apply (div_lt_div_iff₀ (zpow_pos hp0 _) (Real.rpow_pos_of_pos hq0 _)).mpr
+    simpa only [one_mul] using (div_lt_iff₀ (zpow_pos hp0 _)).mp h.2.2.2.2
+  apply hi.trans_le
+  rw [div_eq_mul_inv,← Real.rpow_neg hq0.le]
+  apply mul_le_mul_of_nonneg_left _ hp0.le
+  calc
+    q^(-c) ≤ q^(1 : ℝ) := Real.rpow_le_rpow_of_exponent_le hq.le (by linarith [hc.1])
+    _ = q := Real.rpow_one q
+
+theorem corrected_sizes218 (q : ℝ) (hq : 6 < q) (c2 c3 A : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hA : ∀ i, 0 < A i) (hs : ∀ i, A i < q ∧ (A i)⁻¹ < q) (i : Fin 10) :
+    widthScale218 q c2 c3*A i < q^2 ∧ (widthScale218 q c2 c3*A i)⁻¹ < q^2 ∧
+      (2 : ℝ)^(-roundedExponent218 2 q (c2 i)) < q^2 ∧
+      (3 : ℝ)^(-roundedExponent218 3 q (c3 i)) < q^2 := by
+  have hq1 : 1 < q := by linarith
+  have ht := width_scale_bounds218 q hq1 c2 c3 (fun i => (h2 i).2) (fun i => (h3 i).2)
+  have hpos := mul_pos ht.2.2.1 (hA i)
+  have hupper : widthScale218 q c2 c3*A i < 6*q := by
+    have hh := mul_lt_mul_of_pos_right ht.2.1 (hA i)
+    have hh' := mul_lt_mul_of_pos_left (hs i).1 (by norm_num : (0 : ℝ) < 6)
+    exact hh.trans hh'
+  have hA_scale : A i ≤ widthScale218 q c2 c3*A i := by nlinarith [ht.1,hA i]
+  have hinv : (widthScale218 q c2 c3*A i)⁻¹ ≤ (A i)⁻¹ :=
+    (inv_le_inv₀ hpos (hA i)).mpr hA_scale
+  have hi2 := rounded_inverse_upper218 2 (by decide) q (c2 i) hq1 (h2 i)
+  have hi3 := rounded_inverse_upper218 3 (by decide) q (c3 i) hq1 (h3 i)
+  norm_num only [Nat.cast_ofNat] at hi2 hi3
+  refine ⟨?_,?_,?_,?_⟩ <;> nlinarith [(hs i).2]
+
+theorem source_set_selected218 (q delta : ℝ) (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+    (h2 : ∀ i, c2 i ≤ 0) (h3 : ∀ i, c3 i ≤ 0) (hA : ∀ i, 0 < A i)
+    (hslack : 6 ≤ q^(delta/4)) (s : Fin 3 → Fin 10) (hs : s ∈ sourceSet218 q delta A c2 c3) :
+    1 ≤ (widthScale218 q c2 c3*A (s 0))*(2 : ℝ)^(roundedExponent218 2 q (c2 (s 1)))*
+      (3 : ℝ)^(roundedExponent218 3 q (c3 (s 2)))*(q^2)^((delta/2)/2) := by
+  have hq0 := zero_lt_one.trans hq
+  have ht := width_scale_bounds218 q hq c2 c3 h2 h3
+  have ha := rounded_local218 2 (by decide) q (c2 (s 1)) hq (h2 _)
+  have hb := rounded_local218 3 (by decide) q (c3 (s 2)) hq (h3 _)
+  have h2p : q^(c2 (s 1)) ≤ 2*(2 : ℝ)^(roundedExponent218 2 q (c2 (s 1))) :=
+    by simpa only [Nat.cast_ofNat,mul_comm] using ((div_lt_iff₀ (by norm_num : (0 : ℝ) < 2)).mp ha.2.1).le
+  have h3p : q^(c3 (s 2)) ≤ 3*(3 : ℝ)^(roundedExponent218 3 q (c3 (s 2))) :=
+    by simpa only [Nat.cast_ofNat,mul_comm] using ((div_lt_iff₀ (by norm_num : (0 : ℝ) < 3)).mp hb.2.1).le
+  have hm := mul_le_mul h2p h3p (Real.rpow_pos_of_pos hq0 _).le (by positivity)
+  have hm' := mul_le_mul_of_nonneg_left hm (mul_pos (hA (s 0)) (Real.rpow_pos_of_pos hq0 (delta/4))).le
+  have htq : 6 ≤ widthScale218 q c2 c3*q^(delta/4) := by
+    have hh := mul_le_mul_of_nonneg_right ht.1 (Real.rpow_pos_of_pos hq0 (delta/4)).le
+    nlinarith
+  have hA0 := hA (s 0)
+  have htq' := mul_le_mul_of_nonneg_right htq
+    (by positivity : 0 ≤ A (s 0)*(2 : ℝ)^(roundedExponent218 2 q (c2 (s 1)))*
+      (3 : ℝ)^(roundedExponent218 3 q (c3 (s 2)))*q^(delta/4))
+  have hmem := (Finset.mem_filter.mp hs).2
+  have hp : (q^2)^((delta/2)/2) = q^(delta/4)*q^(delta/4) := by
+    rw [← Real.rpow_natCast_mul hq0.le,← Real.rpow_add hq0]
+    congr 1
+    ring
+  rw [hp]
+  nlinarith
+
+end CompoundFeasibility.M218ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M218ScopedLiteral
+open SourceOriginalVariable10
+
+structure SourceData218 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L)
+    (q : ℝ) (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ) (delta : ℝ) where
+  positive : ∀ i, 0 < A i
+  sizes : ∀ i, A i < q ∧ (A i)⁻¹ < q
+  balance : (∏ i, A i*q^(c2 i)*q^(c3 i)) = 1
+  u : Fin 10 → Fin 10 → ℤ
+  member : ∀ j, u j ∈ originalSourceGroup10 A2 A3 q c2 c3
+  independent : LinearIndependent ℝ (fun j => integerReal (u j))
+  attaining : ∀ j, coordinateGauge10 (originalCoordinates10 L hL q hq
+      (fun i => normalizedWidth10 q (A i))) (integerReal (u j)) =
+    sourceMinima10 A2 A3 L hL q hq (fun i => normalizedWidth10 q (A i)) c2 c3 j
+  small : sourceMinima10 A2 A3 L hL q hq (fun i => normalizedWidth10 q (A i)) c2 c3 8 < q^(-delta)
+
+theorem squared_parameter218 (q : ℝ) (hq : 1 < q) : 1 < q^2 := by
+  nlinarith [sq_nonneg (q-1)]
+
+theorem corrected_minima218
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ} {hL : IsUnit L}
+    {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (h2 : ∀ i, c2 i ≤ 0) (h3 : ∀ i, c3 i ≤ 0)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (j : Fin 10) :
+    sourceMinima10 A2 A3 L hL (q^2) (squared_parameter218 q hq)
+      (fun i => normalizedWidth10 (q^2) (widthScale218 q c2 c3*A i))
+      (fun i => normalizedFinite10 2 (q^2) (roundedExponent218 2 q (c2 i)))
+      (fun i => normalizedFinite10 3 (q^2) (roundedExponent218 3 q (c3 i))) j =
+    sourceMinima10 A2 A3 L hL q hq (fun i => normalizedWidth10 q (A i)) c2 c3 j /
+      widthScale218 q c2 c3 := by
+  have ht := width_scale_bounds218 q hq c2 c3 h2 h3
+  exact source_minima_scale218 A2 A3 L hL q (q^2) hq (squared_parameter218 q hq)
+    _ c2 c3 _ _ _ _ ht.2.2.1 (rounding_lattice218 A2 A3 q hq c2 c3).2
+    (source_gauge_width_scale218 L hL q (q^2) hq (squared_parameter218 q hq) A D.positive _ ht.2.2.1) j
+
+def toOriginalData218
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ} {hL : IsUnit L}
+    {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (hq6 : 6 < q)
+    (hslack : 6 ≤ q^(delta/4)) (S0 : Finset (Fin 3 → Fin 10))
+    (hS : sourceSet218 q delta A c2 c3 = S0) :
+    OriginalData10 A2 A3 L hL (q^2) (squared_parameter218 q hq) (delta/2) S0 where
+  A := fun i => widthScale218 q c2 c3*A i
+  positive := fun i => mul_pos (width_scale_bounds218 q hq c2 c3 (fun i => (h2 i).2) (fun i => (h3 i).2)).2.2.1 (D.positive i)
+  f2 := fun i => roundedExponent218 2 q (c2 i)
+  f3 := fun i => roundedExponent218 3 q (c3 i)
+  nonpos2 := fun i => (rounded_local218 2 (by decide) q (c2 i) hq (h2 i).2).1
+  nonpos3 := fun i => (rounded_local218 3 (by decide) q (c3 i) hq (h3 i).2).1
+  sizes := corrected_sizes218 q hq6 c2 c3 A h2 h3 D.positive D.sizes
+  balance := corrected_width_balance218 q hq c2 c3 A (fun i => (h2 i).2) (fun i => (h3 i).2) D.balance
+  selected := by
+    intro s hs
+    exact source_set_selected218 q delta hq c2 c3 A (fun i => (h2 i).2) (fun i => (h3 i).2)
+      D.positive hslack s (hS.symm ▸ hs)
+  u := D.u
+  member2 := by
+    intro j
+    have hm : D.u j ∈ originalSourceGroup10 A2 A3 (q^2)
+        (fun i => normalizedFinite10 2 (q^2) (roundedExponent218 2 q (c2 i)))
+        (fun i => normalizedFinite10 3 (q^2) (roundedExponent218 3 q (c3 i))) := by
+      rw [(rounding_lattice218 A2 A3 q hq c2 c3).2]
+      exact D.member j
+    exact ((normalized_source_group_exact10 A2 A3 (q^2) (squared_parameter218 q hq) _ _
+      (fun i => (rounded_local218 2 (by decide) q (c2 i) hq (h2 i).2).1)
+      (fun i => (rounded_local218 3 (by decide) q (c3 i) hq (h3 i).2).1) (D.u j)).mp hm).1
+  member3 := by
+    intro j
+    have hm : D.u j ∈ originalSourceGroup10 A2 A3 (q^2)
+        (fun i => normalizedFinite10 2 (q^2) (roundedExponent218 2 q (c2 i)))
+        (fun i => normalizedFinite10 3 (q^2) (roundedExponent218 3 q (c3 i))) := by
+      rw [(rounding_lattice218 A2 A3 q hq c2 c3).2]
+      exact D.member j
+    exact ((normalized_source_group_exact10 A2 A3 (q^2) (squared_parameter218 q hq) _ _
+      (fun i => (rounded_local218 2 (by decide) q (c2 i) hq (h2 i).2).1)
+      (fun i => (rounded_local218 3 (by decide) q (c3 i) hq (h3 i).2).1) (D.u j)).mp hm).2
+  independent := D.independent
+  attaining := by
+    intro j
+    rw [source_gauge_width_scale218 L hL q (q^2) hq (squared_parameter218 q hq) A D.positive _
+      (width_scale_bounds218 q hq c2 c3 (fun i => (h2 i).2) (fun i => (h3 i).2)).2.2.1,
+      D.attaining j,corrected_minima218 (fun i => (h2 i).2) (fun i => (h3 i).2) D j]
+  small := by
+    rw [corrected_minima218 (fun i => (h2 i).2) (fun i => (h3 i).2) D 8]
+    have ht := width_scale_bounds218 q hq c2 c3 (fun i => (h2 i).2) (fun i => (h3 i).2)
+    have hp := (sourceMinima10_pos_mono A2 A3 L hL q hq (fun i => normalizedWidth10 q (A i)) c2 c3).1 8
+    have hle : sourceMinima10 A2 A3 L hL q hq (fun i => normalizedWidth10 q (A i)) c2 c3 8 /
+        widthScale218 q c2 c3 ≤ sourceMinima10 A2 A3 L hL q hq (fun i => normalizedWidth10 q (A i)) c2 c3 8 := by
+      apply (div_le_iff₀ ht.2.2.1).mpr
+      nlinarith [ht.1]
+    apply (hle.trans_lt D.small).trans_eq
+    rw [← Real.rpow_natCast_mul (zero_lt_one.trans hq).le]
+    congr 1
+    ring
+
+end CompoundFeasibility.M218ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M218ScopedLiteral
+open SourceOriginalVariable10 SourceOriginalDual10 SourceOriginalBounds215 OriginalDual10
+
+theorem source_product_transport218
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ} {hL : IsUnit L}
+    {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (hq6 : 6 < q)
+    (hslack : 6 ≤ q^(delta/4)) (S0 : Finset (Fin 3 → Fin 10))
+    (hS : sourceSet218 q delta A c2 c3 = S0) (s : Fin 3 → Fin 10) :
+    dataRationalDualProduct10 (toOriginalData218 h2 h3 D hq6 hslack S0 hS) s =
+      originalRationalDualProduct10 A2 A3 L D.u
+        (integer_frame_rational_independent10 D.u D.independent) s := by
+  exact congrArg (fun hu => originalRationalDualProduct10 A2 A3 L D.u hu s)
+    (Subsingleton.elim (dataRationalDualProduct10._proof_6 (toOriginalData218 h2 h3 D hq6 hslack S0 hS))
+      (integer_frame_rational_independent10 D.u D.independent))
+
+theorem source_entry_cutoff218 (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 6 < T ∧ ∀ q : ℝ, T < q → 6 ≤ q^(delta/4) := by
+  obtain ⟨B,hB⟩ := Filter.eventually_atTop.mp
+    ((tendsto_rpow_atTop (show 0 < delta/4 by linarith)).eventually (Filter.eventually_gt_atTop (6 : ℝ)))
+  refine ⟨max 7 B,lt_of_lt_of_le (by norm_num : (6 : ℝ) < 7) (le_max_left _ _),?_⟩
+  intro q hq
+  exact (hB q ((le_max_right _ _).trans hq.le)).le
+
+theorem source_entry_fixed_set_vanishing218
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∀ q : Omega, q.val ∈ U → B < q.val ∧ sourceSet218 q.val delta (A q.val) c2 c3 = S0 ∧
+          ∀ s ∈ S0, originalRationalDualProduct10 A2 A3 L (D q).u
+            (integer_frame_rational_independent10 (D q).u (D q).independent) s = 0 := by
+  obtain ⟨S0,hS0,V,hVO,hV,hpattern⟩ := source_set_unbounded_selection218 Omega hO delta A c2 c3
+    (fun q hqO => source_set_nonempty218 q delta (hq q hqO) hd (A q) c2 c3
+      (D ⟨q,hqO⟩).positive (D ⟨q,hqO⟩).balance)
+  obtain ⟨Q0,_hQ0,hzero⟩ := original_satz41_fin10_two_places215 A2 A3 L h2d h3d hLd hL hAlg
+    (delta/2) (by linarith) S0
+  obtain ⟨T,hT,hslack⟩ := source_entry_cutoff218 delta hd
+  let B := max T Q0
+  let U := {q : ℝ | q ∈ V ∧ B < q}
+  have hU : ¬ BddAbove U := by
+    rintro ⟨C,hC⟩
+    obtain ⟨q,hqV,hqgt⟩ := (not_bddAbove_iff.mp hV) (max B C)
+    have hqU : q ∈ U := ⟨hqV,(le_max_left _ _).trans_lt hqgt⟩
+    exact (not_le_of_gt ((le_max_right _ _).trans_lt hqgt)) (hC hqU)
+  refine ⟨S0,hS0,B,hT.trans_le (le_max_left _ _),U,fun _ h => hVO h.1,hU,?_⟩
+  intro q hqU
+  have hBQ : B < q.val := hqU.2
+  have hTQ : T < q.val := (le_max_left _ _).trans_lt hBQ
+  have hq6 : 6 < q.val := hT.trans hTQ
+  have hpat := hpattern q.val hqU.1
+  refine ⟨hBQ,hpat,?_⟩
+  intro s hs
+  let D' := toOriginalData218 h2 h3 (D q) hq6 (hslack q.val hTQ) S0 hpat
+  have hQ0 : Q0 < q.val^2 := by
+    have hQq : Q0 < q.val := (le_max_right _ _).trans_lt hBQ
+    have hqq : q.val < q.val^2 := by nlinarith [hq q.val q.property]
+    exact hQq.trans hqq
+  have hz := (hzero (q.val^2) (squared_parameter218 q.val (hq q.val q.property)) hQ0 D').2.2 s hs
+  exact (source_product_transport218 h2 h3 (D q) hq6 (hslack q.val hTQ) S0 hpat s).symm.trans hz
+
+end CompoundFeasibility.M218ScopedLiteral
+
+#print CompoundFeasibility.M218ScopedLiteral.roundedExponent218
+#print axioms CompoundFeasibility.M218ScopedLiteral.roundedExponent218
+#print CompoundFeasibility.M218ScopedLiteral.rounded_local218
+#print axioms CompoundFeasibility.M218ScopedLiteral.rounded_local218
+#print CompoundFeasibility.M218ScopedLiteral.roundingRatio218
+#print axioms CompoundFeasibility.M218ScopedLiteral.roundingRatio218
+#print CompoundFeasibility.M218ScopedLiteral.widthScale218
+#print axioms CompoundFeasibility.M218ScopedLiteral.widthScale218
+#print CompoundFeasibility.M218ScopedLiteral.rounding_ratio_bounds218
+#print axioms CompoundFeasibility.M218ScopedLiteral.rounding_ratio_bounds218
+#print CompoundFeasibility.M218ScopedLiteral.width_scale_bounds218
+#print axioms CompoundFeasibility.M218ScopedLiteral.width_scale_bounds218
+#print CompoundFeasibility.M218ScopedLiteral.corrected_width_balance218
+#print axioms CompoundFeasibility.M218ScopedLiteral.corrected_width_balance218
+#print CompoundFeasibility.M218ScopedLiteral.rounding_threshold218
+#print axioms CompoundFeasibility.M218ScopedLiteral.rounding_threshold218
+#print CompoundFeasibility.M218ScopedLiteral.rounding_lattice218
+#print axioms CompoundFeasibility.M218ScopedLiteral.rounding_lattice218
+#print CompoundFeasibility.M218ScopedLiteral.source_minima_scale218
+#print axioms CompoundFeasibility.M218ScopedLiteral.source_minima_scale218
+#print CompoundFeasibility.M218ScopedLiteral.source_gauge_width_scale218
+#print axioms CompoundFeasibility.M218ScopedLiteral.source_gauge_width_scale218
+#print CompoundFeasibility.M218ScopedLiteral.sourceSet218
+#print axioms CompoundFeasibility.M218ScopedLiteral.sourceSet218
+#print CompoundFeasibility.M218ScopedLiteral.source_set_nonempty218
+#print axioms CompoundFeasibility.M218ScopedLiteral.source_set_nonempty218
+#print CompoundFeasibility.M218ScopedLiteral.source_set_unbounded_selection218
+#print axioms CompoundFeasibility.M218ScopedLiteral.source_set_unbounded_selection218
+#print CompoundFeasibility.M218ScopedLiteral.rounded_inverse_upper218
+#print axioms CompoundFeasibility.M218ScopedLiteral.rounded_inverse_upper218
+#print CompoundFeasibility.M218ScopedLiteral.corrected_sizes218
+#print axioms CompoundFeasibility.M218ScopedLiteral.corrected_sizes218
+#print CompoundFeasibility.M218ScopedLiteral.source_set_selected218
+#print axioms CompoundFeasibility.M218ScopedLiteral.source_set_selected218
+#print CompoundFeasibility.M218ScopedLiteral.SourceData218
+#print axioms CompoundFeasibility.M218ScopedLiteral.SourceData218
+#print CompoundFeasibility.M218ScopedLiteral.squared_parameter218
+#print axioms CompoundFeasibility.M218ScopedLiteral.squared_parameter218
+#print CompoundFeasibility.M218ScopedLiteral.corrected_minima218
+#print axioms CompoundFeasibility.M218ScopedLiteral.corrected_minima218
+#print CompoundFeasibility.M218ScopedLiteral.toOriginalData218
+#print axioms CompoundFeasibility.M218ScopedLiteral.toOriginalData218
+#print CompoundFeasibility.M218ScopedLiteral.source_product_transport218
+#print axioms CompoundFeasibility.M218ScopedLiteral.source_product_transport218
+#print CompoundFeasibility.M218ScopedLiteral.source_entry_cutoff218
+#print axioms CompoundFeasibility.M218ScopedLiteral.source_entry_cutoff218
+#print CompoundFeasibility.M218ScopedLiteral.source_entry_fixed_set_vanishing218
+#print axioms CompoundFeasibility.M218ScopedLiteral.source_entry_fixed_set_vanishing218

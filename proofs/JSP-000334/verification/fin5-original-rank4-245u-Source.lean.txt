@@ -1,0 +1,152 @@
+import SubspaceBridge.SourceBlockKernel245U
+import SubspaceBridge.SourceBlockFixedLine245U
+import SubspaceBridge.SourceBlockRecovery245U
+import SubspaceBridge.SourceOriginalRank4Flag245U
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M245UChallenges
+open CompoundFeasibility CompoundFeasibility.BlockRank4_245U
+  CompoundFeasibility.BlockReduction245P CompoundFeasibility.BlockReduction245Q
+  CompoundFeasibility.BlockReduction245R CompoundFeasibility.Exterior53_242
+  CompoundFeasibility.OriginalDual10 CompoundFeasibility.SourceOriginalDual10
+  CompoundFeasibility.CompoundLine53_243 CompoundFeasibility.SchmidtNormal10
+
+theorem actual_rank4_kernel (b : Fin 10 → ℤ) (hb : b ≠ 0)
+    (hz : ∀ i, b (blockIndex245P (Sum.inr i)) = 0) :
+    ∃ f : Module.Dual ℚ (Fin 5 → ℚ),
+      (∀ x, f x = ∑ i : Fin 5, ((b (blockIndex245P (Sum.inl i)) : ℤ) : ℚ)*x i) ∧
+      Module.finrank ℚ (LinearMap.ker f) = 4 ∧ first245Q b ≠ 0 := by
+  have hn := original_nonzero245U b hb hz
+  exact ⟨originalNormal245U b,by intro x; simp [originalNormal245U,first245Q],
+    original_kernel_rank245U b hn,hn⟩
+
+theorem actual_basis_kernel (b : Fin 10 → ℤ) (hb : first245Q b ≠ 0)
+    (u : Fin 5 → Fin 5 → ℚ) (hu : LinearIndependent ℚ u)
+    (hz : ∀ j : Fin 4, (∑ i : Fin 5,
+      ((b (blockIndex245P (Sum.inl i)) : ℤ) : ℚ)*u j.castSucc i) = 0) :
+    LinearMap.ker (∑ i : Fin 5,
+      ((b (blockIndex245P (Sum.inl i)) : ℤ) : ℚ) • (LinearMap.proj i : Module.Dual ℚ (Fin 5 → ℚ))) =
+      Submodule.span ℚ (Set.range (fun j : Fin 4 => u j.castSucc)) := by
+  have ha (j : Fin 4) : originalNormal245U b (u j.castSucc) = 0 := by
+    simpa [originalNormal245U,first245Q] using hz j
+  exact original_kernel_span245U b hb u hu ha
+
+theorem actual_dummy_normal (b : Fin 10 → ℤ) (i : Fin 5) :
+    (∑ j : Fin 10, (b j : ℚ)*((join245Q 0 (Pi.single i (1 : ℤ)) j : ℤ) : ℚ)) =
+      ((b (blockIndex245P (Sum.inr i)) : ℤ) : ℚ) := by
+  simpa only [normalForm10_apply,second245Q] using normal_dummy245U b i
+
+theorem original_cube_line_contract
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q)
+    (hgap : ∀ (Q : ℝ) (hQO : Q ∈ Omega),
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 3 <
+        sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 4*Q^(-delta))
+    :
+    ∃ T : ℝ, 1 < T ∧ ∃ b : Fin 10 → ℤ, b ≠ 0 ∧ ∃ Vprime : Set ℝ,
+      Vprime ⊆ cubeDomain243 {Q | Q ∈ Omega ∧ T < Q} ∧ ¬ BddAbove Vprime ∧
+      ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+        ∀ Q ∈ V, ∃ p : cubeDomain243 {Q | Q ∈ Omega ∧ T < Q},
+          p.val ∈ Vprime ∧ p.val = Q^3 ∧ ∃ hp : 1 < p.val,
+          ∃ w : Fin 10 → originalSourceGroup10 (block245P A2) (block245P A3) p.val
+            (weightp245P c2) (weightp245P c3),
+          ∃ hw : LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ)),
+            (∀ j, coordinateGauge10 (originalCoordinates10 (block245P L) (block_unit245Q L hL)
+              p.val hp (weight0245P c0)) (integerReal (w j : Fin 10 → ℤ)) =
+              sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+                p.val hp (weight0245P c0) (weightp245P c2) (weightp245P c3) j) ∧
+            (sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+              p.val hp (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 <
+            sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+              p.val hp (weight0245P c0) (weightp245P c2) (weightp245P c3) 9*p.val^(-(delta/3))) ∧
+            Submodule.span ℚ {lastDual10 (fun j i => ((w j : Fin 10 → ℤ) i : ℚ))
+              (integer_frame_rational_independent10 _ hw)} = Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  exact source_block_fixed_line245U A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq hgap
+
+theorem same_frame_rational_annihilation
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ) (delta : ℝ) (hd : 0 < delta)
+    (hsource : sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3 <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4*Q^(-delta))
+    (hsep : (Q^2)⁻¹ ≤ Q^2*sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3)
+    (b : Fin 10 → ℤ)
+    (w : Fin 10 → originalSourceGroup10 (block245P A2) (block245P A3) (Q^3)
+      (weightp245P c2) (weightp245P c3))
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ)))
+    (hatt : ∀ j, coordinateGauge10 (originalCoordinates10 (block245P L) (block_unit245Q L hL)
+      (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0)) (integerReal (w j : Fin 10 → ℤ)) =
+        sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+          (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) j)
+    (hpowered : sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 8 <
+      sourceMinima10 (block245P A2) (block245P A3) (block245P L) (block_unit245Q L hL)
+        (Q^3) (powered_gt_one3242 Q hQ) (weight0245P c0) (weightp245P c2) (weightp245P c3) 9*
+          (Q^3)^(-(delta/3)))
+    (hline : Submodule.span ℚ {lastDual10 (fun j i => ((w j : Fin 10 → ℤ) i : ℚ))
+      (integer_frame_rational_independent10 _ hw)} = Submodule.span ℚ {fun i => (b i : ℚ)}) :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+      (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+      (∀ i, b (blockIndex245P (Sum.inr i)) = 0) ∧
+      (∀ j : Fin 4, originalNormal245U b (fun i => ((u j.castSucc : Fin 5 → ℤ) i : ℚ)) = 0) := by
+  exact sameQ_annihilation245U A2 A3 L hL Q hQ c0 c2 c3 delta hd hsource hsep b w hw hatt hpowered hline
+
+theorem original_native_rank4_endpoint
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q)
+    (hgap : ∀ (Q : ℝ) (hQO : Q ∈ Omega),
+      (sInf {r : ℝ | ∃ v : Fin 4 → (Fin 5 → ℝ), LinearIndependent ℝ v ∧
+        (∀ j, v j ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧
+        ∀ j, ‖originalCoordinates5 L hL Q (hq Q hQO) c0 (v j)‖ ≤ r}) <
+        (sInf {r : ℝ | ∃ v : Fin 5 → (Fin 5 → ℝ), LinearIndependent ℝ v ∧
+        (∀ j, v j ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧
+        ∀ j, ‖originalCoordinates5 L hL Q (hq Q hQO) c0 (v j)‖ ≤ r})*Q^(-delta)) :
+    ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = 4 ∧
+      ∃ V : Set ℝ, ∃ hVO : V ⊆ Omega, ¬ BddAbove V ∧
+      ∀ (Q : ℝ) (hQV : Q ∈ V), ∃ u : Fin 5 → Fin 5 → ℤ,
+        (∀ j, (∀ i, padicNorm 2 ((A2 *ᵥ (fun k => (u j k : ℚ))) i) ≤
+            (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 Q (c2 i)) : ℤ))) ∧
+          (∀ i, padicNorm 3 ((A3 *ᵥ (fun k => (u j k : ℚ))) i) ≤
+            (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 Q (c3 i)) : ℤ)))) ∧
+        LinearIndependent ℝ (fun j i => (u j i : ℝ)) ∧
+        (∀ i, ‖originalCoordinates5 L hL Q (hq Q (hVO hQV)) c0 (fun k => (u i k : ℝ))‖ =
+          sourceMinima5 A2 A3 L hL Q (hq Q (hVO hQV)) c0 c2 c3 i) ∧
+        P = Submodule.span ℚ (Set.range (fun j : Fin 4 => fun i => (u j.castSucc i : ℚ))) := by
+  have hg (Q : ℝ) (hQO : Q ∈ Omega) :
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 3 <
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 4*Q^(-delta) := hgap Q hQO
+  obtain ⟨P,hP,V,hVO,hV,hall⟩ := source_original_fixed_rank4_245
+    A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq hg
+  refine ⟨P,hP,V,hVO,hV,?_⟩
+  intro Q hQV
+  obtain ⟨u,hu,ha,he⟩ := hall Q hQV
+  refine ⟨fun j => (u j : Fin 5 → ℤ),?_,hu,ha,he⟩
+  intro j
+  have hm := (u j).property
+  change ((u j : Fin 5 → ℤ) ∈ lattice5 2 A2 _ ∧ (u j : Fin 5 → ℤ) ∈ lattice5 3 A3 _) at hm
+  simpa only [lattice5_spec] using hm
+
+end M245UChallenges
+#check M245UChallenges.actual_rank4_kernel
+#print axioms M245UChallenges.actual_rank4_kernel
+#check M245UChallenges.actual_basis_kernel
+#print axioms M245UChallenges.actual_basis_kernel
+#check M245UChallenges.actual_dummy_normal
+#print axioms M245UChallenges.actual_dummy_normal
+#check M245UChallenges.original_cube_line_contract
+#print axioms M245UChallenges.original_cube_line_contract
+#check M245UChallenges.same_frame_rational_annihilation
+#print axioms M245UChallenges.same_frame_rational_annihilation
+#check M245UChallenges.original_native_rank4_endpoint
+#print axioms M245UChallenges.original_native_rank4_endpoint

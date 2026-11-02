@@ -1,0 +1,124 @@
+import SubspaceBridge.SourceOriginalCounterexampleExtraction10
+open scoped BigOperators Classical Matrix
+namespace M208SourceContract
+open CompoundFeasibility CompoundFeasibility.SourceOriginalVariable10
+open SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10 SourceSampling10 SchmidtNormal10
+noncomputable section
+
+structure OriginalSourceInput10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (delta : ℝ) (S0 : Finset MixedIndex10) where
+  A : Fin 10 → ℝ
+  positive : ∀ i, 0 < A i
+  f2 : Fin 10 → ℤ
+  f3 : Fin 10 → ℤ
+  nonpos2 : ∀ i, f2 i ≤ 0
+  nonpos3 : ∀ i, f3 i ≤ 0
+  sizes : ∀ i, A i < Q ∧ (A i)⁻¹ < Q ∧ (2 : ℝ)^(-f2 i) < Q ∧ (3 : ℝ)^(-f3 i) < Q
+  balance : (∏ i, A i*(2 : ℝ)^(f2 i)*(3 : ℝ)^(f3 i)) = 1
+  selected : ∀ s ∈ S0, 1 ≤ A (s 0)*(2 : ℝ)^(f2 (s 1))*(3 : ℝ)^(f3 (s 2))*Q^(delta/2)
+  u : Fin 10 → Fin 10 → ℤ
+  member2 : ∀ j i, padicNorm 2 ((A2 *ᵥ (fun k => (u j k : ℚ))) i) ≤ (2 : ℚ)^(f2 i)
+  member3 : ∀ j i, padicNorm 3 ((A3 *ᵥ (fun k => (u j k : ℚ))) i) ≤ (3 : ℚ)^(f3 i)
+  independent : LinearIndependent ℝ (fun j => integerReal (u j : Fin 10 → ℤ))
+  attaining : ∀ j, coordinateGauge10 (originalCoordinates10 L hL Q hQ (fun i => (fun Q A => Real.log A/Real.log Q) Q (A i)))
+    (integerReal (u j : Fin 10 → ℤ)) = sourceMinima10 A2 A3 L hL Q hQ
+      (fun i => (fun Q A => Real.log A/Real.log Q) Q (A i)) (fun i => (fun (p : ℕ) Q (f : ℤ) => (f : ℝ)*Real.log (p : ℝ)/Real.log Q) 2 Q (f2 i))
+      (fun i => (fun (p : ℕ) Q (f : ℤ) => (f : ℝ)*Real.log (p : ℝ)/Real.log Q) 3 Q (f3 i)) j
+  small : sourceMinima10 A2 A3 L hL Q hQ
+    (fun i => (fun Q A => Real.log A/Real.log Q) Q (A i)) (fun i => (fun (p : ℕ) Q (f : ℤ) => (f : ℝ)*Real.log (p : ℝ)/Real.log Q) 2 Q (f2 i))
+    (fun i => (fun (p : ℕ) Q (f : ℤ) => (f : ℝ)*Real.log (p : ℝ)/Real.log Q) 3 Q (f3 i)) 8 < Q^(-delta)
+
+def originalDataOfSourceInput10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset MixedIndex10}
+    (D : OriginalSourceInput10 A2 A3 L hL Q hQ delta S0) :
+    OriginalData10 A2 A3 L hL Q hQ delta S0 := {
+  A := D.A
+  positive := D.positive
+  f2 := D.f2
+  f3 := D.f3
+  nonpos2 := D.nonpos2
+  nonpos3 := D.nonpos3
+  sizes := D.sizes
+  balance := D.balance
+  selected := D.selected
+  u := D.u
+  member2 := D.member2
+  member3 := D.member3
+  independent := D.independent
+  attaining := D.attaining
+  small := D.small }
+
+theorem original_body_contract10 (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (Q : ℝ) (hQ : 1 < Q) (A : Fin 10 → ℝ) (hA : ∀ i, 0 < A i) :
+    originalBody10 L Q (fun i => Real.log (A i)/Real.log Q) =
+      {x | ∀ i, |(L *ᵥ x) i| ≤ A i} := by
+  unfold originalBody10
+  have hp (i : Fin 10) : Q^(Real.log (A i)/Real.log Q) = A i :=
+    normalized_width_exact10 Q (A i) hQ (hA i)
+  simp_rw [hp]
+
+theorem source_counterexample_family10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (delta : ℝ) (S0 : Finset MixedIndex10)
+    (hfail : ∀ B : ℝ, ∃ Q : ℝ, ∃ hQ : 1 < Q, B < Q ∧
+      ∃ D : OriginalSourceInput10 A2 A3 L hL Q hQ delta S0,
+        ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 D.u) s ≠ 0) :
+    ∃ U : Set ℝ, ¬ BddAbove U ∧ ∃ hQU : ∀ q ∈ U, 1 < q,
+      ∃ D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0,
+        (∀ q : U, ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s ≠ 0) ∧
+        ¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0,
+          mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s = 0 := by
+  apply original_counterexamples_unbounded10 A2 A3 L hL delta S0
+  intro B
+  obtain ⟨Q,hQ,hBQ,D,s,hs,hn⟩ := hfail B
+  exact ⟨Q,hQ,hBQ,originalDataOfSourceInput10 D,s,hs,hn⟩
+
+theorem source_schmidt_inputs_contract10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ D0 E0 alpha C_upper T : ℝ, 1 ≤ D0 ∧ 1 ≤ E0 ∧ 0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      ∀ (U : Set ℝ) (hQU : ∀ q ∈ U, 1 < q)
+        (D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0),
+      (¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0,
+        mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s = 0) →
+      ∀ B1 : ℝ, ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+        (∀ q : V, max T B1 < q.val) ∧
+      ∃ e : ℝ, 0 < e ∧ e < 1 ∧ ∃ c : Fin 3 → Fin 10 → ℝ,
+        (∀ tau i, |c tau i| ≤ 1) ∧ (∑ tau, ∑ i, c tau i) = 0 ∧
+        (∀ i, c 1 i ≤ 0 ∧ c 2 i ≤ 0) ∧
+      ∃ eta : ℝ, 0 < eta ∧ 4000*eta < e ∧ ∃ m : ℕ, ∃ hm : 0 < m,
+        4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) ∧
+        (∀ rho : ℝ, 0 < rho → ∀ B : ℝ,
+          Nonempty (OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm)) ∧
+        ∀ (rho B : ℝ)
+          (S : OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm) (h : Fin m),
+          ((S.data.t h).val^5)^alpha ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+          (normalHeight10 (S.data.M h) : ℝ) ≤ C_upper*((S.data.t h).val^5)^9 ∧
+          ∃ s ∈ S0, mixedProduct10 A2 A3 L (S.data.M h) s ≠ 0 ∧
+            mixedProduct10 A2 A3 L (S.data.M h) s ≤ 362880*((S.data.t h).val^5)^(-17*delta/10) := by
+  exact original_counterexample_schmidt_inputs10 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+
+end
+end M208SourceContract
+
+#check M208SourceContract.originalDataOfSourceInput10
+#print M208SourceContract.originalDataOfSourceInput10
+#print axioms M208SourceContract.originalDataOfSourceInput10
+
+#check M208SourceContract.original_body_contract10
+#print M208SourceContract.original_body_contract10
+#print axioms M208SourceContract.original_body_contract10
+
+#check M208SourceContract.source_counterexample_family10
+#print M208SourceContract.source_counterexample_family10
+#print axioms M208SourceContract.source_counterexample_family10
+
+#check M208SourceContract.source_schmidt_inputs_contract10
+#print M208SourceContract.source_schmidt_inputs_contract10
+#print axioms M208SourceContract.source_schmidt_inputs_contract10

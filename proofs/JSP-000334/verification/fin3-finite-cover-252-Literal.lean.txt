@@ -1,0 +1,65 @@
+import ElementaryThreeTerm
+import SubspaceBridge.OriginalPlaneTransport3
+open scoped BigOperators Matrix
+namespace Literal252.Fin3CoverDiagnostic252
+
+theorem small_first_does_not_give_second_gap252 :
+    (0 : ℚ) < 1/4 ∧ (1/4 : ℚ) ≤ 2 ∧ (2 : ℚ) ≤ 2 ∧
+    (1/4 : ℚ)*2*2 = 1 ∧ (1/4 : ℚ) < 1/2 ∧
+    ¬ ((2 : ℚ) < 1/2) ∧ ¬ ((2 : ℚ) < 2*(1/2)) := by
+  norm_num
+
+theorem omission_pattern_count252 : Fintype.card (Fin 3 → Fin 4) = 64 := by
+  decide
+
+def sumReplacement252 : Matrix (Fin 3) (Fin 3) ℚ :=
+  ![![1,1,1],![0,1,0],![0,0,1]]
+
+theorem cofactor_actual_row252 :
+    (sumReplacement252.adjugate.transpose) 1 = ![-1,1,0] := by
+  ext j
+  fin_cases j <;> norm_num [sumReplacement252,Matrix.adjugate_fin_three,Matrix.transpose_apply,
+    Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons]
+
+theorem cofactor_row_outside_four_form_directions252 (a : ℚ) :
+    (![-1,1,0] : Fin 3 → ℚ) ≠ a • ![1,0,0] ∧
+    (![-1,1,0] : Fin 3 → ℚ) ≠ a • ![0,1,0] ∧
+    (![-1,1,0] : Fin 3 → ℚ) ≠ a • ![0,0,1] ∧
+    (![-1,1,0] : Fin 3 → ℚ) ≠ a • ![1,1,1] := by
+  refine ⟨?_,?_,?_,?_⟩
+  · intro h
+    have hh := congrFun h 1
+    change (1 : ℚ) = a*0 at hh
+    norm_num at hh
+  · intro h
+    have hh := congrFun h 0
+    change (-1 : ℚ) = a*0 at hh
+    norm_num at hh
+  · intro h
+    have hh := congrFun h 0
+    change (-1 : ℚ) = a*0 at hh
+    norm_num at hh
+  · intro h
+    have h0 := congrFun h 0
+    have h1 := congrFun h 1
+    change (-1 : ℚ) = a*1 at h0
+    change (1 : ℚ) = a*1 at h1
+    linarith
+
+end Literal252.Fin3CoverDiagnostic252
+
+#check Literal252.Fin3CoverDiagnostic252.small_first_does_not_give_second_gap252
+#print Literal252.Fin3CoverDiagnostic252.small_first_does_not_give_second_gap252
+#print axioms Literal252.Fin3CoverDiagnostic252.small_first_does_not_give_second_gap252
+#check Literal252.Fin3CoverDiagnostic252.omission_pattern_count252
+#print Literal252.Fin3CoverDiagnostic252.omission_pattern_count252
+#print axioms Literal252.Fin3CoverDiagnostic252.omission_pattern_count252
+#check Literal252.Fin3CoverDiagnostic252.sumReplacement252
+#print Literal252.Fin3CoverDiagnostic252.sumReplacement252
+#print axioms Literal252.Fin3CoverDiagnostic252.sumReplacement252
+#check Literal252.Fin3CoverDiagnostic252.cofactor_actual_row252
+#print Literal252.Fin3CoverDiagnostic252.cofactor_actual_row252
+#print axioms Literal252.Fin3CoverDiagnostic252.cofactor_actual_row252
+#check Literal252.Fin3CoverDiagnostic252.cofactor_row_outside_four_form_directions252
+#print Literal252.Fin3CoverDiagnostic252.cofactor_row_outside_four_form_directions252
+#print axioms Literal252.Fin3CoverDiagnostic252.cofactor_row_outside_four_form_directions252

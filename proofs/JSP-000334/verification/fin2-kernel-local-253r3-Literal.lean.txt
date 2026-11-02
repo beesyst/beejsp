@@ -1,0 +1,1186 @@
+import SubspaceBridge.AuxiliaryLocalExpansion
+import SubspaceBridge.AuxiliaryProductFormula
+import SubspaceBridge.BinaryAuxSourceIndex2
+open scoped BigOperators Classical Matrix
+open JSP000334
+namespace LiteralR3
+
+
+def binaryNormalHeight (V : Fin 2 → ℤ) : ℕ := max (V 0).natAbs (V 1).natAbs
+
+theorem binary_primitive_gcd (V : Fin 2 → ℤ)
+    (hV : Ideal.span (Set.range V) = ⊤) : Int.gcd (V 0) (V 1) = 1 := by
+  let d := Int.gcd (V 0) (V 1)
+  have hspan : Ideal.span (Set.range V) ≤ Ideal.span ({(d : ℤ)} : Set ℤ) := by
+    apply Ideal.span_le.mpr
+    rintro _ ⟨i, rfl⟩
+    apply Ideal.mem_span_singleton.mpr
+    fin_cases i
+    · exact Int.gcd_dvd_left
+    · exact Int.gcd_dvd_right
+  have hone : (1 : ℤ) ∈ Ideal.span ({(d : ℤ)} : Set ℤ) := by
+    apply hspan
+    rw [hV]
+    trivial
+  have hu : IsUnit (d : ℤ) := isUnit_of_dvd_one (Ideal.mem_span_singleton.mp hone)
+  simpa using Int.isUnit_iff_natAbs_eq.mp hu
+
+theorem binary_primitive_parameters (V : Fin 2 → ℤ)
+    (hnz : ∃ i, V i ≠ 0) (hV : Ideal.span (Set.range V) = ⊤) :
+    ∃ k : Fin 2, V k ≠ 0 ∧ Int.gcd (-(V k.rev)) (V k) = 1 ∧
+      (V k).natAbs = binaryNormalHeight V := by
+  have hg := binary_primitive_gcd V hV
+  have hmax : ∃ k : Fin 2, (V k).natAbs = binaryNormalHeight V := by
+    by_cases h : (V 0).natAbs ≤ (V 1).natAbs
+    · exact ⟨1, (max_eq_right h).symm⟩
+    · exact ⟨0, (max_eq_left (le_of_not_ge h)).symm⟩
+  obtain ⟨k,hk⟩ := hmax
+  refine ⟨k,?_,?_,hk⟩
+  · intro hz
+    obtain ⟨i,hi⟩ := hnz
+    have hh : (V i).natAbs ≤ binaryNormalHeight V := by
+      fin_cases i
+      · exact le_max_left _ _
+      · exact le_max_right _ _
+    rw [← hk,hz,Int.natAbs_zero] at hh
+    exact hi (Int.natAbs_eq_zero.mp (Nat.eq_zero_of_le_zero hh))
+  · fin_cases k
+    · simpa [Int.gcd_comm] using hg
+    · simpa using hg
+
+
+noncomputable def binaryKernelPivotExponent {m : ℕ} (k : Fin m → Fin 2)
+    (b : RothBlockVars2 m →₀ ℕ) : Fin m →₀ ℕ :=
+  Finsupp.equivFunOnFinite.symm (fun h => b (h, k h))
+
+noncomputable def binaryKernelDehom {m : ℕ} (k : Fin m → Fin 2)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) : MvPolynomial (Fin m) ℤ :=
+  P.sum fun b c => MvPolynomial.monomial (binaryKernelPivotExponent k b) c
+
+theorem binaryKernelPivotExponent_injective {m : ℕ}
+    (k : Fin m → Fin 2) (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (r : Fin m → ℕ) (hhom : binaryBlockHomogeneous r P) :
+    Set.InjOn (binaryKernelPivotExponent k) (P.support : Set (RothBlockVars2 m →₀ ℕ)) := by
+  intro b hb c hc he
+  have hp (h) : b (h, k h) = c (h, k h) := congrArg (fun a : Fin m →₀ ℕ => a h) he
+  ext ⟨h,i⟩
+  have hbh := hhom b hb h
+  have hch := hhom c hc h
+  rw [Fin.sum_univ_two] at hbh hch
+  have hh := hp h
+  generalize hk : k h = l at hh
+  fin_cases l <;> dsimp at hh
+  all_goals fin_cases i <;> dsimp <;> omega
+
+theorem binaryKernelDehom_coeff_at {m : ℕ} (k : Fin m → Fin 2)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (hinj : Set.InjOn (binaryKernelPivotExponent k) (P.support : Set (RothBlockVars2 m →₀ ℕ)))
+    (b : RothBlockVars2 m →₀ ℕ) (hb : b ∈ P.support) :
+    (binaryKernelDehom k P).coeff (binaryKernelPivotExponent k b) = P.coeff b := by
+  classical
+  rw [binaryKernelDehom, MvPolynomial.sum_def, MvPolynomial.coeff_sum]
+  rw [Finset.sum_eq_single b]
+  · simp
+  · intro c hc hcb
+    have hne : binaryKernelPivotExponent k c ≠ binaryKernelPivotExponent k b :=
+      fun he => hcb (hinj hc hb he)
+    simp [MvPolynomial.coeff_monomial, hne]
+  · exact fun h => (h hb).elim
+
+theorem binaryKernelDehom_nonzero_height_degree {m : ℕ}
+    (k : Fin m → Fin 2)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : P ≠ 0) (r : Fin m → ℕ)
+    (hhom : binaryBlockHomogeneous r P) :
+    binaryKernelDehom k P ≠ 0 ∧
+    rothIntegerHeight (binaryKernelDehom k P) ≤ P.support.sup (fun b => (P.coeff b).natAbs) ∧
+    (∀ a ∈ (binaryKernelDehom k P).support, ∀ h, a h ≤ r h) := by
+  classical
+  have hinj := binaryKernelPivotExponent_injective k P r hhom
+  have hcoeff (a : Fin m →₀ ℕ) (ha : a ∈ (binaryKernelDehom k P).support) :
+      ∃ b ∈ P.support, binaryKernelPivotExponent k b = a := by
+    have hne := MvPolynomial.mem_support_iff.mp ha
+    rw [binaryKernelDehom, MvPolynomial.sum_def, MvPolynomial.coeff_sum] at hne
+    obtain ⟨b, hb, hnonzero⟩ := Finset.exists_ne_zero_of_sum_ne_zero hne
+    refine ⟨b, hb, ?_⟩
+    by_contra h
+    exact hnonzero (by simp [MvPolynomial.coeff_monomial, h])
+  refine ⟨?_, ?_, ?_⟩
+  · obtain ⟨b, hb⟩ := MvPolynomial.support_nonempty.mpr hP
+    intro he
+    have hh := binaryKernelDehom_coeff_at k P hinj b hb
+    rw [he, MvPolynomial.coeff_zero] at hh
+    exact (MvPolynomial.mem_support_iff.mp hb) hh.symm
+  · apply Finset.sup_le
+    intro a ha
+    obtain ⟨b, hb, rfl⟩ := hcoeff a ha
+    rw [binaryKernelDehom_coeff_at k P hinj b hb]
+    exact Finset.le_sup (f := fun b => (P.coeff b).natAbs) hb
+  · intro a ha h
+    obtain ⟨b, hb, rfl⟩ := hcoeff a ha
+    have hle : b (h, k h) ≤ ∑ i : Fin 2, b (h, i) :=
+      Finset.single_le_sum (f := fun i : Fin 2 => b (h, i)) (fun _ _ => Nat.zero_le _) (Finset.mem_univ (k h))
+    simpa [binaryKernelPivotExponent, hhom b hb h] using hle
+
+noncomputable def binaryKernelPivotOrder {m : ℕ} (k : Fin m → Fin 2)
+    (a : Fin m →₀ ℕ) : RothBlockVars2 m →₀ ℕ :=
+  Finsupp.equivFunOnFinite.symm (fun u => if u.2 = k u.1 then a u.1 else 0)
+
+theorem binaryKernelDehom_monomial {m : ℕ} (k : Fin m → Fin 2)
+    (b : RothBlockVars2 m →₀ ℕ) (c : ℤ) :
+    binaryKernelDehom k (MvPolynomial.monomial b c) =
+      MvPolynomial.monomial (binaryKernelPivotExponent k b) c := by
+  simp [binaryKernelDehom]
+
+theorem binaryKernelDehom_add {m : ℕ} (k : Fin m → Fin 2)
+    (P Q : MvPolynomial (RothBlockVars2 m) ℤ) :
+    binaryKernelDehom k (P + Q) = binaryKernelDehom k P + binaryKernelDehom k Q := by
+  apply Finsupp.sum_add_index'
+  · intro b
+    simp
+  · intro b c d
+    simp [map_add]
+
+theorem binaryKernelDehom_derivative {m : ℕ} (k : Fin m → Fin 2)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (a : Fin m →₀ ℕ) :
+    rothIntegerDividedDerivative a (binaryKernelDehom k P) =
+      binaryKernelDehom k (binaryDividedDerivative (binaryKernelPivotOrder k a) P) := by
+  classical
+  induction P using MvPolynomial.induction_on' with
+  | monomial b c =>
+    rw [binaryKernelDehom_monomial]
+    simp only [rothIntegerDividedDerivative, binaryDividedDerivative,
+      MvPolynomial.sum_monomial_eq, zero_mul, MvPolynomial.monomial_zero]
+    rw [binaryKernelDehom_monomial]
+    have he : binaryKernelPivotExponent k (b - binaryKernelPivotOrder k a) =
+        binaryKernelPivotExponent k b - a := by
+      ext h
+      simp [binaryKernelPivotExponent, binaryKernelPivotOrder, Finsupp.sub_apply]
+    rw [he]
+    congr 2
+    rw [Fintype.prod_prod_type]
+    apply Finset.prod_congr rfl
+    intro h _
+    symm
+    calc
+      ∏ i : Fin 2, (Nat.choose (b (h, i)) (binaryKernelPivotOrder k a (h, i)) : ℤ) =
+          (Nat.choose (b (h, k h)) (binaryKernelPivotOrder k a (h, k h)) : ℤ) := by
+        apply Finset.prod_eq_single (k h)
+        · intro i hi hine
+          simp [binaryKernelPivotOrder, hine]
+        · simp
+      _ = _ := by simp [binaryKernelPivotExponent, binaryKernelPivotOrder]
+  | add P Q hP hQ =>
+    rw [binaryKernelDehom_add, rothKernel_scalarDerivative_add,
+      binary_derivative_add, binaryKernelDehom_add, hP, hQ]
+
+theorem binaryKernelPivotOrder_budget {m : ℕ} (k : Fin m → Fin 2)
+    (a : Fin m →₀ ℕ) (r : Fin m → ℕ) :
+    (∑ h : Fin m, (∑ i : Fin 2, (binaryKernelPivotOrder k a (h, i) : ℝ)) / (r h : ℝ)) =
+      ∑ h : Fin m, (a h : ℝ) / (r h : ℝ) := by
+  apply Finset.sum_congr rfl
+  intro h _
+  simp [binaryKernelPivotOrder]
+
+theorem binaryKernelDehom_eval {m : ℕ} (k : Fin m → Fin 2)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (x : Fin m → ℚ) :
+    MvPolynomial.eval₂ (Int.castRingHom ℚ) x (binaryKernelDehom k P) =
+      MvPolynomial.eval₂ (Int.castRingHom ℚ)
+        (fun u => if u.2 = k u.1 then x u.1 else 1) P := by
+  classical
+  induction P using MvPolynomial.induction_on' with
+  | monomial b c =>
+    rw [binaryKernelDehom_monomial, MvPolynomial.eval₂_monomial, MvPolynomial.eval₂_monomial]
+    rw [Finsupp.prod_fintype _ _ (fun _ => by simp),
+      Finsupp.prod_fintype _ _ (fun _ => by simp), Fintype.prod_prod_type]
+    congr 1
+    apply Finset.prod_congr rfl
+    intro h _
+    symm
+    calc
+      ∏ i : Fin 2, (if i = k h then x h else 1) ^ b (h, i) =
+          (if k h = k h then x h else 1) ^ b (h, k h) := by
+        apply Finset.prod_eq_single (k h)
+        · intro i hi hine
+          simp [hine]
+        · simp
+      _ = _ := by simp [binaryKernelPivotExponent]
+  | add P Q hP hQ =>
+    rw [binaryKernelDehom_add, MvPolynomial.eval₂_add, MvPolynomial.eval₂_add, hP, hQ]
+
+
+
+theorem binaryKernelRestriction_eval {m : ℕ} (V : Fin m → Fin 2 → ℤ)
+    (k : Fin m → Fin 2) (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    MvPolynomial.eval₂ (RingHom.id ℚ) (fun _ => 1) (binaryKernelRestriction V k P) =
+      MvPolynomial.eval₂ (Int.castRingHom ℚ)
+        (fun u => if u.2 = k u.1 then
+          -(V u.1 (k u.1).rev : ℚ) / (V u.1 (k u.1) : ℚ) else 1) P := by
+  let f := MvPolynomial.eval₂Hom (RingHom.id ℚ) (fun _ : RothBlockVars2 m => (1 : ℚ))
+  have hc : f.comp (Int.castRingHom (MvPolynomial (RothBlockVars2 m) ℚ)) = Int.castRingHom ℚ := by
+    ext n
+    simp [f]
+  change f (MvPolynomial.eval₂Hom (Int.castRingHom _) (binaryKernelChart V k) P) = _
+  rw [MvPolynomial.map_eval₂Hom, hc]
+  change MvPolynomial.eval₂ (Int.castRingHom ℚ) (fun u => f (binaryKernelChart V k u)) P = _
+  congr 1
+  funext u
+  by_cases hp : u.2 = k u.1
+  · simp only [binaryKernelChart, if_pos hp, map_neg, map_sum, map_mul]
+    simp only [f, MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X', RingHom.id_apply, mul_one]
+    generalize hk : k u.1 = l
+    fin_cases l <;> simp [neg_div]
+  · simp only [binaryKernelChart, if_neg hp, f, MvPolynomial.eval₂Hom_X']
+
+theorem binary_kernel_omega65_nonvanishing_evaluation :
+∀ (m : ℕ) (hm : 0 < m) (theta Gamma : ℝ),
+    0 < theta → theta < 1/12 → 0 < Gamma → Gamma ≤ 1 →
+    ∀ (r : Fin m → ℕ) (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (RothBlockVars2 m) ℤ),
+    (∀ h, 0 < r h) →
+    (∀ (h : Fin m) (hh : h.val+1 < m),
+      (r ⟨h.val+1,hh⟩ : ℝ) ≤ rothInductionOmega m theta*(r h : ℝ)) →
+    (∀ h, (∃ i, V h i ≠ 0) ∧ Ideal.span (Set.range (V h)) = ⊤) →
+    (∀ h : Fin m, h.val ≠ 0 →
+      Real.rpow (binaryNormalHeight (V ⟨0,hm⟩) : ℝ) ((r ⟨0,hm⟩ : ℝ)*Gamma) ≤
+        (binaryNormalHeight (V h) : ℝ)^r h) →
+    (∀ h, (2 : ℝ)^(3*m) ≤ Real.rpow (binaryNormalHeight (V h) : ℝ) (rothInductionOmega m theta*Gamma)) →
+    P ≠ 0 → binaryBlockHomogeneous r P →
+    (binaryPolynomialHeight P : ℝ) ≤ Real.rpow (binaryNormalHeight (V ⟨0,hm⟩) : ℝ)
+      (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*Gamma) →
+    ∃ (J : RothBlockVars2 m →₀ ℕ) (k : Fin m → Fin 2),
+      binarySourceDerivativeWeight r J ≤ theta ∧ (∀ h, V h (k h) ≠ 0) ∧
+        MvPolynomial.eval₂ (Int.castRingHom ℚ)
+          (fun u => if u.2 = k u.1 then
+            -(V u.1 (k u.1).rev : ℚ)/(V u.1 (k u.1) : ℚ) else 1)
+          (binaryDividedDerivative J P) ≠ 0 := by
+  intro m hm theta Gamma ht ht' hG hG' r V P hr hsep hrow hgrowth hden hP hhom hheight
+  classical
+  choose k hk hcop hmax using
+    (fun h => binary_primitive_parameters (V h) (hrow h).1 (hrow h).2)
+  let p : Fin m → ℤ := fun h => -(V h (k h).rev)
+  let q : Fin m → ℤ := fun h => V h (k h)
+  have hQ (h) : |(q h : ℝ)| = (binaryNormalHeight (V h) : ℝ) := by
+    rw [← hmax h]
+    simp only [q, Int.cast_natAbs, Int.cast_abs]
+  obtain ⟨hF,hHF,hdegF⟩ := binaryKernelDehom_nonzero_height_degree k P hP r hhom
+  have hFH : (rothIntegerHeight (binaryKernelDehom k P) : ℝ) ≤
+      Real.rpow |(q ⟨0,hm⟩ : ℝ)| (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*Gamma) := by
+    rw [hQ]
+    exact (by exact_mod_cast hHF :
+      (rothIntegerHeight (binaryKernelDehom k P) : ℝ) ≤ (binaryPolynomialHeight P : ℝ)).trans hheight
+  obtain ⟨a,ha,hne⟩ := roth_scalar_omega65_nonvanishing m hm theta Gamma ht ht' hG hG'
+    r p q (binaryKernelDehom k P) hr hsep (fun h => ⟨hk h,hcop h⟩)
+    (by simpa only [hQ, Real.rpow_natCast] using hgrowth)
+    (by simpa only [hQ] using hden) hF hdegF hFH
+  refine ⟨binaryKernelPivotOrder k a,k,?_,hk,?_⟩
+  · simpa only [binarySourceDerivativeWeight,binaryKernelPivotOrder_budget] using ha
+  · rw [binaryKernelDehom_derivative,binaryKernelDehom_eval] at hne
+    have hpq : (fun u : RothBlockVars2 m => if u.2=k u.1 then (p u.1 : ℚ)/(q u.1 : ℚ) else 1) =
+        (fun u => if u.2=k u.1 then -(V u.1 (k u.1).rev : ℚ)/(V u.1 (k u.1) : ℚ) else 1) := by
+      funext u
+      simp only [p,q,Int.cast_neg]
+    rw [hpq] at hne
+    exact hne
+
+theorem binary_kernel_omega65_nonvanishing :
+∀ (m : ℕ) (hm : 0 < m) (theta Gamma : ℝ),
+    0 < theta → theta < 1/12 → 0 < Gamma → Gamma ≤ 1 →
+    ∀ (r : Fin m → ℕ) (V : Fin m → Fin 2 → ℤ) (P : MvPolynomial (RothBlockVars2 m) ℤ),
+    (∀ h, 0 < r h) →
+    (∀ (h : Fin m) (hh : h.val+1 < m),
+      (r ⟨h.val+1,hh⟩ : ℝ) ≤ rothInductionOmega m theta*(r h : ℝ)) →
+    (∀ h, (∃ i, V h i ≠ 0) ∧ Ideal.span (Set.range (V h)) = ⊤) →
+    (∀ h : Fin m, h.val ≠ 0 →
+      Real.rpow (binaryNormalHeight (V ⟨0,hm⟩) : ℝ) ((r ⟨0,hm⟩ : ℝ)*Gamma) ≤
+        (binaryNormalHeight (V h) : ℝ)^r h) →
+    (∀ h, (2 : ℝ)^(3*m) ≤ Real.rpow (binaryNormalHeight (V h) : ℝ) (rothInductionOmega m theta*Gamma)) →
+    P ≠ 0 → binaryBlockHomogeneous r P →
+    (binaryPolynomialHeight P : ℝ) ≤ Real.rpow (binaryNormalHeight (V ⟨0,hm⟩) : ℝ)
+      (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*Gamma) →
+    ∃ (J : RothBlockVars2 m →₀ ℕ) (k : Fin m → Fin 2),
+      binarySourceDerivativeWeight r J ≤ theta ∧ (∀ h, V h (k h) ≠ 0) ∧
+        binaryKernelRestriction V k (binaryDividedDerivative J P) ≠ 0 := by
+  intro m hm theta Gamma ht ht' hG hG' r V P hr hsep hrow hgrowth hden hP hhom hheight
+  obtain ⟨J,k,hJ,hk,hne⟩ := binary_kernel_omega65_nonvanishing_evaluation
+    m hm theta Gamma ht ht' hG hG' r V P hr hsep hrow hgrowth hden hP hhom hheight
+  refine ⟨J,k,hJ,hk,?_⟩
+  intro he
+  apply hne
+  rw [← binaryKernelRestriction_eval,he]
+  simp
+
+noncomputable def binaryLocalRationalMatrix (L : Matrix (Fin 2) (Fin 2) ℤ) :
+    Matrix (Fin 2) (Fin 2) ℚ := fun i j => (L i j : ℚ)
+
+noncomputable def binaryLocalLinearChart {m : ℕ} (B : Matrix (Fin 2) (Fin 2) ℚ)
+    (u : RothBlockVars2 m) : MvPolynomial (RothBlockVars2 m) ℚ :=
+  ∑ i : Fin 2, MvPolynomial.C (B u.2 i) * MvPolynomial.X (u.1,i)
+
+noncomputable def binaryLocalSubstitution {m : ℕ} (B : Matrix (Fin 2) (Fin 2) ℚ) :
+    MvPolynomial (RothBlockVars2 m) ℚ →+* MvPolynomial (RothBlockVars2 m) ℚ :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (binaryLocalLinearChart B)
+
+noncomputable def binaryLocalExpansion {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (J : RothBlockVars2 m →₀ ℕ) (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    MvPolynomial (RothBlockVars2 m) ℚ :=
+  MvPolynomial.eval₂Hom (Int.castRingHom _)
+    (binaryLocalLinearChart (binaryLocalRationalMatrix L)⁻¹)
+    (binaryDividedDerivative J P)
+
+theorem binaryLocal_chart_one {m : ℕ} (u : RothBlockVars2 m) :
+    binaryLocalLinearChart (1 : Matrix (Fin 2) (Fin 2) ℚ) u = MvPolynomial.X u := by
+  simp [binaryLocalLinearChart, Matrix.one_apply, mul_ite, Finset.sum_ite_eq, Finset.sum_ite_eq']
+
+theorem binaryLocal_chart_comp {m : ℕ} (A B : Matrix (Fin 2) (Fin 2) ℚ)
+    (u : RothBlockVars2 m) :
+    binaryLocalSubstitution A (binaryLocalLinearChart B u) = binaryLocalLinearChart (B * A) u := by
+  classical
+  simp only [binaryLocalLinearChart, binaryLocalSubstitution, map_sum, map_mul,
+    MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X']
+  simp_rw [Finset.mul_sum]
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro j hj
+  simp only [Matrix.mul_apply]
+  rw [map_sum, Finset.sum_mul]
+  apply Finset.sum_congr rfl
+  intro i hi
+  rw [map_mul]
+  ring
+
+theorem binaryLocal_expansion_reconstruct {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (binaryLocalRationalMatrix L).det ≠ 0) (J : RothBlockVars2 m →₀ ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    binaryLocalSubstitution (binaryLocalRationalMatrix L) (binaryLocalExpansion L J P) =
+      MvPolynomial.map (Int.castRingHom ℚ) (binaryDividedDerivative J P) := by
+  classical
+  have hinv := Matrix.nonsing_inv_mul (binaryLocalRationalMatrix L) (isUnit_iff_ne_zero.mpr hL)
+  have he : (binaryLocalSubstitution (m := m) (binaryLocalRationalMatrix L)).comp
+      (MvPolynomial.eval₂Hom (Int.castRingHom _)
+        (binaryLocalLinearChart (binaryLocalRationalMatrix L)⁻¹)) =
+      MvPolynomial.map (Int.castRingHom ℚ) := by
+    apply MvPolynomial.ringHom_ext
+    · intro z
+      simp [binaryLocalSubstitution]
+    · intro u
+      simp only [RingHom.comp_apply, MvPolynomial.eval₂Hom_X']
+      rw [binaryLocal_chart_comp, hinv, binaryLocal_chart_one]
+      simp
+  exact congrArg (fun f => f (binaryDividedDerivative J P)) he
+
+theorem binaryLocal_chart_pderiv {m : ℕ} (B : Matrix (Fin 2) (Fin 2) ℚ)
+    (h : Fin m) (i : Fin 2) (u : RothBlockVars2 m) :
+    MvPolynomial.pderiv (h,i) (binaryLocalLinearChart B u) =
+      if u.1 = h then MvPolynomial.C (B u.2 i) else 0 := by
+  classical
+  rcases u with ⟨g,j⟩
+  by_cases hg : g = h
+  · subst g
+    fin_cases i <;> simp [binaryLocalLinearChart, map_sum, MvPolynomial.pderiv_C_mul, MvPolynomial.pderiv_X,
+      Pi.single_apply, Prod.mk.injEq, mul_ite, Finset.sum_ite_eq, Finset.sum_ite_eq', eq_comm]
+  · simp [binaryLocalLinearChart, map_sum, MvPolynomial.pderiv_C_mul, MvPolynomial.pderiv_X,
+      Pi.single_apply, Prod.mk.injEq, hg, Ne.symm hg]
+
+theorem binaryLocal_substitution_one {m : ℕ} (P : MvPolynomial (RothBlockVars2 m) ℚ) :
+    binaryLocalSubstitution (1 : Matrix (Fin 2) (Fin 2) ℚ) P = P := by
+  induction P using MvPolynomial.induction_on with
+  | C c => simp [binaryLocalSubstitution]
+  | add P Q hP hQ => simp [hP, hQ]
+  | mul_X P u hP =>
+    rw [map_mul, hP]
+    simp [binaryLocalSubstitution, binaryLocal_chart_one]
+
+theorem binaryLocal_substitution_comp {m : ℕ} (A B : Matrix (Fin 2) (Fin 2) ℚ)
+    (P : MvPolynomial (RothBlockVars2 m) ℚ) :
+    binaryLocalSubstitution A (binaryLocalSubstitution B P) = binaryLocalSubstitution (B * A) P := by
+  have he : (binaryLocalSubstitution (m := m) A).comp (binaryLocalSubstitution B) =
+      binaryLocalSubstitution (B * A) := by
+    apply MvPolynomial.ringHom_ext
+    · intro q
+      simp [binaryLocalSubstitution]
+    · intro u
+      simp only [RingHom.comp_apply, binaryLocalSubstitution, MvPolynomial.eval₂Hom_X']
+      exact binaryLocal_chart_comp A B u
+  exact congrArg (fun f => f P) he
+
+theorem binaryLocal_substitution_injective {m : ℕ} (M : Matrix (Fin 2) (Fin 2) ℚ)
+    (hM : M.det ≠ 0) : Function.Injective (binaryLocalSubstitution (m := m) M) := by
+  intro P Q h
+  have he := congrArg (binaryLocalSubstitution M⁻¹) h
+  rw [binaryLocal_substitution_comp, binaryLocal_substitution_comp,
+    Matrix.mul_nonsing_inv M (isUnit_iff_ne_zero.mpr hM),
+    binaryLocal_substitution_one, binaryLocal_substitution_one] at he
+  exact he
+
+theorem binaryLocal_expansion_unique {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (binaryLocalRationalMatrix L).det ≠ 0) (J : RothBlockVars2 m →₀ ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (Q : MvPolynomial (RothBlockVars2 m) ℚ)
+    (hQ : binaryLocalSubstitution (binaryLocalRationalMatrix L) Q =
+      MvPolynomial.map (Int.castRingHom ℚ) (binaryDividedDerivative J P)) :
+    Q = binaryLocalExpansion L J P := by
+  apply binaryLocal_substitution_injective (binaryLocalRationalMatrix L) hL
+  exact hQ.trans (binaryLocal_expansion_reconstruct L hL J P).symm
+
+theorem binaryLocal_substitution_chain {m : ℕ} (B : Matrix (Fin 2) (Fin 2) ℚ)
+    (h : Fin m) (i : Fin 2) (P : MvPolynomial (RothBlockVars2 m) ℚ) :
+    MvPolynomial.pderiv (h,i) (binaryLocalSubstitution B P) =
+      ∑ j : Fin 2, MvPolynomial.C (B j i) *
+        binaryLocalSubstitution B (MvPolynomial.pderiv (h,j) P) := by
+  classical
+  induction P using MvPolynomial.induction_on with
+  | C c => simp [binaryLocalSubstitution]
+  | add P Q hP hQ => simp only [map_add, hP, hQ, mul_add, Finset.sum_add_distrib]
+  | mul_X P u hP =>
+    have hdelta : (∑ j : Fin 2, (MvPolynomial.C (B j i) * binaryLocalSubstitution B P) *
+        (if (h,j) = u then 1 else 0)) =
+        binaryLocalSubstitution B P * (if u.1 = h then MvPolynomial.C (B u.2 i) else 0) := by
+      rcases u with ⟨g,l⟩
+      by_cases hg : g = h
+      · subst g
+        simp [Prod.mk.injEq, mul_ite, Finset.sum_ite_eq, Finset.sum_ite_eq', mul_comm]
+      · simp [Prod.mk.injEq, hg, Ne.symm hg]
+    have hX : binaryLocalSubstitution B (MvPolynomial.X u) = binaryLocalLinearChart B u := by
+      simp [binaryLocalSubstitution]
+    have hD (j : Fin 2) :
+        binaryLocalSubstitution B (MvPolynomial.pderiv (h,j) (P * MvPolynomial.X u)) =
+          binaryLocalSubstitution B (MvPolynomial.pderiv (h,j) P) * binaryLocalLinearChart B u +
+          binaryLocalSubstitution B P * (if (h,j) = u then 1 else 0) := by
+      by_cases he : (h,j) = u <;>
+        simp [MvPolynomial.pderiv_mul, hX, MvPolynomial.pderiv_X, Pi.single_apply, he, eq_comm] <;> ring
+    rw [map_mul, MvPolynomial.pderiv_mul, hP, hX, binaryLocal_chart_pderiv]
+    simp_rw [hD, mul_add, ← mul_assoc]
+    rw [Finset.sum_add_distrib, ← Finset.sum_mul, hdelta]
+
+
+noncomputable def binaryLocalZeroCoordinate {m : ℕ} (i : Fin 2) :
+    MvPolynomial (RothBlockVars2 m) ℚ →+* MvPolynomial (RothBlockVars2 m) ℚ :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u => if u.2 = i then 0 else MvPolynomial.X u)
+
+noncomputable def binaryLocalKernelImage {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (i : Fin 2) (u : RothBlockVars2 m) : MvPolynomial (RothBlockVars2 m) ℚ :=
+  binaryLocalZeroCoordinate i (binaryLocalLinearChart (binaryLocalRationalMatrix L)⁻¹ u)
+
+theorem binaryLocal_kernel_image_form {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (binaryLocalRationalMatrix L).det ≠ 0) (i : Fin 2) (h : Fin m) :
+    (∑ j : Fin 2, MvPolynomial.C (L i j : ℚ) * binaryLocalKernelImage L i (h,j)) = 0 := by
+  have he := binaryLocal_chart_comp (binaryLocalRationalMatrix L)⁻¹ (binaryLocalRationalMatrix L) (h,i)
+  rw [Matrix.mul_nonsing_inv _ (isUnit_iff_ne_zero.mpr hL), binaryLocal_chart_one] at he
+  change binaryLocalSubstitution (binaryLocalRationalMatrix L)⁻¹
+    (∑ j : Fin 2, MvPolynomial.C (binaryLocalRationalMatrix L i j) * MvPolynomial.X (h,j)) =
+      MvPolynomial.X (h,i) at he
+  simp only [map_sum, map_mul, binaryLocalSubstitution,
+    MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X'] at he
+  have hz := congrArg (binaryLocalZeroCoordinate i) he
+  have hC (q : ℚ) : binaryLocalZeroCoordinate (m := m) i (MvPolynomial.C q) = MvPolynomial.C q := by
+    simp [binaryLocalZeroCoordinate]
+  simp only [map_sum, map_mul, hC] at hz
+  rw [show binaryLocalZeroCoordinate i (MvPolynomial.X (h,i)) = 0 by
+    simp [binaryLocalZeroCoordinate]] at hz
+  exact hz
+
+theorem binaryLocal_kernel_factor_variable {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (binaryLocalRationalMatrix L).det ≠ 0) (i p : Fin 2) (hp : L i p ≠ 0)
+    (u : RothBlockVars2 m) :
+    MvPolynomial.eval₂Hom MvPolynomial.C (binaryLocalKernelImage L i)
+      (binaryKernelChart (fun _ : Fin m => L i) (fun _ => p) u) =
+      binaryLocalKernelImage L i u := by
+  classical
+  have ha : (L i p : ℚ) ≠ 0 := by exact_mod_cast hp
+  have hcancel : (MvPolynomial.C ((L i p : ℚ)⁻¹) : MvPolynomial (RothBlockVars2 m) ℚ) *
+      MvPolynomial.C (L i p : ℚ) = 1 := by
+    rw [← MvPolynomial.C_mul, inv_mul_cancel₀ ha, map_one]
+  by_cases hu : u.2 = p
+  · have hs := binaryLocal_kernel_image_form L hL i u.1
+    rw [← Finset.sum_erase_add Finset.univ _ (Finset.mem_univ p)] at hs
+    have hr : -(∑ j ∈ Finset.univ.erase p,
+        MvPolynomial.C (L i j : ℚ) * binaryLocalKernelImage L i (u.1,j)) =
+        MvPolynomial.C (L i p : ℚ) * binaryLocalKernelImage L i (u.1,p) := by
+      linear_combination -hs
+    simp only [binaryKernelChart, hu, if_pos rfl, ite_true, map_neg, map_sum, map_mul,
+      MvPolynomial.eval₂Hom_C, MvPolynomial.eval₂Hom_X']
+    calc
+      _ = MvPolynomial.C ((L i p : ℚ)⁻¹) *
+          -(∑ j ∈ Finset.univ.erase p,
+            MvPolynomial.C (L i j : ℚ) * binaryLocalKernelImage L i (u.1,j)) := by
+        rw [mul_neg, Finset.mul_sum]
+        congr 1
+        apply Finset.sum_congr rfl
+        intro j hj
+        rw [div_eq_mul_inv, MvPolynomial.C_mul]
+        ring
+      _ = _ := by rw [hr, ← mul_assoc, hcancel, one_mul]; simp [← hu]
+  · simp [binaryKernelChart, hu]
+
+theorem binaryLocal_kernel_factor {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (binaryLocalRationalMatrix L).det ≠ 0) (i p : Fin 2) (hp : L i p ≠ 0)
+    (J : RothBlockVars2 m →₀ ℕ) (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    MvPolynomial.eval₂Hom MvPolynomial.C (binaryLocalKernelImage L i)
+      (binaryKernelRestriction (fun _ : Fin m => L i) (fun _ => p)
+        (binaryDividedDerivative J P)) =
+      binaryLocalZeroCoordinate i (binaryLocalExpansion L J P) := by
+  have he : (MvPolynomial.eval₂Hom MvPolynomial.C (binaryLocalKernelImage (m := m) L i)).comp
+      (MvPolynomial.eval₂Hom (Int.castRingHom _)
+        (binaryKernelChart (fun _ : Fin m => L i) (fun _ => p))) =
+      (binaryLocalZeroCoordinate i).comp (MvPolynomial.eval₂Hom (Int.castRingHom _)
+        (binaryLocalLinearChart (binaryLocalRationalMatrix L)⁻¹)) := by
+    apply MvPolynomial.ringHom_ext
+    · intro z
+      simp [binaryLocalZeroCoordinate]
+    · intro u
+      simp only [RingHom.comp_apply, MvPolynomial.eval₂Hom_X']
+      exact binaryLocal_kernel_factor_variable L hL i p hp u
+  exact congrArg (fun f => f (binaryDividedDerivative J P)) he
+
+theorem binaryLocal_index_zero_slice {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (hL : (binaryLocalRationalMatrix L).det ≠ 0)
+    (i p : Fin 2) (hp : L i p ≠ 0) (T : ℝ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (hindex : binarySourceHighIndex r (fun _ : Fin m => L i) T P)
+    (J : RothBlockVars2 m →₀ ℕ) (hJ : binarySourceDerivativeWeight r J < T) :
+    binaryLocalZeroCoordinate i (binaryLocalExpansion L J P) = 0 := by
+  rw [← binaryLocal_kernel_factor L hL i p hp]
+  rw [hindex J hJ (fun _ => p) (fun _ => hp), map_zero]
+
+theorem binaryLocal_zero_monomial {m : ℕ} (i : Fin 2)
+    (b : RothBlockVars2 m →₀ ℕ) (c : ℚ) :
+    binaryLocalZeroCoordinate i (MvPolynomial.monomial b c) =
+      if (∀ h, b (h,i) = 0) then MvPolynomial.monomial b c else 0 := by
+  classical
+  rw [binaryLocalZeroCoordinate, MvPolynomial.eval₂Hom_monomial]
+  rw [Finsupp.prod_fintype _ _ (fun _ => by simp)]
+  by_cases hb : ∀ h, b (h,i) = 0
+  · rw [if_pos hb, MvPolynomial.monomial_eq]
+    congr 1
+    rw [Finsupp.prod_fintype _ _ (fun _ => by simp)]
+    apply Finset.prod_congr rfl
+    intro u _
+    by_cases hu : u.2 = i
+    · have he : u = (u.1,i) := Prod.ext rfl hu
+      have hz : b u = 0 := (congrArg b he).trans (hb u.1)
+      simp [hu, hz]
+    · simp [hu]
+  · rw [if_neg hb]
+    push_neg at hb
+    obtain ⟨h, hh⟩ := hb
+    have hz : (∏ u : RothBlockVars2 m, (if u.2 = i then 0 else MvPolynomial.X u) ^ b u) =
+        (0 : MvPolynomial (RothBlockVars2 m) ℚ) := by
+      apply Finset.prod_eq_zero (Finset.mem_univ (h,i))
+      simp [hh]
+    rw [hz, mul_zero]
+
+theorem binaryLocal_zero_coeff {m : ℕ} (i : Fin 2)
+    (Q : MvPolynomial (RothBlockVars2 m) ℚ) (b : RothBlockVars2 m →₀ ℕ) :
+    (binaryLocalZeroCoordinate i Q).coeff b = if (∀ h, b (h,i) = 0) then Q.coeff b else 0 := by
+  classical
+  induction Q using MvPolynomial.induction_on' with
+  | monomial a c =>
+    rw [binaryLocal_zero_monomial]
+    by_cases ha : ∀ h, a (h,i) = 0
+    · rw [if_pos ha]
+      by_cases hb : ∀ h, b (h,i) = 0
+      · simp [hb]
+      · have hab : a ≠ b := by intro he; subst a; exact hb ha
+        simp [hb, hab]
+    · rw [if_neg ha]
+      by_cases hb : ∀ h, b (h,i) = 0
+      · have hab : a ≠ b := by intro he; subst a; exact ha hb
+        simp [hb, hab]
+      · simp [hb]
+  | add P Q hP hQ =>
+    rw [map_add, MvPolynomial.coeff_add, hP, hQ, MvPolynomial.coeff_add]
+    split_ifs <;> simp
+
+theorem binaryLocal_pderiv_coeff {m : ℕ} (u : RothBlockVars2 m)
+    (Q : MvPolynomial (RothBlockVars2 m) ℚ) (b : RothBlockVars2 m →₀ ℕ) :
+    (MvPolynomial.pderiv u Q).coeff b =
+      (b u + 1 : ℕ) * Q.coeff (b + Finsupp.single u 1) := by
+  classical
+  induction Q using MvPolynomial.induction_on' with
+  | add P Q hP hQ => simp only [map_add, MvPolynomial.coeff_add, hP, hQ]; ring
+  | monomial a c =>
+    by_cases ha : a u = 0
+    · have hab : a ≠ b + Finsupp.single u 1 := by
+        intro he
+        have h := congrArg (fun d : RothBlockVars2 m →₀ ℕ => d u) he
+        simp [ha, Finsupp.add_apply, Finsupp.single_apply] at h
+      simp [MvPolynomial.pderiv_monomial, ha, MvPolynomial.coeff_monomial, hab]
+    · have hle : Finsupp.single u 1 ≤ a := by rw [Finsupp.single_le_iff]; omega
+      have heq : a - Finsupp.single u 1 = b ↔ a = b + Finsupp.single u 1 := by
+        constructor
+        · intro he
+          rw [← he]
+          exact (tsub_add_cancel_of_le hle).symm
+        · intro he
+          rw [he, add_tsub_cancel_right]
+      simp only [MvPolynomial.pderiv_monomial, MvPolynomial.coeff_monomial, heq]
+      split_ifs with he
+      · subst a
+        simp only [Finsupp.add_apply, Finsupp.single_eq_same, Nat.cast_add, Nat.cast_one]
+        ring
+      · simp
+
+theorem binaryLocal_substitution_map {m : ℕ} (B : Matrix (Fin 2) (Fin 2) ℚ)
+    (Q : MvPolynomial (RothBlockVars2 m) ℤ) :
+    binaryLocalSubstitution B (MvPolynomial.map (Int.castRingHom ℚ) Q) =
+      MvPolynomial.eval₂Hom (Int.castRingHom _) (binaryLocalLinearChart B) Q := by
+  have hc : (MvPolynomial.C : ℚ →+* MvPolynomial (RothBlockVars2 m) ℚ).comp
+      (Int.castRingHom ℚ) = Int.castRingHom _ := by
+    ext z
+    simp
+  simp only [binaryLocalSubstitution, MvPolynomial.eval₂Hom_map_hom, hc]
+
+theorem binaryLocal_expansion_chain {m : ℕ} (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (h : Fin m) (i : Fin 2) (J : RothBlockVars2 m →₀ ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    MvPolynomial.pderiv (h,i) (binaryLocalExpansion L J P) =
+      ∑ j : Fin 2, MvPolynomial.C ((binaryLocalRationalMatrix L)⁻¹ j i) *
+        (J (h,j) + 1) • binaryLocalExpansion L (J + Finsupp.single (h,j) 1) P := by
+  change MvPolynomial.pderiv (h,i)
+    (MvPolynomial.eval₂Hom (Int.castRingHom _)
+      (binaryLocalLinearChart (binaryLocalRationalMatrix L)⁻¹)
+      (binaryDividedDerivative J P)) = _
+  rw [← binaryLocal_substitution_map, binaryLocal_substitution_chain]
+  simp only [MvPolynomial.pderiv_map, binary_source_pderiv_hasse, map_nsmul]
+  simp only [binaryLocal_substitution_map, binaryLocalExpansion]
+
+noncomputable def binaryLocalCoordinateWeight {m : ℕ} (r : Fin m → ℕ) (i : Fin 2)
+    (b : RothBlockVars2 m →₀ ℕ) : ℝ := ∑ h, (b (h,i) : ℝ) / r h
+
+theorem binaryLocal_coordinate_weight_add {m : ℕ} (r : Fin m → ℕ) (i : Fin 2)
+    (b c : RothBlockVars2 m →₀ ℕ) :
+    binaryLocalCoordinateWeight r i (b + c) =
+      binaryLocalCoordinateWeight r i b + binaryLocalCoordinateWeight r i c := by
+  simp [binaryLocalCoordinateWeight, Finsupp.add_apply, Nat.cast_add, add_div, Finset.sum_add_distrib]
+
+theorem binaryLocal_coordinate_weight_single {m : ℕ} (r : Fin m → ℕ)
+    (i : Fin 2) (h : Fin m) :
+    binaryLocalCoordinateWeight r i (Finsupp.single (h,i) 1) = 1 / (r h : ℝ) := by
+  simp [binaryLocalCoordinateWeight, Finsupp.single_apply, Prod.mk.injEq,
+    ite_div, Finset.sum_ite_eq, Finset.sum_ite_eq']
+
+theorem binaryLocal_coeff_zero_below_index {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (hL : (binaryLocalRationalMatrix L).det ≠ 0)
+    (i p : Fin 2) (hp : L i p ≠ 0) (T : ℝ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (hindex : binarySourceHighIndex r (fun _ : Fin m => L i) T P)
+    (J b : RothBlockVars2 m →₀ ℕ)
+    (hbad : binarySourceDerivativeWeight r J + binaryLocalCoordinateWeight r i b < T) :
+    (binaryLocalExpansion L J P).coeff b = 0 := by
+  classical
+  have go : ∀ n : ℕ, ∀ J b : RothBlockVars2 m →₀ ℕ,
+      (∑ h : Fin m, b (h,i)) = n →
+      binarySourceDerivativeWeight r J + binaryLocalCoordinateWeight r i b < T →
+      (binaryLocalExpansion L J P).coeff b = 0 := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | h n ih =>
+      intro J b hn hw
+      by_cases hnzero : n = 0
+      · have hbzero : ∀ h, b (h,i) = 0 := by
+          intro h
+          have hle : b (h,i) ≤ ∑ g : Fin m, b (g,i) :=
+            Finset.single_le_sum (f := fun g : Fin m => b (g,i)) (fun _ _ => Nat.zero_le _) (Finset.mem_univ h)
+          omega
+        have hnonneg : 0 ≤ binaryLocalCoordinateWeight r i b := by
+          unfold binaryLocalCoordinateWeight
+          positivity
+        have hJ : binarySourceDerivativeWeight r J < T := by linarith
+        have hz := binaryLocal_index_zero_slice r L hL i p hp T P hindex J hJ
+        have he := congrArg (MvPolynomial.coeff b) hz
+        rw [binaryLocal_zero_coeff, if_pos hbzero, MvPolynomial.coeff_zero] at he
+        exact he
+      · have hex : ∃ h : Fin m, b (h,i) ≠ 0 := by
+          by_contra hzero
+          push_neg at hzero
+          have hs : (∑ h : Fin m, b (h,i)) = 0 := Finset.sum_eq_zero (fun h _ => hzero h)
+          omega
+        obtain ⟨h, hh⟩ := hex
+        let c := b - Finsupp.single (h,i) 1
+        have hle : Finsupp.single (h,i) 1 ≤ b := by rw [Finsupp.single_le_iff]; omega
+        have hceq : c + Finsupp.single (h,i) 1 = b := tsub_add_cancel_of_le hle
+        have hcount : (∑ g : Fin m, c (g,i)) + 1 = n := by
+          have hs := congrArg (fun d : RothBlockVars2 m →₀ ℕ => ∑ g : Fin m, d (g,i)) hceq
+          simpa [Finsupp.add_apply, Finsupp.single_apply, Prod.mk.injEq,
+            Finset.sum_add_distrib, Finset.sum_ite_eq, Finset.sum_ite_eq', hn] using hs
+        have hcoord : binaryLocalCoordinateWeight r i c + 1 / (r h : ℝ) =
+            binaryLocalCoordinateWeight r i b := by
+          rw [← binaryLocal_coordinate_weight_single r i h, ← binaryLocal_coordinate_weight_add, hceq]
+        have hz (j : Fin 2) : (binaryLocalExpansion L (J + Finsupp.single (h,j) 1) P).coeff c = 0 := by
+          apply ih (∑ g : Fin m, c (g,i)) (by omega) _ c rfl
+          rw [binary_source_weight_add, binary_source_weight_single]
+          linarith
+        have hd : (MvPolynomial.pderiv (h,i) (binaryLocalExpansion L J P)).coeff c = 0 := by
+          rw [binaryLocal_expansion_chain, MvPolynomial.coeff_sum]
+          apply Finset.sum_eq_zero
+          intro j hj
+          rw [MvPolynomial.coeff_C_mul, MvPolynomial.coeff_smul, hz j, smul_zero, mul_zero]
+        rw [binaryLocal_pderiv_coeff, hceq] at hd
+        exact (mul_eq_zero.mp hd).resolve_left (Nat.cast_ne_zero.mpr (by omega))
+  exact go _ J b rfl hbad
+
+theorem binaryLocal_chart_block_weight {m : ℕ} (B : Matrix (Fin 2) (Fin 2) ℚ)
+    (h : Fin m) (u : RothBlockVars2 m) :
+    MvPolynomial.IsWeightedHomogeneous (fun v : RothBlockVars2 m => if v.1 = h then 1 else 0)
+      (binaryLocalLinearChart B u) (if u.1 = h then 1 else 0) := by
+  unfold binaryLocalLinearChart
+  apply MvPolynomial.IsWeightedHomogeneous.sum
+  intro j hj
+  simpa only [zero_add] using
+    (MvPolynomial.isWeightedHomogeneous_C _ (B u.2 j)).mul
+      (MvPolynomial.isWeightedHomogeneous_X ℚ (fun v : RothBlockVars2 m => if v.1 = h then 1 else 0) (u.1,j))
+
+theorem binaryLocal_expansion_block_weight {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (J : RothBlockVars2 m →₀ ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P) (h : Fin m) :
+    MvPolynomial.IsWeightedHomogeneous (fun v : RothBlockVars2 m => if v.1 = h then 1 else 0)
+      (binaryLocalExpansion L J P) (r h - ∑ j : Fin 2, J (h,j)) := by
+  classical
+  let Q := binaryDividedDerivative J P
+  let w := fun v : RothBlockVars2 m => if v.1 = h then 1 else 0
+  have hdegree (d : RothBlockVars2 m →₀ ℕ) (hd : d ∈ Q.support) :
+      (∑ j : Fin 2, d (h,j)) = r h - ∑ j : Fin 2, J (h,j) := by
+    have hcoeff : P.coeff (d + J) ≠ 0 := by
+      intro hz
+      have hn := MvPolynomial.mem_support_iff.mp hd
+      rw [binary_derivative_coeff, hz, zero_mul] at hn
+      exact hn rfl
+    have hh := hP (d + J) (MvPolynomial.mem_support_iff.mpr hcoeff) h
+    simp only [Finsupp.add_apply, Finset.sum_add_distrib] at hh
+    omega
+  change MvPolynomial.IsWeightedHomogeneous w
+    (MvPolynomial.eval₂Hom (Int.castRingHom _)
+      (binaryLocalLinearChart (binaryLocalRationalMatrix L)⁻¹) Q) _
+  conv_lhs => arg 2; rw [MvPolynomial.as_sum Q]
+  rw [map_sum]
+  apply MvPolynomial.IsWeightedHomogeneous.sum
+  intro d hd
+  rw [MvPolynomial.eval₂Hom_monomial, Finsupp.prod_fintype _ _ (fun _ => by simp)]
+  have hw : (∑ u : RothBlockVars2 m, d u * w u) = ∑ j : Fin 2, d (h,j) := by
+    have he := binary_weight_block d h
+    rw [Finsupp.weight_apply, Finsupp.sum_fintype d (fun u (n : ℕ) => n • w u) (by intro u; simp)] at he
+    simpa only [nsmul_eq_mul, Nat.cast_id, w] using he
+  have hprod := MvPolynomial.IsWeightedHomogeneous.prod Finset.univ
+    (fun u : RothBlockVars2 m => binaryLocalLinearChart (binaryLocalRationalMatrix L)⁻¹ u ^ d u)
+    (fun u => d u * w u)
+    (fun u _ => by simpa only [nsmul_eq_mul] using
+      (binaryLocal_chart_block_weight (binaryLocalRationalMatrix L)⁻¹ h u).pow (d u))
+  have hcast :
+      (Int.castRingHom (MvPolynomial (RothBlockVars2 m) ℚ)) (Q.coeff d) =
+        MvPolynomial.C (((Q.coeff d : ℤ) : ℚ)) := by
+    change ((Q.coeff d : ℤ) : MvPolynomial (RothBlockVars2 m) ℚ) =
+      MvPolynomial.C (((Q.coeff d : ℤ) : ℚ))
+    exact (map_intCast
+      (MvPolynomial.C : ℚ →+* MvPolynomial (RothBlockVars2 m) ℚ)
+      (Q.coeff d)).symm
+  rw [hcast]
+  simpa only [zero_add, hw, hdegree d hd] using
+    (MvPolynomial.isWeightedHomogeneous_C w
+      (((Q.coeff d : ℤ) : ℚ))).mul hprod
+
+theorem binaryLocal_expansion_block_degree {m : ℕ} (r : Fin m → ℕ)
+    (L : Matrix (Fin 2) (Fin 2) ℤ) (J : RothBlockVars2 m →₀ ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (b : RothBlockVars2 m →₀ ℕ) (hb : (binaryLocalExpansion L J P).coeff b ≠ 0) (h : Fin m) :
+    (∑ j : Fin 2, b (h,j)) = r h - ∑ j : Fin 2, J (h,j) := by
+  have hw := binaryLocal_expansion_block_weight r L J P hP h hb
+  rwa [binary_weight_block] at hw
+
+theorem binaryLocal_total_coordinate_weight_le {m : ℕ} (r : Fin m → ℕ)
+    (hr : ∀ h, 0 < r h) (L : Matrix (Fin 2) (Fin 2) ℤ) (J : RothBlockVars2 m →₀ ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (b : RothBlockVars2 m →₀ ℕ) (hb : (binaryLocalExpansion L J P).coeff b ≠ 0) :
+    (∑ i : Fin 2, binaryLocalCoordinateWeight r i b) ≤ (m : ℝ) := by
+  unfold binaryLocalCoordinateWeight
+  rw [Finset.sum_comm]
+  calc
+    _ ≤ ∑ h : Fin m, (1 : ℝ) := by
+      apply Finset.sum_le_sum
+      intro h hh
+      rw [← Finset.sum_div]
+      have hrh : (0 : ℝ) < r h := by exact_mod_cast hr h
+      apply (div_le_one hrh).mpr
+      have hdeg := binaryLocal_expansion_block_degree r L J P hP b hb h
+      exact_mod_cast (show (∑ i : Fin 2, b (h,i)) ≤ r h by omega)
+    _ = _ := by simp
+
+theorem binaryLocal_nonzero_row (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (binaryLocalRationalMatrix L).det ≠ 0) (i : Fin 2) : ∃ p, L i p ≠ 0 := by
+  by_contra hzero
+  push_neg at hzero
+  apply hL
+  apply Matrix.det_eq_zero_of_row_eq_zero i
+  intro j
+  simp [binaryLocalRationalMatrix, hzero j]
+
+theorem binaryLocal_coefficient_balance {m : ℕ} (r : Fin m → ℕ) (hr : ∀ h, 0 < r h)
+    (eta : ℝ) (heta : 0 < eta) (L : Matrix (Fin 2) (Fin 2) ℤ)
+    (hL : (binaryLocalRationalMatrix L).det ≠ 0) (P : MvPolynomial (RothBlockVars2 m) ℤ)
+    (hP : binaryBlockHomogeneous r P)
+    (hindex : ∀ i : Fin 2, binarySourceHighIndex r (fun _ : Fin m => L i) ((1 / 2 - eta) * m) P)
+    (J b : RothBlockVars2 m →₀ ℕ)
+    (hJ : binarySourceDerivativeWeight r J ≤ 2 * eta * m)
+    (hb : (binaryLocalExpansion L J P).coeff b ≠ 0) :
+    ∀ i : Fin 2, |binaryLocalCoordinateWeight r i b - (m : ℝ) / 2| ≤ 3 * m * eta := by
+  have hlower (i : Fin 2) : (m : ℝ) / 2 - 3 * m * eta ≤ binaryLocalCoordinateWeight r i b := by
+    obtain ⟨p, hp⟩ := binaryLocal_nonzero_row L hL i
+    have hlow : (1 / 2 - eta) * m ≤ binarySourceDerivativeWeight r J + binaryLocalCoordinateWeight r i b := by
+      by_contra! hbad
+      exact hb (binaryLocal_coeff_zero_below_index r L hL i p hp _ P (hindex i) J b hbad)
+    nlinarith
+  have hsum := binaryLocal_total_coordinate_weight_le r hr L J P hP b hb
+  rw [Fin.sum_univ_two] at hsum
+  have h0 := hlower 0
+  have h1 := hlower 1
+  intro i
+  have hi : i = 0 ∨ i = 1 := by omega
+  rcases hi with rfl | rfl <;> apply abs_le.mpr <;> constructor <;> nlinarith
+
+
+noncomputable def binaryLocalInverseBound
+    (L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ) : ℝ :=
+  max 1 (Finset.univ.sup' Finset.univ_nonempty
+    (fun u : Fin 3 × Fin 2 × Fin 2 =>
+      rothLocalAbs u.1 ((binaryLocalRationalMatrix (L u.1))⁻¹ u.2.1 u.2.2)))
+
+theorem binaryLocalInverseBound_one_le (L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ) :
+    1 ≤ binaryLocalInverseBound L := le_max_left _ _
+
+theorem binaryLocalInverseBound_entry (L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ)
+    (tau : Fin 3) (i j : Fin 2) :
+    rothLocalAbs tau ((binaryLocalRationalMatrix (L tau))⁻¹ i j) ≤ binaryLocalInverseBound L := by
+  exact (Finset.le_sup' (fun u : Fin 3 × Fin 2 × Fin 2 =>
+    rothLocalAbs u.1 ((binaryLocalRationalMatrix (L u.1))⁻¹ u.2.1 u.2.2))
+      (Finset.mem_univ (tau,i,j))).trans (le_max_right _ _)
+
+theorem binaryLocal_chart_mass {m : ℕ} (tau : Fin 3) (B : Matrix (Fin 2) (Fin 2) ℚ)
+    (G : ℝ) (hB : ∀ i j, rothLocalAbs tau (B i j) ≤ G) (u : RothBlockVars2 m) :
+    rothLocalMass tau (binaryLocalLinearChart B u) ≤ 2 * G := by
+  calc
+    _ ≤ ∑ j : Fin 2, rothLocalMass tau (MvPolynomial.C (B u.2 j) * MvPolynomial.X (u.1,j)) :=
+      rothLocalMass_sum _ _ _
+    _ ≤ ∑ _j : Fin 2, G := by
+      apply Finset.sum_le_sum
+      intro j _
+      rw [rothLocalMass_C_mul_X]
+      exact hB _ _
+    _ = _ := by simp
+
+theorem binaryLocal_support_index {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (d : RothBlockVars2 m →₀ ℕ) (hd : d ∈ P.support) :
+    ∃ b : BinaryAuxCoefficients r, binaryAuxExponent b = d := by
+  classical
+  have hdeg := hP d hd
+  have hle (h : Fin m) : d (h,0) ≤ r h := by
+    have hh := hdeg h
+    rw [Fin.sum_univ_two] at hh
+    omega
+  refine ⟨fun h => ⟨d (h,0), by have hh := hle h; omega⟩, ?_⟩
+  ext ⟨h,i⟩
+  have hh := hdeg h
+  rw [Fin.sum_univ_two] at hh
+  fin_cases i <;> simp [binaryAuxExponent] <;> omega
+
+theorem binaryLocal_support_card {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P) :
+    P.support.card ≤ 2 ^ (∑ h, r h) := by
+  classical
+  have hs : P.support ⊆ Finset.univ.image (@binaryAuxExponent m r) := by
+    intro d hd
+    obtain ⟨b,hb⟩ := binaryLocal_support_index r P hP d hd
+    exact Finset.mem_image.mpr ⟨b,Finset.mem_univ _,hb⟩
+  calc
+    _ ≤ (Finset.univ.image (@binaryAuxExponent m r)).card := Finset.card_le_card hs
+    _ ≤ Fintype.card (BinaryAuxCoefficients r) := by simpa using Finset.card_image_le (s := Finset.univ) (f := @binaryAuxExponent m r)
+    _ ≤ _ := binary_dimension_pow_bound r
+
+
+theorem binaryLocal_transformed_monomial_mass {m : ℕ} {r : Fin m → ℕ}
+    (tau : Fin 3) (L : Matrix (Fin 2) (Fin 2) ℤ) (G : ℝ) (hG : 1 ≤ G)
+    (hentry : ∀ i j, rothLocalAbs tau ((binaryLocalRationalMatrix L)⁻¹ i j) ≤ G)
+    (b : BinaryAuxCoefficients r) (J : RothBlockVars2 m →₀ ℕ) (c : ℤ) :
+    rothLocalMass tau (binaryLocalExpansion L J (MvPolynomial.monomial (binaryAuxExponent b) c)) ≤
+      (c.natAbs : ℝ) * (4 * G) ^ (∑ h, r h) := by
+  classical
+  let R := ∑ h, r h
+  let B := (binaryLocalRationalMatrix L)⁻¹
+  let a : ℤ := ∏ u : RothBlockVars2 m, (Nat.choose (binaryAuxExponent b u) (J u) : ℤ)
+  have hbase : 1 ≤ 2 * G := by linarith
+  have hsum : (∑ u : RothBlockVars2 m, (binaryAuxExponent b - J) u) ≤ R := by
+    change (∑ u : RothBlockVars2 m, (binaryAuxExponent b - J) u) ≤ ∑ h, r h
+    rw [← binary_exponent_sum b]
+    exact Finset.sum_le_sum (fun u _ => Nat.sub_le _ _)
+  have hprod : rothLocalMass tau (∏ u : RothBlockVars2 m,
+      binaryLocalLinearChart B u ^ (binaryAuxExponent b - J) u) ≤ (2 * G) ^ R := by
+    calc
+      _ ≤ ∏ u : RothBlockVars2 m,
+          rothLocalMass tau (binaryLocalLinearChart B u ^ (binaryAuxExponent b - J) u) :=
+        rothLocalMass_prod _ _ _
+      _ ≤ ∏ u : RothBlockVars2 m, (2 * G) ^ (binaryAuxExponent b - J) u := by
+        apply Finset.prod_le_prod
+        · intro u _; exact rothLocalMass_nonneg _ _
+        · intro u _
+          exact (rothLocalMass_pow tau _ _).trans
+            (pow_le_pow_left₀ (rothLocalMass_nonneg _ _) (binaryLocal_chart_mass tau B G hentry u) _)
+      _ = (2 * G) ^ (∑ u : RothBlockVars2 m, (binaryAuxExponent b - J) u) :=
+        Finset.prod_pow_eq_pow_sum _ _ _
+      _ ≤ _ := pow_le_pow_right₀ hbase hsum
+  have hbin : rothLocalAbs tau (a : ℚ) ≤ (2 : ℝ) ^ R := by
+    have h := binary_binomial_bound b J
+    change |a| ≤ (2 : ℤ) ^ R at h
+    rw [← Int.natCast_natAbs] at h
+    have h' : (a.natAbs : ℝ) ≤ (2 : ℝ) ^ R := by exact_mod_cast h
+    exact (rothLocalAbs_int tau a).trans h'
+  have hconst : rothLocalAbs tau ((c * a : ℤ) : ℚ) ≤ (c.natAbs : ℝ) * (2 : ℝ) ^ R := by
+    rw [Int.cast_mul, rothLocalAbs_mul]
+    exact mul_le_mul (rothLocalAbs_int tau c) hbin (rothLocalAbs_nonneg _ _) (Nat.cast_nonneg _)
+  have he : binaryLocalExpansion L J (MvPolynomial.monomial (binaryAuxExponent b) c) =
+      MvPolynomial.C (((c * a : ℤ) : ℚ)) *
+        ∏ u : RothBlockVars2 m, binaryLocalLinearChart B u ^ (binaryAuxExponent b - J) u := by
+    rw [binaryLocalExpansion, binary_derivative_monomial, MvPolynomial.eval₂Hom_monomial,
+      Finsupp.prod_fintype _ _ (fun _ => pow_zero _)]
+    rfl
+  rw [he]
+  calc
+    _ ≤ rothLocalMass tau (MvPolynomial.C (((c * a : ℤ) : ℚ))) *
+        rothLocalMass tau (∏ u : RothBlockVars2 m,
+          binaryLocalLinearChart B u ^ (binaryAuxExponent b - J) u) := rothLocalMass_mul _ _ _
+    _ ≤ ((c.natAbs : ℝ) * (2 : ℝ) ^ R) * (2 * G) ^ R := by
+      rw [rothLocalMass_C]
+      exact mul_le_mul hconst hprod (rothLocalMass_nonneg _ _) (by positivity)
+    _ = _ := by rw [mul_assoc, ← mul_pow]; congr 2; ring
+
+
+theorem binaryLocal_expansion_coeff_bound {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (D : ℝ) (hD : 1 ≤ D) (hheight : (binaryPolynomialHeight P : ℝ) ≤ D ^ (∑ h, r h))
+    (tau : Fin 3) (L : Matrix (Fin 2) (Fin 2) ℤ) (G : ℝ) (hG : 1 ≤ G)
+    (hentry : ∀ i j, rothLocalAbs tau ((binaryLocalRationalMatrix L)⁻¹ i j) ≤ G)
+    (J b : RothBlockVars2 m →₀ ℕ) :
+    rothLocalAbs tau ((binaryLocalExpansion L J P).coeff b) ≤
+      (8 * D * G) ^ (∑ h, r h) := by
+  classical
+  let R := ∑ h, r h
+  have hDpos : 0 ≤ D := le_trans (by norm_num) hD
+  have hGpos : 0 ≤ G := le_trans (by norm_num) hG
+  have hexp : binaryLocalExpansion L J P =
+      ∑ d ∈ P.support, binaryLocalExpansion L J (MvPolynomial.monomial d (P.coeff d)) := by
+    change MvPolynomial.eval₂Hom (Int.castRingHom _)
+      (binaryLocalLinearChart (binaryLocalRationalMatrix L)⁻¹)
+      (P.sum fun d c => MvPolynomial.monomial (d - J)
+        (c * ∏ u : RothBlockVars2 m, (Nat.choose (d u) (J u) : ℤ))) = _
+    rw [MvPolynomial.sum_def, map_sum]
+    apply Finset.sum_congr rfl
+    intro d hd
+    rw [binaryLocalExpansion, binary_derivative_monomial]
+  have hmass : rothLocalMass tau (binaryLocalExpansion L J P) ≤ (8 * D * G) ^ R := by
+    rw [hexp]
+    calc
+      _ ≤ ∑ d ∈ P.support,
+          rothLocalMass tau (binaryLocalExpansion L J (MvPolynomial.monomial d (P.coeff d))) :=
+        rothLocalMass_sum _ _ _
+      _ ≤ ∑ _d ∈ P.support, D ^ R * (4 * G) ^ R := by
+        apply Finset.sum_le_sum
+        intro d hd
+        obtain ⟨a,ha⟩ := binaryLocal_support_index r P hP d hd
+        have hc : ((P.coeff d).natAbs : ℝ) ≤ D ^ R := by
+          have hnat : (P.coeff d).natAbs ≤ binaryPolynomialHeight P :=
+            Finset.le_sup (f := fun e => (P.coeff e).natAbs) hd
+          have hreal : ((P.coeff d).natAbs : ℝ) ≤ (binaryPolynomialHeight P : ℝ) := by
+            exact_mod_cast hnat
+          exact hreal.trans hheight
+        have hm := binaryLocal_transformed_monomial_mass tau L G hG hentry a J (P.coeff d)
+        rw [ha] at hm
+        exact hm.trans (mul_le_mul_of_nonneg_right hc (by positivity))
+      _ = (P.support.card : ℝ) * (D ^ R * (4 * G) ^ R) := by simp
+      _ ≤ (2 : ℝ) ^ R * (D ^ R * (4 * G) ^ R) := by
+        have hcard : (P.support.card : ℝ) ≤ (2 : ℝ) ^ R := by
+          exact_mod_cast binaryLocal_support_card r P hP
+        exact mul_le_mul_of_nonneg_right hcard (by positivity)
+      _ = _ := by rw [← mul_pow, ← mul_pow]; congr 1; ring
+  exact (rothLocal_coeff_le_mass tau _ b).trans hmass
+
+
+
+
+theorem binary_derivative_homogeneous {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (J : RothBlockVars2 m →₀ ℕ) :
+    binaryBlockHomogeneous (fun h => r h - ∑ i : Fin 2, J (h,i)) (binaryDividedDerivative J P) := by
+  intro d hd h
+  change (∑ i : Fin 2, d (h,i)) = r h-∑ i : Fin 2, J (h,i)
+  have hn := MvPolynomial.mem_support_iff.mp hd
+  have hc : P.coeff (d+J) ≠ 0 := by
+    intro hz
+    rw [binary_derivative_coeff,hz,zero_mul] at hn
+    exact hn rfl
+  have hh := hP (d+J) (MvPolynomial.mem_support_iff.mpr hc) h
+  simp only [Finsupp.add_apply,Finset.sum_add_distrib] at hh
+  omega
+
+theorem binary_homogeneous_scale_eval {m : ℕ} (r : Fin m → ℕ)
+    (P : MvPolynomial (RothBlockVars2 m) ℤ) (hP : binaryBlockHomogeneous r P)
+    (s : Fin m → ℚ) (x : RothBlockVars2 m → ℚ) :
+    MvPolynomial.eval₂ (Int.castRingHom ℚ) (fun u => s u.1*x u) P =
+      (∏ h, s h^r h)*MvPolynomial.eval₂ (Int.castRingHom ℚ) x P := by
+  classical
+  conv_lhs => arg 3; rw [MvPolynomial.as_sum P]
+  conv_rhs => arg 2; arg 3; rw [MvPolynomial.as_sum P]
+  rw [MvPolynomial.eval₂_sum, MvPolynomial.eval₂_sum, Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro b hb
+  rw [MvPolynomial.eval₂_monomial,MvPolynomial.eval₂_monomial]
+  rw [Finsupp.prod_fintype b (fun n e => (s n.1*x n)^e) (fun _ => pow_zero _),
+    Finsupp.prod_fintype b (fun n e => x n^e) (fun _ => pow_zero _)]
+  simp only [mul_pow,Finset.prod_mul_distrib]
+  have hs : (∏ u : RothBlockVars2 m, s u.1^b u) = ∏ h, s h^r h := by
+    rw [Fintype.prod_prod_type]
+    apply Finset.prod_congr rfl
+    intro h _
+    change (∏ i : Fin 2, s h^b (h,i)) = s h^r h
+    rw [Finset.prod_pow_eq_pow_sum,hP b hb h]
+  rw [hs]
+  ring
+
+noncomputable def binaryIntegerVectorRestriction {m : ℕ} (w : Fin m → Fin 2 → ℤ)
+    (J : RothBlockVars2 m →₀ ℕ) (P : MvPolynomial (RothBlockVars2 m) ℤ) :
+    MvPolynomial (Fin m) ℤ :=
+  MvPolynomial.eval₂Hom MvPolynomial.C (fun u => MvPolynomial.C (w u.1 u.2)*MvPolynomial.X u.1)
+    (binaryDividedDerivative J P)
+
+theorem binary_monomial_product {σ ι : Type*} (s : Finset ι)
+    (b : ι → σ →₀ ℕ) (c : ι → ℤ) :
+    (∏ i ∈ s, MvPolynomial.monomial (b i) (c i)) =
+      MvPolynomial.monomial (∑ i ∈ s,b i) (∏ i ∈ s,c i) := by
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert i s hi ih => simp [hi,ih,MvPolynomial.monomial_mul]
+
+
+end LiteralR3
+
+#check LiteralR3.binaryNormalHeight
+#print axioms LiteralR3.binaryNormalHeight
+#check LiteralR3.binary_primitive_gcd
+#print axioms LiteralR3.binary_primitive_gcd
+#check LiteralR3.binary_primitive_parameters
+#print axioms LiteralR3.binary_primitive_parameters
+#check LiteralR3.binaryKernelPivotExponent
+#print axioms LiteralR3.binaryKernelPivotExponent
+#check LiteralR3.binaryKernelDehom
+#print axioms LiteralR3.binaryKernelDehom
+#check LiteralR3.binaryKernelPivotExponent_injective
+#print axioms LiteralR3.binaryKernelPivotExponent_injective
+#check LiteralR3.binaryKernelDehom_coeff_at
+#print axioms LiteralR3.binaryKernelDehom_coeff_at
+#check LiteralR3.binaryKernelDehom_nonzero_height_degree
+#print axioms LiteralR3.binaryKernelDehom_nonzero_height_degree
+#check LiteralR3.binaryKernelPivotOrder
+#print axioms LiteralR3.binaryKernelPivotOrder
+#check LiteralR3.binaryKernelDehom_monomial
+#print axioms LiteralR3.binaryKernelDehom_monomial
+#check LiteralR3.binaryKernelDehom_add
+#print axioms LiteralR3.binaryKernelDehom_add
+#check LiteralR3.binaryKernelDehom_derivative
+#print axioms LiteralR3.binaryKernelDehom_derivative
+#check LiteralR3.binaryKernelPivotOrder_budget
+#print axioms LiteralR3.binaryKernelPivotOrder_budget
+#check LiteralR3.binaryKernelDehom_eval
+#print axioms LiteralR3.binaryKernelDehom_eval
+#check LiteralR3.binaryKernelRestriction_eval
+#print axioms LiteralR3.binaryKernelRestriction_eval
+#check LiteralR3.binary_kernel_omega65_nonvanishing_evaluation
+#print axioms LiteralR3.binary_kernel_omega65_nonvanishing_evaluation
+#check LiteralR3.binary_kernel_omega65_nonvanishing
+#print axioms LiteralR3.binary_kernel_omega65_nonvanishing
+#check LiteralR3.binaryLocalRationalMatrix
+#print axioms LiteralR3.binaryLocalRationalMatrix
+#check LiteralR3.binaryLocalLinearChart
+#print axioms LiteralR3.binaryLocalLinearChart
+#check LiteralR3.binaryLocalSubstitution
+#print axioms LiteralR3.binaryLocalSubstitution
+#check LiteralR3.binaryLocalExpansion
+#print axioms LiteralR3.binaryLocalExpansion
+#check LiteralR3.binaryLocal_chart_one
+#print axioms LiteralR3.binaryLocal_chart_one
+#check LiteralR3.binaryLocal_chart_comp
+#print axioms LiteralR3.binaryLocal_chart_comp
+#check LiteralR3.binaryLocal_expansion_reconstruct
+#print axioms LiteralR3.binaryLocal_expansion_reconstruct
+#check LiteralR3.binaryLocal_chart_pderiv
+#print axioms LiteralR3.binaryLocal_chart_pderiv
+#check LiteralR3.binaryLocal_substitution_one
+#print axioms LiteralR3.binaryLocal_substitution_one
+#check LiteralR3.binaryLocal_substitution_comp
+#print axioms LiteralR3.binaryLocal_substitution_comp
+#check LiteralR3.binaryLocal_substitution_injective
+#print axioms LiteralR3.binaryLocal_substitution_injective
+#check LiteralR3.binaryLocal_expansion_unique
+#print axioms LiteralR3.binaryLocal_expansion_unique
+#check LiteralR3.binaryLocal_substitution_chain
+#print axioms LiteralR3.binaryLocal_substitution_chain
+#check LiteralR3.binaryLocalZeroCoordinate
+#print axioms LiteralR3.binaryLocalZeroCoordinate
+#check LiteralR3.binaryLocalKernelImage
+#print axioms LiteralR3.binaryLocalKernelImage
+#check LiteralR3.binaryLocal_kernel_image_form
+#print axioms LiteralR3.binaryLocal_kernel_image_form
+#check LiteralR3.binaryLocal_kernel_factor_variable
+#print axioms LiteralR3.binaryLocal_kernel_factor_variable
+#check LiteralR3.binaryLocal_kernel_factor
+#print axioms LiteralR3.binaryLocal_kernel_factor
+#check LiteralR3.binaryLocal_index_zero_slice
+#print axioms LiteralR3.binaryLocal_index_zero_slice
+#check LiteralR3.binaryLocal_zero_monomial
+#print axioms LiteralR3.binaryLocal_zero_monomial
+#check LiteralR3.binaryLocal_zero_coeff
+#print axioms LiteralR3.binaryLocal_zero_coeff
+#check LiteralR3.binaryLocal_pderiv_coeff
+#print axioms LiteralR3.binaryLocal_pderiv_coeff
+#check LiteralR3.binaryLocal_substitution_map
+#print axioms LiteralR3.binaryLocal_substitution_map
+#check LiteralR3.binaryLocal_expansion_chain
+#print axioms LiteralR3.binaryLocal_expansion_chain
+#check LiteralR3.binaryLocalCoordinateWeight
+#print axioms LiteralR3.binaryLocalCoordinateWeight
+#check LiteralR3.binaryLocal_coordinate_weight_add
+#print axioms LiteralR3.binaryLocal_coordinate_weight_add
+#check LiteralR3.binaryLocal_coordinate_weight_single
+#print axioms LiteralR3.binaryLocal_coordinate_weight_single
+#check LiteralR3.binaryLocal_coeff_zero_below_index
+#print axioms LiteralR3.binaryLocal_coeff_zero_below_index
+#check LiteralR3.binaryLocal_chart_block_weight
+#print axioms LiteralR3.binaryLocal_chart_block_weight
+#check LiteralR3.binaryLocal_expansion_block_weight
+#print axioms LiteralR3.binaryLocal_expansion_block_weight
+#check LiteralR3.binaryLocal_expansion_block_degree
+#print axioms LiteralR3.binaryLocal_expansion_block_degree
+#check LiteralR3.binaryLocal_total_coordinate_weight_le
+#print axioms LiteralR3.binaryLocal_total_coordinate_weight_le
+#check LiteralR3.binaryLocal_nonzero_row
+#print axioms LiteralR3.binaryLocal_nonzero_row
+#check LiteralR3.binaryLocal_coefficient_balance
+#print axioms LiteralR3.binaryLocal_coefficient_balance
+#check LiteralR3.binaryLocalInverseBound
+#print axioms LiteralR3.binaryLocalInverseBound
+#check LiteralR3.binaryLocalInverseBound_one_le
+#print axioms LiteralR3.binaryLocalInverseBound_one_le
+#check LiteralR3.binaryLocalInverseBound_entry
+#print axioms LiteralR3.binaryLocalInverseBound_entry
+#check LiteralR3.binaryLocal_chart_mass
+#print axioms LiteralR3.binaryLocal_chart_mass
+#check LiteralR3.binaryLocal_support_index
+#print axioms LiteralR3.binaryLocal_support_index
+#check LiteralR3.binaryLocal_support_card
+#print axioms LiteralR3.binaryLocal_support_card
+#check LiteralR3.binaryLocal_transformed_monomial_mass
+#print axioms LiteralR3.binaryLocal_transformed_monomial_mass
+#check LiteralR3.binaryLocal_expansion_coeff_bound
+#print axioms LiteralR3.binaryLocal_expansion_coeff_bound
+#check LiteralR3.binary_derivative_homogeneous
+#print axioms LiteralR3.binary_derivative_homogeneous
+#check LiteralR3.binary_homogeneous_scale_eval
+#print axioms LiteralR3.binary_homogeneous_scale_eval
+#check LiteralR3.binaryIntegerVectorRestriction
+#print axioms LiteralR3.binaryIntegerVectorRestriction
+#check LiteralR3.binary_monomial_product
+#print axioms LiteralR3.binary_monomial_product

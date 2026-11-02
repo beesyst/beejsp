@@ -1,0 +1,37 @@
+import SubspaceBridge.SourceSelectedCofactor10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M201PrefixContract
+open CompoundFeasibility CompoundFeasibility.OriginalDual10
+open CompoundFeasibility.SourceSelectedUpper10
+
+theorem original_p2_cofactor_prefix (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (h2 : A2.det = 1) (q : ℝ) (hq : 1 < q) (c2 c3 : Fin 10 → ℝ)
+    (hc2 : ∀ i, c2 i ≤ 0) (w : Fin 10 → Fin 10 → ℤ)
+    (hw : ∀ j, w j ∈ originalSourceGroup10 A2 A3 q c2 c3) (i : Fin 10) :
+    ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+      (fun k => (integerLastDual10 w k : ℚ_[2]))) i‖ ≤
+      ∏ k : Fin 9, (q^5)^(c2 (i.succAbove k)/5) := by
+  exact finite_cofactor_rescaled10 2 (by decide) A2 h2 q hq c2 hc2 w
+    (fun j => (hw j).1) i
+
+theorem original_p3_cofactor_prefix (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (h3 : A3.det = 1) (q : ℝ) (hq : 1 < q) (c2 c3 : Fin 10 → ℝ)
+    (hc3 : ∀ i, c3 i ≤ 0) (w : Fin 10 → Fin 10 → ℤ)
+    (hw : ∀ j, w j ∈ originalSourceGroup10 A2 A3 q c2 c3) (i : Fin 10) :
+    ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+      (fun k => (integerLastDual10 w k : ℚ_[3]))) i‖ ≤
+      ∏ k : Fin 9, (q^5)^(c3 (i.succAbove k)/5) := by
+  exact finite_cofactor_rescaled10 3 (by decide) A3 h3 q hq c3 hc3 w
+    (fun j => (hw j).2) i
+
+#print original_p2_cofactor_prefix
+#print axioms original_p2_cofactor_prefix
+#print original_p3_cofactor_prefix
+#print axioms original_p3_cofactor_prefix
+#check CompoundFeasibility.SourcePrimitiveHeight10.primitive_original_cofactor_factor10
+#print axioms CompoundFeasibility.SourcePrimitiveHeight10.primitive_original_cofactor_factor10
+#check CompoundFeasibility.SourceLocalUpper6.integer_g_three_place6
+#print CompoundFeasibility.SourceLocalUpper6.integer_g_three_place6
+#print axioms CompoundFeasibility.SourceLocalUpper6.integer_g_three_place6
+end M201PrefixContract

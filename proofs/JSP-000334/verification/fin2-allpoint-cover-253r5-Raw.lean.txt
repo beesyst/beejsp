@@ -1,0 +1,334 @@
+import SubspaceBridge.BinarySourceWeights2
+import SubspaceBridge.BinaryWeightedSourceProduct2
+import SubspaceBridge.BinaryIntegerSourceBounds2
+import SubspaceBridge.BinaryCanonicalNormal2
+import SubspaceBridge.BinarySourceNorms2
+import SubspaceBridge.BinaryLogTailBounds2
+import SubspaceBridge.BinaryWeightedSourcePoint2
+import SubspaceBridge.BinaryFiniteWeights2
+import SubspaceBridge.BinaryFixedSourcePoint2
+import SubspaceBridge.BinaryZeroForms2
+import SubspaceBridge.BinaryParameterSelection2
+import SubspaceBridge.BinaryFixedSourceFamily2
+import SubspaceBridge.BinarySourceFamilyBounded2
+import SubspaceBridge.BinaryHeightFinite2
+import SubspaceBridge.BinaryWeightedSolutionHeight2
+import SubspaceBridge.BinaryAllPointFiniteCover2
+open scoped BigOperators Classical Matrix
+namespace RawR5
+open JSP000334
+
+def Primitive (z : Fin 2 → ℤ) : Prop := ∃ c : Fin 2 → ℤ,∑ i,c i*z i=1
+def Height (z : Fin 2 → ℤ) : ℚ := max |(z 0 : ℚ)| |(z 1 : ℚ)|
+def Place (tau : Fin 3) (q : ℚ) : ℚ := ![|q|,padicNorm 2 q,padicNorm 3 q] tau
+def Abs (tau : Fin 3) (q : ℚ) : ℝ := if tau=0 then |(q : ℝ)| else if tau=1 then padicNorm 2 q else padicNorm 3 q
+
+def Product (B C u v : ℚ) : ℚ :=
+  ∏ tau : Fin 3,(min (Place tau u) (Place tau v)/max (Place tau u) (Place tau v))*
+    (Place tau (B*u+C*v)/max (Place tau u) (Place tau v))
+def Retained (B C u v : ℚ) : ℚ := ∏ tau : Fin 3,min (Place tau u) (Place tau v)*Place tau (B*u+C*v)
+
+def MatrixInt (d : ℕ) (b c : ℤ) (k : Fin 2) : Matrix (Fin 2) (Fin 2) ℤ :=
+  if k=0 then !![(d : ℤ),0;b,c] else !![0,(d : ℤ);b,c]
+noncomputable def Form (L : Matrix (Fin 2) (Fin 2) ℤ) (z : Fin 2 → ℤ) (i : Fin 2) : ℚ :=
+  ∑ j : Fin 2,(L i j : ℚ)*(z j : ℚ)
+noncomputable def Norms (d : ℕ) (b c : ℤ) (k : Fin 3 → Fin 2) (z : Fin 2 → ℤ) (tau : Fin 3) (i : Fin 2) : ℝ :=
+  Abs tau (Form (MatrixInt d b c (k tau)) z i)
+noncomputable def Raw (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (tau : Fin 3) (i : Fin 2) : ℝ := Real.log (a tau i)/Real.log Q
+noncomputable def Alpha (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) : ℝ :=
+  -(∑ tau : Fin 3,∑ i : Fin 2,Real.log (a tau i))/(6*Real.log Q)
+noncomputable def Weights (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (tau : Fin 3) (i : Fin 2) : ℝ := Raw a Q tau i+Alpha a Q
+noncomputable def Index (c : Fin 3 → Fin 2 → ℝ) (tau : Fin 3) (i : Fin 2) : ℤ := ⌈1152*c tau i⌉
+noncomputable def GridRaw (z : Fin 3 → Fin 2 → ℤ) (tau : Fin 3) (i : Fin 2) : ℝ := (z tau i : ℝ)/1152
+noncomputable def Candidate (z : Fin 3 → Fin 2 → ℤ) (tau : Fin 3) (i : Fin 2) : ℝ :=
+  if tau=0 then GridRaw z tau i-(∑ t : Fin 3,∑ j : Fin 2,GridRaw z t j)/2 else GridRaw z tau i
+noncomputable def Approx (c : Fin 3 → Fin 2 → ℝ) : Fin 3 → Fin 2 → ℝ := Candidate (Index c)
+noncomputable def Candidates : Set (Fin 3 → Fin 2 → ℝ) :=
+  (Candidate '' {z : Fin 3 → Fin 2 → ℤ | ∀ tau i,-1152≤z tau i ∧ z tau i≤1152}) ∩
+    {c | (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0 ∧ ∀ tau i,|c tau i|≤1}
+def Normal (z : Fin 2 → ℤ) : Fin 2 → ℤ := ![-z 1,z 0]
+def Eligible (B C : ℚ) (z : Fin 2 → ℤ) : Prop := Primitive z ∧ z 0 ≠ 0 ∧ z 1 ≠ 0 ∧ B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0 ∧
+  (Product B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<Real.rpow (Height z : ℝ) (-(5 : ℝ)/2)
+noncomputable def Span (z : Fin 2 → ℤ) : Submodule ℚ (Fin 2 → ℚ) := Submodule.span ℚ {(fun i => (z i : ℚ))}
+theorem source_binary_weighted_normalization : ∀ (B C u v : ℚ),
+
+    Product B C u v=Retained B C u v/pairHeight u v^2 :=
+  @JSP000334.binary_weighted_normalization
+
+theorem source_binary_primitive_retained_bound : ∀ (B C : ℚ) (z : Fin 2 → ℤ) (hz : Primitive z)
+    (hH : 1<(Height z : ℝ))
+    (hp : (Product B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (Height z : ℝ) (-(5 : ℝ)/2)),
+
+    (Retained B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (Height z : ℝ) (-(1 : ℝ)/2) :=
+  @JSP000334.binary_primitive_retained_bound
+
+theorem source_binary_denominator_tail_bound : ∀ (K H : ℝ) (hK : 0<K) (hH : 1<H) (hcut : K^4<H),
+
+    K*Real.rpow H (-(1 : ℝ)/2)<Real.rpow (H^4) (-(1 : ℝ)/16) :=
+  @JSP000334.binary_denominator_tail_bound
+
+theorem source_binary_integer_pattern_product : ∀ (B C : ℚ) (d : ℕ) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) (z : Fin 2 → ℤ),
+
+    ∃ k : Fin 3 → Fin 2,
+    (∏ tau : Fin 3,∏ i : Fin 2,Abs tau (Form (MatrixInt d b c (k tau)) z i))=
+      (threePlaceProduct (d : ℚ) : ℝ)^2*(Retained B C (z 0 : ℚ) (z 1 : ℚ) : ℝ) :=
+  @JSP000334.binary_integer_pattern_product
+
+theorem source_binary_pattern_value_nonzero : ∀ (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) (k i : Fin 2) (z : Fin 2 → ℤ)
+    (h0 : z 0 ≠ 0) (h1 : z 1 ≠ 0) (hs : B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0),
+
+    Form (MatrixInt d b c k) z i ≠ 0 :=
+  @JSP000334.binary_pattern_value_nonzero
+
+theorem source_binary_pattern_local_bounds : ∀ (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) (k : Fin 2) (z : Fin 2 → ℤ)
+    (h0 : z 0 ≠ 0) (h1 : z 1 ≠ 0) (hs : B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0) (tau : Fin 3) (i : Fin 2),
+
+    let a := Abs tau (Form (MatrixInt d b c k) z i)
+    0<a ∧ a⁻¹≤JSP000334.binaryIntegerFormConstant d b c*(Height z : ℝ) ∧
+    (tau ≠ 0 → a≤1) ∧
+    (tau=0 → 1≤a ∧ a≤JSP000334.binaryIntegerFormConstant d b c*(Height z : ℝ)) :=
+  @JSP000334.binary_pattern_local_bounds
+
+theorem source_binary_log_balance : ∀ (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (hQ : 1<Q),
+
+    (∑ tau : Fin 3,∑ i : Fin 2,Weights a Q tau i)=0 :=
+  @JSP000334.binary_log_balance
+
+theorem source_binary_log_positive_margin : ∀ (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (hQ : 1<Q)
+    (ha : ∀ tau i,0<a tau i)
+    (hp : (∏ tau : Fin 3,∏ i : Fin 2,a tau i)<Real.rpow Q (-(1 : ℝ)/16)),
+
+    1/96<Alpha a Q :=
+  @JSP000334.binary_log_positive_margin
+
+theorem source_binary_log_source_bounds : ∀ (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (hQ : 1<Q)
+    (ha : ∀ tau i,0<a tau i) (hd : (1 : ℝ)/192≤Alpha a Q),
+
+    ∀ tau i,a tau i≤Real.rpow Q (Weights a Q tau i-if tau=0 then (1 : ℝ)/192 else 0) :=
+  @JSP000334.binary_log_source_bounds
+
+theorem source_binary_log_uniform_bound : ∀ (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ)
+    (ha : 0≤Alpha a Q)
+    (hreal : ∀ i,0≤Raw a Q 0 i ∧ Raw a Q 0 i≤9/32)
+    (hfinite : ∀ tau : Fin 3,tau ≠ 0 → ∀ i,-9/32≤Raw a Q tau i ∧ Raw a Q tau i≤0),
+
+    ∀ tau i,|Weights a Q tau i|≤15/32 :=
+  @JSP000334.binary_log_uniform_bound
+
+theorem source_binary_log_tail_bounds : ∀ (C H : ℝ) (hC : 1≤C) (hH : 1<H) (hcut : C^8<H)
+    (a : Fin 3 → Fin 2 → ℝ) (ha : ∀ tau i,0<a tau i)
+    (hinv : ∀ tau i,(a tau i)⁻¹≤C*H)
+    (hreal : ∀ i,1≤a 0 i ∧ a 0 i≤C*H)
+    (hfinite : ∀ tau : Fin 3,tau ≠ 0 → ∀ i,a tau i≤1),
+
+    (∀ i,0≤Raw a (H^4) 0 i ∧ Raw a (H^4) 0 i≤9/32) ∧
+    (∀ tau : Fin 3,tau ≠ 0 → ∀ i,-9/32≤Raw a (H^4) tau i ∧ Raw a (H^4) tau i≤0) :=
+  @JSP000334.binary_log_tail_bounds
+
+theorem source_binary_weight_round_bounds : ∀ (c : Fin 3 → Fin 2 → ℝ)
+    (hb : (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0) (hc : ∀ tau i,|c tau i|≤15/32),
+
+    (∀ tau i,|Approx c tau i|≤1) ∧
+    (∀ i,c 0 i-1/384≤Approx c 0 i) ∧
+    (∀ tau : Fin 3,tau ≠ 0 → ∀ i,c tau i≤Approx c tau i) :=
+  @JSP000334.binary_weight_round_bounds
+
+theorem source_binary_weight_candidates_finite :
+ Candidates.Finite :=
+  @JSP000334.binary_weight_candidates_finite
+
+theorem source_binary_weight_approx_mem : ∀ (c : Fin 3 → Fin 2 → ℝ)
+    (hb : (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0) (hc : ∀ tau i,|c tau i|≤15/32),
+
+    Approx c ∈ Candidates :=
+  @JSP000334.binary_weight_approx_mem
+
+theorem source_binary_weighted_source_point : ∀ (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C),
+
+    ∃ cut : ℝ,1≤cut ∧ ∀ z : Fin 2 → ℤ,Primitive z →
+    z 0 ≠ 0 → z 1 ≠ 0 → B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0 →
+    cut<(Height z : ℝ) →
+    (Product B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (Height z : ℝ) (-(5 : ℝ)/2) →
+    ∃ k : Fin 3 → Fin 2,
+    let a := Norms d b c k z
+    let Q := (Height z : ℝ)^4
+    1<Q ∧ (∀ tau i,0<a tau i) ∧
+    (∑ tau : Fin 3,∑ i : Fin 2,Weights a Q tau i)=0 ∧
+    (∀ tau i,|Weights a Q tau i|≤15/32) ∧
+    (1 : ℝ)/192≤Alpha a Q ∧
+    (∀ tau i,a tau i≤Real.rpow Q (Weights a Q tau i-if tau=0 then (1 : ℝ)/192 else 0)) :=
+  @JSP000334.binary_weighted_source_point
+
+theorem source_binary_weighted_fixed_source_point : ∀ (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C),
+
+    ∃ cut : ℝ,1≤cut ∧ ∀ z : Fin 2 → ℤ,Primitive z →
+    z 0 ≠ 0 → z 1 ≠ 0 → B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0 →
+    cut<(Height z : ℝ) →
+    (Product B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (Height z : ℝ) (-(5 : ℝ)/2) →
+    ∃ k : Fin 3 → Fin 2,∃ v ∈ Candidates,
+    let Q := (Height z : ℝ)^4
+    1<Q ∧ (∑ tau : Fin 3,∑ i : Fin 2,v tau i)=0 ∧ (∀ tau i,|v tau i|≤1) ∧
+    (∀ tau i,Norms d b c k z tau i≤Real.rpow Q (v tau i-if tau=0 then (1 : ℝ)/384 else 0)) :=
+  @JSP000334.binary_weighted_fixed_source_point
+
+theorem source_binary_pair_normal_ideal : ∀ (z : Fin 2 → ℤ) (hz : Primitive z),
+
+    Ideal.span (Set.range (Normal z))=⊤ :=
+  @JSP000334.binary_pair_normal_ideal
+
+theorem source_binary_pair_normal_vector : ∀ (z : Fin 2 → ℤ),
+
+    binaryKernelVector (Normal z)=z :=
+  @JSP000334.binary_pair_normal_vector
+
+theorem source_binary_pair_normal_height : ∀ (z : Fin 2 → ℤ),
+
+    (binaryNormalHeight (Normal z) : ℝ)=(Height z : ℝ) :=
+  @JSP000334.binary_pair_normal_height
+
+theorem source_binary_parameter_selection : ∀ (D E delta : ℝ) (hD : 1≤D) (hE : 1≤E)
+    (hd : 0<delta) (hd1 : delta<1),
+
+    ∃ eta theta : ℝ,∃ m : ℕ,∃ hm : 0<m,
+    0<eta ∧ eta<1/2 ∧ 0<theta ∧ theta<1/12 ∧ theta≤2*eta*m ∧ 40*eta<delta ∧
+    4*(eta^2)⁻¹*Real.log 12≤(m : ℝ) ∧
+    ∀ U : Set ℝ,¬BddAbove U → ∀ cut : ℝ,
+    ∃ Q : Fin m → ℝ,∃ r : Fin m → ℕ,
+    (∀ h,Q h ∈ U ∧ cut<Q h ∧ 1<Q h) ∧ (∀ h,0<r h) ∧
+    (∀ (h : Fin m) (hh : h.val+1<m),(r ⟨h.val+1,hh⟩ : ℝ)≤rothInductionOmega m theta*(r h : ℝ)) ∧
+    (∀ h,(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)≤(r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h)≤(1+eta)*(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)) ∧
+    (∀ h,2*E<Real.rpow (Q h) eta) ∧
+    ∀ H : Fin m → ℝ,(∀ h,H h=(Q h)^((1 : ℝ)/4)) →
+    (∀ h,Real.rpow (H ⟨0,hm⟩) ((r ⟨0,hm⟩ : ℝ)*1)≤H h^r h) ∧
+    (∀ h,(2 : ℝ)^(3*m)≤Real.rpow (H h) (rothInductionOmega m theta*1)) ∧
+    D^(∑ h,r h)≤Real.rpow (H ⟨0,hm⟩) (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*1) :=
+  @JSP000334.binary_parameter_selection
+
+theorem source_binary_fixed_source_family : ∀ (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C),
+
+    ∃ cut : ℝ,1≤cut ∧ ∀ U : Set ℝ,¬BddAbove U →
+    ∀ z : U → Fin 2 → ℤ,(∀ q,Primitive (z q)) →
+    (∀ q,z q 0 ≠ 0 ∧ z q 1 ≠ 0 ∧ B*(z q 0 : ℚ)+C*(z q 1 : ℚ) ≠ 0) →
+    (∀ q,cut<(Height (z q) : ℝ)) →
+    (∀ q,(Product B C (z q 0 : ℚ) (z q 1 : ℚ) : ℝ)<
+      Real.rpow (Height (z q) : ℝ) (-(5 : ℝ)/2)) →
+    (∀ q,q.val=(Height (z q) : ℝ)^4) →
+    ∃ k : Fin 3 → Fin 2,∃ v ∈ Candidates,∃ W : Set ℝ,W ⊆ U ∧ ¬BddAbove W ∧
+    ∀ q : U,q.val ∈ W → 1<q.val ∧ ∀ tau i,
+      Norms d b c k (z q) tau i≤Real.rpow q.val (v tau i-if tau=0 then (1 : ℝ)/384 else 0) :=
+  @JSP000334.binary_fixed_source_family
+
+theorem source_binary_weighted_source_family_bounded : ∀ (B C : ℚ) (hB : B ≠ 0) (hC : C ≠ 0)
+    (d : ℕ) (hd : 0<d) (b c : ℤ) (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C),
+
+    ∃ cut : ℝ,1≤cut ∧ ∀ U : Set ℝ,∀ z : U → Fin 2 → ℤ,
+    (∀ q,Primitive (z q)) →
+    (∀ q,z q 0 ≠ 0 ∧ z q 1 ≠ 0 ∧ B*(z q 0 : ℚ)+C*(z q 1 : ℚ) ≠ 0) →
+    (∀ q,cut<(Height (z q) : ℝ)) →
+    (∀ q,(Product B C (z q 0 : ℚ) (z q 1 : ℚ) : ℝ)<
+      Real.rpow (Height (z q) : ℝ) (-(5 : ℝ)/2)) →
+    (∀ q,q.val=(Height (z q) : ℝ)^4) → BddAbove U :=
+  @JSP000334.binary_weighted_source_family_bounded
+
+theorem source_binary_integer_height_ball_finite : ∀ (T : Set (Fin 2 → ℤ)) (M : ℝ)
+    (hM : ∀ z ∈ T,(Height z : ℝ)≤M),
+ T.Finite :=
+  @JSP000334.binary_integer_height_ball_finite
+
+theorem source_binary_rational_span_proper : ∀ (z : Fin 2 → ℤ) (h1 : z 1 ≠ 0),
+ Span z ≠ ⊤ :=
+  @JSP000334.binary_rational_span_proper
+
+theorem source_binary_weighted_solution_height_bound : ∀ (B C : ℚ) (hB : B ≠ 0) (hC : C ≠ 0),
+
+    ∃ M : ℝ,∀ z : Fin 2 → ℤ,Eligible B C z → (Height z : ℝ)≤M :=
+  @JSP000334.binary_weighted_solution_height_bound
+
+theorem source_binary_zero_form_cover : ∀ (B C : ℚ) (z : Fin 2 → ℤ)
+    (hz : z 0=0 ∨ z 1=0 ∨ B*(z 0 : ℚ)+C*(z 1 : ℚ)=0),
+
+    ∃ P ∈ JSP000334.binaryZeroLines B C,(fun i => (z i : ℚ)) ∈ P :=
+  @JSP000334.binary_zero_form_cover
+
+theorem source_binary_zero_lines_proper : ∀ (B C : ℚ) (hB : B ≠ 0),
+
+    ∀ P ∈ JSP000334.binaryZeroLines B C,P ≠ ⊤ :=
+  @JSP000334.binary_zero_lines_proper
+
+theorem source_binary_weighted_allpoint_finite_cover : ∀ (B C : ℚ) (hB : B ≠ 0) (hC : C ≠ 0),
+
+    ∃ F : Set (Submodule ℚ (Fin 2 → ℚ)),F.Finite ∧ (∀ P ∈ F,P ≠ ⊤) ∧
+    ∀ z : Fin 2 → ℤ,Primitive z →
+      (Product B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+        Real.rpow (Height z : ℝ) (-(5 : ℝ)/2) →
+      ∃ P ∈ F,(fun i => (z i : ℚ)) ∈ P :=
+  @JSP000334.binary_weighted_allpoint_finite_cover
+
+end RawR5
+#check RawR5.source_binary_weighted_normalization
+#print axioms RawR5.source_binary_weighted_normalization
+#check RawR5.source_binary_primitive_retained_bound
+#print axioms RawR5.source_binary_primitive_retained_bound
+#check RawR5.source_binary_denominator_tail_bound
+#print axioms RawR5.source_binary_denominator_tail_bound
+#check RawR5.source_binary_integer_pattern_product
+#print axioms RawR5.source_binary_integer_pattern_product
+#check RawR5.source_binary_pattern_value_nonzero
+#print axioms RawR5.source_binary_pattern_value_nonzero
+#check RawR5.source_binary_pattern_local_bounds
+#print axioms RawR5.source_binary_pattern_local_bounds
+#check RawR5.source_binary_log_balance
+#print axioms RawR5.source_binary_log_balance
+#check RawR5.source_binary_log_positive_margin
+#print axioms RawR5.source_binary_log_positive_margin
+#check RawR5.source_binary_log_source_bounds
+#print axioms RawR5.source_binary_log_source_bounds
+#check RawR5.source_binary_log_uniform_bound
+#print axioms RawR5.source_binary_log_uniform_bound
+#check RawR5.source_binary_log_tail_bounds
+#print axioms RawR5.source_binary_log_tail_bounds
+#check RawR5.source_binary_weight_round_bounds
+#print axioms RawR5.source_binary_weight_round_bounds
+#check RawR5.source_binary_weight_candidates_finite
+#print axioms RawR5.source_binary_weight_candidates_finite
+#check RawR5.source_binary_weight_approx_mem
+#print axioms RawR5.source_binary_weight_approx_mem
+#check RawR5.source_binary_weighted_source_point
+#print axioms RawR5.source_binary_weighted_source_point
+#check RawR5.source_binary_weighted_fixed_source_point
+#print axioms RawR5.source_binary_weighted_fixed_source_point
+#check RawR5.source_binary_pair_normal_ideal
+#print axioms RawR5.source_binary_pair_normal_ideal
+#check RawR5.source_binary_pair_normal_vector
+#print axioms RawR5.source_binary_pair_normal_vector
+#check RawR5.source_binary_pair_normal_height
+#print axioms RawR5.source_binary_pair_normal_height
+#check RawR5.source_binary_parameter_selection
+#print axioms RawR5.source_binary_parameter_selection
+#check RawR5.source_binary_fixed_source_family
+#print axioms RawR5.source_binary_fixed_source_family
+#check RawR5.source_binary_weighted_source_family_bounded
+#print axioms RawR5.source_binary_weighted_source_family_bounded
+#check RawR5.source_binary_integer_height_ball_finite
+#print axioms RawR5.source_binary_integer_height_ball_finite
+#check RawR5.source_binary_rational_span_proper
+#print axioms RawR5.source_binary_rational_span_proper
+#check RawR5.source_binary_weighted_solution_height_bound
+#print axioms RawR5.source_binary_weighted_solution_height_bound
+#check RawR5.source_binary_zero_form_cover
+#print axioms RawR5.source_binary_zero_form_cover
+#check RawR5.source_binary_zero_lines_proper
+#print axioms RawR5.source_binary_zero_lines_proper
+#check RawR5.source_binary_weighted_allpoint_finite_cover
+#print axioms RawR5.source_binary_weighted_allpoint_finite_cover

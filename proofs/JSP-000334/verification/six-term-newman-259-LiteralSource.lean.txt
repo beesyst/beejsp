@@ -1,0 +1,2538 @@
+import SubspaceBridge.AllPointFiniteCover5
+import SubspaceBridge.FiveTermFiniteness4
+import SubspaceBridge.FourTermFiniteness3
+import SubspaceBridge.WeightedFiveTermFiniteness4
+open JSP000334
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace Literal259
+
+open scoped BigOperators Matrix
+
+theorem six_term_annihilator_degenerate5 (x : Fin 5 → ℚ)
+    (hx : ∀ i,x i≠0) (hs : ∑ i,x i=0) (hn : ¬Nondegenerate x) :
+    x 0+x 1=0 ∨ x 0+x 2=0 ∨ x 0+x 3=0 ∨ x 0+x 4=0 ∨ x 0+x 1+x 2=0 ∨ x 0+x 1+x 3=0 ∨ x 0+x 1+x 4=0 ∨ x 0+x 2+x 3=0 ∨ x 0+x 2+x 4=0 ∨ x 0+x 3+x 4=0 := by
+  classical
+  unfold Nondegenerate at hn
+  push_neg at hn
+  obtain ⟨I,hI,hproper,hzero⟩ := hn
+  have h0 := hx 0
+  have h1 := hx 1
+  have h2 := hx 2
+  have h3 := hx 3
+  have h4 := hx 4
+  have hs' : x 0+x 1+x 2+x 3+x 4=0 := by
+    simpa [Fin.sum_univ_succ,add_assoc] using hs
+  clear hs
+  have he : x=![x 0,x 1,x 2,x 3,x 4] := by
+    ext i
+    fin_cases i <;> rfl
+  rw [he] at hzero
+  fin_cases I <;> norm_num [Finset.sum_insert,Matrix.cons_val_succ,Matrix.cons_val_zero] at hzero hI
+  all_goals first
+    | exact False.elim (h0 (by linarith))
+    | exact False.elim (h1 (by linarith))
+    | exact False.elim (h2 (by linarith))
+    | exact False.elim (h3 (by linarith))
+    | exact False.elim (h4 (by linarith))
+    | exact Or.inl (by linarith)
+    | exact Or.inr (Or.inl (by linarith))
+    | exact Or.inr (Or.inr (Or.inl (by linarith)))
+    | exact Or.inr (Or.inr (Or.inr (Or.inl (by linarith))))
+    | exact Or.inr (Or.inr (Or.inr (Or.inr (Or.inl (by linarith)))))
+    | exact Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl (by linarith))))))
+    | exact Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl (by linarith)))))))
+    | exact Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl (by linarith))))))))
+    | exact Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl (by linarith)))))))))
+    | exact Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr ((by linarith))))))))))
+    | exact False.elim (hproper (by decide))
+
+theorem six_term_nondegenerate_coarsen5 (x : Fin 6 → ℚ) (hx : Nondegenerate x)
+    (f : Fin 6 → Fin 5) (hf : Function.Surjective f) :
+    Nondegenerate (fun j => ∑ i : Fin 6,if f i=j then x i else 0) := by
+  classical
+  intro I hI hproper
+  let J : Finset (Fin 6) := Finset.univ.filter (fun i => f i∈I)
+  have hJ : J.Nonempty := by
+    obtain ⟨j,hj⟩ := hI
+    obtain ⟨i,rfl⟩ := hf j
+    exact ⟨i,by simpa [J] using hj⟩
+  have hJproper : J≠Finset.univ := by
+    intro he
+    apply hproper
+    apply Finset.eq_univ_of_forall
+    intro j
+    obtain ⟨i,rfl⟩ := hf j
+    have hi : i∈J := by rw [he];exact Finset.mem_univ i
+    simpa [J] using hi
+  have heq : (∑ j∈I,∑ i : Fin 6,if f i=j then x i else 0)=∑ i∈J,x i := by
+    rw [Finset.sum_comm]
+    simp [J,Finset.sum_filter,Finset.sum_ite_eq']
+  rw [heq]
+  exact hx J hJ hJproper
+
+
+theorem six_term_nondegenerate_coarsen4 (x : Fin 6 → ℚ) (hx : Nondegenerate x)
+    (f : Fin 6 → Fin 4) (hf : Function.Surjective f) :
+    Nondegenerate (fun j => ∑ i : Fin 6,if f i=j then x i else 0) := by
+  classical
+  intro I hI hproper
+  let J : Finset (Fin 6) := Finset.univ.filter (fun i => f i∈I)
+  have hJ : J.Nonempty := by
+    obtain ⟨j,hj⟩ := hI
+    obtain ⟨i,rfl⟩ := hf j
+    exact ⟨i,by simpa [J] using hj⟩
+  have hJproper : J≠Finset.univ := by
+    intro he
+    apply hproper
+    apply Finset.eq_univ_of_forall
+    intro j
+    obtain ⟨i,rfl⟩ := hf j
+    have hi : i∈J := by rw [he];exact Finset.mem_univ i
+    simpa [J] using hi
+  have heq : (∑ j∈I,∑ i : Fin 6,if f i=j then x i else 0)=∑ i∈J,x i := by
+    rw [Finset.sum_comm]
+    simp [J,Finset.sum_filter,Finset.sum_ite_eq']
+  rw [heq]
+  exact hx J hJ hJproper
+
+
+
+open scoped BigOperators Matrix
+
+noncomputable def sixTermUnit5 (x : Fin 6 → ℚ) (i : Fin 6) : fixedSUnitGroup := by
+  classical
+  exact if h : x∈normalizedRelations fixedSUnitGroup 5 then (h.2.1 i).choose else 1
+
+theorem six_term_unit_value5 {x : Fin 6 → ℚ} (hx : x∈normalizedRelations fixedSUnitGroup 5) (i : Fin 6) :
+    ((sixTermUnit5 x i : ℚˣ) : ℚ)=x i := by
+  simp only [sixTermUnit5,dif_pos hx]
+  exact (hx.2.1 i).choose_spec
+
+theorem six_term_relation_facts5 {x : Fin 6 → ℚ}
+    (hx : x∈normalizedRelations fixedSUnitGroup 5) :
+    x 0=1 ∧ x 0+x 1+x 2+x 3+x 4+x 5=0 ∧ (∀ i,x i≠0) := by
+  refine ⟨hx.1,?_,?_⟩
+  · simpa [Fin.sum_univ_succ,add_assoc] using hx.2.2.1
+  · intro i
+    obtain ⟨u,hu⟩ := hx.2.1 i
+    rw [← hu]
+    exact Units.ne_zero _
+
+def sixTermCoefficientFiber5 (b : Fin 5 → ℚ) : Set (Fin 6 → ℚ) :=
+  {x∈normalizedRelations fixedSUnitGroup 5 | ∑ i,b i*x i.castSucc=0}
+
+theorem six_term_weighted_triple_projection5 (S : Set (Fin 6 → ℚ))
+    (hs : S⊆normalizedRelations fixedSUnitGroup 5)
+    (A B C D : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0)
+    (i j k : Fin 6) (recover : ℚ → ℚ → ℚ → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+B*x i+C*x j+D*x k=0)
+    (hn : ∀ x∈S,Nondegenerate (![A,B*x i,C*x j,D*x k] : Fin 4 → ℚ))
+    (hr : ∀ x∈S,recover (x i) (x j) (x k)=x) : S.Finite := by
+  let f : (fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup) → Fin 6 → ℚ :=
+    fun p => recover ((p.1 : ℚˣ) : ℚ) ((p.2.1 : ℚˣ) : ℚ) ((p.2.2 : ℚˣ) : ℚ)
+  apply ((weighted_four_term_finite A B C D hA hB hC hD).image f).subset
+  intro x hx
+  obtain ⟨u,hu⟩ := (hs hx).2.1 i
+  obtain ⟨v,hv⟩ := (hs hx).2.1 j
+  obtain ⟨w,hw⟩ := (hs hx).2.1 k
+  refine ⟨(u,v,w),?_,?_⟩
+  · change A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)+D*((w : ℚˣ) : ℚ)=0 ∧ _
+    rw [hu,hv,hw]
+    exact ⟨he x hx,hn x hx⟩
+  · change recover ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ) ((w : ℚˣ) : ℚ)=x
+    rw [hu,hv,hw]
+    exact hr x hx
+
+theorem six_term_weighted_pair_projection5 (S : Set (Fin 6 → ℚ))
+    (hs : S⊆normalizedRelations fixedSUnitGroup 5)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (i j : Fin 6) (recover : ℚ → ℚ → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+B*x i+C*x j=0)
+    (hr : ∀ x∈S,recover (x i) (x j)=x) : S.Finite := by
+  let f : (fixedSUnitGroup × fixedSUnitGroup) → Fin 6 → ℚ :=
+    fun p => recover ((p.1 : ℚˣ) : ℚ) ((p.2 : ℚˣ) : ℚ)
+  apply ((weighted_fixed_sunit_pair_finite A B C hA hB hC).image f).subset
+  intro x hx
+  obtain ⟨u,hu⟩ := (hs hx).2.1 i
+  obtain ⟨v,hv⟩ := (hs hx).2.1 j
+  refine ⟨(u,v),?_,?_⟩
+  · change A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)=0
+    rw [hu,hv]
+    exact he x hx
+  · change recover ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ)=x
+    rw [hu,hv]
+    exact hr x hx
+
+theorem six_term_finite_over_pairs5 (S : Set (Fin 6 → ℚ))
+    (f : (Fin 6 → ℚ) → fixedSUnitGroup × fixedSUnitGroup)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (he : ∀ x∈S,A+B*(((f x).1 : ℚˣ) : ℚ)+C*(((f x).2 : ℚˣ) : ℚ)=0)
+    (hf : ∀ p∈weightedFixedSUnitPairs A B C,{x∈S | f x=p}.Finite) : S.Finite := by
+  have hU : (⋃ p∈weightedFixedSUnitPairs A B C,{x∈S | f x=p}).Finite :=
+    (weighted_fixed_sunit_pair_finite A B C hA hB hC).biUnion hf
+  apply hU.subset
+  intro x hx
+  exact Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨he x hx,hx,rfl⟩⟩
+
+
+theorem six_term_weighted_quad_projection5 (S : Set (Fin 6 → ℚ))
+    (hs : S⊆normalizedRelations fixedSUnitGroup 5)
+    (A : ℚ) (B : Fin 4 → ℚ) (hA : A≠0) (hB : ∀ i,B i≠0)
+    (idx : Fin 4 → Fin 6) (recover : (Fin 4 → ℚ) → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+∑ i,B i*x (idx i)=0)
+    (hn : ∀ x∈S,Nondegenerate (Fin.cons A (fun i => B i*x (idx i))))
+    (hr : ∀ x∈S,recover (fun i => x (idx i))=x) : S.Finite := by
+  let f (u : Fin 4 → fixedSUnitGroup) := recover (fun i => ((u i : ℚˣ) : ℚ))
+  apply ((weighted_five_term_finite A B hA hB).image f).subset
+  intro x hx
+  let u (i : Fin 4) := sixTermUnit5 x (idx i)
+  have hu (i : Fin 4) : ((u i : ℚˣ) : ℚ)=x (idx i) := six_term_unit_value5 (hs hx) _
+  refine ⟨u,?_,?_⟩
+  · change A+∑ i,B i*((u i : ℚˣ) : ℚ)=0 ∧ _
+    change A+∑ i,B i*((u i : ℚˣ) : ℚ)=0 ∧ Nondegenerate (Fin.cons A (fun i => B i*((u i : ℚˣ) : ℚ)))
+    simp_rw [hu]
+    exact ⟨he x hx,hn x hx⟩
+  · change recover (fun i => ((u i : ℚˣ) : ℚ))=x
+    simp_rw [hu]
+    exact hr x hx
+
+
+open scoped BigOperators Matrix
+theorem six_term_proper_annihilator5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : P≠⊤) :
+    ∃ b : Fin 5 → ℚ,(∃ i,b i≠0) ∧ ∀ y∈P,∑ i,b i*y i=0 := by
+  obtain ⟨f,hf,hker⟩ := P.exists_le_ker_of_lt_top (lt_top_iff_ne_top.mpr hP)
+  let b (i : Fin 5) := f (Pi.single i 1)
+  have heval (y : Fin 5 → ℚ) : f y=∑ i,b i*y i := by
+    have hy : y=∑ i,y i • Pi.single i 1 := by
+      ext j
+      simp [Finset.sum_apply,Pi.single_apply]
+    conv_lhs => rw [hy]
+    rw [map_sum]
+    apply Finset.sum_congr rfl
+    intro i _
+    simp only [map_smul,smul_eq_mul,b,mul_comm]
+  refine ⟨b,?_,?_⟩
+  · by_contra hnone
+    have hz (i : Fin 5) : b i=0 := by
+      by_contra hi
+      exact hnone ⟨i,hi⟩
+    apply hf
+    apply LinearMap.ext
+    intro y
+    change f y=0
+    rw [heval]
+    simp only [hz,zero_mul,Finset.sum_const_zero]
+  · intro y hy
+    exact (heval y).symm.trans (hker hy)
+
+open scoped BigOperators Matrix
+
+theorem six_term_fixed_1_finite5 (a : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a}
+  by_cases hC : 1+a=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,1} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) (1+a) (fun _ => 1) hC (by intro i;norm_num)
+      ![2,3,4,5] (fun u => ![1,a,u 0,u 1,u 2,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,0,1,2,3,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · exact hx.2.symm
+      · rfl
+      · rfl
+      · rfl
+      · rfl
+
+theorem six_term_fixed_2_finite5 (a : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 2=a}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 2=a}
+  by_cases hC : 1+a=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,2} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) (1+a) (fun _ => 1) hC (by intro i;norm_num)
+      ![1,3,4,5] (fun u => ![1,u 0,a,u 1,u 2,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,1,0,2,3,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · exact hx.2.symm
+      · rfl
+      · rfl
+      · rfl
+
+theorem six_term_fixed_3_finite5 (a : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 3=a}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 3=a}
+  by_cases hC : 1+a=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,3} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) (1+a) (fun _ => 1) hC (by intro i;norm_num)
+      ![1,2,4,5] (fun u => ![1,u 0,u 1,a,u 2,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,1,2,0,3,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · exact hx.2.symm
+      · rfl
+      · rfl
+
+theorem six_term_fixed_4_finite5 (a : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 4=a}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 4=a}
+  by_cases hC : 1+a=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) (1+a) (fun _ => 1) hC (by intro i;norm_num)
+      ![1,2,3,5] (fun u => ![1,u 0,u 1,u 2,a,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,1,2,3,0,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · rfl
+      · exact hx.2.symm
+      · rfl
+
+theorem six_term_fixed_12_finite5 (a b : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 2=b}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 2=b}
+  by_cases hC : 1+a+b=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,1,2} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) (1+a+b) 1 1 1 hC one_ne_zero one_ne_zero one_ne_zero
+      3 4 5 (fun u v w => ![1,a,b,u,v,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,0,0,1,2,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · exact hx.2.1.symm
+      · exact hx.2.2.symm
+      · rfl
+      · rfl
+      · rfl
+
+theorem six_term_fixed_13_finite5 (a b : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 3=b}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 3=b}
+  by_cases hC : 1+a+b=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,1,3} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) (1+a+b) 1 1 1 hC one_ne_zero one_ne_zero one_ne_zero
+      2 4 5 (fun u v w => ![1,a,u,b,v,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,0,1,0,2,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · exact hx.2.1.symm
+      · rfl
+      · exact hx.2.2.symm
+      · rfl
+      · rfl
+
+theorem six_term_fixed_14_finite5 (a b : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 4=b}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 4=b}
+  by_cases hC : 1+a+b=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,1,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) (1+a+b) 1 1 1 hC one_ne_zero one_ne_zero one_ne_zero
+      2 3 5 (fun u v w => ![1,a,u,v,b,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,0,1,2,0,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · exact hx.2.1.symm
+      · rfl
+      · rfl
+      · exact hx.2.2.symm
+      · rfl
+
+theorem six_term_fixed_23_finite5 (a b : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 2=a ∧ x 3=b}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 2=a ∧ x 3=b}
+  by_cases hC : 1+a+b=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,2,3} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) (1+a+b) 1 1 1 hC one_ne_zero one_ne_zero one_ne_zero
+      1 4 5 (fun u v w => ![1,u,a,b,v,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,1,0,0,2,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · exact hx.2.1.symm
+      · exact hx.2.2.symm
+      · rfl
+      · rfl
+
+theorem six_term_fixed_24_finite5 (a b : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 2=a ∧ x 4=b}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 2=a ∧ x 4=b}
+  by_cases hC : 1+a+b=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,2,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) (1+a+b) 1 1 1 hC one_ne_zero one_ne_zero one_ne_zero
+      1 3 5 (fun u v w => ![1,u,a,v,b,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,1,0,2,0,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · exact hx.2.1.symm
+      · rfl
+      · exact hx.2.2.symm
+      · rfl
+
+theorem six_term_fixed_34_finite5 (a b : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 3=a ∧ x 4=b}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 3=a ∧ x 4=b}
+  by_cases hC : 1+a+b=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,3,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) (1+a+b) 1 1 1 hC one_ne_zero one_ne_zero one_ne_zero
+      1 2 5 (fun u v w => ![1,u,v,a,b,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,1,2,0,0,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2,add_comm,add_left_comm,add_assoc] <;> rfl
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · exact hx.2.1.symm
+      · exact hx.2.2.symm
+      · rfl
+
+theorem six_term_fixed_123_finite5 (a b c : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 2=b ∧ x 3=c}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 2=b ∧ x 3=c}
+  by_cases hC : 1+a+b+c=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,1,2,3} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_pair_projection5 S (fun _ hx => hx.1) (1+a+b+c) 1 1 hC one_ne_zero one_ne_zero
+      4 5 (fun u v => ![1,a,b,c,u,v])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · exact hx.2.1.symm
+      · exact hx.2.2.1.symm
+      · exact hx.2.2.2.symm
+      · rfl
+      · rfl
+
+theorem six_term_fixed_124_finite5 (a b c : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 2=b ∧ x 4=c}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 2=b ∧ x 4=c}
+  by_cases hC : 1+a+b+c=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,1,2,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_pair_projection5 S (fun _ hx => hx.1) (1+a+b+c) 1 1 hC one_ne_zero one_ne_zero
+      3 5 (fun u v => ![1,a,b,u,c,v])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · exact hx.2.1.symm
+      · exact hx.2.2.1.symm
+      · rfl
+      · exact hx.2.2.2.symm
+      · rfl
+
+theorem six_term_fixed_134_finite5 (a b c : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 3=b ∧ x 4=c}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 1=a ∧ x 3=b ∧ x 4=c}
+  by_cases hC : 1+a+b+c=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,1,3,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_pair_projection5 S (fun _ hx => hx.1) (1+a+b+c) 1 1 hC one_ne_zero one_ne_zero
+      2 5 (fun u v => ![1,a,u,b,c,v])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · exact hx.2.1.symm
+      · rfl
+      · exact hx.2.2.1.symm
+      · exact hx.2.2.2.symm
+      · rfl
+
+theorem six_term_fixed_234_finite5 (a b c : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 2=a ∧ x 3=b ∧ x 4=c}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 2=a ∧ x 3=b ∧ x 4=c}
+  by_cases hC : 1+a+b+c=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({0,2,3,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    simpa [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2,add_comm,add_left_comm,add_assoc] using hC
+  ·
+    apply six_term_weighted_pair_projection5 S (fun _ hx => hx.1) (1+a+b+c) 1 1 hC one_ne_zero one_ne_zero
+      1 5 (fun u v => ![1,u,a,b,c,v])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2] at hs
+      simpa [Fin.sum_univ_succ,add_comm,add_left_comm,add_assoc] using hs
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · exact hx.2.1.symm
+      · exact hx.2.2.1.symm
+      · exact hx.2.2.2.symm
+      · rfl
+
+
+open scoped BigOperators Matrix
+
+theorem six_term_ratios_12_finite5 (r : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 2=r*x 1}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 2=r*x 1}
+  by_cases hC : 1+r=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({1,2} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 1+x 2=0 := by
+      rw [hx.2]
+      linear_combination x 1*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) 1 ![1+r,1,1,1] one_ne_zero
+      (by intro i;fin_cases i <;> simp_all) ![1,3,4,5]
+      (fun u => ![1,u 0,r*u 0,u 1,u 2,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,1,1,2,3,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · exact hx.2.symm
+      · rfl
+      · rfl
+      · rfl
+
+theorem six_term_ratios_13_finite5 (r : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 3=r*x 1}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 3=r*x 1}
+  by_cases hC : 1+r=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({1,3} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 1+x 3=0 := by
+      rw [hx.2]
+      linear_combination x 1*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) 1 ![1+r,1,1,1] one_ne_zero
+      (by intro i;fin_cases i <;> simp_all) ![1,2,4,5]
+      (fun u => ![1,u 0,u 1,r*u 0,u 2,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,1,2,1,3,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · exact hx.2.symm
+      · rfl
+      · rfl
+
+theorem six_term_ratios_14_finite5 (r : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 4=r*x 1}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 4=r*x 1}
+  by_cases hC : 1+r=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({1,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 1+x 4=0 := by
+      rw [hx.2]
+      linear_combination x 1*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) 1 ![1+r,1,1,1] one_ne_zero
+      (by intro i;fin_cases i <;> simp_all) ![1,2,3,5]
+      (fun u => ![1,u 0,u 1,u 2,r*u 0,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,1,2,3,1,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · rfl
+      · exact hx.2.symm
+      · rfl
+
+theorem six_term_ratios_23_finite5 (r : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 3=r*x 2}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 3=r*x 2}
+  by_cases hC : 1+r=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({2,3} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 2+x 3=0 := by
+      rw [hx.2]
+      linear_combination x 2*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) 1 ![1+r,1,1,1] one_ne_zero
+      (by intro i;fin_cases i <;> simp_all) ![2,1,4,5]
+      (fun u => ![1,u 1,u 0,r*u 0,u 2,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,2,1,1,3,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · exact hx.2.symm
+      · rfl
+      · rfl
+
+theorem six_term_ratios_24_finite5 (r : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 4=r*x 2}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 4=r*x 2}
+  by_cases hC : 1+r=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({2,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 2+x 4=0 := by
+      rw [hx.2]
+      linear_combination x 2*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) 1 ![1+r,1,1,1] one_ne_zero
+      (by intro i;fin_cases i <;> simp_all) ![2,1,3,5]
+      (fun u => ![1,u 1,u 0,u 2,r*u 0,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,2,1,3,1,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · rfl
+      · exact hx.2.symm
+      · rfl
+
+theorem six_term_ratios_34_finite5 (r : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 4=r*x 3}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 4=r*x 3}
+  by_cases hC : 1+r=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({3,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 3+x 4=0 := by
+      rw [hx.2]
+      linear_combination x 3*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_quad_projection5 S (fun _ hx => hx.1) 1 ![1+r,1,1,1] one_ne_zero
+      (by intro i;fin_cases i <;> simp_all) ![3,1,2,5]
+      (fun u => ![1,u 1,u 2,u 0,r*u 0,u 3])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 5 := ![0,2,3,1,1,4]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen5 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · rfl
+      · exact hx.2.symm
+      · rfl
+
+theorem six_term_ratios_123_finite5 (r s : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 2=r*x 1 ∧ x 3=s*x 1}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 2=r*x 1 ∧ x 3=s*x 1}
+  by_cases hC : 1+r+s=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({1,2,3} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 1+x 2+x 3=0 := by
+      rw [hx.2.1,hx.2.2]
+      linear_combination x 1*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) 1 (1+r+s) 1 1 one_ne_zero hC one_ne_zero one_ne_zero
+      1 4 5 (fun u v w => ![1,u,r*u,s*u,v,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,1,1,1,2,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨4,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · exact hx.2.1.symm
+      · exact hx.2.2.symm
+      · rfl
+      · rfl
+
+theorem six_term_ratios_124_finite5 (r s : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 2=r*x 1 ∧ x 4=s*x 1}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 2=r*x 1 ∧ x 4=s*x 1}
+  by_cases hC : 1+r+s=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({1,2,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 1+x 2+x 4=0 := by
+      rw [hx.2.1,hx.2.2]
+      linear_combination x 1*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) 1 (1+r+s) 1 1 one_ne_zero hC one_ne_zero one_ne_zero
+      1 3 5 (fun u v w => ![1,u,r*u,v,s*u,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,1,1,2,1,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨3,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · exact hx.2.1.symm
+      · rfl
+      · exact hx.2.2.symm
+      · rfl
+
+theorem six_term_ratios_134_finite5 (r s : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 3=r*x 1 ∧ x 4=s*x 1}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 3=r*x 1 ∧ x 4=s*x 1}
+  by_cases hC : 1+r+s=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({1,3,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 1+x 3+x 4=0 := by
+      rw [hx.2.1,hx.2.2]
+      linear_combination x 1*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) 1 (1+r+s) 1 1 one_ne_zero hC one_ne_zero one_ne_zero
+      1 2 5 (fun u v w => ![1,u,v,r*u,s*u,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,1,2,1,1,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · exact hx.2.1.symm
+      · exact hx.2.2.symm
+      · rfl
+
+theorem six_term_ratios_234_finite5 (r s : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 3=r*x 2 ∧ x 4=s*x 2}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 3=r*x 2 ∧ x 4=s*x 2}
+  by_cases hC : 1+r+s=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({2,3,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 2+x 3+x 4=0 := by
+      rw [hx.2.1,hx.2.2]
+      linear_combination x 2*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_triple_projection5 S (fun _ hx => hx.1) 1 (1+r+s) 1 1 one_ne_zero hC one_ne_zero one_ne_zero
+      2 1 5 (fun u v w => ![1,v,u,r*u,s*u,w])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      let f : Fin 6 → Fin 4 := ![0,2,1,1,1,3]
+      have hf : Function.Surjective f := by
+        intro j
+        fin_cases j
+        · exact ⟨0,rfl⟩
+        · exact ⟨2,rfl⟩
+        · exact ⟨1,rfl⟩
+        · exact ⟨5,rfl⟩
+      have hh := six_term_nondegenerate_coarsen4 x hx.1.2.2.2 f hf
+      convert hh using 1
+      ext j
+      fin_cases j <;> simp [f,Fin.sum_univ_succ,hx.1.1,hx.2.1,hx.2.2] <;> first | (change (1 : ℚ)*_=_;exact one_mul _) | ring
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · rfl
+      · exact hx.2.1.symm
+      · exact hx.2.2.symm
+      · rfl
+
+theorem six_term_ratios_1234_finite5 (r s t : ℚ) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | x 2=r*x 1 ∧ x 3=s*x 1 ∧ x 4=t*x 1}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | x 2=r*x 1 ∧ x 3=s*x 1 ∧ x 4=t*x 1}
+  by_cases hC : 1+r+s+t=0
+  · apply Set.finite_empty.subset
+    intro x hx
+    have hn := hx.1.2.2.2 ({1,2,3,4} : Finset (Fin 6)) (by decide) (by decide)
+    apply False.elim
+    apply hn
+    have he : x 1+x 2+x 3+x 4=0 := by
+      rw [hx.2.1,hx.2.2.1,hx.2.2.2]
+      linear_combination x 1*hC
+    simpa [add_assoc] using he
+  ·
+    apply six_term_weighted_pair_projection5 S (fun _ hx => hx.1) 1 (1+r+s+t) 1 one_ne_zero hC one_ne_zero
+      1 5 (fun u v => ![1,u,r*u,s*u,t*u,v])
+    · intro x hx
+      have hs := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1,hx.2.1,hx.2.2.1,hx.2.2.2] at hs
+      simp only [Fin.sum_univ_succ,Matrix.cons_val_zero,Matrix.cons_val_succ,Finset.univ_eq_empty,Finset.sum_empty,add_zero,one_mul]
+      nlinarith only [hs]
+    · intro x hx
+      ext j
+      fin_cases j
+      · exact hx.1.1.symm
+      · rfl
+      · exact hx.2.1.symm
+      · exact hx.2.2.1.symm
+      · exact hx.2.2.2.symm
+      · rfl
+
+
+open scoped BigOperators Matrix
+
+theorem six_term_constant_12_good5 (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 2=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 2=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 1,sixTermUnit5 x 2)
+  have hU : (⋃ q∈weightedFixedSUnitPairs a b c,{x∈S | f x=q}).Finite := by
+    apply (weighted_fixed_sunit_pair_finite a b c ha hb hc).biUnion
+    intro q hq
+    apply (six_term_fixed_12_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 1 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 2 : ℚˣ) : ℚ)=0
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_13_good5 (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 3=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 3=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 1,sixTermUnit5 x 3)
+  have hU : (⋃ q∈weightedFixedSUnitPairs a b c,{x∈S | f x=q}).Finite := by
+    apply (weighted_fixed_sunit_pair_finite a b c ha hb hc).biUnion
+    intro q hq
+    apply (six_term_fixed_13_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 1 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 3 : ℚˣ) : ℚ)=0
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_14_good5 (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 4=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 4=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 1,sixTermUnit5 x 4)
+  have hU : (⋃ q∈weightedFixedSUnitPairs a b c,{x∈S | f x=q}).Finite := by
+    apply (weighted_fixed_sunit_pair_finite a b c ha hb hc).biUnion
+    intro q hq
+    apply (six_term_fixed_14_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 1 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 4 : ℚˣ) : ℚ)=0
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_23_good5 (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 2+c*x 3=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 2+c*x 3=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 2,sixTermUnit5 x 3)
+  have hU : (⋃ q∈weightedFixedSUnitPairs a b c,{x∈S | f x=q}).Finite := by
+    apply (weighted_fixed_sunit_pair_finite a b c ha hb hc).biUnion
+    intro q hq
+    apply (six_term_fixed_23_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 2 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 3 : ℚˣ) : ℚ)=0
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_24_good5 (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 2+c*x 4=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 2+c*x 4=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 2,sixTermUnit5 x 4)
+  have hU : (⋃ q∈weightedFixedSUnitPairs a b c,{x∈S | f x=q}).Finite := by
+    apply (weighted_fixed_sunit_pair_finite a b c ha hb hc).biUnion
+    intro q hq
+    apply (six_term_fixed_24_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 2 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 4 : ℚˣ) : ℚ)=0
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_34_good5 (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 3+c*x 4=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 3+c*x 4=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 3,sixTermUnit5 x 4)
+  have hU : (⋃ q∈weightedFixedSUnitPairs a b c,{x∈S | f x=q}).Finite := by
+    apply (weighted_fixed_sunit_pair_finite a b c ha hb hc).biUnion
+    intro q hq
+    apply (six_term_fixed_34_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 3 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 4 : ℚˣ) : ℚ)=0
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_123_good5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 2+d*x 3=0 ∧ Nondegenerate (![a,b*x 1,c*x 2,d*x 3] : Fin 4 → ℚ)}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 2+d*x 3=0 ∧ Nondegenerate (![a,b*x 1,c*x 2,d*x 3] : Fin 4 → ℚ)}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 1,sixTermUnit5 x 2,sixTermUnit5 x 3)
+  have hU : (⋃ q∈WeightedFourTermSolutions a b c d,{x∈S | f x=q}).Finite := by
+    apply (weighted_four_term_finite a b c d ha hb hc hd).biUnion
+    intro q hq
+    apply (six_term_fixed_123_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2.1 : ℚˣ) : ℚ) ((q.2.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.2.1 : ℚˣ) : ℚ)) hx.2
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.2.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1,by simpa only [f,six_term_unit_value5 hx.1.1] using he2⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 1 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 2 : ℚˣ) : ℚ)+d*((sixTermUnit5 x 3 : ℚˣ) : ℚ)=0 ∧ Nondegenerate (![a,b*((sixTermUnit5 x 1 : ℚˣ) : ℚ),c*((sixTermUnit5 x 2 : ℚˣ) : ℚ),d*((sixTermUnit5 x 3 : ℚˣ) : ℚ)] : Fin 4 → ℚ)
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_123_finite5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 2+d*x 3=0}.Finite := by
+  have hg := six_term_constant_123_good5 a b c d ha hb hc hd
+  have hU := (((hg.union (six_term_fixed_1_finite5 (-a/b))).union (six_term_fixed_2_finite5 (-a/c))).union (six_term_fixed_3_finite5 (-a/d)))
+  apply hU.subset
+  intro x hx
+  by_cases hn : Nondegenerate (![a,b*x 1,c*x 2,d*x 3] : Fin 4 → ℚ)
+  · exact Or.inl (Or.inl (Or.inl ⟨hx.1,hx.2,hn⟩))
+  · have hxn := (six_term_relation_facts5 hx.1).2.2
+    obtain hp|hp|hp := five_term_weighted_degenerate_pair4 _ _ _ _ ha
+      (mul_ne_zero hb (hxn 1))
+      (mul_ne_zero hc (hxn 2))
+      (mul_ne_zero hd (hxn 3))
+      hx.2 hn
+    · refine Or.inl (Or.inl (Or.inr ?_))
+      exact ⟨hx.1,(eq_div_iff hb).mpr (by nlinarith only [hp])⟩
+    · refine Or.inl (Or.inr ?_)
+      exact ⟨hx.1,(eq_div_iff hc).mpr (by nlinarith only [hp])⟩
+    · refine Or.inr ?_
+      exact ⟨hx.1,(eq_div_iff hd).mpr (by nlinarith only [hp])⟩
+
+theorem six_term_constant_124_good5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 2+d*x 4=0 ∧ Nondegenerate (![a,b*x 1,c*x 2,d*x 4] : Fin 4 → ℚ)}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 2+d*x 4=0 ∧ Nondegenerate (![a,b*x 1,c*x 2,d*x 4] : Fin 4 → ℚ)}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 1,sixTermUnit5 x 2,sixTermUnit5 x 4)
+  have hU : (⋃ q∈WeightedFourTermSolutions a b c d,{x∈S | f x=q}).Finite := by
+    apply (weighted_four_term_finite a b c d ha hb hc hd).biUnion
+    intro q hq
+    apply (six_term_fixed_124_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2.1 : ℚˣ) : ℚ) ((q.2.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.2.1 : ℚˣ) : ℚ)) hx.2
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.2.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1,by simpa only [f,six_term_unit_value5 hx.1.1] using he2⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 1 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 2 : ℚˣ) : ℚ)+d*((sixTermUnit5 x 4 : ℚˣ) : ℚ)=0 ∧ Nondegenerate (![a,b*((sixTermUnit5 x 1 : ℚˣ) : ℚ),c*((sixTermUnit5 x 2 : ℚˣ) : ℚ),d*((sixTermUnit5 x 4 : ℚˣ) : ℚ)] : Fin 4 → ℚ)
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_124_finite5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 2+d*x 4=0}.Finite := by
+  have hg := six_term_constant_124_good5 a b c d ha hb hc hd
+  have hU := (((hg.union (six_term_fixed_1_finite5 (-a/b))).union (six_term_fixed_2_finite5 (-a/c))).union (six_term_fixed_4_finite5 (-a/d)))
+  apply hU.subset
+  intro x hx
+  by_cases hn : Nondegenerate (![a,b*x 1,c*x 2,d*x 4] : Fin 4 → ℚ)
+  · exact Or.inl (Or.inl (Or.inl ⟨hx.1,hx.2,hn⟩))
+  · have hxn := (six_term_relation_facts5 hx.1).2.2
+    obtain hp|hp|hp := five_term_weighted_degenerate_pair4 _ _ _ _ ha
+      (mul_ne_zero hb (hxn 1))
+      (mul_ne_zero hc (hxn 2))
+      (mul_ne_zero hd (hxn 4))
+      hx.2 hn
+    · refine Or.inl (Or.inl (Or.inr ?_))
+      exact ⟨hx.1,(eq_div_iff hb).mpr (by nlinarith only [hp])⟩
+    · refine Or.inl (Or.inr ?_)
+      exact ⟨hx.1,(eq_div_iff hc).mpr (by nlinarith only [hp])⟩
+    · refine Or.inr ?_
+      exact ⟨hx.1,(eq_div_iff hd).mpr (by nlinarith only [hp])⟩
+
+theorem six_term_constant_134_good5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 3+d*x 4=0 ∧ Nondegenerate (![a,b*x 1,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 3+d*x 4=0 ∧ Nondegenerate (![a,b*x 1,c*x 3,d*x 4] : Fin 4 → ℚ)}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 1,sixTermUnit5 x 3,sixTermUnit5 x 4)
+  have hU : (⋃ q∈WeightedFourTermSolutions a b c d,{x∈S | f x=q}).Finite := by
+    apply (weighted_four_term_finite a b c d ha hb hc hd).biUnion
+    intro q hq
+    apply (six_term_fixed_134_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2.1 : ℚˣ) : ℚ) ((q.2.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.2.1 : ℚˣ) : ℚ)) hx.2
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.2.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1,by simpa only [f,six_term_unit_value5 hx.1.1] using he2⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 1 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 3 : ℚˣ) : ℚ)+d*((sixTermUnit5 x 4 : ℚˣ) : ℚ)=0 ∧ Nondegenerate (![a,b*((sixTermUnit5 x 1 : ℚˣ) : ℚ),c*((sixTermUnit5 x 3 : ℚˣ) : ℚ),d*((sixTermUnit5 x 4 : ℚˣ) : ℚ)] : Fin 4 → ℚ)
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_134_finite5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 1+c*x 3+d*x 4=0}.Finite := by
+  have hg := six_term_constant_134_good5 a b c d ha hb hc hd
+  have hU := (((hg.union (six_term_fixed_1_finite5 (-a/b))).union (six_term_fixed_3_finite5 (-a/c))).union (six_term_fixed_4_finite5 (-a/d)))
+  apply hU.subset
+  intro x hx
+  by_cases hn : Nondegenerate (![a,b*x 1,c*x 3,d*x 4] : Fin 4 → ℚ)
+  · exact Or.inl (Or.inl (Or.inl ⟨hx.1,hx.2,hn⟩))
+  · have hxn := (six_term_relation_facts5 hx.1).2.2
+    obtain hp|hp|hp := five_term_weighted_degenerate_pair4 _ _ _ _ ha
+      (mul_ne_zero hb (hxn 1))
+      (mul_ne_zero hc (hxn 3))
+      (mul_ne_zero hd (hxn 4))
+      hx.2 hn
+    · refine Or.inl (Or.inl (Or.inr ?_))
+      exact ⟨hx.1,(eq_div_iff hb).mpr (by nlinarith only [hp])⟩
+    · refine Or.inl (Or.inr ?_)
+      exact ⟨hx.1,(eq_div_iff hc).mpr (by nlinarith only [hp])⟩
+    · refine Or.inr ?_
+      exact ⟨hx.1,(eq_div_iff hd).mpr (by nlinarith only [hp])⟩
+
+theorem six_term_constant_234_good5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 2+c*x 3+d*x 4=0 ∧ Nondegenerate (![a,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 2+c*x 3+d*x 4=0 ∧ Nondegenerate (![a,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 2,sixTermUnit5 x 3,sixTermUnit5 x 4)
+  have hU : (⋃ q∈WeightedFourTermSolutions a b c d,{x∈S | f x=q}).Finite := by
+    apply (weighted_four_term_finite a b c d ha hb hc hd).biUnion
+    intro q hq
+    apply (six_term_fixed_234_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2.1 : ℚˣ) : ℚ) ((q.2.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.2.1 : ℚˣ) : ℚ)) hx.2
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup× fixedSUnitGroup => ((p.2.2 : ℚˣ) : ℚ)) hx.2
+    refine ⟨hx.1.1,by simpa only [f,six_term_unit_value5 hx.1.1] using he0,by simpa only [f,six_term_unit_value5 hx.1.1] using he1,by simpa only [f,six_term_unit_value5 hx.1.1] using he2⟩
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*((sixTermUnit5 x 2 : ℚˣ) : ℚ)+c*((sixTermUnit5 x 3 : ℚˣ) : ℚ)+d*((sixTermUnit5 x 4 : ℚˣ) : ℚ)=0 ∧ Nondegenerate (![a,b*((sixTermUnit5 x 2 : ℚˣ) : ℚ),c*((sixTermUnit5 x 3 : ℚˣ) : ℚ),d*((sixTermUnit5 x 4 : ℚˣ) : ℚ)] : Fin 4 → ℚ)
+  simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  exact hx.2
+
+theorem six_term_constant_234_finite5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a+b*x 2+c*x 3+d*x 4=0}.Finite := by
+  have hg := six_term_constant_234_good5 a b c d ha hb hc hd
+  have hU := (((hg.union (six_term_fixed_2_finite5 (-a/b))).union (six_term_fixed_3_finite5 (-a/c))).union (six_term_fixed_4_finite5 (-a/d)))
+  apply hU.subset
+  intro x hx
+  by_cases hn : Nondegenerate (![a,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)
+  · exact Or.inl (Or.inl (Or.inl ⟨hx.1,hx.2,hn⟩))
+  · have hxn := (six_term_relation_facts5 hx.1).2.2
+    obtain hp|hp|hp := five_term_weighted_degenerate_pair4 _ _ _ _ ha
+      (mul_ne_zero hb (hxn 2))
+      (mul_ne_zero hc (hxn 3))
+      (mul_ne_zero hd (hxn 4))
+      hx.2 hn
+    · refine Or.inl (Or.inl (Or.inr ?_))
+      exact ⟨hx.1,(eq_div_iff hb).mpr (by nlinarith only [hp])⟩
+    · refine Or.inl (Or.inr ?_)
+      exact ⟨hx.1,(eq_div_iff hc).mpr (by nlinarith only [hp])⟩
+    · refine Or.inr ?_
+      exact ⟨hx.1,(eq_div_iff hd).mpr (by nlinarith only [hp])⟩
+
+theorem six_term_homogeneous_123_finite5 (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 2+c*x 3=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 2+c*x 3=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 2/sixTermUnit5 x 1,sixTermUnit5 x 3/sixTermUnit5 x 1)
+  apply six_term_finite_over_pairs5 S f a b c ha hb hc
+  · intro x hx
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+    have hn := (six_term_relation_facts5 hx.1).2.2 1
+    field_simp
+    nlinarith only [hx.2]
+  · intro q hq
+    apply (six_term_ratios_123_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1.1] at he1 he2
+    have hn := (six_term_relation_facts5 hx.1.1).2.2 1
+    refine ⟨hx.1.1,?_,?_⟩
+    · rw [← he1]
+      exact (div_mul_cancel₀ _ hn).symm
+    · rw [← he2]
+      exact (div_mul_cancel₀ _ hn).symm
+
+theorem six_term_homogeneous_124_finite5 (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 2+c*x 4=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 2+c*x 4=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 2/sixTermUnit5 x 1,sixTermUnit5 x 4/sixTermUnit5 x 1)
+  apply six_term_finite_over_pairs5 S f a b c ha hb hc
+  · intro x hx
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+    have hn := (six_term_relation_facts5 hx.1).2.2 1
+    field_simp
+    nlinarith only [hx.2]
+  · intro q hq
+    apply (six_term_ratios_124_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1.1] at he1 he2
+    have hn := (six_term_relation_facts5 hx.1.1).2.2 1
+    refine ⟨hx.1.1,?_,?_⟩
+    · rw [← he1]
+      exact (div_mul_cancel₀ _ hn).symm
+    · rw [← he2]
+      exact (div_mul_cancel₀ _ hn).symm
+
+theorem six_term_homogeneous_134_finite5 (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 3+c*x 4=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 3+c*x 4=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 3/sixTermUnit5 x 1,sixTermUnit5 x 4/sixTermUnit5 x 1)
+  apply six_term_finite_over_pairs5 S f a b c ha hb hc
+  · intro x hx
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+    have hn := (six_term_relation_facts5 hx.1).2.2 1
+    field_simp
+    nlinarith only [hx.2]
+  · intro q hq
+    apply (six_term_ratios_134_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1.1] at he1 he2
+    have hn := (six_term_relation_facts5 hx.1.1).2.2 1
+    refine ⟨hx.1.1,?_,?_⟩
+    · rw [← he1]
+      exact (div_mul_cancel₀ _ hn).symm
+    · rw [← he2]
+      exact (div_mul_cancel₀ _ hn).symm
+
+theorem six_term_homogeneous_234_finite5 (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a*x 2+b*x 3+c*x 4=0}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a*x 2+b*x 3+c*x 4=0}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 3/sixTermUnit5 x 2,sixTermUnit5 x 4/sixTermUnit5 x 2)
+  apply six_term_finite_over_pairs5 S f a b c ha hb hc
+  · intro x hx
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+    have hn := (six_term_relation_facts5 hx.1).2.2 2
+    field_simp
+    nlinarith only [hx.2]
+  · intro q hq
+    apply (six_term_ratios_234_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup => ((p.2 : ℚˣ) : ℚ)) hx.2
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1.1] at he1 he2
+    have hn := (six_term_relation_facts5 hx.1.1).2.2 2
+    refine ⟨hx.1.1,?_,?_⟩
+    · rw [← he1]
+      exact (div_mul_cancel₀ _ hn).symm
+    · rw [← he2]
+      exact (div_mul_cancel₀ _ hn).symm
+
+
+open scoped BigOperators Matrix
+
+theorem six_term_homogeneous_four_good5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 2+c*x 3+d*x 4=0 ∧
+      Nondegenerate (![a*x 1,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite := by
+  let S := {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 2+c*x 3+d*x 4=0 ∧
+      Nondegenerate (![a*x 1,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)}
+  let f (x : Fin 6 → ℚ) := (sixTermUnit5 x 2/sixTermUnit5 x 1,
+    sixTermUnit5 x 3/sixTermUnit5 x 1,sixTermUnit5 x 4/sixTermUnit5 x 1)
+  have hU : (⋃ q∈WeightedFourTermSolutions a b c d,{x∈S | f x=q}).Finite := by
+    apply (weighted_four_term_finite a b c d ha hb hc hd).biUnion
+    intro q hq
+    apply (six_term_ratios_1234_finite5 ((q.1 : ℚˣ) : ℚ) ((q.2.1 : ℚˣ) : ℚ) ((q.2.2 : ℚˣ) : ℚ)).subset
+    intro x hx
+    have he0 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup => ((p.1 : ℚˣ) : ℚ)) hx.2
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1.1] at he0
+    have he1 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup => ((p.2.1 : ℚˣ) : ℚ)) hx.2
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1.1] at he1
+    have he2 := congrArg (fun p : fixedSUnitGroup × fixedSUnitGroup × fixedSUnitGroup => ((p.2.2 : ℚˣ) : ℚ)) hx.2
+    simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1.1] at he2
+    have hn := (six_term_relation_facts5 hx.1.1).2.2 1
+    refine ⟨hx.1.1,?_,?_,?_⟩
+    · rw [← he0]
+      exact (div_mul_cancel₀ _ hn).symm
+    · rw [← he1]
+      exact (div_mul_cancel₀ _ hn).symm
+    · rw [← he2]
+      exact (div_mul_cancel₀ _ hn).symm
+  apply hU.subset
+  intro x hx
+  refine Set.mem_iUnion.mpr ⟨f x,Set.mem_iUnion.mpr ⟨?_,hx,rfl⟩⟩
+  change a+b*(((sixTermUnit5 x 2/sixTermUnit5 x 1 : fixedSUnitGroup) : ℚˣ) : ℚ)+
+    c*(((sixTermUnit5 x 3/sixTermUnit5 x 1 : fixedSUnitGroup) : ℚˣ) : ℚ)+
+    d*(((sixTermUnit5 x 4/sixTermUnit5 x 1 : fixedSUnitGroup) : ℚˣ) : ℚ)=0 ∧ _
+  simp only [Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+  have hn := (six_term_relation_facts5 hx.1).2.2 1
+  constructor
+  · field_simp
+    nlinarith only [hx.2.1]
+  · simp only [f,Subgroup.coe_div,Units.val_div_eq_div_val,six_term_unit_value5 hx.1]
+    change Nondegenerate (![a,b*(x 2/x 1),c*(x 3/x 1),d*(x 4/x 1)] : Fin 4 → ℚ)
+    have hh := weighted_nondegenerate_scale4 _ hx.2.2 (x 1)⁻¹ (inv_ne_zero hn)
+    convert hh using 1
+    ext i
+    fin_cases i <;> simp [div_eq_mul_inv] <;> field_simp
+
+theorem six_term_homogeneous_four_finite5 (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | a*x 1+b*x 2+c*x 3+d*x 4=0}.Finite := by
+  have hg := six_term_homogeneous_four_good5 a b c d ha hb hc hd
+  have hU := ((hg.union (six_term_ratios_12_finite5 (-a/b))).union
+    (six_term_ratios_13_finite5 (-a/c))).union (six_term_ratios_14_finite5 (-a/d))
+  apply hU.subset
+  intro x hx
+  by_cases hn : Nondegenerate (![a*x 1,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)
+  · exact Or.inl (Or.inl (Or.inl ⟨hx.1,hx.2,hn⟩))
+  · have hxn := (six_term_relation_facts5 hx.1).2.2
+    obtain hp|hp|hp := five_term_weighted_degenerate_pair4 _ _ _ _
+      (mul_ne_zero ha (hxn 1)) (mul_ne_zero hb (hxn 2))
+      (mul_ne_zero hc (hxn 3)) (mul_ne_zero hd (hxn 4)) hx.2 hn
+    · refine Or.inl (Or.inl (Or.inr ?_))
+      refine ⟨hx.1,?_⟩
+      rw [div_mul_eq_mul_div]
+      apply (eq_div_iff hb).mpr
+      nlinarith only [hp]
+    · refine Or.inl (Or.inr ?_)
+      refine ⟨hx.1,?_⟩
+      rw [div_mul_eq_mul_div]
+      apply (eq_div_iff hc).mpr
+      nlinarith only [hp]
+    · refine Or.inr ?_
+      refine ⟨hx.1,?_⟩
+      rw [div_mul_eq_mul_div]
+      apply (eq_div_iff hd).mpr
+      nlinarith only [hp]
+
+theorem six_term_five_good_finite5 (b : Fin 5 → ℚ) (hb : ∀ i,b i≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 |
+      b 0+b 1*x 1+b 2*x 2+b 3*x 3+b 4*x 4=0 ∧
+      Nondegenerate (![b 0,b 1*x 1,b 2*x 2,b 3*x 3,b 4*x 4] : Fin 5 → ℚ)}.Finite := by
+  apply six_term_weighted_quad_projection5 _ (fun _ hx => hx.1) (b 0) (fun i => b i.succ) (hb 0)
+    (fun i => hb i.succ) ![1,2,3,4]
+    (fun u => ![1,u 0,u 1,u 2,u 3,-(1+u 0+u 1+u 2+u 3)])
+  · intro x hx
+    simpa [Fin.sum_univ_succ,add_assoc] using hx.2.1
+  · intro x hx
+    convert hx.2.2 using 1
+    ext i
+    fin_cases i <;> rfl
+  · intro x hx
+    ext i
+    fin_cases i
+    · exact hx.1.1.symm
+    · rfl
+    · rfl
+    · rfl
+    · rfl
+    · have he := (six_term_relation_facts5 hx.1).2.1
+      rw [hx.1.1] at he
+      dsimp
+      linarith only [he]
+
+theorem six_term_five_coefficients_finite5 (b : Fin 5 → ℚ) (hb : ∀ i,b i≠0) :
+    {x∈normalizedRelations fixedSUnitGroup 5 | b 0+b 1*x 1+b 2*x 2+b 3*x 3+b 4*x 4=0}.Finite := by
+  have hg := six_term_five_good_finite5 b hb
+  have hU := ((((((((((hg.union (six_term_fixed_1_finite5 (-b 0/b 1))).union (six_term_fixed_2_finite5 (-b 0/b 2))).union (six_term_fixed_3_finite5 (-b 0/b 3))).union (six_term_fixed_4_finite5 (-b 0/b 4))).union (six_term_constant_12_good5 (b 0) (b 1) (b 2) (hb 0) (hb 1) (hb 2))).union (six_term_constant_13_good5 (b 0) (b 1) (b 3) (hb 0) (hb 1) (hb 3))).union (six_term_constant_14_good5 (b 0) (b 1) (b 4) (hb 0) (hb 1) (hb 4))).union (six_term_constant_23_good5 (b 0) (b 2) (b 3) (hb 0) (hb 2) (hb 3))).union (six_term_constant_24_good5 (b 0) (b 2) (b 4) (hb 0) (hb 2) (hb 4))).union (six_term_constant_34_good5 (b 0) (b 3) (b 4) (hb 0) (hb 3) (hb 4)))
+  apply hU.subset
+  intro x hx
+  by_cases hn : Nondegenerate (![b 0,b 1*x 1,b 2*x 2,b 3*x 3,b 4*x 4] : Fin 5 → ℚ)
+  · exact Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (⟨hx.1,hx.2,hn⟩))))))))))
+  · have hxn := (six_term_relation_facts5 hx.1).2.2
+    have hne (i : Fin 5) : (![b 0,b 1*x 1,b 2*x 2,b 3*x 3,b 4*x 4] : Fin 5 → ℚ) i≠0 := by
+      fin_cases i
+      · exact hb 0
+      · exact mul_ne_zero (hb 1) (hxn 1)
+      · exact mul_ne_zero (hb 2) (hxn 2)
+      · exact mul_ne_zero (hb 3) (hxn 3)
+      · exact mul_ne_zero (hb 4) (hxn 4)
+    have hs : ∑ i : Fin 5,(![b 0,b 1*x 1,b 2*x 2,b 3*x 3,b 4*x 4] : Fin 5 → ℚ) i=0 := by
+      simpa [Fin.sum_univ_succ,add_assoc] using hx.2
+    obtain hp|hp|hp|hp|hp|hp|hp|hp|hp|hp := six_term_annihilator_degenerate5 _ hne hs hn
+    · refine Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inr ?_)))))))))
+      change b 0+b 1*x 1=0 at hp
+      exact ⟨hx.1,(eq_div_iff (hb 1)).mpr (by simpa using (show x 1*b 1 = -b 0 by nlinarith only [hp]))⟩
+    · refine Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inr ?_))))))))
+      change b 0+b 2*x 2=0 at hp
+      exact ⟨hx.1,(eq_div_iff (hb 2)).mpr (by simpa using (show x 2*b 2 = -b 0 by nlinarith only [hp]))⟩
+    · refine Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inr ?_)))))))
+      change b 0+b 3*x 3=0 at hp
+      exact ⟨hx.1,(eq_div_iff (hb 3)).mpr (by simpa using (show x 3*b 3 = -b 0 by nlinarith only [hp]))⟩
+    · refine Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inr ?_))))))
+      change b 0+b 4*x 4=0 at hp
+      exact ⟨hx.1,(eq_div_iff (hb 4)).mpr (by simpa using (show x 4*b 4 = -b 0 by nlinarith only [hp]))⟩
+    · refine Or.inl (Or.inl (Or.inl (Or.inl (Or.inl (Or.inr ?_)))))
+      exact ⟨hx.1,by simpa using hp⟩
+    · refine Or.inl (Or.inl (Or.inl (Or.inl (Or.inr ?_))))
+      exact ⟨hx.1,by simpa using hp⟩
+    · refine Or.inl (Or.inl (Or.inl (Or.inr ?_)))
+      exact ⟨hx.1,by simpa using hp⟩
+    · refine Or.inl (Or.inl (Or.inr ?_))
+      exact ⟨hx.1,by simpa using hp⟩
+    · refine Or.inl (Or.inr ?_)
+      exact ⟨hx.1,by simpa using hp⟩
+    · refine Or.inr ?_
+      exact ⟨hx.1,by simpa using hp⟩
+
+
+open scoped BigOperators Matrix
+
+theorem six_term_coefficient_fiber_finite5 (b : Fin 5 → ℚ) (hb : ∃ i,b i≠0) :
+    (sixTermCoefficientFiber5 b).Finite := by
+  by_cases h0 : b 0=0
+  ·
+    by_cases h1 : b 1=0
+    ·
+      by_cases h2 : b 2=0
+      ·
+        by_cases h3 : b 3=0
+        ·
+          by_cases h4 : b 4=0
+          ·
+            obtain ⟨i,hi⟩ := hb
+            fin_cases i <;> contradiction
+          ·
+            apply Set.finite_empty.subset
+            intro x hx
+            have he : b 4*x 4=0 := by simpa [Fin.sum_univ_succ,h0,h1,h2,h3,hx.1.1,add_assoc] using hx.2
+            exact False.elim ((mul_ne_zero h4 ((six_term_relation_facts5 hx.1).2.2 4)) he)
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply Set.finite_empty.subset
+            intro x hx
+            have he : b 3*x 3=0 := by simpa [Fin.sum_univ_succ,h0,h1,h2,h4,hx.1.1,add_assoc] using hx.2
+            exact False.elim ((mul_ne_zero h3 ((six_term_relation_facts5 hx.1).2.2 3)) he)
+          ·
+            apply (six_term_ratios_34_finite5 (-b 3/b 4)).subset
+            intro x hx
+            refine ⟨hx.1,?_⟩
+            rw [div_mul_eq_mul_div]
+            apply (eq_div_iff h4).mpr
+            have he : b 3*x 3+b 4*x 4=0 := by simpa [Fin.sum_univ_succ,h0,h1,h2,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+      ·
+        by_cases h3 : b 3=0
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply Set.finite_empty.subset
+            intro x hx
+            have he : b 2*x 2=0 := by simpa [Fin.sum_univ_succ,h0,h1,h3,h4,hx.1.1,add_assoc] using hx.2
+            exact False.elim ((mul_ne_zero h2 ((six_term_relation_facts5 hx.1).2.2 2)) he)
+          ·
+            apply (six_term_ratios_24_finite5 (-b 2/b 4)).subset
+            intro x hx
+            refine ⟨hx.1,?_⟩
+            rw [div_mul_eq_mul_div]
+            apply (eq_div_iff h4).mpr
+            have he : b 2*x 2+b 4*x 4=0 := by simpa [Fin.sum_univ_succ,h0,h1,h3,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_ratios_23_finite5 (-b 2/b 3)).subset
+            intro x hx
+            refine ⟨hx.1,?_⟩
+            rw [div_mul_eq_mul_div]
+            apply (eq_div_iff h3).mpr
+            have he : b 2*x 2+b 3*x 3=0 := by simpa [Fin.sum_univ_succ,h0,h1,h4,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+          ·
+            apply (six_term_homogeneous_234_finite5 (b 2) (b 3) (b 4) h2 h3 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h0,h1,hx.1.1,add_assoc] using hx.2⟩
+    ·
+      by_cases h2 : b 2=0
+      ·
+        by_cases h3 : b 3=0
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply Set.finite_empty.subset
+            intro x hx
+            have he : b 1*x 1=0 := by simpa [Fin.sum_univ_succ,h0,h2,h3,h4,hx.1.1,add_assoc] using hx.2
+            exact False.elim ((mul_ne_zero h1 ((six_term_relation_facts5 hx.1).2.2 1)) he)
+          ·
+            apply (six_term_ratios_14_finite5 (-b 1/b 4)).subset
+            intro x hx
+            refine ⟨hx.1,?_⟩
+            rw [div_mul_eq_mul_div]
+            apply (eq_div_iff h4).mpr
+            have he : b 1*x 1+b 4*x 4=0 := by simpa [Fin.sum_univ_succ,h0,h2,h3,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_ratios_13_finite5 (-b 1/b 3)).subset
+            intro x hx
+            refine ⟨hx.1,?_⟩
+            rw [div_mul_eq_mul_div]
+            apply (eq_div_iff h3).mpr
+            have he : b 1*x 1+b 3*x 3=0 := by simpa [Fin.sum_univ_succ,h0,h2,h4,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+          ·
+            apply (six_term_homogeneous_134_finite5 (b 1) (b 3) (b 4) h1 h3 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h0,h2,hx.1.1,add_assoc] using hx.2⟩
+      ·
+        by_cases h3 : b 3=0
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_ratios_12_finite5 (-b 1/b 2)).subset
+            intro x hx
+            refine ⟨hx.1,?_⟩
+            rw [div_mul_eq_mul_div]
+            apply (eq_div_iff h2).mpr
+            have he : b 1*x 1+b 2*x 2=0 := by simpa [Fin.sum_univ_succ,h0,h3,h4,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+          ·
+            apply (six_term_homogeneous_124_finite5 (b 1) (b 2) (b 4) h1 h2 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h0,h3,hx.1.1,add_assoc] using hx.2⟩
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_homogeneous_123_finite5 (b 1) (b 2) (b 3) h1 h2 h3).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h0,h4,hx.1.1,add_assoc] using hx.2⟩
+          ·
+            apply (six_term_homogeneous_four_finite5 (b 1) (b 2) (b 3) (b 4) h1 h2 h3 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h0,hx.1.1,add_assoc] using hx.2⟩
+  ·
+    by_cases h1 : b 1=0
+    ·
+      by_cases h2 : b 2=0
+      ·
+        by_cases h3 : b 3=0
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply Set.finite_empty.subset
+            intro x hx
+            have he : b 0*x 0=0 := by simpa [Fin.sum_univ_succ,h1,h2,h3,h4,hx.1.1,add_assoc] using hx.2
+            exact False.elim ((mul_ne_zero h0 ((six_term_relation_facts5 hx.1).2.2 0)) he)
+          ·
+            apply (six_term_fixed_4_finite5 (-b 0/b 4)).subset
+            intro x hx
+            refine ⟨hx.1,(eq_div_iff h4).mpr ?_⟩
+            have he : b 0+b 4*x 4=0 := by simpa [Fin.sum_univ_succ,h1,h2,h3,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_fixed_3_finite5 (-b 0/b 3)).subset
+            intro x hx
+            refine ⟨hx.1,(eq_div_iff h3).mpr ?_⟩
+            have he : b 0+b 3*x 3=0 := by simpa [Fin.sum_univ_succ,h1,h2,h4,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+          ·
+            apply (six_term_constant_34_good5 (b 0) (b 3) (b 4) h0 h3 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h1,h2,hx.1.1,add_assoc] using hx.2⟩
+      ·
+        by_cases h3 : b 3=0
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_fixed_2_finite5 (-b 0/b 2)).subset
+            intro x hx
+            refine ⟨hx.1,(eq_div_iff h2).mpr ?_⟩
+            have he : b 0+b 2*x 2=0 := by simpa [Fin.sum_univ_succ,h1,h3,h4,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+          ·
+            apply (six_term_constant_24_good5 (b 0) (b 2) (b 4) h0 h2 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h1,h3,hx.1.1,add_assoc] using hx.2⟩
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_constant_23_good5 (b 0) (b 2) (b 3) h0 h2 h3).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h1,h4,hx.1.1,add_assoc] using hx.2⟩
+          ·
+            apply (six_term_constant_234_finite5 (b 0) (b 2) (b 3) (b 4) h0 h2 h3 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h1,hx.1.1,add_assoc] using hx.2⟩
+    ·
+      by_cases h2 : b 2=0
+      ·
+        by_cases h3 : b 3=0
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_fixed_1_finite5 (-b 0/b 1)).subset
+            intro x hx
+            refine ⟨hx.1,(eq_div_iff h1).mpr ?_⟩
+            have he : b 0+b 1*x 1=0 := by simpa [Fin.sum_univ_succ,h2,h3,h4,hx.1.1,add_assoc] using hx.2
+            nlinarith only [he]
+          ·
+            apply (six_term_constant_14_good5 (b 0) (b 1) (b 4) h0 h1 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h2,h3,hx.1.1,add_assoc] using hx.2⟩
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_constant_13_good5 (b 0) (b 1) (b 3) h0 h1 h3).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h2,h4,hx.1.1,add_assoc] using hx.2⟩
+          ·
+            apply (six_term_constant_134_finite5 (b 0) (b 1) (b 3) (b 4) h0 h1 h3 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h2,hx.1.1,add_assoc] using hx.2⟩
+      ·
+        by_cases h3 : b 3=0
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_constant_12_good5 (b 0) (b 1) (b 2) h0 h1 h2).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h3,h4,hx.1.1,add_assoc] using hx.2⟩
+          ·
+            apply (six_term_constant_124_finite5 (b 0) (b 1) (b 2) (b 4) h0 h1 h2 h4).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h3,hx.1.1,add_assoc] using hx.2⟩
+        ·
+          by_cases h4 : b 4=0
+          ·
+            apply (six_term_constant_123_finite5 (b 0) (b 1) (b 2) (b 3) h0 h1 h2 h3).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,h4,hx.1.1,add_assoc] using hx.2⟩
+          ·
+            apply (six_term_five_coefficients_finite5 b (by intro i;fin_cases i <;> assumption)).subset
+            intro x hx
+            exact ⟨hx.1,by simpa [Fin.sum_univ_succ,hx.1.1,add_assoc] using hx.2⟩
+
+
+open scoped BigOperators Matrix
+
+def sixTermProperFiber5 (P : Submodule ℚ (Fin 5 → ℚ)) : Set (Fin 6 → ℚ) :=
+  {x∈normalizedRelations fixedSUnitGroup 5 | (fun i : Fin 5 => x i.castSucc)∈P}
+
+theorem six_term_proper_fiber_finite5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : P≠⊤) :
+    (sixTermProperFiber5 P).Finite := by
+  obtain ⟨b,hb,hann⟩ := six_term_proper_annihilator5 P hP
+  apply (six_term_coefficient_fiber_finite5 b hb).subset
+  intro x hx
+  exact ⟨hx.1,hann _ hx.2⟩
+
+theorem fixed_six_term_finite : (normalizedRelations fixedSUnitGroup 5).Finite := by
+  obtain ⟨F,hF,hproper,hcover⟩ := source_six_term_finite_cover5
+  have hU : (⋃ P∈F,sixTermProperFiber5 P).Finite :=
+    hF.biUnion (fun P hPF => six_term_proper_fiber_finite5 P (hproper P hPF))
+  apply hU.subset
+  intro x hx
+  obtain ⟨P,hPF,hxP⟩ := hcover x hx
+  exact Set.mem_iUnion.mpr ⟨P,Set.mem_iUnion.mpr ⟨hPF,hx,hxP⟩⟩
+
+
+
+theorem fixed_sunit_finiteness_complete : FixedSUnitFiniteness := by
+  intro m
+  fin_cases m
+  · exact normalized_two_term_finite fixedSUnitGroup
+  · exact fixed_three_term_finite
+  · exact fixed_four_term_finite
+  · exact fixed_five_term_finite
+  · exact fixed_six_term_finite
+
+theorem newman_conjecture_complete : NewmanConjecture := by
+  exact newman_of_fixed_sunit_finiteness fixed_sunit_finiteness_complete
+
+end Literal259
+namespace Raw259
+noncomputable section
+open JSP000334
+open scoped Matrix BigOperators Classical
+
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {n : ℕ} (x : Fin n → ℚ) : Prop := ∀ I : Finset (Fin n),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Relations (G : Subgroup ℚˣ) (m : ℕ) : Set (Fin (m+1) → ℚ) :=
+  {x | x 0=1 ∧ (∀ i,∃ u : G,((u : ℚˣ) : ℚ)=x i) ∧ (∑ i,x i=0) ∧ Nondeg x}
+def WeightedTerms (A : ℚ) (B : Fin 4 → ℚ) (u : Fin 4 → Group) : Fin 5 → ℚ :=
+  Fin.cons A (fun i => B i*((u i : ℚˣ) : ℚ))
+def WeightedFive (A : ℚ) (B : Fin 4 → ℚ) : Set (Fin 4 → Group) :=
+  {u | A+∑ i,B i*((u i : ℚˣ) : ℚ)=0 ∧ Nondeg (WeightedTerms A B u)}
+def Pairs (A B C : ℚ) : Set (Group × Group) := {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+def WeightedFour (A B C D : ℚ) : Set (Group × Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=0 ∧
+    Nondeg ![A,B*((p.1 : ℚˣ) : ℚ),C*((p.2.1 : ℚˣ) : ℚ),D*((p.2.2 : ℚˣ) : ℚ)]}
+def FixedFinite : Prop := ∀ m : Fin 5,(Relations Group (m.val+1)).Finite
+def Value (r : Exponents) : ℕ := 2^r.a+3^r.b+2^r.c*3^r.d
+def Solutions (n : ℕ) : Set Exponents := {r | Value r=n}
+noncomputable def Count (n : ℕ) : ℕ := (Solutions n).ncard
+def Newman : Prop := ∃ C : ℕ,∀ n : ℕ,0<n → Count n≤C
+noncomputable def Raw_sixTermUnit5 (x : Fin 6 → ℚ) (i : Fin 6) : Group := by
+  classical
+  exact if h : x∈Relations Group 5 then (h.2.1 i).choose else 1
+
+def Raw_sixTermCoefficientFiber5 (b : Fin 5 → ℚ) : Set (Fin 6 → ℚ) :=
+  {x∈Relations Group 5 | ∑ i,b i*x i.castSucc=0}
+
+def Raw_sixTermProperFiber5 (P : Submodule ℚ (Fin 5 → ℚ)) : Set (Fin 6 → ℚ) :=
+  {x∈Relations Group 5 | (fun i : Fin 5 => x i.castSucc)∈P}
+
+theorem source_six_term_annihilator_degenerate5 : ∀ (x : Fin 5 → ℚ)
+    (hx : ∀ i,x i≠0) (hs : ∑ i,x i=0) (hn : ¬Nondeg x),
+
+    x 0+x 1=0 ∨ x 0+x 2=0 ∨ x 0+x 3=0 ∨ x 0+x 4=0 ∨ x 0+x 1+x 2=0 ∨ x 0+x 1+x 3=0 ∨ x 0+x 1+x 4=0 ∨ x 0+x 2+x 3=0 ∨ x 0+x 2+x 4=0 ∨ x 0+x 3+x 4=0 :=
+  @Literal259.six_term_annihilator_degenerate5
+
+theorem source_six_term_nondegenerate_coarsen5 : ∀ (x : Fin 6 → ℚ) (hx : Nondeg x)
+    (f : Fin 6 → Fin 5) (hf : Function.Surjective f),
+
+    Nondeg (fun j => ∑ i : Fin 6,if f i=j then x i else 0) :=
+  @Literal259.six_term_nondegenerate_coarsen5
+
+theorem source_six_term_nondegenerate_coarsen4 : ∀ (x : Fin 6 → ℚ) (hx : Nondeg x)
+    (f : Fin 6 → Fin 4) (hf : Function.Surjective f),
+
+    Nondeg (fun j => ∑ i : Fin 6,if f i=j then x i else 0) :=
+  @Literal259.six_term_nondegenerate_coarsen4
+
+theorem source_six_term_unit_value5 : ∀ {x : Fin 6 → ℚ} (hx : x∈Relations Group 5) (i : Fin 6),
+
+    ((Raw_sixTermUnit5 x i : ℚˣ) : ℚ)=x i :=
+  @Literal259.six_term_unit_value5
+
+theorem source_six_term_relation_facts5 : ∀ {x : Fin 6 → ℚ}
+    (hx : x∈Relations Group 5),
+
+    x 0=1 ∧ x 0+x 1+x 2+x 3+x 4+x 5=0 ∧ (∀ i,x i≠0) :=
+  @Literal259.six_term_relation_facts5
+
+theorem source_six_term_weighted_triple_projection5 : ∀ (S : Set (Fin 6 → ℚ))
+    (hs : S⊆Relations Group 5)
+    (A B C D : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0)
+    (i j k : Fin 6) (recover : ℚ → ℚ → ℚ → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+B*x i+C*x j+D*x k=0)
+    (hn : ∀ x∈S,Nondeg (![A,B*x i,C*x j,D*x k] : Fin 4 → ℚ))
+    (hr : ∀ x∈S,recover (x i) (x j) (x k)=x),
+ S.Finite :=
+  @Literal259.six_term_weighted_triple_projection5
+
+theorem source_six_term_weighted_pair_projection5 : ∀ (S : Set (Fin 6 → ℚ))
+    (hs : S⊆Relations Group 5)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (i j : Fin 6) (recover : ℚ → ℚ → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+B*x i+C*x j=0)
+    (hr : ∀ x∈S,recover (x i) (x j)=x),
+ S.Finite :=
+  @Literal259.six_term_weighted_pair_projection5
+
+theorem source_six_term_finite_over_pairs5 : ∀ (S : Set (Fin 6 → ℚ))
+    (f : (Fin 6 → ℚ) → Group × Group)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (he : ∀ x∈S,A+B*(((f x).1 : ℚˣ) : ℚ)+C*(((f x).2 : ℚˣ) : ℚ)=0)
+    (hf : ∀ p∈Pairs A B C,{x∈S | f x=p}.Finite),
+ S.Finite :=
+  @Literal259.six_term_finite_over_pairs5
+
+theorem source_six_term_weighted_quad_projection5 : ∀ (S : Set (Fin 6 → ℚ))
+    (hs : S⊆Relations Group 5)
+    (A : ℚ) (B : Fin 4 → ℚ) (hA : A≠0) (hB : ∀ i,B i≠0)
+    (idx : Fin 4 → Fin 6) (recover : (Fin 4 → ℚ) → Fin 6 → ℚ)
+    (he : ∀ x∈S,A+∑ i,B i*x (idx i)=0)
+    (hn : ∀ x∈S,Nondeg (Fin.cons A (fun i => B i*x (idx i))))
+    (hr : ∀ x∈S,recover (fun i => x (idx i))=x),
+ S.Finite :=
+  @Literal259.six_term_weighted_quad_projection5
+
+theorem source_six_term_proper_annihilator5 : ∀ (P : Submodule ℚ (Fin 5 → ℚ)) (hP : P≠⊤),
+
+    ∃ b : Fin 5 → ℚ,(∃ i,b i≠0) ∧ ∀ y∈P,∑ i,b i*y i=0 :=
+  @Literal259.six_term_proper_annihilator5
+
+theorem source_six_term_fixed_1_finite5 : ∀ (a : ℚ),
+
+    {x∈Relations Group 5 | x 1=a}.Finite :=
+  @Literal259.six_term_fixed_1_finite5
+
+theorem source_six_term_fixed_2_finite5 : ∀ (a : ℚ),
+
+    {x∈Relations Group 5 | x 2=a}.Finite :=
+  @Literal259.six_term_fixed_2_finite5
+
+theorem source_six_term_fixed_3_finite5 : ∀ (a : ℚ),
+
+    {x∈Relations Group 5 | x 3=a}.Finite :=
+  @Literal259.six_term_fixed_3_finite5
+
+theorem source_six_term_fixed_4_finite5 : ∀ (a : ℚ),
+
+    {x∈Relations Group 5 | x 4=a}.Finite :=
+  @Literal259.six_term_fixed_4_finite5
+
+theorem source_six_term_fixed_12_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 2=b}.Finite :=
+  @Literal259.six_term_fixed_12_finite5
+
+theorem source_six_term_fixed_13_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 3=b}.Finite :=
+  @Literal259.six_term_fixed_13_finite5
+
+theorem source_six_term_fixed_14_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 4=b}.Finite :=
+  @Literal259.six_term_fixed_14_finite5
+
+theorem source_six_term_fixed_23_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 2=a ∧ x 3=b}.Finite :=
+  @Literal259.six_term_fixed_23_finite5
+
+theorem source_six_term_fixed_24_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 2=a ∧ x 4=b}.Finite :=
+  @Literal259.six_term_fixed_24_finite5
+
+theorem source_six_term_fixed_34_finite5 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 5 | x 3=a ∧ x 4=b}.Finite :=
+  @Literal259.six_term_fixed_34_finite5
+
+theorem source_six_term_fixed_123_finite5 : ∀ (a b c : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 2=b ∧ x 3=c}.Finite :=
+  @Literal259.six_term_fixed_123_finite5
+
+theorem source_six_term_fixed_124_finite5 : ∀ (a b c : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 2=b ∧ x 4=c}.Finite :=
+  @Literal259.six_term_fixed_124_finite5
+
+theorem source_six_term_fixed_134_finite5 : ∀ (a b c : ℚ),
+
+    {x∈Relations Group 5 | x 1=a ∧ x 3=b ∧ x 4=c}.Finite :=
+  @Literal259.six_term_fixed_134_finite5
+
+theorem source_six_term_fixed_234_finite5 : ∀ (a b c : ℚ),
+
+    {x∈Relations Group 5 | x 2=a ∧ x 3=b ∧ x 4=c}.Finite :=
+  @Literal259.six_term_fixed_234_finite5
+
+theorem source_six_term_ratios_12_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 2=r*x 1}.Finite :=
+  @Literal259.six_term_ratios_12_finite5
+
+theorem source_six_term_ratios_13_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 3=r*x 1}.Finite :=
+  @Literal259.six_term_ratios_13_finite5
+
+theorem source_six_term_ratios_14_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 4=r*x 1}.Finite :=
+  @Literal259.six_term_ratios_14_finite5
+
+theorem source_six_term_ratios_23_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 3=r*x 2}.Finite :=
+  @Literal259.six_term_ratios_23_finite5
+
+theorem source_six_term_ratios_24_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 4=r*x 2}.Finite :=
+  @Literal259.six_term_ratios_24_finite5
+
+theorem source_six_term_ratios_34_finite5 : ∀ (r : ℚ),
+
+    {x∈Relations Group 5 | x 4=r*x 3}.Finite :=
+  @Literal259.six_term_ratios_34_finite5
+
+theorem source_six_term_ratios_123_finite5 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 5 | x 2=r*x 1 ∧ x 3=s*x 1}.Finite :=
+  @Literal259.six_term_ratios_123_finite5
+
+theorem source_six_term_ratios_124_finite5 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 5 | x 2=r*x 1 ∧ x 4=s*x 1}.Finite :=
+  @Literal259.six_term_ratios_124_finite5
+
+theorem source_six_term_ratios_134_finite5 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 5 | x 3=r*x 1 ∧ x 4=s*x 1}.Finite :=
+  @Literal259.six_term_ratios_134_finite5
+
+theorem source_six_term_ratios_234_finite5 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 5 | x 3=r*x 2 ∧ x 4=s*x 2}.Finite :=
+  @Literal259.six_term_ratios_234_finite5
+
+theorem source_six_term_ratios_1234_finite5 : ∀ (r s t : ℚ),
+
+    {x∈Relations Group 5 | x 2=r*x 1 ∧ x 3=s*x 1 ∧ x 4=t*x 1}.Finite :=
+  @Literal259.six_term_ratios_1234_finite5
+
+theorem source_six_term_constant_12_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2=0}.Finite :=
+  @Literal259.six_term_constant_12_good5
+
+theorem source_six_term_constant_13_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 3=0}.Finite :=
+  @Literal259.six_term_constant_13_good5
+
+theorem source_six_term_constant_14_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 4=0}.Finite :=
+  @Literal259.six_term_constant_14_good5
+
+theorem source_six_term_constant_23_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 2+c*x 3=0}.Finite :=
+  @Literal259.six_term_constant_23_good5
+
+theorem source_six_term_constant_24_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 2+c*x 4=0}.Finite :=
+  @Literal259.six_term_constant_24_good5
+
+theorem source_six_term_constant_34_good5 : ∀ (a b c : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a+b*x 3+c*x 4=0}.Finite :=
+  @Literal259.six_term_constant_34_good5
+
+theorem source_six_term_constant_123_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2+d*x 3=0 ∧ Nondeg (![a,b*x 1,c*x 2,d*x 3] : Fin 4 → ℚ)}.Finite :=
+  @Literal259.six_term_constant_123_good5
+
+theorem source_six_term_constant_123_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2+d*x 3=0}.Finite :=
+  @Literal259.six_term_constant_123_finite5
+
+theorem source_six_term_constant_124_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2+d*x 4=0 ∧ Nondeg (![a,b*x 1,c*x 2,d*x 4] : Fin 4 → ℚ)}.Finite :=
+  @Literal259.six_term_constant_124_good5
+
+theorem source_six_term_constant_124_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 2+d*x 4=0}.Finite :=
+  @Literal259.six_term_constant_124_finite5
+
+theorem source_six_term_constant_134_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 3+d*x 4=0 ∧ Nondeg (![a,b*x 1,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite :=
+  @Literal259.six_term_constant_134_good5
+
+theorem source_six_term_constant_134_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 1+c*x 3+d*x 4=0}.Finite :=
+  @Literal259.six_term_constant_134_finite5
+
+theorem source_six_term_constant_234_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 2+c*x 3+d*x 4=0 ∧ Nondeg (![a,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite :=
+  @Literal259.six_term_constant_234_good5
+
+theorem source_six_term_constant_234_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a+b*x 2+c*x 3+d*x 4=0}.Finite :=
+  @Literal259.six_term_constant_234_finite5
+
+theorem source_six_term_homogeneous_123_finite5 : ∀ (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 2+c*x 3=0}.Finite :=
+  @Literal259.six_term_homogeneous_123_finite5
+
+theorem source_six_term_homogeneous_124_finite5 : ∀ (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 2+c*x 4=0}.Finite :=
+  @Literal259.six_term_homogeneous_124_finite5
+
+theorem source_six_term_homogeneous_134_finite5 : ∀ (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 3+c*x 4=0}.Finite :=
+  @Literal259.six_term_homogeneous_134_finite5
+
+theorem source_six_term_homogeneous_234_finite5 : ∀ (a b c : ℚ) (ha : a≠0) (hb : b≠0) (hc : c≠0),
+
+    {x∈Relations Group 5 | a*x 2+b*x 3+c*x 4=0}.Finite :=
+  @Literal259.six_term_homogeneous_234_finite5
+
+theorem source_six_term_homogeneous_four_good5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 2+c*x 3+d*x 4=0 ∧
+      Nondeg (![a*x 1,b*x 2,c*x 3,d*x 4] : Fin 4 → ℚ)}.Finite :=
+  @Literal259.six_term_homogeneous_four_good5
+
+theorem source_six_term_homogeneous_four_finite5 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0),
+
+    {x∈Relations Group 5 | a*x 1+b*x 2+c*x 3+d*x 4=0}.Finite :=
+  @Literal259.six_term_homogeneous_four_finite5
+
+theorem source_six_term_five_good_finite5 : ∀ (b : Fin 5 → ℚ) (hb : ∀ i,b i≠0),
+
+    {x∈Relations Group 5 |
+      b 0+b 1*x 1+b 2*x 2+b 3*x 3+b 4*x 4=0 ∧
+      Nondeg (![b 0,b 1*x 1,b 2*x 2,b 3*x 3,b 4*x 4] : Fin 5 → ℚ)}.Finite :=
+  @Literal259.six_term_five_good_finite5
+
+theorem source_six_term_five_coefficients_finite5 : ∀ (b : Fin 5 → ℚ) (hb : ∀ i,b i≠0),
+
+    {x∈Relations Group 5 | b 0+b 1*x 1+b 2*x 2+b 3*x 3+b 4*x 4=0}.Finite :=
+  @Literal259.six_term_five_coefficients_finite5
+
+theorem source_six_term_coefficient_fiber_finite5 : ∀ (b : Fin 5 → ℚ) (hb : ∃ i,b i≠0),
+
+    (Raw_sixTermCoefficientFiber5 b).Finite :=
+  @Literal259.six_term_coefficient_fiber_finite5
+
+theorem source_six_term_proper_fiber_finite5 : ∀ (P : Submodule ℚ (Fin 5 → ℚ)) (hP : P≠⊤),
+
+    (Raw_sixTermProperFiber5 P).Finite :=
+  @Literal259.six_term_proper_fiber_finite5
+
+theorem source_fixed_six_term_finite :
+ (Relations Group 5).Finite :=
+  @Literal259.fixed_six_term_finite
+
+theorem source_fixed_sunit_finiteness_complete :
+ FixedFinite :=
+  @Literal259.fixed_sunit_finiteness_complete
+
+theorem source_newman_conjecture_complete :
+ Newman :=
+  @Literal259.newman_conjecture_complete
+
+end
+end Raw259
+#check Raw259.source_six_term_annihilator_degenerate5
+#print axioms Raw259.source_six_term_annihilator_degenerate5
+#check Raw259.source_six_term_nondegenerate_coarsen5
+#print axioms Raw259.source_six_term_nondegenerate_coarsen5
+#check Raw259.source_six_term_nondegenerate_coarsen4
+#print axioms Raw259.source_six_term_nondegenerate_coarsen4
+#check Raw259.source_six_term_unit_value5
+#print axioms Raw259.source_six_term_unit_value5
+#check Raw259.source_six_term_relation_facts5
+#print axioms Raw259.source_six_term_relation_facts5
+#check Raw259.source_six_term_weighted_triple_projection5
+#print axioms Raw259.source_six_term_weighted_triple_projection5
+#check Raw259.source_six_term_weighted_pair_projection5
+#print axioms Raw259.source_six_term_weighted_pair_projection5
+#check Raw259.source_six_term_finite_over_pairs5
+#print axioms Raw259.source_six_term_finite_over_pairs5
+#check Raw259.source_six_term_weighted_quad_projection5
+#print axioms Raw259.source_six_term_weighted_quad_projection5
+#check Raw259.source_six_term_proper_annihilator5
+#print axioms Raw259.source_six_term_proper_annihilator5
+#check Raw259.source_six_term_fixed_1_finite5
+#print axioms Raw259.source_six_term_fixed_1_finite5
+#check Raw259.source_six_term_fixed_2_finite5
+#print axioms Raw259.source_six_term_fixed_2_finite5
+#check Raw259.source_six_term_fixed_3_finite5
+#print axioms Raw259.source_six_term_fixed_3_finite5
+#check Raw259.source_six_term_fixed_4_finite5
+#print axioms Raw259.source_six_term_fixed_4_finite5
+#check Raw259.source_six_term_fixed_12_finite5
+#print axioms Raw259.source_six_term_fixed_12_finite5
+#check Raw259.source_six_term_fixed_13_finite5
+#print axioms Raw259.source_six_term_fixed_13_finite5
+#check Raw259.source_six_term_fixed_14_finite5
+#print axioms Raw259.source_six_term_fixed_14_finite5
+#check Raw259.source_six_term_fixed_23_finite5
+#print axioms Raw259.source_six_term_fixed_23_finite5
+#check Raw259.source_six_term_fixed_24_finite5
+#print axioms Raw259.source_six_term_fixed_24_finite5
+#check Raw259.source_six_term_fixed_34_finite5
+#print axioms Raw259.source_six_term_fixed_34_finite5
+#check Raw259.source_six_term_fixed_123_finite5
+#print axioms Raw259.source_six_term_fixed_123_finite5
+#check Raw259.source_six_term_fixed_124_finite5
+#print axioms Raw259.source_six_term_fixed_124_finite5
+#check Raw259.source_six_term_fixed_134_finite5
+#print axioms Raw259.source_six_term_fixed_134_finite5
+#check Raw259.source_six_term_fixed_234_finite5
+#print axioms Raw259.source_six_term_fixed_234_finite5
+#check Raw259.source_six_term_ratios_12_finite5
+#print axioms Raw259.source_six_term_ratios_12_finite5
+#check Raw259.source_six_term_ratios_13_finite5
+#print axioms Raw259.source_six_term_ratios_13_finite5
+#check Raw259.source_six_term_ratios_14_finite5
+#print axioms Raw259.source_six_term_ratios_14_finite5
+#check Raw259.source_six_term_ratios_23_finite5
+#print axioms Raw259.source_six_term_ratios_23_finite5
+#check Raw259.source_six_term_ratios_24_finite5
+#print axioms Raw259.source_six_term_ratios_24_finite5
+#check Raw259.source_six_term_ratios_34_finite5
+#print axioms Raw259.source_six_term_ratios_34_finite5
+#check Raw259.source_six_term_ratios_123_finite5
+#print axioms Raw259.source_six_term_ratios_123_finite5
+#check Raw259.source_six_term_ratios_124_finite5
+#print axioms Raw259.source_six_term_ratios_124_finite5
+#check Raw259.source_six_term_ratios_134_finite5
+#print axioms Raw259.source_six_term_ratios_134_finite5
+#check Raw259.source_six_term_ratios_234_finite5
+#print axioms Raw259.source_six_term_ratios_234_finite5
+#check Raw259.source_six_term_ratios_1234_finite5
+#print axioms Raw259.source_six_term_ratios_1234_finite5
+#check Raw259.source_six_term_constant_12_good5
+#print axioms Raw259.source_six_term_constant_12_good5
+#check Raw259.source_six_term_constant_13_good5
+#print axioms Raw259.source_six_term_constant_13_good5
+#check Raw259.source_six_term_constant_14_good5
+#print axioms Raw259.source_six_term_constant_14_good5
+#check Raw259.source_six_term_constant_23_good5
+#print axioms Raw259.source_six_term_constant_23_good5
+#check Raw259.source_six_term_constant_24_good5
+#print axioms Raw259.source_six_term_constant_24_good5
+#check Raw259.source_six_term_constant_34_good5
+#print axioms Raw259.source_six_term_constant_34_good5
+#check Raw259.source_six_term_constant_123_good5
+#print axioms Raw259.source_six_term_constant_123_good5
+#check Raw259.source_six_term_constant_123_finite5
+#print axioms Raw259.source_six_term_constant_123_finite5
+#check Raw259.source_six_term_constant_124_good5
+#print axioms Raw259.source_six_term_constant_124_good5
+#check Raw259.source_six_term_constant_124_finite5
+#print axioms Raw259.source_six_term_constant_124_finite5
+#check Raw259.source_six_term_constant_134_good5
+#print axioms Raw259.source_six_term_constant_134_good5
+#check Raw259.source_six_term_constant_134_finite5
+#print axioms Raw259.source_six_term_constant_134_finite5
+#check Raw259.source_six_term_constant_234_good5
+#print axioms Raw259.source_six_term_constant_234_good5
+#check Raw259.source_six_term_constant_234_finite5
+#print axioms Raw259.source_six_term_constant_234_finite5
+#check Raw259.source_six_term_homogeneous_123_finite5
+#print axioms Raw259.source_six_term_homogeneous_123_finite5
+#check Raw259.source_six_term_homogeneous_124_finite5
+#print axioms Raw259.source_six_term_homogeneous_124_finite5
+#check Raw259.source_six_term_homogeneous_134_finite5
+#print axioms Raw259.source_six_term_homogeneous_134_finite5
+#check Raw259.source_six_term_homogeneous_234_finite5
+#print axioms Raw259.source_six_term_homogeneous_234_finite5
+#check Raw259.source_six_term_homogeneous_four_good5
+#print axioms Raw259.source_six_term_homogeneous_four_good5
+#check Raw259.source_six_term_homogeneous_four_finite5
+#print axioms Raw259.source_six_term_homogeneous_four_finite5
+#check Raw259.source_six_term_five_good_finite5
+#print axioms Raw259.source_six_term_five_good_finite5
+#check Raw259.source_six_term_five_coefficients_finite5
+#print axioms Raw259.source_six_term_five_coefficients_finite5
+#check Raw259.source_six_term_coefficient_fiber_finite5
+#print axioms Raw259.source_six_term_coefficient_fiber_finite5
+#check Raw259.source_six_term_proper_fiber_finite5
+#print axioms Raw259.source_six_term_proper_fiber_finite5
+#check Raw259.source_fixed_six_term_finite
+#print axioms Raw259.source_fixed_six_term_finite
+#check Raw259.source_fixed_sunit_finiteness_complete
+#print axioms Raw259.source_fixed_sunit_finiteness_complete
+#check Raw259.source_newman_conjecture_complete
+#print axioms Raw259.source_newman_conjecture_complete

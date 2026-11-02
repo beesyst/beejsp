@@ -1,0 +1,406 @@
+import SubspaceBridge.NonrothVolumeGrowth5
+open scoped BigOperators Classical Matrix
+open MeasureTheory
+noncomputable section
+namespace RestrictedGrowthChallenge249R
+open CompoundFeasibility CompoundFeasibility.MinimaPower5 CompoundFeasibility.RestrictedGeometry5
+open CompoundFeasibility.RestrictedGrowth5 CompoundFeasibility.OriginalFlagAssembly5 CompoundFeasibility.OriginalVariableGap5
+def rawMinima246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ v : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ v ∧
+    (∀ i, ∃ z : Fin 5 → ℤ,
+      (∀ k, padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) k) ≤
+        (2 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 2 Q (c2 k)) : ℤ))) ∧
+      (∀ k, padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) k) ≤
+        (3 : ℚ)^(-(Nat.ceil (JSP000334.qThreshold 3 Q (c3 k)) : ℤ))) ∧
+      integerReal z = v i) ∧
+    ∀ i k, |(L *ᵥ v i) k| ≤ r * Q^(c0 k)}
+
+theorem rawMinima_eq246 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) :
+    rawMinima246 A2 A3 L Q c0 c2 c3 j = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j := by
+  unfold rawMinima246 sourceMinima5
+  congr 1
+  ext r
+  constructor
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,?_⟩
+    · intro i
+      obtain ⟨z,h2,h3,he⟩ := hm i
+      exact ⟨z,⟨(lattice5_spec 2 A2 _ z).mpr h2,(lattice5_spec 3 A3 _ z).mpr h3⟩,he⟩
+    · intro i
+      exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mpr (hb i)
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,?_⟩
+    · intro i
+      obtain ⟨z,hz,he⟩ := hm i
+      exact ⟨z,(lattice5_spec 2 A2 _ z).mp hz.1,(lattice5_spec 3 A3 _ z).mp hz.2,he⟩
+    · intro i
+      exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mp (hb i)
+
+def rawGauge247 (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c : Fin 5 → ℝ)
+    (x : Fin 5 → ℝ) : ℝ := ‖fun i => (L *ᵥ x) i / Q^(c i)‖
+
+theorem rawGauge_eq247 (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c : Fin 5 → ℝ) (x : Fin 5 → ℝ) :
+    rawGauge247 L Q c x = coordinateGauge5 (originalCoordinates5 L hL Q hQ c) x := rfl
+
+def rawSolution248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ)
+    (Q delta : ℝ) (x : Fin 5 → ℤ) : Prop :=
+  x ≠ 0 ∧ 1 < Q ∧ 0 < delta ∧
+    (∀ i, |(L *ᵥ integerReal x) i| ≤ Q^(c0 i-delta)) ∧
+    (∀ i, (padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) : ℝ) ≤ Q^(c2 i)) ∧
+    (∀ i, (padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) : ℝ) ≤ Q^(c3 i))
+
+def rawRoth248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ) : Prop :=
+  ∀ delta : ℝ, 0 < delta → ∃ B : ℝ, ∀ Q : ℝ, B < Q →
+    ¬ ∃ x : Fin 5 → ℤ, rawSolution248 A2 A3 L c0 c2 c3 Q delta x
+
+theorem rawSolution_eq248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ) (Q delta : ℝ) (x : Fin 5 → ℤ) :
+    rawSolution248 A2 A3 L c0 c2 c3 Q delta x ↔ originalSourceSolution5 A2 A3 L c0 c2 c3 Q delta x := Iff.rfl
+
+theorem rawRoth_eq248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ) :
+    rawRoth248 A2 A3 L c0 c2 c3 ↔ originalRothProperty5 A2 A3 L c0 c2 c3 := Iff.rfl
+
+def rawMinima248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ v : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ v ∧
+    (∀ i, ∃ z : Fin 5 → ℤ,
+      (∀ k, (padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+      (∀ k, (padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) k) : ℝ) ≤ Q^(c3 k)) ∧
+      integerReal z = v i) ∧
+    ∀ i k, |(L *ᵥ v i) k| ≤ r * Q^(c0 k)}
+
+theorem raw_place_eq248 (p : ℕ) [Fact p.Prime] (Q c : ℝ) (hQ : 1 < Q) (hc : c ≤ 0) (x : ℚ) :
+    (padicNorm p x : ℝ) ≤ Q^c ↔
+      padicNorm p x ≤ (p : ℚ)^(-(Nat.ceil (JSP000334.qThreshold p Q c) : ℤ)) := by
+  simpa only [zpow_neg,zpow_natCast] using padic_rpow_ceil42 p Q c hQ hc x
+
+theorem rawMinima_eq248 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 5 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0) (j : Fin 5) :
+    rawMinima248 A2 A3 L Q c0 c2 c3 j = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j := by
+  rw [← rawMinima_eq246 A2 A3 L hL Q hQ c0 c2 c3 j]
+  unfold rawMinima248 rawMinima246
+  congr 1
+  ext r
+  constructor
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,hb⟩
+    intro i
+    obtain ⟨z,h2,h3,he⟩ := hm i
+    exact ⟨z,fun k => (raw_place_eq248 2 Q (c2 k) hQ (hc2 k) _).mp (h2 k),
+      fun k => (raw_place_eq248 3 Q (c3 k) hQ (hc3 k) _).mp (h3 k),he⟩
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,?_,hb⟩
+    intro i
+    obtain ⟨z,h2,h3,he⟩ := hm i
+    exact ⟨z,fun k => (raw_place_eq248 2 Q (c2 k) hQ (hc2 k) _).mpr (h2 k),
+      fun k => (raw_place_eq248 3 Q (c3 k) hQ (hc3 k) _).mpr (h3 k),he⟩
+
+def rawRealSpan249 (P : Submodule ℚ (Fin 5 → ℚ)) : Submodule ℝ (Fin 5 → ℝ) :=
+  Submodule.span ℝ ((fun x : Fin 5 → ℚ => fun i => (x i : ℝ)) '' (P : Set (Fin 5 → ℚ)))
+
+theorem rawRealSpan_eq249 (P : Submodule ℚ (Fin 5 → ℚ)) :
+    rawRealSpan249 P = rationalRealSpan5 P := rfl
+
+theorem raw_real_rank249 (P : Submodule ℚ (Fin 5 → ℚ)) (j : Fin 4)
+    (hP : Module.finrank ℚ P = j.val+1) : Module.finrank ℝ (rawRealSpan249 P) = j.val+1 :=
+  (rationalRealSpan5_finrank P (by omega)).trans hP
+
+theorem raw_place_eq249 (p : ℕ) [Fact p.Prime] (Q c : ℝ) (hQ : 1 < Q) (hc : c ≤ 0) (x : ℚ) :
+    (padicNorm p x : ℝ) ≤ Q^c ↔
+      padicNorm p x ≤ (p : ℚ)^(-(Nat.ceil (JSP000334.qThreshold p Q c) : ℤ)) := by
+  simpa only [zpow_neg,zpow_natCast] using padic_rpow_ceil42 p Q c hQ hc x
+
+theorem raw_lattice_spec249 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (hQ : 1 < Q)
+    (c2 c3 : Fin 5 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (x : rationalRealSpan5 P) :
+    x ∈ restrictedLattice5 P A2 A3 Q c2 c3 ↔
+      ∃ z : Fin 5 → ℤ,
+        (∀ k, (padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+        (∀ k, (padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) k) : ℝ) ≤ Q^(c3 k)) ∧
+        integerReal z = (x : Fin 5 → ℝ) := by
+  change (∃ z, z ∈ originalSourceGroup5 A2 A3 Q c2 c3 ∧ integerReal z = (x : Fin 5 → ℝ)) ↔ _
+  constructor
+  · rintro ⟨z,hz,he⟩
+    exact ⟨z,fun k => (raw_place_eq249 2 Q (c2 k) hQ (hc2 k) _).mpr
+      ((lattice5_spec 2 A2 _ z).mp hz.1 k),fun k => (raw_place_eq249 3 Q (c3 k) hQ (hc3 k) _).mpr
+      ((lattice5_spec 3 A3 _ z).mp hz.2 k),he⟩
+  · rintro ⟨z,h2,h3,he⟩
+    exact ⟨z,⟨(lattice5_spec 2 A2 _ z).mpr (fun k => (raw_place_eq249 2 Q (c2 k) hQ (hc2 k) _).mp (h2 k)),
+      (lattice5_spec 3 A3 _ z).mpr (fun k => (raw_place_eq249 3 Q (c3 k) hQ (hc3 k) _).mp (h3 k))⟩,he⟩
+
+theorem raw_body_spec249 (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c0 : Fin 5 → ℝ) (x : rationalRealSpan5 P) :
+    x ∈ restrictedBody5 P L Q c0 ↔ ∀ k, |(L *ᵥ (x : Fin 5 → ℝ)) k| ≤ Q^(c0 k) := Iff.rfl
+
+def rawRestrictedMinima249 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (Q : ℝ) (c0 c2 c3 : Fin 5 → ℝ) (k : Fin (Module.finrank ℚ P)) : ℝ :=
+  sInf {r : ℝ | ∃ v : Fin (k.val+1) → rationalRealSpan5 P, LinearIndependent ℝ v ∧
+    (∀ i, ∃ z : Fin 5 → ℤ,
+      (∀ a, (padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) a) : ℝ) ≤ Q^(c2 a)) ∧
+      (∀ a, (padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) a) : ℝ) ≤ Q^(c3 a)) ∧
+      integerReal z = (v i : Fin 5 → ℝ)) ∧
+    ∀ i a, |(L *ᵥ (v i : Fin 5 → ℝ)) a| ≤ r*Q^(c0 a)}
+
+theorem rawRestrictedMinima_eq249 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0) (k : Fin (Module.finrank ℚ P)) :
+    rawRestrictedMinima249 P A2 A3 L Q c0 c2 c3 k = restrictedMinima5 P A2 A3 L hL Q hQ c0 c2 c3 k := by
+  unfold rawRestrictedMinima249 restrictedMinima5 restrictedRadii5
+  congr 1
+  ext r
+  constructor
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,fun i => (raw_lattice_spec249 P A2 A3 Q hQ c2 c3 hc2 hc3 (v i)).mpr (hm i),?_⟩
+    intro i
+    exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mpr (hb i)
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,fun i => (raw_lattice_spec249 P A2 A3 Q hQ c2 c3 hc2 hc3 (v i)).mp (hm i),?_⟩
+    intro i
+    exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mp (hb i)
+
+theorem raw_restricted_minkowski_lower249R (P : Submodule ℚ (Fin 5 → ℚ))
+    (hPlo : 1 ≤ Module.finrank ℚ P) (hP : Module.finrank ℚ P ≤ 4)
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0) :
+    (2 : ℝ)^(Module.finrank ℚ P) / (Nat.factorial (Module.finrank ℚ P) : ℝ) ≤
+      (∏ k, rawRestrictedMinima249 P A2 A3 L Q c0 c2 c3 k) *
+        (restrictedMeasure5 P).real {x : rationalRealSpan5 P | ∀ a, |(L *ᵥ (x : Fin 5 → ℝ)) a| ≤ Q^(c0 a)} /
+          ZLattice.covolume ((integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)).comap
+            ((rationalRealSpan5 P).subtype.restrictScalars ℤ)) (restrictedMeasure5 P) := by
+  have heq : (∏ k, rawRestrictedMinima249 P A2 A3 L Q c0 c2 c3 k) =
+      ∏ k, restrictedMinima5 P A2 A3 L hL Q hQ c0 c2 c3 k :=
+    Finset.prod_congr rfl (fun k _ => rawRestrictedMinima_eq249 P A2 A3 L hL Q hQ c0 c2 c3 hc2 hc3 k)
+  rw [heq]
+  exact source_restricted_minkowski_lower5 P hPlo hP A2 A3 L hL Q hQ c0 c2 c3
+
+def rawQuantitativePoint249R (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (j : Fin 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c₀ c₂ c₃ : Fin 5 → ℝ) (delta C5 : ℝ) : Prop :=
+    (∀ i : Fin 5, i.val < j.val+1 →
+      rawMinima248 A₂ A₃ L Q c₀ c₂ c₃ i <
+        (tailProduct5 j (rawMinima248 A₂ A₃ L Q c₀ c₂ c₃))^
+          (1/(5-((j.val+1 : ℕ) : ℝ))) * Q^(-delta)) ∧
+    prefixProduct5 j (rawMinima248 A₂ A₃ L Q c₀ c₂ c₃) ≤
+      C5^(((j.val+1 : ℕ) : ℝ)/5) * Q^(-decayExponent5 j delta) ∧
+    (∏ i, rawRestrictedMinima249 P A₂ A₃ L Q c₀ c₂ c₃ i) =
+      prefixProduct5 j (rawMinima248 A₂ A₃ L Q c₀ c₂ c₃) ∧
+    (∏ i, rawRestrictedMinima249 P A₂ A₃ L Q c₀ c₂ c₃ i) ≤
+      C5^(((j.val+1 : ℕ) : ℝ)/5) * Q^(-decayExponent5 j delta) ∧
+    Module.finrank ℝ (rationalRealSpan5 P) = j.val+1 ∧
+    Module.finrank ℤ (restrictedLattice5 P A₂ A₃ Q c₂ c₃) = j.val+1 ∧
+    0 < (restrictedMeasure5 P).real ({x : rationalRealSpan5 P | ∀ a, |(L *ᵥ (x : Fin 5 → ℝ)) a| ≤ Q^(c₀ a)}) ∧
+    (restrictedMeasure5 P) ({x : rationalRealSpan5 P | ∀ a, |(L *ᵥ (x : Fin 5 → ℝ)) a| ≤ Q^(c₀ a)}) < ⊤ ∧
+    0 < ZLattice.covolume (restrictedLattice5 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ∧
+    (2 : ℝ)^(j.val+1) / (Nat.factorial (j.val+1) : ℝ) ≤
+      (∏ i, rawRestrictedMinima249 P A₂ A₃ L Q c₀ c₂ c₃ i) *
+        (restrictedMeasure5 P).real ({x : rationalRealSpan5 P | ∀ a, |(L *ᵥ (x : Fin 5 → ℝ)) a| ≤ Q^(c₀ a)}) /
+          ZLattice.covolume (restrictedLattice5 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ∧
+    growthConstant5 j C5 * Q^(decayExponent5 j delta) ≤
+      (restrictedMeasure5 P).real ({x : rationalRealSpan5 P | ∀ a, |(L *ᵥ (x : Fin 5 → ℝ)) a| ≤ Q^(c₀ a)}) /
+        ZLattice.covolume (restrictedLattice5 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P)
+
+theorem raw_quantitative_point249R (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (j : Fin 4)
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ) (delta C5 : ℝ)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (h : quantitativeOriginalPoint5 P hP j A2 A3 L hL Q hQ c0 c2 c3 delta C5) :
+    rawQuantitativePoint249R P hP j A2 A3 L hL Q hQ c0 c2 c3 delta C5 := by
+  have ho (i : Fin 5) := rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 hc2 hc3 i
+  have hr (k : Fin (Module.finrank ℚ P)) := rawRestrictedMinima_eq249 P A2 A3 L hL Q hQ c0 c2 c3 hc2 hc3 k
+  have hpre : prefixProduct5 j (rawMinima248 A2 A3 L Q c0 c2 c3) =
+      prefixProduct5 j (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) := congrArg (prefixProduct5 j) (funext ho)
+  have htail : tailProduct5 j (rawMinima248 A2 A3 L Q c0 c2 c3) =
+      tailProduct5 j (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) := congrArg (tailProduct5 j) (funext ho)
+  have hprod : (∏ k, rawRestrictedMinima249 P A2 A3 L Q c0 c2 c3 k) =
+      ∏ k, restrictedMinima5 P A2 A3 L hL Q hQ c0 c2 c3 k := Finset.prod_congr rfl (fun k _ => hr k)
+  obtain ⟨hmean,hdec,heq,hresdec,hReal,hInt,hVol,hFinite,hCov,hLower,hGrowth⟩ := h
+  refine ⟨?_,?_,?_,?_,hReal,hInt,hVol,hFinite,hCov,?_,hGrowth⟩
+  · intro i hi
+    rw [ho i,htail]
+    exact hmean i hi
+  · rw [hpre]
+    exact hdec
+  · rw [hprod,hpre]
+    exact heq
+  · rw [hprod]
+    exact hresdec
+  · rw [hprod]
+    exact hLower
+
+theorem raw_normalized_nonroth_restricted_growth249R
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (hn : ¬ rawRoth248 A2 A3 L c0 c2 c3) :
+    ∃ hL : IsUnit L,
+    ∃ epsilon deltaGap c5 C5 B : ℝ, ∃ U V : Set ℝ, ∃ j : Fin 4,
+      0 < epsilon ∧ deltaGap = (epsilon/2)/5 ∧ 0 < deltaGap ∧
+      0 < c5 ∧ 0 < C5 ∧ 1 < B ∧
+      U = {Q : ℝ | ∃ x : Fin 5 → ℤ,
+        rawSolution248 A2 A3 L c0 c2 c3 Q epsilon x} ∧
+      ¬ BddAbove U ∧
+      (∀ Q ∈ U, ∃ hQ : 1 < Q, ∃ x : Fin 5 → ℤ,
+        rawSolution248 A2 A3 L c0 c2 c3 Q epsilon x ∧
+        ((∀ k, (padicNorm 2 ((A2 *ᵥ (fun l => (x l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+        (∀ k, (padicNorm 3 ((A3 *ᵥ (fun l => (x l : ℚ))) k) : ℝ) ≤ Q^(c3 k))) ∧
+        rawGauge247 L Q c0 (integerReal x) ≤ Q^(-epsilon) ∧
+        rawMinima248 A2 A3 L Q c0 c2 c3 0 < Q^(-(epsilon/2))) ∧
+      (∀ (Q : ℝ) (hQ : 1 < Q),
+        c5 ≤ (∏ i : Fin 5, rawMinima248 A2 A3 L Q c0 c2 c3 i) ∧
+        (∏ i : Fin 5, rawMinima248 A2 A3 L Q c0 c2 c3 i) ≤ C5) ∧
+      V ⊆ U ∧ ¬ BddAbove V ∧ 1 ≤ j.val+1 ∧ j.val+1 ≤ 4 ∧
+      (∀ Q ∈ V, B < Q ∧ ∃ hQ : 1 < Q,
+        rawMinima248 A2 A3 L Q c0 c2 c3 j.castSucc <
+          rawMinima248 A2 A3 L Q c0 c2 c3 j.succ * Q^(-deltaGap)) ∧
+      ∃ hq : ∀ Q ∈ V, 1 < Q,
+      ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = j.val+1 ∧ P ≠ ⊥ ∧ P ≠ ⊤ ∧
+      ∃ hPbounds : 1 ≤ Module.finrank ℚ P ∧ Module.finrank ℚ P ≤ 4,
+      ∃ W : Set ℝ, ∃ hWV : W ⊆ V, ¬ BddAbove W ∧ W ⊆ U ∧
+        0 < MinimaPower5.decayExponent5 j deltaGap ∧ 0 < growthConstant5 j C5 ∧
+        ∀ (Q : ℝ) (hQW : Q ∈ W),
+          ∃ u : Fin 5 → Fin 5 → ℤ,
+            LinearIndependent ℝ (fun i => integerReal (u i)) ∧
+            (∀ a k, (padicNorm 2 ((A2 *ᵥ (fun l => (u a l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+            (∀ a k, (padicNorm 3 ((A3 *ᵥ (fun l => (u a l : ℚ))) k) : ℝ) ≤ Q^(c3 k)) ∧
+            (∀ i, rawGauge247 L Q c0
+              (integerReal (u i)) = rawMinima248 A2 A3 L Q c0 c2 c3 i) ∧
+            P = Submodule.span ℚ (Set.range (fun a : Fin (j.val+1) => fun i => (u (Fin.castLE (by omega) a) i : ℚ))) ∧
+            (∀ i : Fin (Module.finrank ℚ P),
+              integerReal (u (RestrictedGeometry5.ambientPrefixIndex5 P hPbounds.2 i)) ∈
+                RestrictedGeometry5.rationalRealSpan5 P) ∧
+            (∀ k, rawRestrictedMinima249 P A2 A3 L Q c0 c2 c3 k =
+              rawMinima248 A2 A3 L Q c0 c2 c3 (RestrictedGeometry5.ambientPrefixIndex5 P hPbounds.2 k)) ∧
+            rawQuantitativePoint249R P hPbounds.2 j A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 deltaGap C5 := by
+  have hn' : ¬ originalRothProperty5 A2 A3 L c0 c2 c3 := fun h => hn ((rawRoth_eq248 A2 A3 L c0 c2 c3).mpr h)
+  obtain ⟨hL,epsilon,deltaGap,c5,C5,B,U,V,j,he,hdEq,hd,hc,hC,hB,hUeq,hU,hsol,hproduct,
+    hVU,hV,hjlo,hjhi,hg,hq,P,hP,hPb,hPt,hPbounds,W,hWV,hW,hWU,hEta,hK,hframes⟩ :=
+    source_normalized_nonroth_restricted_growth5 A2 A3 L h2d h3d hLd hAlg c0 c2 c3 hc0 hc2 hc3 hb hn'
+  refine ⟨hL,epsilon,deltaGap,c5,C5,B,U,V,j,he,hdEq,hd,hc,hC,hB,hUeq,hU,?_,?_,hVU,hV,hjlo,hjhi,
+    ?_,hq,P,hP,hPb,hPt,hPbounds,W,hWV,hW,hWU,hEta,hK,?_⟩
+  · intro Q hQU
+    obtain ⟨hQ,x,hx,hm,hgauge,hfirst⟩ := hsol Q hQU
+    refine ⟨hQ,x,hx,⟨?_,?_⟩,?_,?_⟩
+    · intro k
+      exact (raw_place_eq248 2 Q (c2 k) hQ (hc2 k).2 _).mpr ((lattice5_spec 2 A2 _ x).mp hm.1 k)
+    · intro k
+      exact (raw_place_eq248 3 Q (c3 k) hQ (hc3 k).2 _).mpr ((lattice5_spec 3 A3 _ x).mp hm.2 k)
+    · rw [rawGauge_eq247 L hL Q hQ]
+      exact hgauge
+    · rw [rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) 0]
+      exact hfirst
+  · intro Q hQ
+    have hp : (∏ i : Fin 5, rawMinima248 A2 A3 L Q c0 c2 c3 i) =
+        ∏ i : Fin 5, sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i :=
+      Finset.prod_congr rfl (fun i _ => rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) i)
+    rw [hp]
+    exact hproduct Q hQ
+  · intro Q hQV
+    obtain ⟨hBQ,hQ,hgap⟩ := hg Q hQV
+    refine ⟨hBQ,hQ,?_⟩
+    rw [rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) j.castSucc,
+      rawMinima_eq248 A2 A3 L hL Q hQ c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) j.succ]
+    exact hgap
+  · intro Q hQW
+    obtain ⟨u,hu,ha,hflag,hm,heq,hquant⟩ := hframes Q hQW
+    refine ⟨fun a => (u a : Fin 5 → ℤ),hu,?_,?_,?_,hflag,hm,?_,?_⟩
+    · intro a k
+      exact (raw_place_eq248 2 Q (c2 k) (hq Q (hWV hQW)) (hc2 k).2 _).mpr ((lattice5_spec 2 A2 _ _).mp (u a).property.1 k)
+    · intro a k
+      exact (raw_place_eq248 3 Q (c3 k) (hq Q (hWV hQW)) (hc3 k).2 _).mpr ((lattice5_spec 3 A3 _ _).mp (u a).property.2 k)
+    · intro i
+      rw [rawGauge_eq247 L hL Q (hq Q (hWV hQW)),
+        rawMinima_eq248 A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) i]
+      exact ha i
+    · intro k
+      rw [rawRestrictedMinima_eq249 P A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) k,
+        rawMinima_eq248 A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 (fun k => (hc2 k).2) (fun k => (hc3 k).2) (ambientPrefixIndex5 P hPbounds.2 k)]
+      exact heq k
+    · exact raw_quantitative_point249R P hPbounds.2 j A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 deltaGap C5
+        (fun k => (hc2 k).2) (fun k => (hc3 k).2) hquant
+
+end RestrictedGrowthChallenge249R
+#check RestrictedGrowthChallenge249R.rawMinima246
+#print RestrictedGrowthChallenge249R.rawMinima246
+#print axioms RestrictedGrowthChallenge249R.rawMinima246
+#check RestrictedGrowthChallenge249R.rawMinima_eq246
+#print RestrictedGrowthChallenge249R.rawMinima_eq246
+#print axioms RestrictedGrowthChallenge249R.rawMinima_eq246
+#check RestrictedGrowthChallenge249R.rawGauge247
+#print RestrictedGrowthChallenge249R.rawGauge247
+#print axioms RestrictedGrowthChallenge249R.rawGauge247
+#check RestrictedGrowthChallenge249R.rawGauge_eq247
+#print RestrictedGrowthChallenge249R.rawGauge_eq247
+#print axioms RestrictedGrowthChallenge249R.rawGauge_eq247
+#check RestrictedGrowthChallenge249R.rawSolution248
+#print RestrictedGrowthChallenge249R.rawSolution248
+#print axioms RestrictedGrowthChallenge249R.rawSolution248
+#check RestrictedGrowthChallenge249R.rawRoth248
+#print RestrictedGrowthChallenge249R.rawRoth248
+#print axioms RestrictedGrowthChallenge249R.rawRoth248
+#check RestrictedGrowthChallenge249R.rawSolution_eq248
+#print RestrictedGrowthChallenge249R.rawSolution_eq248
+#print axioms RestrictedGrowthChallenge249R.rawSolution_eq248
+#check RestrictedGrowthChallenge249R.rawRoth_eq248
+#print RestrictedGrowthChallenge249R.rawRoth_eq248
+#print axioms RestrictedGrowthChallenge249R.rawRoth_eq248
+#check RestrictedGrowthChallenge249R.rawMinima248
+#print RestrictedGrowthChallenge249R.rawMinima248
+#print axioms RestrictedGrowthChallenge249R.rawMinima248
+#check RestrictedGrowthChallenge249R.raw_place_eq248
+#print RestrictedGrowthChallenge249R.raw_place_eq248
+#print axioms RestrictedGrowthChallenge249R.raw_place_eq248
+#check RestrictedGrowthChallenge249R.rawMinima_eq248
+#print RestrictedGrowthChallenge249R.rawMinima_eq248
+#print axioms RestrictedGrowthChallenge249R.rawMinima_eq248
+#check RestrictedGrowthChallenge249R.rawRealSpan249
+#print RestrictedGrowthChallenge249R.rawRealSpan249
+#print axioms RestrictedGrowthChallenge249R.rawRealSpan249
+#check RestrictedGrowthChallenge249R.rawRealSpan_eq249
+#print RestrictedGrowthChallenge249R.rawRealSpan_eq249
+#print axioms RestrictedGrowthChallenge249R.rawRealSpan_eq249
+#check RestrictedGrowthChallenge249R.raw_real_rank249
+#print RestrictedGrowthChallenge249R.raw_real_rank249
+#print axioms RestrictedGrowthChallenge249R.raw_real_rank249
+#check RestrictedGrowthChallenge249R.raw_place_eq249
+#print RestrictedGrowthChallenge249R.raw_place_eq249
+#print axioms RestrictedGrowthChallenge249R.raw_place_eq249
+#check RestrictedGrowthChallenge249R.raw_lattice_spec249
+#print RestrictedGrowthChallenge249R.raw_lattice_spec249
+#print axioms RestrictedGrowthChallenge249R.raw_lattice_spec249
+#check RestrictedGrowthChallenge249R.raw_body_spec249
+#print RestrictedGrowthChallenge249R.raw_body_spec249
+#print axioms RestrictedGrowthChallenge249R.raw_body_spec249
+#check RestrictedGrowthChallenge249R.rawRestrictedMinima249
+#print RestrictedGrowthChallenge249R.rawRestrictedMinima249
+#print axioms RestrictedGrowthChallenge249R.rawRestrictedMinima249
+#check RestrictedGrowthChallenge249R.rawRestrictedMinima_eq249
+#print RestrictedGrowthChallenge249R.rawRestrictedMinima_eq249
+#print axioms RestrictedGrowthChallenge249R.rawRestrictedMinima_eq249
+#check RestrictedGrowthChallenge249R.raw_restricted_minkowski_lower249R
+#print RestrictedGrowthChallenge249R.raw_restricted_minkowski_lower249R
+#print axioms RestrictedGrowthChallenge249R.raw_restricted_minkowski_lower249R
+#check RestrictedGrowthChallenge249R.rawQuantitativePoint249R
+#print RestrictedGrowthChallenge249R.rawQuantitativePoint249R
+#print axioms RestrictedGrowthChallenge249R.rawQuantitativePoint249R
+#check RestrictedGrowthChallenge249R.raw_quantitative_point249R
+#print RestrictedGrowthChallenge249R.raw_quantitative_point249R
+#print axioms RestrictedGrowthChallenge249R.raw_quantitative_point249R
+#check RestrictedGrowthChallenge249R.raw_normalized_nonroth_restricted_growth249R
+#print RestrictedGrowthChallenge249R.raw_normalized_nonroth_restricted_growth249R
+#print axioms RestrictedGrowthChallenge249R.raw_normalized_nonroth_restricted_growth249R

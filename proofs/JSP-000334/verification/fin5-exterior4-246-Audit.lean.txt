@@ -1,0 +1,16 @@
+import SubspaceBridge.SourceExterior54_246
+#check CompoundFeasibility.Exterior54_246.compound4246
+#print CompoundFeasibility.Exterior54_246.compound4246
+#print axioms CompoundFeasibility.Exterior54_246.compound4246
+#check CompoundFeasibility.Exterior54_246.wedge4246
+#print CompoundFeasibility.Exterior54_246.wedge4246
+#print axioms CompoundFeasibility.Exterior54_246.wedge4246
+#check CompoundFeasibility.Exterior54_246.compound_minor4246
+#print CompoundFeasibility.Exterior54_246.compound_minor4246
+#print axioms CompoundFeasibility.Exterior54_246.compound_minor4246
+#check CompoundFeasibility.Exterior54_246.compound_mul4246
+#print CompoundFeasibility.Exterior54_246.compound_mul4246
+#print axioms CompoundFeasibility.Exterior54_246.compound_mul4246
+#check CompoundFeasibility.Exterior54_246.wedge_transform4246
+#print CompoundFeasibility.Exterior54_246.wedge_transform4246
+#print axioms CompoundFeasibility.Exterior54_246.wedge_transform4246

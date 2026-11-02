@@ -1,0 +1,163 @@
+import SubspaceBridge.WeightedDiagonalWeights4
+import SubspaceBridge.WeightedDiagonalPoint4
+import SubspaceBridge.WeightedFixedProductPoint4
+import SubspaceBridge.WeightedDiagonalFamily4
+import SubspaceBridge.WeightedFixedProductCover4
+import SubspaceBridge.WeightedPrimitiveInput4
+import SubspaceBridge.WeightedDiagonalReduction4
+import SubspaceBridge.WeightedDiagonalCoefficients4
+import SubspaceBridge.WeightedDiagonalTransport4
+import SubspaceBridge.WeightedFiveTermSource4
+import SubspaceBridge.WeightedFiveTermCover4
+import SubspaceBridge.WeightedFiveTermPairFibers4
+import SubspaceBridge.WeightedFiveTermThreeFibers4
+import SubspaceBridge.WeightedFiveTermFourFibers4
+import SubspaceBridge.WeightedFiveTermCoefficientFiber4
+import SubspaceBridge.WeightedFiveTermFiniteness4
+#check JSP000334.weightedProductConstant4
+#print JSP000334.weightedProductConstant4
+#print axioms JSP000334.weightedProductConstant4
+#check JSP000334.weighted_fixed_product_height4
+#print JSP000334.weighted_fixed_product_height4
+#print axioms JSP000334.weighted_fixed_product_height4
+#check JSP000334.weightedBalancedValues4
+#print JSP000334.weightedBalancedValues4
+#print axioms JSP000334.weightedBalancedValues4
+#check JSP000334.weighted_balanced_weights4
+#print JSP000334.weighted_balanced_weights4
+#print axioms JSP000334.weighted_balanced_weights4
+#check JSP000334.weighted_integer_source_point4
+#print JSP000334.weighted_integer_source_point4
+#print axioms JSP000334.weighted_integer_source_point4
+#check JSP000334.weightedProductBound4
+#print JSP000334.weightedProductBound4
+#print axioms JSP000334.weightedProductBound4
+#check JSP000334.weightedProductCutoff4
+#print JSP000334.weightedProductCutoff4
+#print axioms JSP000334.weightedProductCutoff4
+#check JSP000334.weighted_fixed_product_point4
+#print JSP000334.weighted_fixed_product_point4
+#print axioms JSP000334.weighted_fixed_product_point4
+#check JSP000334.weighted_integer_source_family4
+#print JSP000334.weighted_integer_source_family4
+#print axioms JSP000334.weighted_integer_source_family4
+#check JSP000334.weightedFixedProductQuadruples4
+#print JSP000334.weightedFixedProductQuadruples4
+#print axioms JSP000334.weightedFixedProductQuadruples4
+#check JSP000334.weighted_fixed_product_cover4
+#print JSP000334.weighted_fixed_product_cover4
+#print axioms JSP000334.weighted_fixed_product_cover4
+#check JSP000334.weighted_primitive_sunit_normalized4
+#print JSP000334.weighted_primitive_sunit_normalized4
+#print axioms JSP000334.weighted_primitive_sunit_normalized4
+#check JSP000334.weighted_primitive_sunit_coordinates4
+#print JSP000334.weighted_primitive_sunit_coordinates4
+#print axioms JSP000334.weighted_primitive_sunit_coordinates4
+#check JSP000334.weighted_diagonal_gcd_divides4
+#print JSP000334.weighted_diagonal_gcd_divides4
+#print axioms JSP000334.weighted_diagonal_gcd_divides4
+#check JSP000334.weighted_diagonal_gcd_values_finite4
+#print JSP000334.weighted_diagonal_gcd_values_finite4
+#print axioms JSP000334.weighted_diagonal_gcd_values_finite4
+#check JSP000334.weightedIntegerDiagonal4
+#print JSP000334.weightedIntegerDiagonal4
+#print axioms JSP000334.weightedIntegerDiagonal4
+#check JSP000334.weighted_diagonal_invertible4
+#print JSP000334.weighted_diagonal_invertible4
+#print axioms JSP000334.weighted_diagonal_invertible4
+#check JSP000334.weighted_diagonal_primitive4
+#print JSP000334.weighted_diagonal_primitive4
+#print axioms JSP000334.weighted_diagonal_primitive4
+#check JSP000334.weighted_coefficient_denominator4
+#print JSP000334.weighted_coefficient_denominator4
+#print axioms JSP000334.weighted_coefficient_denominator4
+#check JSP000334.weightedDiagonalMap4
+#print JSP000334.weightedDiagonalMap4
+#print axioms JSP000334.weightedDiagonalMap4
+#check JSP000334.weighted_diagonal_comap_proper4
+#print JSP000334.weighted_diagonal_comap_proper4
+#print axioms JSP000334.weighted_diagonal_comap_proper4
+#check JSP000334.weighted_diagonal_original_mem4
+#print JSP000334.weighted_diagonal_original_mem4
+#print axioms JSP000334.weighted_diagonal_original_mem4
+#check JSP000334.weightedFiveTerms4
+#print JSP000334.weightedFiveTerms4
+#print axioms JSP000334.weightedFiveTerms4
+#check JSP000334.WeightedFiveTermSolutions
+#print JSP000334.WeightedFiveTermSolutions
+#print axioms JSP000334.WeightedFiveTermSolutions
+#check JSP000334.weighted_original_product_input4
+#print JSP000334.weighted_original_product_input4
+#print axioms JSP000334.weighted_original_product_input4
+#check JSP000334.weighted_five_term_proper_cover4
+#print JSP000334.weighted_five_term_proper_cover4
+#print axioms JSP000334.weighted_five_term_proper_cover4
+#check JSP000334.weighted_unit_injective4
+#print JSP000334.weighted_unit_injective4
+#print axioms JSP000334.weighted_unit_injective4
+#check JSP000334.weighted_five_pair_01_finite4
+#print JSP000334.weighted_five_pair_01_finite4
+#print axioms JSP000334.weighted_five_pair_01_finite4
+#check JSP000334.weighted_five_pair_02_finite4
+#print JSP000334.weighted_five_pair_02_finite4
+#print axioms JSP000334.weighted_five_pair_02_finite4
+#check JSP000334.weighted_five_pair_03_finite4
+#print JSP000334.weighted_five_pair_03_finite4
+#print axioms JSP000334.weighted_five_pair_03_finite4
+#check JSP000334.weighted_five_pair_12_finite4
+#print JSP000334.weighted_five_pair_12_finite4
+#print axioms JSP000334.weighted_five_pair_12_finite4
+#check JSP000334.weighted_five_pair_13_finite4
+#print JSP000334.weighted_five_pair_13_finite4
+#print axioms JSP000334.weighted_five_pair_13_finite4
+#check JSP000334.weighted_five_pair_23_finite4
+#print JSP000334.weighted_five_pair_23_finite4
+#print axioms JSP000334.weighted_five_pair_23_finite4
+#check JSP000334.weighted_five_ratios_012_finite4
+#print JSP000334.weighted_five_ratios_012_finite4
+#print axioms JSP000334.weighted_five_ratios_012_finite4
+#check JSP000334.weighted_five_three_012_finite4
+#print JSP000334.weighted_five_three_012_finite4
+#print axioms JSP000334.weighted_five_three_012_finite4
+#check JSP000334.weighted_five_ratios_013_finite4
+#print JSP000334.weighted_five_ratios_013_finite4
+#print axioms JSP000334.weighted_five_ratios_013_finite4
+#check JSP000334.weighted_five_three_013_finite4
+#print JSP000334.weighted_five_three_013_finite4
+#print axioms JSP000334.weighted_five_three_013_finite4
+#check JSP000334.weighted_five_ratios_023_finite4
+#print JSP000334.weighted_five_ratios_023_finite4
+#print axioms JSP000334.weighted_five_ratios_023_finite4
+#check JSP000334.weighted_five_three_023_finite4
+#print JSP000334.weighted_five_three_023_finite4
+#print axioms JSP000334.weighted_five_three_023_finite4
+#check JSP000334.weighted_five_ratios_123_finite4
+#print JSP000334.weighted_five_ratios_123_finite4
+#print axioms JSP000334.weighted_five_ratios_123_finite4
+#check JSP000334.weighted_five_three_123_finite4
+#print JSP000334.weighted_five_three_123_finite4
+#print axioms JSP000334.weighted_five_three_123_finite4
+#check JSP000334.weighted_nondegenerate_scale4
+#print JSP000334.weighted_nondegenerate_scale4
+#print axioms JSP000334.weighted_nondegenerate_scale4
+#check JSP000334.weightedFiveCoefficientFiber4
+#print JSP000334.weightedFiveCoefficientFiber4
+#print axioms JSP000334.weightedFiveCoefficientFiber4
+#check JSP000334.weighted_five_good_four_finite4
+#print JSP000334.weighted_five_good_four_finite4
+#print axioms JSP000334.weighted_five_good_four_finite4
+#check JSP000334.weighted_five_four_finite4
+#print JSP000334.weighted_five_four_finite4
+#print axioms JSP000334.weighted_five_four_finite4
+#check JSP000334.weighted_five_coefficient_finite4
+#print JSP000334.weighted_five_coefficient_finite4
+#print axioms JSP000334.weighted_five_coefficient_finite4
+#check JSP000334.weightedFiveProperFiber4
+#print JSP000334.weightedFiveProperFiber4
+#print axioms JSP000334.weightedFiveProperFiber4
+#check JSP000334.weighted_five_proper_fiber_finite4
+#print JSP000334.weighted_five_proper_fiber_finite4
+#print axioms JSP000334.weighted_five_proper_fiber_finite4
+#check JSP000334.weighted_five_term_finite
+#print JSP000334.weighted_five_term_finite
+#print axioms JSP000334.weighted_five_term_finite

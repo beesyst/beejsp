@@ -1,0 +1,97 @@
+import SubspaceBridge.WeightedDiagonalReduction3
+import SubspaceBridge.WeightedDiagonalWeights3
+import SubspaceBridge.WeightedDiagonalProducts3
+import SubspaceBridge.WeightedDiagonalPoint3
+import SubspaceBridge.WeightedDiagonalFamily3
+import SubspaceBridge.WeightedDiagonalPrimitive3
+import SubspaceBridge.WeightedFixedProductPoint3
+import SubspaceBridge.WeightedFixedProductCover3
+import SubspaceBridge.WeightedDiagonalCoefficients3
+import SubspaceBridge.WeightedDiagonalTransport3
+#check JSP000334.weighted_diagonal_gcd_divides3
+#print JSP000334.weighted_diagonal_gcd_divides3
+#print axioms JSP000334.weighted_diagonal_gcd_divides3
+#check JSP000334.weighted_diagonal_gcd_values_finite3
+#print JSP000334.weighted_diagonal_gcd_values_finite3
+#print axioms JSP000334.weighted_diagonal_gcd_values_finite3
+#check JSP000334.weightedIntegerDiagonal3
+#print JSP000334.weightedIntegerDiagonal3
+#print axioms JSP000334.weightedIntegerDiagonal3
+#check JSP000334.weighted_diagonal_invertible3
+#print JSP000334.weighted_diagonal_invertible3
+#print axioms JSP000334.weighted_diagonal_invertible3
+#check JSP000334.weighted_fixed_product_height3
+#print JSP000334.weighted_fixed_product_height3
+#print axioms JSP000334.weighted_fixed_product_height3
+#check JSP000334.weightedBalancedValues3
+#print JSP000334.weightedBalancedValues3
+#print axioms JSP000334.weightedBalancedValues3
+#check JSP000334.weighted_balanced_weights3
+#print JSP000334.weighted_balanced_weights3
+#print axioms JSP000334.weighted_balanced_weights3
+#check JSP000334.weighted_scaled_product3
+#print JSP000334.weighted_scaled_product3
+#print axioms JSP000334.weighted_scaled_product3
+#check JSP000334.weighted_three_place_pos3
+#print JSP000334.weighted_three_place_pos3
+#print axioms JSP000334.weighted_three_place_pos3
+#check JSP000334.weightedDiagonalK3
+#print JSP000334.weightedDiagonalK3
+#print axioms JSP000334.weightedDiagonalK3
+#check JSP000334.weighted_diagonal_K_pos3
+#print JSP000334.weighted_diagonal_K_pos3
+#print axioms JSP000334.weighted_diagonal_K_pos3
+#check JSP000334.weighted_diagonal_products3
+#print JSP000334.weighted_diagonal_products3
+#print axioms JSP000334.weighted_diagonal_products3
+#check JSP000334.weighted_integer_local_inverse3
+#print JSP000334.weighted_integer_local_inverse3
+#print axioms JSP000334.weighted_integer_local_inverse3
+#check JSP000334.weighted_integer_source_point3
+#print JSP000334.weighted_integer_source_point3
+#print axioms JSP000334.weighted_integer_source_point3
+#check JSP000334.weighted_integer_source_family3
+#print JSP000334.weighted_integer_source_family3
+#print axioms JSP000334.weighted_integer_source_family3
+#check JSP000334.weighted_primitive_triple_reduction3
+#print JSP000334.weighted_primitive_triple_reduction3
+#print axioms JSP000334.weighted_primitive_triple_reduction3
+#check JSP000334.weighted_primitive_sunit_normalized3
+#print JSP000334.weighted_primitive_sunit_normalized3
+#print axioms JSP000334.weighted_primitive_sunit_normalized3
+#check JSP000334.weighted_primitive_sunit_coordinates3
+#print JSP000334.weighted_primitive_sunit_coordinates3
+#print axioms JSP000334.weighted_primitive_sunit_coordinates3
+#check JSP000334.weighted_diagonal_primitive3
+#print JSP000334.weighted_diagonal_primitive3
+#print axioms JSP000334.weighted_diagonal_primitive3
+#check JSP000334.weightedProductConstant3
+#print JSP000334.weightedProductConstant3
+#print axioms JSP000334.weightedProductConstant3
+#check JSP000334.weightedProductBound3
+#print JSP000334.weightedProductBound3
+#print axioms JSP000334.weightedProductBound3
+#check JSP000334.weightedProductCutoff3
+#print JSP000334.weightedProductCutoff3
+#print axioms JSP000334.weightedProductCutoff3
+#check JSP000334.weighted_fixed_product_point3
+#print JSP000334.weighted_fixed_product_point3
+#print axioms JSP000334.weighted_fixed_product_point3
+#check JSP000334.weightedFixedProductTriples3
+#print JSP000334.weightedFixedProductTriples3
+#print axioms JSP000334.weightedFixedProductTriples3
+#check JSP000334.weighted_fixed_product_cover3
+#print JSP000334.weighted_fixed_product_cover3
+#print axioms JSP000334.weighted_fixed_product_cover3
+#check JSP000334.weighted_coefficient_denominator3
+#print JSP000334.weighted_coefficient_denominator3
+#print axioms JSP000334.weighted_coefficient_denominator3
+#check JSP000334.weightedDiagonalMap3
+#print JSP000334.weightedDiagonalMap3
+#print axioms JSP000334.weightedDiagonalMap3
+#check JSP000334.weighted_diagonal_comap_proper3
+#print JSP000334.weighted_diagonal_comap_proper3
+#print axioms JSP000334.weighted_diagonal_comap_proper3
+#check JSP000334.weighted_diagonal_original_mem3
+#print JSP000334.weighted_diagonal_original_mem3
+#print axioms JSP000334.weighted_diagonal_original_mem3

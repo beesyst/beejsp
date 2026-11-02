@@ -1,0 +1,472 @@
+import SubspaceBridge.SourceExterior52Normalize238
+import SubspaceBridge.MinimaProduct5
+import SubspaceBridge.MinimaProduct10
+import Mathlib.Data.Fin.Tuple.Sort
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M239ScopedLiteral
+open Exterior52_237 Exterior52_238
+
+def pairOrder239 (a : Fin 5 → ℝ) : Equiv.Perm (Fin 10) :=
+  Tuple.sort (fun s => a (lo237 s)*a (hi237 s))
+
+def pairProducts239 (a : Fin 5 → ℝ) : Fin 10 → ℝ :=
+  fun j => a (lo237 (pairOrder239 a j))*a (hi237 (pairOrder239 a j))
+
+theorem pairProducts_pos239 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i) :
+    ∀ j, 0 < pairProducts239 a j := fun _ => mul_pos (ha _) (ha _)
+
+theorem pairProducts_mono239 (a : Fin 5 → ℝ) : Monotone (pairProducts239 a) :=
+  Tuple.monotone_sort (fun s => a (lo237 s)*a (hi237 s))
+
+theorem pair_width_product239 (a : Fin 5 → ℝ) :
+    (∏ s, a (lo237 s)*a (hi237 s)) = (∏ i, a i)^4 := by
+  simp [lo237,hi237,Fin.prod_univ_succ]
+  ring
+
+theorem pairProducts_product239 (a : Fin 5 → ℝ) :
+    (∏ j, pairProducts239 a j) = (∏ i, a i)^4 := by
+  rw [show (∏ j, pairProducts239 a j) = ∏ s, a (lo237 s)*a (hi237 s) from
+    Equiv.prod_comp (pairOrder239 a) (fun s => a (lo237 s)*a (hi237 s))]
+  exact pair_width_product239 a
+
+theorem pairProducts_top239 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i) (hm : Monotone a) :
+    pairProducts239 a 8 = a 2*a 4 ∧ pairProducts239 a 9 = a 3*a 4 := by
+  classical
+  let f : Fin 10 → ℝ := fun s => a (lo237 s)*a (hi237 s)
+  let sigma := pairOrder239 a
+  have hs : Monotone (fun j => f (sigma j)) := pairProducts_mono239 a
+  have htop : ∀ s, f s ≤ a 3*a 4 := by
+    intro s
+    have hi : lo237 s ≤ (3 : Fin 5) ∧ hi237 s ≤ (4 : Fin 5) := by
+      have hh : ∀ s : Fin 10, lo237 s ≤ (3 : Fin 5) ∧ hi237 s ≤ (4 : Fin 5) := by decide
+      exact hh s
+    exact mul_le_mul (hm hi.1) (hm hi.2) (ha _).le (ha _).le
+  have hpen : ∀ s, s ≠ (9 : Fin 10) → f s ≤ a 2*a 4 := by
+    intro s hne
+    have hh : ∀ s : Fin 10, s ≠ (9 : Fin 10) → lo237 s ≤ (2 : Fin 5) ∧ hi237 s ≤ (4 : Fin 5) := by decide
+    exact mul_le_mul (hm (hh s hne).1) (hm (hh s hne).2) (ha _).le (ha _).le
+  have h8 : f 8 = a 2*a 4 := rfl
+  have h9 : f 9 = a 3*a 4 := rfl
+  have he8 : f (sigma (sigma.symm 8)) = a 2*a 4 := by rw [sigma.apply_symm_apply,h8]
+  have he9 : f (sigma (sigma.symm 9)) = a 3*a 4 := by rw [sigma.apply_symm_apply,h9]
+  constructor
+  · apply le_antisymm
+    · by_cases he : sigma 8 = 9
+      · have hne : sigma 9 ≠ 9 := by
+          intro h
+          have hh := sigma.injective (he.trans h.symm)
+          exact (by decide : (8 : Fin 10) ≠ 9) hh
+        exact (hs (show (8 : Fin 10) ≤ 9 by decide)).trans (hpen _ hne)
+      · exact hpen _ he
+    · by_cases hi : sigma.symm 8 ≤ (8 : Fin 10)
+      · exact he8.symm.trans_le (hs hi)
+      · have hj : sigma.symm 9 ≤ (8 : Fin 10) := by
+          by_contra hj
+          have e8 : sigma.symm 8 = (9 : Fin 10) := Fin.ext (by
+            have := (sigma.symm 8).isLt
+            change (sigma.symm 8).val = 9
+            change ¬ (sigma.symm 8).val ≤ 8 at hi
+            omega)
+          have e9 : sigma.symm 9 = (9 : Fin 10) := Fin.ext (by
+            have := (sigma.symm 9).isLt
+            change (sigma.symm 9).val = 9
+            change ¬ (sigma.symm 9).val ≤ 8 at hj
+            omega)
+          have hh := sigma.symm.injective (e8.trans e9.symm)
+          exact (by decide : (8 : Fin 10) ≠ 9) hh
+        exact (mul_le_mul_of_nonneg_right (hm (show (2 : Fin 5) ≤ 3 by decide)) (ha 4).le).trans
+          (he9.symm.trans_le (hs hj))
+  · exact le_antisymm (htop _) (he9.symm.trans_le (hs (Fin.le_last _)))
+
+end CompoundFeasibility.M239ScopedLiteral
+namespace CompoundFeasibility.M239ScopedLiteral
+open Exterior52_237 Exterior52_238
+
+variable (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+  (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+  (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+
+def compoundMinima239 : Fin 10 → ℝ :=
+  sourceMinima10 (compound237 A2) (compound237 A3) (compound237 L) (compound_unit238 L hL)
+    (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0)
+    (normalizedWeights238 c2) (normalizedWeights238 c3)
+
+theorem compoundMinima_sInf239 (j : Fin 10) :
+    compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j =
+      sInf {r : ℝ | ∃ v : Fin (j.val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+        (∀ i, v i ∈ integerRealImage (directGroup238 A2 A3 Q c2 c3)) ∧
+        ∀ i s, |(compound237 L *ᵥ v i) s| ≤ r*Q^(pairWeights238 c0 s)} := by
+  unfold compoundMinima239 sourceMinima10
+  rw [powered_group238]
+  congr 1
+  ext r
+  constructor <;> rintro ⟨v,hv,hm,hb⟩ <;> refine ⟨v,hv,hm,?_⟩
+  · intro i
+    exact (powered_body238 L hL Q hQ c0 (v i) r).mp (hb i)
+  · intro i
+    exact (powered_body238 L hL Q hQ c0 (v i) r).mpr (hb i)
+
+theorem compoundMinima_pos_mono239 :
+    (∀ j, 0 < compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j) ∧
+    Monotone (compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3) :=
+  sourceMinima10_pos_mono _ _ _ _ _ _ _ _ _
+
+theorem compoundMinima_attaining239 :
+    ∃ w : Fin 10 → directGroup238 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ)) ∧
+      ∀ j, coordinateGauge10 (originalCoordinates10 (compound237 L) (compound_unit238 L hL)
+        (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0))
+        (integerReal (w j : Fin 10 → ℤ)) = compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j := by
+  obtain ⟨w,hw,_,_,hatt,_⟩ := exists_sourceMinima10_attaining (compound237 A2) (compound237 A3)
+    (compound237 L) (compound_unit238 L hL) (Q^2) (powered_gt_one238 Q hQ)
+    (normalizedWeights238 c0) (normalizedWeights238 c2) (normalizedWeights238 c3)
+  let v : Fin 10 → directGroup238 A2 A3 Q c2 c3 := fun j =>
+    ⟨(w j : Fin 10 → ℤ), by rw [← powered_group238]; exact (w j).property⟩
+  exact ⟨v,hw,hatt⟩
+
+def orderedWedge239 (u : Fin 5 → Fin 5 → ℤ) (a : Fin 5 → ℝ) (j : Fin 10) : Fin 10 → ℤ :=
+  wedge237 (u (lo237 (pairOrder239 a j))) (u (hi237 (pairOrder239 a j)))
+
+theorem actual_wedge_frame239 :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+      (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+      let w := orderedWedge239 (fun i => (u i : Fin 5 → ℤ)) (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3)
+      (∀ j, w j ∈ directGroup238 A2 A3 Q c2 c3) ∧
+      LinearIndependent ℝ (fun j => integerReal (w j)) ∧
+      (∀ j s, |(compound237 L *ᵥ integerReal (w j)) s| ≤
+        2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j*Q^(pairWeights238 c0 s)) ∧
+      ∀ j, coordinateGauge10 (originalCoordinates10 (compound237 L) (compound_unit238 L hL)
+        (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0)) (integerReal (w j)) ≤
+          2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j := by
+  classical
+  obtain ⟨u,hu,hpos,_,hatt,hpoint⟩ := exists_sourceMinima5_attaining A2 A3 L hL Q hQ c0 c2 c3
+  let a := sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3
+  let w := orderedWedge239 (fun i => (u i : Fin 5 → ℤ)) a
+  have hb (j s : Fin 10) : |(compound237 L *ᵥ integerReal (w j)) s| ≤
+      2*pairProducts239 a j*Q^(pairWeights238 c0 s) := by
+    let i := lo237 (pairOrder239 a j)
+    let k := hi237 (pairOrder239 a j)
+    have he : integerReal (w j) = wedge237 (integerReal (u i : Fin 5 → ℤ))
+        (integerReal (u k : Fin 5 → ℤ)) := wedge_cast237 _ _
+    rw [he,wedge_transform237]
+    change |(L *ᵥ integerReal (u i : Fin 5 → ℤ)) (lo237 s)*
+      (L *ᵥ integerReal (u k : Fin 5 → ℤ)) (hi237 s)-
+      (L *ᵥ integerReal (u i : Fin 5 → ℤ)) (hi237 s)*
+      (L *ᵥ integerReal (u k : Fin 5 → ℤ)) (lo237 s)| ≤ _
+    have hq : 0 < Q := zero_lt_one.trans hQ
+    have h1 := mul_le_mul (hpoint i (lo237 s)) (hpoint k (hi237 s)) (abs_nonneg _)
+      (mul_nonneg (hpos i).le (Real.rpow_pos_of_pos hq _).le)
+    have h2 := mul_le_mul (hpoint i (hi237 s)) (hpoint k (lo237 s)) (abs_nonneg _)
+      (mul_nonneg (hpos i).le (Real.rpow_pos_of_pos hq _).le)
+    calc
+      _ ≤ |(L *ᵥ integerReal (u i : Fin 5 → ℤ)) (lo237 s)*
+          (L *ᵥ integerReal (u k : Fin 5 → ℤ)) (hi237 s)|+
+          |(L *ᵥ integerReal (u i : Fin 5 → ℤ)) (hi237 s)*
+          (L *ᵥ integerReal (u k : Fin 5 → ℤ)) (lo237 s)| := abs_sub _ _
+      _ ≤ (a i*Q^(c0 (lo237 s)))*(a k*Q^(c0 (hi237 s)))+
+          (a i*Q^(c0 (hi237 s)))*(a k*Q^(c0 (lo237 s))) := by
+        simpa only [abs_mul] using add_le_add h1 h2
+      _ = _ := by
+        change _ = 2*(a i*a k)*Q^(c0 (lo237 s)+c0 (hi237 s))
+        rw [Real.rpow_add hq]
+        ring
+  refine ⟨u,hu,hatt,?_,?_,hb,?_⟩
+  · intro j
+    exact wedge_direct238 A2 A3 Q c2 c3 _ _
+  · exact (compoundFrame_independent238 (fun i => (u i : Fin 5 → ℤ)) hu).comp
+      (pairOrder239 a) (pairOrder239 a).injective
+  · intro j
+    exact (powered_body238 L hL Q hQ c0 _ _).mpr (hb j)
+
+theorem compoundMinima_upper239 : ∀ j,
+    compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j ≤
+      2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j := by
+  intro j
+  obtain ⟨u,_,_,hm,hi,_,hg⟩ := actual_wedge_frame239 A2 A3 L hL Q hQ c0 c2 c3
+  let a := sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3
+  let w := orderedWedge239 (fun i => (u i : Fin 5 → ℤ)) a
+  let f : Fin (j.val+1) → Fin 10 := Fin.castLE (by omega)
+  apply (sourceMinima10_radius_set_properties (compound237 A2) (compound237 A3) (compound237 L)
+    (compound_unit238 L hL) (Q^2) (powered_gt_one238 Q hQ)
+    (normalizedWeights238 c0) (normalizedWeights238 c2) (normalizedWeights238 c3) j).2.2.2
+  refine ⟨fun i => integerReal (w (f i)),hi.comp f (Fin.castLE_injective _),?_,?_⟩
+  · intro i
+    refine ⟨w (f i),?_,rfl⟩
+    rw [powered_group238]
+    exact hm (f i)
+  · intro i
+    exact (hg (f i)).trans (mul_le_mul_of_nonneg_left
+      (pairProducts_mono239 a (show f i ≤ j by change i.val ≤ j.val; omega)) (by norm_num))
+
+end CompoundFeasibility.M239ScopedLiteral
+namespace CompoundFeasibility.M239ScopedLiteral
+open Exterior52_237 Exterior52_238
+
+theorem prod_erase_upper239 (mu nu : Fin 10 → ℝ)
+    (hnu : ∀ k, 0 < nu k) (hupper : ∀ k, nu k ≤ 2 * mu k) (j : Fin 10) :
+    (∏ k ∈ Finset.univ.erase j, nu k) ≤ 512 * ∏ k ∈ Finset.univ.erase j, mu k := by
+  have h := Finset.prod_le_prod (fun k _ => (hnu k).le)
+    (fun k (_ : k ∈ Finset.univ.erase j) => hupper k)
+  have hc : (Finset.univ.erase j).card = 9 := by simp
+  simpa only [Finset.prod_mul_distrib, Finset.prod_const, hc, show (2 : ℝ) ^ 9 = 512 by norm_num] using h
+
+theorem product_reverse239 (mu nu : Fin 10 → ℝ) (c C : ℝ)
+    (hmu : ∀ k, 0 < mu k) (hnu : ∀ k, 0 < nu k)
+    (hupper : ∀ k, nu k ≤ 2 * mu k)
+    (hlower : c ≤ ∏ k, nu k) (hprod : (∏ k, mu k) ≤ C ^ 4)
+    (hC : 0 < C) (j : Fin 10) :
+    (c / (512 * C ^ 4)) * mu j ≤ nu j := by
+  have hdecomp (f : Fin 10 → ℝ) :
+      f j * (∏ k ∈ Finset.univ.erase j, f k) = ∏ k, f k :=
+    Finset.mul_prod_erase _ _ (Finset.mem_univ j)
+  have hstep : c * mu j ≤ 512 * nu j * (∏ k, mu k) := by
+    calc
+      c * mu j ≤ (∏ k, nu k) * mu j := mul_le_mul_of_nonneg_right hlower (hmu j).le
+      _ = (nu j * (∏ k ∈ Finset.univ.erase j, nu k)) * mu j := by rw [hdecomp]
+      _ ≤ (nu j * (512 * ∏ k ∈ Finset.univ.erase j, mu k)) * mu j :=
+        mul_le_mul_of_nonneg_right
+          (mul_le_mul_of_nonneg_left (prod_erase_upper239 mu nu hnu hupper j) (hnu j).le) (hmu j).le
+      _ = 512 * nu j * (∏ k, mu k) := by rw [← hdecomp mu]; ring
+  have hfinal : c * mu j ≤ nu j * (512 * C ^ 4) := by
+    calc
+      _ ≤ 512 * nu j * (∏ k, mu k) := hstep
+      _ ≤ 512 * nu j * C ^ 4 := mul_le_mul_of_nonneg_left hprod (mul_nonneg (by norm_num) (hnu j).le)
+      _ = _ := by ring
+  have hd : 0 < 512 * C ^ 4 := by positivity
+  rw [div_mul_eq_mul_div, div_le_iff₀ hd]
+  exact hfinal
+
+
+theorem source_uniform_products239 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L) :
+    ∃ C5 c10 : ℝ, 0 < C5 ∧ 0 < c10 ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+        (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 →
+        c10 ≤ (∏ j, compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j) ∧
+        (∏ i, sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ≤ C5 ∧
+        (∏ j, pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j) ≤ C5^4 := by
+  obtain ⟨_,C5,_,hC,hfive⟩ := source_original_uniform_minima_two_sided5 A2 A3 L h2 h3 hL
+  obtain ⟨c10,_,hc,_,hten⟩ := source_original_uniform_minima_two_sided10 (compound237 A2)
+    (compound237 A3) (compound237 L) (compound_unit238 A2 h2) (compound_unit238 A3 h3) (compound_unit238 L hL)
+  refine ⟨C5,c10,hC,hc,?_⟩
+  intro Q hQ c0 c2 c3 hc2 hc3 hb
+  have hf := (hfive Q hQ c0 c2 c3 hc2 hc3 hb).2
+  have hn (c : Fin 5 → ℝ) (h : ∀ i, c i ≤ 0) : ∀ s, normalizedWeights238 c s ≤ 0 := by
+    intro s
+    exact div_nonpos_of_nonpos_of_nonneg (add_nonpos (h _) (h _)) (by norm_num)
+  refine ⟨(hten (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0)
+    (normalizedWeights238 c2) (normalizedWeights238 c3) (hn c2 hc2) (hn c3 hc3)
+    (normalized_balance238 c0 c2 c3 hb)).1,hf,?_⟩
+  rw [pairProducts_product239]
+  exact pow_le_pow_left₀
+    (Finset.prod_pos (fun i _ => (sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3).1 i)).le hf 4
+
+theorem source_uniform_comparison239 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L) :
+    ∃ C5 c10 κ : ℝ, 0 < C5 ∧ 0 < c10 ∧ 0 < κ ∧ κ = c10/(512*C5^4) ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+        (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 →
+        ∀ j, κ*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j ≤
+          compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j ∧
+          compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j ≤
+            2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j := by
+  obtain ⟨C5,c10,hC,hc,hprod⟩ := source_uniform_products239 A2 A3 L h2 h3 hL
+  refine ⟨C5,c10,c10/(512*C5^4),hC,hc,by positivity,rfl,?_⟩
+  intro Q hQ c0 c2 c3 hc2 hc3 hb j
+  obtain ⟨hn,_,hm⟩ := hprod Q hQ c0 c2 c3 hc2 hc3 hb
+  have hu := compoundMinima_upper239 A2 A3 L hL Q hQ c0 c2 c3
+  exact ⟨product_reverse239 _ _ c10 C5
+    (pairProducts_pos239 _ (sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3).1)
+    (compoundMinima_pos_mono239 A2 A3 L hL Q hQ c0 c2 c3).1 hu hn hm hC j,hu j⟩
+
+end CompoundFeasibility.M239ScopedLiteral
+namespace CompoundFeasibility.M239ScopedLiteral
+open Exterior52_237 Exterior52_238
+
+theorem pair_gap239 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i) (hm : Monotone a)
+    (Q delta : ℝ) (hg : a 2 < a 3*Q^(-delta)) :
+    pairProducts239 a 8 < pairProducts239 a 9*Q^(-delta) := by
+  obtain ⟨h8,h9⟩ := pairProducts_top239 a ha hm
+  rw [h8,h9]
+  convert mul_lt_mul_of_pos_right hg (ha 4) using 1 <;> ring
+
+theorem ratio_gap239 (mu nu : Fin 10 → ℝ) (κ Q delta : ℝ) (hk : 0 < κ) (hQ : 1 < Q)
+    (hcomp : ∀ j, κ*mu j ≤ nu j ∧ nu j ≤ 2*mu j)
+    (hg : mu 8 < mu 9*Q^(-delta)) : nu 8 < (2/κ)*nu 9*Q^(-delta) := by
+  calc
+    nu 8 ≤ 2*mu 8 := (hcomp 8).2
+    _ < 2*(mu 9*Q^(-delta)) := mul_lt_mul_of_pos_left hg (by norm_num)
+    _ = (2/κ)*(κ*mu 9)*Q^(-delta) := by field_simp; ring
+    _ ≤ (2/κ)*nu 9*Q^(-delta) := mul_le_mul_of_nonneg_right
+      (mul_le_mul_of_nonneg_left (hcomp 9).1 (by positivity))
+      (Real.rpow_pos_of_pos (zero_lt_one.trans hQ) _).le
+
+theorem powered_gap_exponent239 (Q delta : ℝ) (hQ : 1 < Q) :
+    Q^(-delta/2) = (Q^2)^(-delta/4) := by
+  rw [← Real.rpow_natCast,← Real.rpow_mul (zero_lt_one.trans hQ).le]
+  congr 1
+  ring
+
+theorem source_uniform_gap239 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L) :
+    ∃ C5 c10 κ : ℝ, 0 < C5 ∧ 0 < c10 ∧ 0 < κ ∧ κ = c10/(512*C5^4) ∧
+      ∀ delta : ℝ, 0 < delta → ∃ T : ℝ, 1 < T ∧
+        ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+          (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 → T < Q →
+          sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 2 <
+            sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3*Q^(-delta) →
+          (∀ j, κ*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j ≤
+            compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j ∧
+            compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 j ≤
+              2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j) ∧
+          compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 8 <
+            compoundMinima239 A2 A3 L hL Q hQ c0 c2 c3 9*(Q^2)^(-delta/4) := by
+  obtain ⟨C5,c10,κ,hC,hc,hk,he,hcompare⟩ := source_uniform_comparison239 A2 A3 L h2 h3 hL
+  refine ⟨C5,c10,κ,hC,hc,hk,he,?_⟩
+  intro delta hd
+  obtain ⟨T,hT,hcut⟩ := compound_gap_cutoff42 (2/κ) delta hd
+  refine ⟨T,hT,?_⟩
+  intro Q hQ c0 c2 c3 hc2 hc3 hb hTQ hg
+  have hcq := hcompare Q hQ c0 c2 c3 hc2 hc3 hb
+  have hp := sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3
+  have hpair := pair_gap239 _ hp.1 hp.2 Q delta hg
+  have hr := ratio_gap239 _ _ κ Q delta hk hQ hcq hpair
+  have hgenuine := absorb_compound_gap42 _ _ (2/κ) Q delta
+    ((compoundMinima_pos_mono239 A2 A3 L hL Q hQ c0 c2 c3).1 9) hQ (hcut Q hTQ) hr
+  exact ⟨hcq,by rw [powered_gap_exponent239 Q delta hQ] at hgenuine; exact hgenuine⟩
+
+theorem source_rank3_compound_gap239 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hL : IsUnit L) (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ C5 c10 κ : ℝ, 0 < C5 ∧ 0 < c10 ∧ 0 < κ ∧ κ = c10/(512*C5^4) ∧
+      ∀ delta : ℝ, 0 < delta → ∃ T : ℝ, 1 < T ∧
+        ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+          (∀ i, |c0 i| ≤ 1) → (∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) →
+          (∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 → T < Q →
+          sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 2 <
+            sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3*Q^(-delta) →
+          let B2 := compound237 A2
+          let B3 := compound237 A3
+          let B0 := compound237 L
+          let Qprime := Q^2
+          let cp0 := normalizedWeights238 c0
+          let cp2 := normalizedWeights238 c2
+          let cp3 := normalizedWeights238 c3
+          let nu := sourceMinima10 B2 B3 B0 (compound_unit238 L hL)
+            Qprime (powered_gt_one238 Q hQ) cp0 cp2 cp3
+          let mu := pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3)
+          originalSourceGroup10 B2 B3 Qprime cp2 cp3 = directGroup238 A2 A3 Q c2 c3 ∧
+          (∀ j, κ*mu j ≤ nu j ∧ nu j ≤ 2*mu j) ∧
+          nu 8 < nu 9*Qprime^(-delta/4) := by
+  have h2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+  have h3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+  obtain ⟨C5,c10,κ,hC,hc,hk,he,hgap⟩ := source_uniform_gap239 A2 A3 L h2 h3 hL
+  refine ⟨C5,c10,κ,hC,hc,hk,he,?_⟩
+  intro delta hd
+  obtain ⟨T,hT,hs⟩ := hgap delta hd
+  refine ⟨T,hT,?_⟩
+  intro Q hQ c0 c2 c3 hc0 hc2 hc3 hb hTQ hg
+  exact ⟨powered_group238 A2 A3 Q c2 c3,
+    hs Q hQ c0 c2 c3 (fun i => (hc2 i).2) (fun i => (hc3 i).2) hb hTQ hg⟩
+
+end CompoundFeasibility.M239ScopedLiteral
+open CompoundFeasibility CompoundFeasibility.Exterior52_237 CompoundFeasibility.Exterior52_238
+open CompoundFeasibility.M239ScopedLiteral
+namespace M239SourceLiteral
+theorem exact_original_sInf239 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+  (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+  (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 10) :
+    sourceMinima10 (compound237 A2) (compound237 A3) (compound237 L) (compound_unit238 L hL)
+    (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0)
+    (normalizedWeights238 c2) (normalizedWeights238 c3) j =
+      sInf {r : ℝ | ∃ v : Fin (j.val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+        (∀ i, v i ∈ integerRealImage (sourceLattice10 (compound237 A2) (compound237 A3)
+          (fun s => Nat.ceil (JSP000334.qThreshold 2 Q (c2 (lo237 s)+c2 (hi237 s))))
+          (fun s => Nat.ceil (JSP000334.qThreshold 3 Q (c3 (lo237 s)+c3 (hi237 s)))))) ∧
+        ∀ i s, |(compound237 L *ᵥ v i) s| ≤ r*Q^((c0 (lo237 s)+c0 (hi237 s)))} := by
+  exact compoundMinima_sInf239 A2 A3 L hL Q hQ c0 c2 c3 j
+
+theorem exact_original_wedges239 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+  (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+  (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ) :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+      (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+      let w := fun j => wedge237 (R := ℤ)
+        (u (lo237 (pairOrder239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j)) : Fin 5 → ℤ)
+        (u (hi237 (pairOrder239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j)) : Fin 5 → ℤ)
+      (∀ j, w j ∈ directGroup238 A2 A3 Q c2 c3) ∧
+      LinearIndependent ℝ (fun j => integerReal (w j)) ∧
+      (∀ j s, |(compound237 L *ᵥ integerReal (w j)) s| ≤
+        2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j*Q^(pairWeights238 c0 s)) ∧
+      ∀ j, coordinateGauge10 (originalCoordinates10 (compound237 L) (compound_unit238 L hL)
+        (Q^2) (powered_gt_one238 Q hQ) (normalizedWeights238 c0)) (integerReal (w j)) ≤
+          2*pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) j := by
+  exact actual_wedge_frame239 A2 A3 L hL Q hQ c0 c2 c3
+
+theorem exact_expanded_source_endpoint239 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hL : IsUnit L) (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ C5 c10 κ : ℝ, 0 < C5 ∧ 0 < c10 ∧ 0 < κ ∧ κ = c10/(512*C5^4) ∧
+      ∀ delta : ℝ, 0 < delta → ∃ T : ℝ, 1 < T ∧
+        ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ),
+          (∀ i, |c0 i| ≤ 1) → (∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) →
+          (∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 → T < Q →
+          sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 2 <
+            sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3*Q^(-delta) →
+          let B2 := compound237 A2
+          let B3 := compound237 A3
+          let B0 := compound237 L
+          let Qprime := Q^2
+          let cp0 := normalizedWeights238 c0
+          let cp2 := normalizedWeights238 c2
+          let cp3 := normalizedWeights238 c3
+          let nu := fun j : Fin 10 => sInf {r : ℝ |
+            ∃ v : Fin (j.val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+              (∀ i, v i ∈ integerRealImage (originalSourceGroup10 B2 B3 Qprime cp2 cp3)) ∧
+              ∀ i, coordinateGauge10 (originalCoordinates10 B0 (compound_unit238 L hL)
+                Qprime (powered_gt_one238 Q hQ) cp0) (v i) ≤ r}
+          let mu := pairProducts239 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3)
+          originalSourceGroup10 B2 B3 Qprime cp2 cp3 = directGroup238 A2 A3 Q c2 c3 ∧
+          (∀ j, κ*mu j ≤ nu j ∧ nu j ≤ 2*mu j) ∧
+          nu 8 < nu 9*Qprime^(-delta/4) := by
+  obtain ⟨C5,c10,κ,hC,hc,hk,he,hall⟩ := source_rank3_compound_gap239 A2 A3 L h2d h3d hLd hL hAlg
+  refine ⟨C5,c10,κ,hC,hc,hk,he,?_⟩
+  intro delta hd
+  obtain ⟨T,hT,hs⟩ := hall delta hd
+  refine ⟨T,hT,?_⟩
+  intro Q hQ c0 c2 c3 hc0 hc2 hc3 hb hTQ hg
+  have hx := hs Q hQ c0 c2 c3 hc0 hc2 hc3 hb hTQ hg
+  simpa only [sourceMinima10] using hx
+
+end M239SourceLiteral
+#print axioms CompoundFeasibility.M239ScopedLiteral.pairOrder239
+#print axioms CompoundFeasibility.M239ScopedLiteral.pairProducts239
+#print axioms CompoundFeasibility.M239ScopedLiteral.pairProducts_pos239
+#print axioms CompoundFeasibility.M239ScopedLiteral.pairProducts_mono239
+#print axioms CompoundFeasibility.M239ScopedLiteral.pair_width_product239
+#print axioms CompoundFeasibility.M239ScopedLiteral.pairProducts_product239
+#print axioms CompoundFeasibility.M239ScopedLiteral.pairProducts_top239
+#print axioms CompoundFeasibility.M239ScopedLiteral.compoundMinima239
+#print axioms CompoundFeasibility.M239ScopedLiteral.compoundMinima_sInf239
+#print axioms CompoundFeasibility.M239ScopedLiteral.compoundMinima_pos_mono239
+#print axioms CompoundFeasibility.M239ScopedLiteral.compoundMinima_attaining239
+#print axioms CompoundFeasibility.M239ScopedLiteral.orderedWedge239
+#print axioms CompoundFeasibility.M239ScopedLiteral.actual_wedge_frame239
+#print axioms CompoundFeasibility.M239ScopedLiteral.compoundMinima_upper239
+#print axioms CompoundFeasibility.M239ScopedLiteral.prod_erase_upper239
+#print axioms CompoundFeasibility.M239ScopedLiteral.product_reverse239
+#print axioms CompoundFeasibility.M239ScopedLiteral.source_uniform_products239
+#print axioms CompoundFeasibility.M239ScopedLiteral.source_uniform_comparison239
+#print axioms CompoundFeasibility.M239ScopedLiteral.pair_gap239
+#print axioms CompoundFeasibility.M239ScopedLiteral.ratio_gap239
+#print axioms CompoundFeasibility.M239ScopedLiteral.powered_gap_exponent239
+#print axioms CompoundFeasibility.M239ScopedLiteral.source_uniform_gap239
+#print axioms CompoundFeasibility.M239ScopedLiteral.source_rank3_compound_gap239
+#print axioms M239SourceLiteral.exact_original_sInf239
+#print axioms M239SourceLiteral.exact_original_wedges239
+#print axioms M239SourceLiteral.exact_expanded_source_endpoint239

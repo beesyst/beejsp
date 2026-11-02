@@ -1,0 +1,36 @@
+import SubspaceBridge.SourceCofactorSigns231
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceLastDual232
+open OriginalDual10 SourceOriginalDual10 SourceSatz51Entry218 SourceLastDual231 SourceRelativeIndex6
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem source_normalization232 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    let G : AddSubgroup (Fin 10 → ℤ) := originalSourceGroup10 A2 A3 q c2 c3
+    let U : Matrix (Fin 10) (Fin 10) ℤ := Matrix.of D.u
+    sourceFrameIndex231 D * G.index = U.det.natAbs ∧
+      |(U.det : ℝ)| = (sourceFrameIndex231 D : ℝ) * ZLattice.covolume (integerRealImage G) := by
+  intro G U
+  let c : Basis (Fin 10) ℤ G := (sourceLattice10_has_basis A2 A3
+    (fun i => Nat.ceil (JSP000334.qThreshold 2 q (c2 i)))
+    (fun i => Nat.ceil (JSP000334.qThreshold 3 q (c3 i)))).some
+  let uG : Fin 10 → G := sourceFrame231 D
+  letI : IsZLattice ℝ (integerRealImage G) := sourceLattice10_isZLattice A2 A3 _ _
+  have hu : LinearIndependent ℤ uG := LinearIndependent.of_comp
+    (integerReal.comp G.subtype.toIntLinearMap) (D.independent.restrict_scalars' ℤ)
+  have hU : Matrix.of (fun j => (uG j : Fin 10 → ℤ)) = U := by
+    funext j i
+    rfl
+  have h := frame_normalization_eq231 G c uG hu U hU
+  exact h
+
+theorem nat_index_cast_abs232 (m : ℕ) (d : ℤ) (h : m = d.natAbs) :
+    (m : ℚ) = |(d : ℚ)| := by
+  rw [h, Int.cast_natAbs, Int.cast_abs]
+
+theorem of_matrix_scale232 {n : ℕ} (U : Matrix (Fin n) (Fin n) ℤ) (m : ℕ)
+    (hm : m = (Matrix.of U).det.natAbs) : (m : ℚ) = |(U.det : ℚ)| := by
+  exact nat_index_cast_abs232 m U.det hm
+
+end CompoundFeasibility.SourceLastDual232

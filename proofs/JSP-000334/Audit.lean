@@ -1,0 +1,6112 @@
+import SubspaceBridge.SourceRelativeIndex6
+import SubspaceBridge.SchmidtSatz11Conclusion6
+import SubspaceBridge.SchmidtHilfssatz12Readiness6
+import SubspaceBridge.SchmidtTaylorCorrespondence6
+import SubspaceBridge.SchmidtRationalNormalization6
+import SubspaceBridge.SchmidtScalarDehomogenization6
+import SubspaceBridge.SchmidtExcessElimination6
+import SubspaceBridge.SchmidtNormalSubstitution6
+import SubspaceBridge.SchmidtCoordinateTransport6
+import SubspaceBridge.SchmidtHilfssatz13
+import SubspaceBridge.SchmidtHilfssatz12
+import SubspaceBridge.SchmidtIndexSemantics6
+import SubspaceBridge.SourceSchmidtParameters6
+import SubspaceBridge.SourceReadiness6
+import SubspaceBridge.SchmidtOmega6
+import SubspaceBridge.SourceHeightIntegration6
+import SubspaceBridge.SourceHeightEnvelopes6
+import SubspaceBridge.SourceFieldLowerIntegration6
+import SubspaceBridge.SourceLocalUpperIntegration6
+import SubspaceBridge.SourceMinorIntegration6
+import SubspaceBridge.SourceNormalMinors6
+import SubspaceBridge.SourceMixedSelection6
+import SubspaceBridge.SourceProperCofactor6
+import SubspaceBridge.SourceNormalHeight6
+import SubspaceBridge.SourceMultiblock6
+import SubspaceBridge.SourceHermite6
+import SubspaceBridge.SourceNormalIndex6
+import SubspaceBridge.SourceBlocks6
+import SubspaceBridge.SourceWeights6
+import SubspaceBridge.SourceVanishing6
+import SubspaceBridge.SourceGrid6
+import SubspaceBridge.SourceEvaluation6
+import SubspaceBridge.SourceBalance6
+import SubspaceBridge.SourceSupport6
+import SubspaceBridge.SourceExpansion6
+import SubspaceBridge.AuxiliaryFeasibility6
+import SubspaceBridge.AlgebraicLiouville6
+import SubspaceBridge.AnalyticReadiness6
+import SubspaceBridge.DavenportDecay6
+import SubspaceBridge.Davenport6
+import SubspaceBridge.CompoundSourceFamily42
+import SubspaceBridge.CompoundDualLine42
+import SubspaceBridge.CompoundHyperplane42
+import SubspaceBridge.CompoundGap42
+import SubspaceBridge.CompoundComparisonReverse42
+import SubspaceBridge.CompoundComparisonUpper42
+import SubspaceBridge.CompoundPairProducts42
+import SubspaceBridge.OriginalMinima4
+import SubspaceBridge.CompoundMinima6
+import SubspaceBridge.CompoundMinima42
+import SubspaceBridge.CompoundBridge42
+import SubspaceBridge.OriginalPlaneTransport3
+import SubspaceBridge.GapTransport3
+import SubspaceBridge.Davenport3
+import SubspaceBridge.FixedDualDirection3
+import SubspaceBridge.SelectedProductVanishing3
+import SubspaceBridge.SameIndexAssembly3
+import ElementaryThreeTerm
+import SubspaceBridge.AuxiliaryCount
+import SubspaceBridge.AuxiliaryMatrix
+import SubspaceBridge.AuxiliaryMatrixSupport
+import SubspaceBridge.AuxiliarySiegel
+import SubspaceBridge.AuxiliaryPolynomial
+import SubspaceBridge.AuxiliarySourceIndex
+import SubspaceBridge.AuxiliaryLocalExpansion
+import SubspaceBridge.AuxiliaryNormalBasis
+import SubspaceBridge.AuxiliaryLocalEstimates
+import SubspaceBridge.AuxiliaryProductFormula
+import SubspaceBridge.DualFrame3
+import SubspaceBridge.DualMinima3
+import SubspaceBridge.ConditionalNormalHeight3
+import SubspaceBridge.ParameterSelection3
+import SubspaceBridge.FiniteWeightReduction3
+
+#check JSP000334.NewmanConjecture
+#print JSP000334.NewmanConjecture
+#print JSP000334.ProjectiveSUnitFiniteness
+#check JSP000334.source_parameterization_count
+#print axioms JSP000334.source_parameterization_count
+#print axioms JSP000334.solutions_finite
+#print axioms JSP000334.tupleCount_le_six_mul_multisetCount
+#print axioms JSP000334.counting_conventions_equivalent
+#print axioms JSP000334.normalize_nondegenerate
+#print axioms JSP000334.normalize_mem_relations
+#print axioms JSP000334.normalized_eq_iff_projectively_eq
+#print axioms JSP000334.normalized_two_term_finite
+#check JSP000334.normalized_three_term_finite_of_hyperplane_cover
+#print JSP000334.ThreeTermHyperplaneCover
+#print JSP000334.normalized_three_term_finite_of_hyperplane_cover
+#print axioms JSP000334.normalized_three_term_finite_of_hyperplane_cover
+#print axioms JSP000334.three_term_hyperplane_cover_iff_finite
+#print axioms JSP000334.pointwise_finite_does_not_imply_uniform
+#print axioms JSP000334.original_tw_lemma_counterexample
+
+#print JSP000334.twoUnit
+#print JSP000334.threeUnit
+#print JSP000334.fixedSUnitGroup
+#print JSP000334.FixedSUnitFiniteness
+#print JSP000334.normalizedRelations
+#print JSP000334.Nondegenerate
+#check JSP000334.newman_of_fixed_sunit_finiteness
+set_option pp.proofs false in
+#print JSP000334.newman_of_fixed_sunit_finiteness
+#print axioms JSP000334.newman_of_fixed_sunit_finiteness
+#print axioms JSP000334.exists_minimal_zero_block_containing
+#print axioms JSP000334.minimal_block_ratio_mem
+#print axioms JSP000334.referenceValues_finite
+#check JSP000334.fixedRelationRatios
+#check JSP000334.fixed_relation_ratios_finite
+#check JSP000334.ComparisonIndex
+#check JSP000334.summandVector
+#check JSP000334.summandVector_injective
+#check JSP000334.summandVector_pos
+#check JSP000334.comparisonVector
+#print JSP000334.MinimalZeroBlock
+#check JSP000334.exists_minimal_zero_block_containing
+#check JSP000334.minimal_comparison_block_has_right
+#check JSP000334.minimal_block_ratio_mem
+#check JSP000334.exists_fixed_reference_ratio
+#check JSP000334.referenceValues
+#check JSP000334.referenceValues_finite
+#check JSP000334.summandVector_mem_referenceValues
+
+section
+set_option pp.proofs false
+
+#print JSP000334.threePlaceProduct
+#print JSP000334.rationalPlaceNorm
+#print JSP000334.localPairHeight
+#print JSP000334.pairHeight
+#print JSP000334.retainedFormsProduct
+#print JSP000334.normalizedFormsProduct
+#print JSP000334.coordinateSumForms
+
+#check JSP000334.threePlaceProduct_mul
+#print JSP000334.threePlaceProduct_mul
+#print axioms JSP000334.threePlaceProduct_mul
+#check JSP000334.threePlaceProduct_inv
+#print JSP000334.threePlaceProduct_inv
+#print axioms JSP000334.threePlaceProduct_inv
+#check JSP000334.fixed_sunit_product_formula
+#print JSP000334.fixed_sunit_product_formula
+#print axioms JSP000334.fixed_sunit_product_formula
+#check JSP000334.rationalPlaceNorm_product
+#print JSP000334.rationalPlaceNorm_product
+#print axioms JSP000334.rationalPlaceNorm_product
+#check JSP000334.rationalPlaceNorm_pos
+#print JSP000334.rationalPlaceNorm_pos
+#print axioms JSP000334.rationalPlaceNorm_pos
+#check JSP000334.rationalPlaceNorm_one
+#print JSP000334.rationalPlaceNorm_one
+#print axioms JSP000334.rationalPlaceNorm_one
+#check JSP000334.three_term_height_one_le
+#print JSP000334.three_term_height_one_le
+#print axioms JSP000334.three_term_height_one_le
+#check JSP000334.pairHeight_pos
+#print JSP000334.pairHeight_pos
+#print axioms JSP000334.pairHeight_pos
+#check JSP000334.three_term_forms_full_product
+#print JSP000334.three_term_forms_full_product
+#print axioms JSP000334.three_term_forms_full_product
+#check JSP000334.three_term_retained_product_height
+#print JSP000334.three_term_retained_product_height
+#print axioms JSP000334.three_term_retained_product_height
+#check JSP000334.three_term_normalized_product_height
+#print JSP000334.three_term_normalized_product_height
+#print axioms JSP000334.three_term_normalized_product_height
+#check JSP000334.coordinateSumForms_independent
+#print JSP000334.coordinateSumForms_independent
+#print axioms JSP000334.coordinateSumForms_independent
+#check JSP000334.exists_retained_coordinate
+#print JSP000334.exists_retained_coordinate
+#print axioms JSP000334.exists_retained_coordinate
+#check JSP000334.fixed_sunit_norm_outside
+#print JSP000334.fixed_sunit_norm_outside
+#print axioms JSP000334.fixed_sunit_norm_outside
+#check JSP000334.pairHeight_sunit_scale
+#print JSP000334.pairHeight_sunit_scale
+#print axioms JSP000334.pairHeight_sunit_scale
+
+end
+
+section
+set_option pp.proofs false
+
+#print JSP000334.PrimitivePair
+#print JSP000334.integralPair
+#print JSP000334.archPairHeight
+#print JSP000334.choiceFormsProduct
+#print JSP000334.ThreePlaceSubspaceCover
+#check JSP000334.integralPair_primitive
+#print JSP000334.integralPair_primitive
+#print axioms JSP000334.integralPair_primitive
+#check JSP000334.integralPair_ne_zero
+#print JSP000334.integralPair_ne_zero
+#print axioms JSP000334.integralPair_ne_zero
+#check JSP000334.integralPair_scale
+#print JSP000334.integralPair_scale
+#print axioms JSP000334.integralPair_scale
+#check JSP000334.sunit_den_prime_support
+#print JSP000334.sunit_den_prime_support
+#print axioms JSP000334.sunit_den_prime_support
+#check JSP000334.sunit_denominator
+#print JSP000334.sunit_denominator
+#print axioms JSP000334.sunit_denominator
+#check JSP000334.primitive_pair_local_height
+#print JSP000334.primitive_pair_local_height
+#print axioms JSP000334.primitive_pair_local_height
+#check JSP000334.primitive_pair_height
+#print JSP000334.primitive_pair_height
+#print axioms JSP000334.primitive_pair_height
+#check JSP000334.exists_primitive_sunit_pair
+#print JSP000334.exists_primitive_sunit_pair
+#print axioms JSP000334.exists_primitive_sunit_pair
+#check JSP000334.choice_forms_independent
+#print JSP000334.choice_forms_independent
+#print axioms JSP000334.choice_forms_independent
+#check JSP000334.choiceFormsProduct_sunit_scale
+#print JSP000334.choiceFormsProduct_sunit_scale
+#print axioms JSP000334.choiceFormsProduct_sunit_scale
+#check JSP000334.choiceFormsProduct_retained
+#print JSP000334.choiceFormsProduct_retained
+#print axioms JSP000334.choiceFormsProduct_retained
+#check JSP000334.exists_primitive_strong_pair
+#print JSP000334.exists_primitive_strong_pair
+#print axioms JSP000334.exists_primitive_strong_pair
+#check JSP000334.local_pattern_count
+#print JSP000334.local_pattern_count
+#print axioms JSP000334.local_pattern_count
+#check JSP000334.three_term_cover_of_subspace
+#print JSP000334.three_term_cover_of_subspace
+#print axioms JSP000334.three_term_cover_of_subspace
+#check JSP000334.three_term_finite_of_subspace
+#print JSP000334.three_term_finite_of_subspace
+#print axioms JSP000334.three_term_finite_of_subspace
+
+end
+
+section
+set_option pp.proofs false
+
+#print JSP000334.Smooth23
+#print JSP000334.primitiveSmooth23Triples
+
+#check JSP000334.two_pow_add_one_eq_three_pow_iff
+#print JSP000334.two_pow_add_one_eq_three_pow_iff
+#print axioms JSP000334.two_pow_add_one_eq_three_pow_iff
+
+#check JSP000334.three_pow_add_one_eq_two_pow_iff
+#print JSP000334.three_pow_add_one_eq_two_pow_iff
+#print axioms JSP000334.three_pow_add_one_eq_two_pow_iff
+
+#check JSP000334.smooth23_factorization
+#print JSP000334.smooth23_factorization
+#print axioms JSP000334.smooth23_factorization
+
+#check JSP000334.consecutive_smooth23_classification
+#print JSP000334.consecutive_smooth23_classification
+#print axioms JSP000334.consecutive_smooth23_classification
+
+#check JSP000334.primitive_smooth23_bound
+#print JSP000334.primitive_smooth23_bound
+#print axioms JSP000334.primitive_smooth23_bound
+
+#check JSP000334.exists_primitive_smooth23_triple
+#print JSP000334.exists_primitive_smooth23_triple
+#print axioms JSP000334.exists_primitive_smooth23_triple
+
+#check JSP000334.primitive_smooth23_triples_finite
+#print JSP000334.primitive_smooth23_triples_finite
+#print axioms JSP000334.primitive_smooth23_triples_finite
+
+#check JSP000334.fixed_three_term_finite
+#print JSP000334.fixed_three_term_finite
+#print axioms JSP000334.fixed_three_term_finite
+
+end
+
+section
+
+set_option pp.proofs false
+
+#check JSP000334.threeCoordinateSumForms_independent
+#print JSP000334.threeCoordinateSumForms_independent
+#print axioms JSP000334.threeCoordinateSumForms_independent
+#check JSP000334.triple_local_pattern_count
+#print JSP000334.triple_local_pattern_count
+#print axioms JSP000334.triple_local_pattern_count
+#check JSP000334.exists_maximal_triple_coordinate
+#print JSP000334.exists_maximal_triple_coordinate
+#print axioms JSP000334.exists_maximal_triple_coordinate
+#check JSP000334.tripleHeight_pos
+#print JSP000334.tripleHeight_pos
+#print axioms JSP000334.tripleHeight_pos
+#check JSP000334.four_term_forms_full_product
+#print JSP000334.four_term_forms_full_product
+#print axioms JSP000334.four_term_forms_full_product
+#check JSP000334.triple_retained_product_height
+#print JSP000334.triple_retained_product_height
+#print axioms JSP000334.triple_retained_product_height
+#check JSP000334.four_term_retained_product_height
+#print JSP000334.four_term_retained_product_height
+#print axioms JSP000334.four_term_retained_product_height
+#check JSP000334.four_term_normalized_product_height
+#print JSP000334.four_term_normalized_product_height
+#print axioms JSP000334.four_term_normalized_product_height
+#check JSP000334.exists_primitive_sunit_triple
+#print JSP000334.exists_primitive_sunit_triple
+#print axioms JSP000334.exists_primitive_sunit_triple
+#check JSP000334.primitive_triple_local_height
+#print JSP000334.primitive_triple_local_height
+#print axioms JSP000334.primitive_triple_local_height
+#check JSP000334.primitive_triple_height
+#print JSP000334.primitive_triple_height
+#print axioms JSP000334.primitive_triple_height
+#check JSP000334.tripleHeight_sunit_scale
+#print JSP000334.tripleHeight_sunit_scale
+#print axioms JSP000334.tripleHeight_sunit_scale
+#check JSP000334.tripleChoiceFormsProduct_sunit_scale
+#print JSP000334.tripleChoiceFormsProduct_sunit_scale
+#print axioms JSP000334.tripleChoiceFormsProduct_sunit_scale
+#check JSP000334.exists_primitive_strong_triple
+#print JSP000334.exists_primitive_strong_triple
+#print axioms JSP000334.exists_primitive_strong_triple
+#check JSP000334.exists_primitive_four_term_relation
+#print JSP000334.exists_primitive_four_term_relation
+#print axioms JSP000334.exists_primitive_four_term_relation
+#check JSP000334.four_term_height_one_le
+#print JSP000334.four_term_height_one_le
+#print axioms JSP000334.four_term_height_one_le
+
+end
+
+#check JSP000334.lattice3_gauge_ball_finite
+set_option pp.proofs false in
+#print JSP000334.lattice3_gauge_ball_finite
+#print axioms JSP000334.lattice3_gauge_ball_finite
+#check JSP000334.exists_shortest_lattice3_vector_outside
+set_option pp.proofs false in
+#print JSP000334.exists_shortest_lattice3_vector_outside
+#print axioms JSP000334.exists_shortest_lattice3_vector_outside
+#check JSP000334.independent_family_escapes_subspace3
+set_option pp.proofs false in
+#print JSP000334.independent_family_escapes_subspace3
+#print axioms JSP000334.independent_family_escapes_subspace3
+#check JSP000334.exists_successive_minima3
+set_option pp.proofs false in
+#print JSP000334.exists_successive_minima3
+#print axioms JSP000334.exists_successive_minima3
+#check JSP000334.abs_det3_le_column_bounds
+set_option pp.proofs false in
+#print JSP000334.abs_det3_le_column_bounds
+#print axioms JSP000334.abs_det3_le_column_bounds
+#check JSP000334.lattice3_independent_det_ge
+set_option pp.proofs false in
+#print JSP000334.lattice3_independent_det_ge
+#print axioms JSP000334.lattice3_independent_det_ge
+#check JSP000334.lattice3_parallelepiped_product_lower
+set_option pp.proofs false in
+#print JSP000334.lattice3_parallelepiped_product_lower
+#print axioms JSP000334.lattice3_parallelepiped_product_lower
+#check JSP000334.normalized_lattice3_parallelepiped_product_lower
+set_option pp.proofs false in
+#print JSP000334.normalized_lattice3_parallelepiped_product_lower
+#print axioms JSP000334.normalized_lattice3_parallelepiped_product_lower
+#check JSP000334.successive_minima3_parallelepiped_lower
+set_option pp.proofs false in
+#print JSP000334.successive_minima3_parallelepiped_lower
+#print axioms JSP000334.successive_minima3_parallelepiped_lower
+#check JSP000334.normalized_successive_minima3_lower
+set_option pp.proofs false in
+#print JSP000334.normalized_successive_minima3_lower
+#print axioms JSP000334.normalized_successive_minima3_lower
+#check JSP000334.mem_parallelepipedBody3_iff
+set_option pp.proofs false in
+#print JSP000334.mem_parallelepipedBody3_iff
+#print axioms JSP000334.mem_parallelepipedBody3_iff
+#check JSP000334.mem_dilate_parallelepipedBody3_iff
+set_option pp.proofs false in
+#print JSP000334.mem_dilate_parallelepipedBody3_iff
+#print axioms JSP000334.mem_dilate_parallelepipedBody3_iff
+#check JSP000334.parallelepipedBody3_volume
+set_option pp.proofs false in
+#print JSP000334.parallelepipedBody3_volume
+#print axioms JSP000334.parallelepipedBody3_volume
+#check JSP000334.lattice3_covolume
+set_option pp.proofs false in
+#print JSP000334.lattice3_covolume
+#print axioms JSP000334.lattice3_covolume
+#check JSP000334.columnMatrix3_map_det
+set_option pp.proofs false in
+#print JSP000334.columnMatrix3_map_det
+#print axioms JSP000334.columnMatrix3_map_det
+#check JSP000334.successive_minima3_parallelepiped_volume_lower
+set_option pp.proofs false in
+#print JSP000334.successive_minima3_parallelepiped_volume_lower
+#print axioms JSP000334.successive_minima3_parallelepiped_volume_lower
+#check JSP000334.normalized_successive_minima3_volume_lower
+set_option pp.proofs false in
+#print JSP000334.normalized_successive_minima3_volume_lower
+#print axioms JSP000334.normalized_successive_minima3_volume_lower
+
+#check JSP000334.convex_fiber3_dilate_subset_translate
+set_option pp.proofs false in
+#print JSP000334.convex_fiber3_dilate_subset_translate
+#print axioms JSP000334.convex_fiber3_dilate_subset_translate
+
+#check JSP000334.convex_fiber3_translate_union_volume_mono
+set_option pp.proofs false in
+#print JSP000334.convex_fiber3_translate_union_volume_mono
+#print axioms JSP000334.convex_fiber3_translate_union_volume_mono
+
+section
+
+set_option pp.proofs false
+
+#print JSP000334.minimaFlag3
+
+#check JSP000334.minimaFlag3_finrank
+#print JSP000334.minimaFlag3_finrank
+#print axioms JSP000334.minimaFlag3_finrank
+#check JSP000334.successiveRadius3_le_family
+#print JSP000334.successiveRadius3_le_family
+#print axioms JSP000334.successiveRadius3_le_family
+#check JSP000334.lattice3_short_mem_minimaFlag
+#print JSP000334.lattice3_short_mem_minimaFlag
+#print axioms JSP000334.lattice3_short_mem_minimaFlag
+#check JSP000334.exists_minimaFlag3
+#print JSP000334.exists_minimaFlag3
+#print axioms JSP000334.exists_minimaFlag3
+#check JSP000334.minimaFlag3_mono
+#print JSP000334.minimaFlag3_mono
+#print axioms JSP000334.minimaFlag3_mono
+#check JSP000334.lattice3_halfBody_cosets_disjoint
+#print JSP000334.lattice3_halfBody_cosets_disjoint
+#print axioms JSP000334.lattice3_halfBody_cosets_disjoint
+#check JSP000334.minimaFlag3_halfBody_cosets_disjoint
+#print JSP000334.minimaFlag3_halfBody_cosets_disjoint
+#print axioms JSP000334.minimaFlag3_halfBody_cosets_disjoint
+
+end
+
+section
+
+set_option pp.proofs false
+
+#check JSP000334.latticeFlag3
+#print JSP000334.latticeFlag3
+#print axioms JSP000334.latticeFlag3
+#check JSP000334.flagLattice3
+#print JSP000334.flagLattice3
+#print axioms JSP000334.flagLattice3
+#check JSP000334.latticeFlag3_saturated
+#print JSP000334.latticeFlag3_saturated
+#print axioms JSP000334.latticeFlag3_saturated
+#check JSP000334.latticeFlag3_equiv_flagLattice3
+#print JSP000334.latticeFlag3_equiv_flagLattice3
+#print axioms JSP000334.latticeFlag3_equiv_flagLattice3
+#check JSP000334.flagLattice3_discrete
+#print JSP000334.flagLattice3_discrete
+#print axioms JSP000334.flagLattice3_discrete
+#check JSP000334.flagLattice3_isZLattice
+#print JSP000334.flagLattice3_isZLattice
+#print axioms JSP000334.flagLattice3_isZLattice
+#check JSP000334.latticeFlag3_finrank
+#print JSP000334.latticeFlag3_finrank
+#print axioms JSP000334.latticeFlag3_finrank
+
+#check JSP000334.saturated_integer_submodule_complement
+#print JSP000334.saturated_integer_submodule_complement
+#print axioms JSP000334.saturated_integer_submodule_complement
+
+#check JSP000334.saturated_integer_basis_extend
+#print JSP000334.saturated_integer_basis_extend
+#print axioms JSP000334.saturated_integer_basis_extend
+
+#check JSP000334.latticeFlag3_basis_real_span
+#print JSP000334.latticeFlag3_basis_real_span
+#print axioms JSP000334.latticeFlag3_basis_real_span
+
+#check JSP000334.exists_adapted_integer_basis3
+#print JSP000334.exists_adapted_integer_basis3
+#print axioms JSP000334.exists_adapted_integer_basis3
+
+#check JSP000334.flagFiberUnion3
+#print JSP000334.flagFiberUnion3
+#print axioms JSP000334.flagFiberUnion3
+
+#check JSP000334.flagFiberUnion3_fiber
+#print JSP000334.flagFiberUnion3_fiber
+#print axioms JSP000334.flagFiberUnion3_fiber
+
+#check JSP000334.convex_flagFiberUnion3_volume_mono
+#print JSP000334.convex_flagFiberUnion3_volume_mono
+#print axioms JSP000334.convex_flagFiberUnion3_volume_mono
+
+#check JSP000334.flagFiberUnion3_transverse_volume
+#print JSP000334.flagFiberUnion3_transverse_volume
+#print axioms JSP000334.flagFiberUnion3_transverse_volume
+
+#check JSP000334.convex_flag3_translate_union_volume_growth
+#print JSP000334.convex_flag3_translate_union_volume_growth
+#print axioms JSP000334.convex_flag3_translate_union_volume_growth
+
+#check JSP000334.exists_adapted_lattice_coordinates3
+#print JSP000334.exists_adapted_lattice_coordinates3
+#print axioms JSP000334.exists_adapted_lattice_coordinates3
+
+#check JSP000334.parallelepipedBody3_compact_convex
+#print JSP000334.parallelepipedBody3_compact_convex
+#print axioms JSP000334.parallelepipedBody3_compact_convex
+
+#check JSP000334.integerBox3
+#print JSP000334.integerBox3
+#print axioms JSP000334.integerBox3
+
+#check JSP000334.mem_integerBox3
+#print JSP000334.mem_integerBox3
+#print axioms JSP000334.mem_integerBox3
+
+#check JSP000334.integerLatticePoint3
+#print JSP000334.integerLatticePoint3
+#print axioms JSP000334.integerLatticePoint3
+
+#check JSP000334.integerLatticePoint3_injective
+#print JSP000334.integerLatticePoint3_injective
+#print axioms JSP000334.integerLatticePoint3_injective
+
+#check JSP000334.integerLatticePoint3_add
+#print JSP000334.integerLatticePoint3_add
+#print axioms JSP000334.integerLatticePoint3_add
+
+#check JSP000334.integerLatticePoint3_mem_flag_iff
+#print JSP000334.integerLatticePoint3_mem_flag_iff
+#print axioms JSP000334.integerLatticePoint3_mem_flag_iff
+
+#check JSP000334.integerBox3_split
+#print JSP000334.integerBox3_split
+#print axioms JSP000334.integerBox3_split
+
+#check JSP000334.integerBox3_split_unique
+#print JSP000334.integerBox3_split_unique
+#print axioms JSP000334.integerBox3_split_unique
+
+#check JSP000334.integerLatticePoint3_box_split
+#print JSP000334.integerLatticePoint3_box_split
+#print axioms JSP000334.integerLatticePoint3_box_split
+
+#check JSP000334.integerBox3_transverse_not_mem_flag
+#print JSP000334.integerBox3_transverse_not_mem_flag
+#print axioms JSP000334.integerBox3_transverse_not_mem_flag
+
+#check JSP000334.integerBox3_strict_gap_disjoint
+#print JSP000334.integerBox3_strict_gap_disjoint
+#print axioms JSP000334.integerBox3_strict_gap_disjoint
+
+
+#check JSP000334.integerBox3_strict_gap_volume
+#print JSP000334.integerBox3_strict_gap_volume
+#print axioms JSP000334.integerBox3_strict_gap_volume
+
+#check JSP000334.splitIndex3
+#print JSP000334.splitIndex3
+#print axioms JSP000334.splitIndex3
+
+#check JSP000334.splitCoordinates3
+#print JSP000334.splitCoordinates3
+#print axioms JSP000334.splitCoordinates3
+
+#check JSP000334.splitCoordinates3_volume_preserving
+#print JSP000334.splitCoordinates3_volume_preserving
+#print axioms JSP000334.splitCoordinates3_volume_preserving
+
+#check JSP000334.splitCoordinates3_volume
+#print JSP000334.splitCoordinates3_volume
+#print axioms JSP000334.splitCoordinates3_volume
+
+
+#check JSP000334.splitCoordinates3_integerBox_image
+#print JSP000334.splitCoordinates3_integerBox_image
+#print axioms JSP000334.splitCoordinates3_integerBox_image
+
+#check JSP000334.adaptedSplitCoordinates3
+#print JSP000334.adaptedSplitCoordinates3
+#print axioms JSP000334.adaptedSplitCoordinates3
+
+#check JSP000334.adaptedSplitCoordinates3_volume
+#print JSP000334.adaptedSplitCoordinates3_volume
+#print axioms JSP000334.adaptedSplitCoordinates3_volume
+
+#check JSP000334.adaptedSplitCoordinates3_box_body_image
+#print JSP000334.adaptedSplitCoordinates3_box_body_image
+#print axioms JSP000334.adaptedSplitCoordinates3_box_body_image
+
+#check JSP000334.adaptedSplitCoordinates3_box_body_volume
+#print JSP000334.adaptedSplitCoordinates3_box_body_volume
+#print axioms JSP000334.adaptedSplitCoordinates3_box_body_volume
+
+#check JSP000334.integerBox3_longitudinal_volume_growth
+#print JSP000334.integerBox3_longitudinal_volume_growth
+#print axioms JSP000334.integerBox3_longitudinal_volume_growth
+
+#check JSP000334.integerBox3_full_volume_growth_step
+#print JSP000334.integerBox3_full_volume_growth_step
+#print axioms JSP000334.integerBox3_full_volume_growth_step
+
+#check JSP000334.integerBox3_full_volume_growth
+#print JSP000334.integerBox3_full_volume_growth
+#print axioms JSP000334.integerBox3_full_volume_growth
+
+#check JSP000334.volume_smul_realTriple
+#print JSP000334.volume_smul_realTriple
+#print axioms JSP000334.volume_smul_realTriple
+
+#check JSP000334.integerBox3_full_volume_product_lower
+#print JSP000334.integerBox3_full_volume_product_lower
+#print axioms JSP000334.integerBox3_full_volume_product_lower
+
+#check JSP000334.integerBox3_full_body_fixed_enlargement
+#print JSP000334.integerBox3_full_body_fixed_enlargement
+#print axioms JSP000334.integerBox3_full_body_fixed_enlargement
+
+#check JSP000334.integerBox3_full_body_volume_upper
+#print JSP000334.integerBox3_full_body_volume_upper
+#print axioms JSP000334.integerBox3_full_body_volume_upper
+
+#check JSP000334.integerBox3_full_card
+#print JSP000334.integerBox3_full_card
+#print axioms JSP000334.integerBox3_full_card
+
+#check JSP000334.cubic_box_leading_coefficient
+#print JSP000334.cubic_box_leading_coefficient
+#print axioms JSP000334.cubic_box_leading_coefficient
+
+#check JSP000334.successive_minima3_parallelepiped_volume_upper_contracted
+#print JSP000334.successive_minima3_parallelepiped_volume_upper_contracted
+#print axioms JSP000334.successive_minima3_parallelepiped_volume_upper_contracted
+
+#check JSP000334.successive_minima3_parallelepiped_volume_upper
+#print JSP000334.successive_minima3_parallelepiped_volume_upper
+#print axioms JSP000334.successive_minima3_parallelepiped_volume_upper
+
+#check JSP000334.integer_span3_index_det
+#print JSP000334.integer_span3_index_det
+#print axioms JSP000334.integer_span3_index_det
+
+#check JSP000334.lattice3_coordinate_det_covolume
+#print JSP000334.lattice3_coordinate_det_covolume
+#print axioms JSP000334.lattice3_coordinate_det_covolume
+
+#check JSP000334.lattice3_generated_index_det
+#print JSP000334.lattice3_generated_index_det
+#print axioms JSP000334.lattice3_generated_index_det
+
+#check JSP000334.successive_minima3_attaining_det_upper
+#print JSP000334.successive_minima3_attaining_det_upper
+#print axioms JSP000334.successive_minima3_attaining_det_upper
+
+#check JSP000334.successive_minima3_attaining_index_le_six
+#print JSP000334.successive_minima3_attaining_index_le_six
+#print axioms JSP000334.successive_minima3_attaining_index_le_six
+
+#check JSP000334.exists_successive_minima3_bounded_index
+#print JSP000334.exists_successive_minima3_bounded_index
+#print axioms JSP000334.exists_successive_minima3_bounded_index
+
+#check JSP000334.IntegerTriple
+#print JSP000334.IntegerTriple
+#print axioms JSP000334.IntegerTriple
+
+#check JSP000334.primaryResidue3
+#print JSP000334.primaryResidue3
+#print axioms JSP000334.primaryResidue3
+
+#check JSP000334.mixedCongruence3
+#print JSP000334.mixedCongruence3
+#print axioms JSP000334.mixedCongruence3
+
+#check JSP000334.mem_mixedCongruence3
+#print JSP000334.mem_mixedCongruence3
+#print axioms JSP000334.mem_mixedCongruence3
+
+#check JSP000334.primaryResidue3_surjective
+#print JSP000334.primaryResidue3_surjective
+#print axioms JSP000334.primaryResidue3_surjective
+
+#check JSP000334.primaryResidue3_index
+#print JSP000334.primaryResidue3_index
+#print axioms JSP000334.primaryResidue3_index
+
+#check JSP000334.mixedCongruence3_index
+#print JSP000334.mixedCongruence3_index
+#print axioms JSP000334.mixedCongruence3_index
+
+#check JSP000334.mixedCongruence3_finite
+#print JSP000334.mixedCongruence3_finite
+#print axioms JSP000334.mixedCongruence3_finite
+
+#check JSP000334.retainedIntegerMatrix3
+#print JSP000334.retainedIntegerMatrix3
+#print axioms JSP000334.retainedIntegerMatrix3
+
+#check JSP000334.retainedIntegerMatrix3_det
+#print JSP000334.retainedIntegerMatrix3_det
+#print axioms JSP000334.retainedIntegerMatrix3_det
+
+#check JSP000334.retainedIntegerMatrix3_isUnit
+#print JSP000334.retainedIntegerMatrix3_isUnit
+#print axioms JSP000334.retainedIntegerMatrix3_isUnit
+
+#check JSP000334.retainedIntegerMatrix3_apply
+#print JSP000334.retainedIntegerMatrix3_apply
+#print axioms JSP000334.retainedIntegerMatrix3_apply
+
+end
+
+#check JSP000334.mixedCongruence3_multiple
+#print JSP000334.mixedCongruence3_multiple
+#print axioms JSP000334.mixedCongruence3_multiple
+#check JSP000334.mixedCongruence3_finrank
+#print JSP000334.mixedCongruence3_finrank
+#print axioms JSP000334.mixedCongruence3_finrank
+
+#check JSP000334.mixedCongruence3_has_basis
+#print JSP000334.mixedCongruence3_has_basis
+#print axioms JSP000334.mixedCongruence3_has_basis
+#check JSP000334.integerTripleReal3
+#print JSP000334.integerTripleReal3
+#print axioms JSP000334.integerTripleReal3
+
+#check JSP000334.mixedCongruence3_basis_det
+#print JSP000334.mixedCongruence3_basis_det
+#print axioms JSP000334.mixedCongruence3_basis_det
+
+#check JSP000334.mixedCongruence3_basis_det_ne_zero
+#print JSP000334.mixedCongruence3_basis_det_ne_zero
+#print axioms JSP000334.mixedCongruence3_basis_det_ne_zero
+#check JSP000334.mixedCongruence3_basis_real_independent
+#print JSP000334.mixedCongruence3_basis_real_independent
+#print axioms JSP000334.mixedCongruence3_basis_real_independent
+#check JSP000334.mixedCongruence3_realBasis
+#print JSP000334.mixedCongruence3_realBasis
+#print axioms JSP000334.mixedCongruence3_realBasis
+#check JSP000334.mixedCongruence3_realBasis_apply
+#print JSP000334.mixedCongruence3_realBasis_apply
+#print axioms JSP000334.mixedCongruence3_realBasis_apply
+#check JSP000334.mixedCongruence3_realImage
+#print JSP000334.mixedCongruence3_realImage
+#print axioms JSP000334.mixedCongruence3_realImage
+#check JSP000334.mixedCongruence3_realImage_eq_lattice3
+#print JSP000334.mixedCongruence3_realImage_eq_lattice3
+#print axioms JSP000334.mixedCongruence3_realImage_eq_lattice3
+#check JSP000334.mixedCongruence3_covolume
+#print JSP000334.mixedCongruence3_covolume
+#print axioms JSP000334.mixedCongruence3_covolume
+
+#check JSP000334.mixedCongruence3_real_lattice
+#print JSP000334.mixedCongruence3_real_lattice
+#print axioms JSP000334.mixedCongruence3_real_lattice
+#check JSP000334.mixedCongruence3_covolume_eq_index
+#print JSP000334.mixedCongruence3_covolume_eq_index
+#print axioms JSP000334.mixedCongruence3_covolume_eq_index
+#check JSP000334.mixedCongruence3_minima_volume_upper
+#print JSP000334.mixedCongruence3_minima_volume_upper
+#print axioms JSP000334.mixedCongruence3_minima_volume_upper
+#check JSP000334.exists_mixedCongruence3_minima_bounded_index
+#print JSP000334.exists_mixedCongruence3_minima_bounded_index
+#print axioms JSP000334.exists_mixedCongruence3_minima_bounded_index
+
+#check JSP000334.padicNorm_int_le_rpow_iff_dvd_ceil
+#print JSP000334.padicNorm_int_le_rpow_iff_dvd_ceil
+#print axioms JSP000334.padicNorm_int_le_rpow_iff_dvd_ceil
+
+#check JSP000334.mem_mixedCongruence3_Q_iff
+#print JSP000334.mem_mixedCongruence3_Q_iff
+#print axioms JSP000334.mem_mixedCongruence3_Q_iff
+#check JSP000334.exists_mixedCongruence3_Q_lattice
+#print JSP000334.exists_mixedCongruence3_Q_lattice
+#print axioms JSP000334.exists_mixedCongruence3_Q_lattice
+#check JSP000334.exists_retained_mixedCongruence3_Q_lattice
+#print JSP000334.exists_retained_mixedCongruence3_Q_lattice
+#print axioms JSP000334.exists_retained_mixedCongruence3_Q_lattice
+
+#check JSP000334.qThreshold
+#print JSP000334.qThreshold
+#print axioms JSP000334.qThreshold
+#check JSP000334.ceilingFactor
+#print JSP000334.ceilingFactor
+#print axioms JSP000334.ceilingFactor
+#check JSP000334.qRoundingFactor3
+#print JSP000334.qRoundingFactor3
+#print axioms JSP000334.qRoundingFactor3
+#check JSP000334.qCongruenceIndex3
+#print JSP000334.qCongruenceIndex3
+#print axioms JSP000334.qCongruenceIndex3
+#check JSP000334.qThreshold_nonneg
+#print JSP000334.qThreshold_nonneg
+#print axioms JSP000334.qThreshold_nonneg
+#check JSP000334.ceil_sub_bounds
+#print JSP000334.ceil_sub_bounds
+#print axioms JSP000334.ceil_sub_bounds
+#check JSP000334.ceilingFactor_bounds
+#print JSP000334.ceilingFactor_bounds
+#print axioms JSP000334.ceilingFactor_bounds
+#check JSP000334.qRoundingFactor3_bounds
+#print JSP000334.qRoundingFactor3_bounds
+#print axioms JSP000334.qRoundingFactor3_bounds
+#check JSP000334.qRoundingFactor3_eq_one_of_integral
+#print JSP000334.qRoundingFactor3_eq_one_of_integral
+#print axioms JSP000334.qRoundingFactor3_eq_one_of_integral
+#check JSP000334.qThreshold_rpow
+#print JSP000334.qThreshold_rpow
+#print axioms JSP000334.qThreshold_rpow
+#check JSP000334.pow_ceil_factorization
+#print JSP000334.pow_ceil_factorization
+#print axioms JSP000334.pow_ceil_factorization
+#check JSP000334.qCongruenceIndex3_factorization
+#print JSP000334.qCongruenceIndex3_factorization
+#print axioms JSP000334.qCongruenceIndex3_factorization
+
+#check JSP000334.archCoordinates3
+#print JSP000334.archCoordinates3
+#print axioms JSP000334.archCoordinates3
+#check JSP000334.archBody3
+#print JSP000334.archBody3
+#print axioms JSP000334.archBody3
+#check JSP000334.archBody3_eq_parallelepiped
+#print JSP000334.archBody3_eq_parallelepiped
+#print axioms JSP000334.archBody3_eq_parallelepiped
+#check JSP000334.archCoordinates3_det
+#print JSP000334.archCoordinates3_det
+#print axioms JSP000334.archCoordinates3_det
+#check JSP000334.archBody3_volume
+#print JSP000334.archBody3_volume
+#print axioms JSP000334.archBody3_volume
+#check JSP000334.retainedRealMatrix3
+#print JSP000334.retainedRealMatrix3
+#print axioms JSP000334.retainedRealMatrix3
+#check JSP000334.retainedRealMatrix3_det
+#print JSP000334.retainedRealMatrix3_det
+#print axioms JSP000334.retainedRealMatrix3_det
+#check JSP000334.retainedRealCoordinates3
+#print JSP000334.retainedRealCoordinates3
+#print axioms JSP000334.retainedRealCoordinates3
+#check JSP000334.retainedRealCoordinates3_apply
+#print JSP000334.retainedRealCoordinates3_apply
+#print axioms JSP000334.retainedRealCoordinates3_apply
+#check JSP000334.retainedRealCoordinates3_abs_det
+#print JSP000334.retainedRealCoordinates3_abs_det
+#print axioms JSP000334.retainedRealCoordinates3_abs_det
+#check JSP000334.retainedRealBody3_volume
+#print JSP000334.retainedRealBody3_volume
+#print axioms JSP000334.retainedRealBody3_volume
+
+#check JSP000334.qSourceBody3
+#print JSP000334.qSourceBody3
+#print axioms JSP000334.qSourceBody3
+#check JSP000334.qSourceCoordinates3
+#print JSP000334.qSourceCoordinates3
+#print axioms JSP000334.qSourceCoordinates3
+#check JSP000334.qSourceLattice3
+#print JSP000334.qSourceLattice3
+#print axioms JSP000334.qSourceLattice3
+#check JSP000334.qSourceBody3_eq_parallelepiped
+#print JSP000334.qSourceBody3_eq_parallelepiped
+#print axioms JSP000334.qSourceBody3_eq_parallelepiped
+#check JSP000334.qSourceBody3_volume
+#print JSP000334.qSourceBody3_volume
+#print axioms JSP000334.qSourceBody3_volume
+#check JSP000334.qSourceLattice3_spec
+#print JSP000334.qSourceLattice3_spec
+#print axioms JSP000334.qSourceLattice3_spec
+#check JSP000334.qBalanced_width_product
+#print JSP000334.qBalanced_width_product
+#print axioms JSP000334.qBalanced_width_product
+#check JSP000334.qCongruenceIndex3_balanced
+#print JSP000334.qCongruenceIndex3_balanced
+#print axioms JSP000334.qCongruenceIndex3_balanced
+#check JSP000334.qSourceBody3_volume_ratio
+#print JSP000334.qSourceBody3_volume_ratio
+#print axioms JSP000334.qSourceBody3_volume_ratio
+#check JSP000334.exists_qSource_minima_upper
+#print JSP000334.exists_qSource_minima_upper
+#print axioms JSP000334.exists_qSource_minima_upper
+#check JSP000334.qRoundingFactor3_eq_one_of_integer
+#print JSP000334.qRoundingFactor3_eq_one_of_integer
+#print axioms JSP000334.qRoundingFactor3_eq_one_of_integer
+
+
+#check JSP000334.integerTripleReal3_injective
+#print JSP000334.integerTripleReal3_injective
+#print axioms JSP000334.integerTripleReal3_injective
+
+#check JSP000334.integerTripleRealEquiv3
+#print JSP000334.integerTripleRealEquiv3
+#print axioms JSP000334.integerTripleRealEquiv3
+
+#check JSP000334.integerTripleRealEquiv3_apply
+#print JSP000334.integerTripleRealEquiv3_apply
+#print axioms JSP000334.integerTripleRealEquiv3_apply
+
+#check JSP000334.integerTripleRealEquiv3_symm_apply
+#print JSP000334.integerTripleRealEquiv3_symm_apply
+#print axioms JSP000334.integerTripleRealEquiv3_symm_apply
+
+#check JSP000334.integerTripleRealEquiv3_symm_apply_apply
+#print JSP000334.integerTripleRealEquiv3_symm_apply_apply
+#print axioms JSP000334.integerTripleRealEquiv3_symm_apply_apply
+
+#check JSP000334.integerTripleRealEquiv3_map_span
+#print JSP000334.integerTripleRealEquiv3_map_span
+#print axioms JSP000334.integerTripleRealEquiv3_map_span
+
+#check JSP000334.integerTripleRealQuotientEquiv3
+#print JSP000334.integerTripleRealQuotientEquiv3
+#print axioms JSP000334.integerTripleRealQuotientEquiv3
+
+#check JSP000334.integerTripleRealEquiv3_finite_iff
+#print JSP000334.integerTripleRealEquiv3_finite_iff
+#print axioms JSP000334.integerTripleRealEquiv3_finite_iff
+
+#check JSP000334.integerTripleRealEquiv3_index
+#print JSP000334.integerTripleRealEquiv3_index
+#print axioms JSP000334.integerTripleRealEquiv3_index
+
+#check JSP000334.qSource_arch_bound
+#print JSP000334.qSource_arch_bound
+#print axioms JSP000334.qSource_arch_bound
+
+#check JSP000334.exists_qSource_integer_attaining_frame
+#print JSP000334.exists_qSource_integer_attaining_frame
+#print axioms JSP000334.exists_qSource_integer_attaining_frame
+
+#check JSP000334.rothOmega
+#print JSP000334.rothOmega
+#print axioms JSP000334.rothOmega
+
+#check JSP000334.rothOmega_eq_source
+#print JSP000334.rothOmega_eq_source
+#print axioms JSP000334.rothOmega_eq_source
+
+#check JSP000334.rothOmega_induction_ratio
+#print JSP000334.rothOmega_induction_ratio
+#print axioms JSP000334.rothOmega_induction_ratio
+
+#check JSP000334.rothOmega_induction_transfer_fails
+#print JSP000334.rothOmega_induction_transfer_fails
+#print axioms JSP000334.rothOmega_induction_transfer_fails
+
+#check JSP000334.omega89
+#print JSP000334.omega89
+#print axioms JSP000334.omega89
+
+#check JSP000334.rothInductionOmega
+#print JSP000334.rothInductionOmega
+#print axioms JSP000334.rothInductionOmega
+
+#check JSP000334.rothInductionOmega_eq_formula
+#print JSP000334.rothInductionOmega_eq_formula
+#print axioms JSP000334.rothInductionOmega_eq_formula
+
+#check JSP000334.rothInductionOmega_pos
+#print JSP000334.rothInductionOmega_pos
+#print axioms JSP000334.rothInductionOmega_pos
+
+#check JSP000334.omega65_induction
+#print JSP000334.omega65_induction
+#print axioms JSP000334.omega65_induction
+
+#check JSP000334.roth_exponent65_gt89
+#print JSP000334.roth_exponent65_gt89
+#print axioms JSP000334.roth_exponent65_gt89
+
+#check JSP000334.omega65_eq89_one
+#print JSP000334.omega65_eq89_one
+#print axioms JSP000334.omega65_eq89_one
+
+#check JSP000334.omega89_lt65_small
+#print JSP000334.omega89_lt65_small
+#print axioms JSP000334.omega89_lt65_small
+
+#check JSP000334.omega65_lt89_large
+#print JSP000334.omega65_lt89_large
+#print axioms JSP000334.omega65_lt89_large
+
+#check JSP000334.roth_binomial_det_ne_zero
+#print JSP000334.roth_binomial_det_ne_zero
+#print axioms JSP000334.roth_binomial_det_ne_zero
+
+#check JSP000334.roth_monomial_hasseWronskian_ne_zero
+#print JSP000334.roth_monomial_hasseWronskian_ne_zero
+#print axioms JSP000334.roth_monomial_hasseWronskian_ne_zero
+
+#check JSP000334.roth_univariate_hasse_wronskian_ne_zero
+#print JSP000334.roth_univariate_hasse_wronskian_ne_zero
+#print axioms JSP000334.roth_univariate_hasse_wronskian_ne_zero
+
+#check JSP000334.rothDividedDerivative
+#print JSP000334.rothDividedDerivative
+#print axioms JSP000334.rothDividedDerivative
+
+#check JSP000334.rothDividedDerivative_monomial
+#print JSP000334.rothDividedDerivative_monomial
+#print axioms JSP000334.rothDividedDerivative_monomial
+
+#check JSP000334.rothDividedDerivativeLinear
+#print JSP000334.rothDividedDerivativeLinear
+#print axioms JSP000334.rothDividedDerivativeLinear
+
+#check JSP000334.rothDividedDerivative_zero
+#print JSP000334.rothDividedDerivative_zero
+#print axioms JSP000334.rothDividedDerivative_zero
+
+#check JSP000334.rothExponentCode
+#print JSP000334.rothExponentCode
+#print axioms JSP000334.rothExponentCode
+
+#check JSP000334.rothExponentCode_injOn
+#print JSP000334.rothExponentCode_injOn
+#print axioms JSP000334.rothExponentCode_injOn
+
+#check JSP000334.rothPowerSpecialization
+#print JSP000334.rothPowerSpecialization
+#print axioms JSP000334.rothPowerSpecialization
+
+#check JSP000334.rothPowerSpecialization_monomial
+#print JSP000334.rothPowerSpecialization_monomial
+#print axioms JSP000334.rothPowerSpecialization_monomial
+
+#check JSP000334.rothPowerSpecialization_toFinsupp
+#print JSP000334.rothPowerSpecialization_toFinsupp
+#print axioms JSP000334.rothPowerSpecialization_toFinsupp
+
+#check JSP000334.rothPowerSpecialization_injOn
+#print JSP000334.rothPowerSpecialization_injOn
+#print axioms JSP000334.rothPowerSpecialization_injOn
+
+#check JSP000334.rothPowerSpecialization_linearIndependent
+#print JSP000334.rothPowerSpecialization_linearIndependent
+#print axioms JSP000334.rothPowerSpecialization_linearIndependent
+
+#check JSP000334.exists_rothPowerSpecialization_linearIndependent
+#print JSP000334.exists_rothPowerSpecialization_linearIndependent
+#print axioms JSP000334.exists_rothPowerSpecialization_linearIndependent
+
+#check JSP000334.exists_rothPower_hasseWronskian_ne_zero
+#print JSP000334.exists_rothPower_hasseWronskian_ne_zero
+#print axioms JSP000334.exists_rothPower_hasseWronskian_ne_zero
+
+#check JSP000334.rothDividedDerivative_support
+#print JSP000334.rothDividedDerivative_support
+#print axioms JSP000334.rothDividedDerivative_support
+
+#check JSP000334.rothBoxMultiIndex
+#print JSP000334.rothBoxMultiIndex
+#print axioms JSP000334.rothBoxMultiIndex
+
+#check JSP000334.rothBoxMultiIndex_apply
+#print JSP000334.rothBoxMultiIndex_apply
+#print axioms JSP000334.rothBoxMultiIndex_apply
+
+#check JSP000334.roth_taylor_box
+#print JSP000334.roth_taylor_box
+#print axioms JSP000334.roth_taylor_box
+
+#check JSP000334.rothTaylorLift
+#print JSP000334.rothTaylorLift
+#print axioms JSP000334.rothTaylorLift
+
+#check JSP000334.rothTaylorLift_coeff
+#print JSP000334.rothTaylorLift_coeff
+#print axioms JSP000334.rothTaylorLift_coeff
+
+#check JSP000334.rothTaylorDelta
+#print JSP000334.rothTaylorDelta
+#print axioms JSP000334.rothTaylorDelta
+
+#check JSP000334.rothChainCoefficient
+#print JSP000334.rothChainCoefficient
+#print axioms JSP000334.rothChainCoefficient
+
+#check JSP000334.rothPowerSpecialization_hasse_chain
+#print JSP000334.rothPowerSpecialization_hasse_chain
+#print axioms JSP000334.rothPowerSpecialization_hasse_chain
+
+#check JSP000334.rothChainCoefficient_eq_zero_of_order
+#print JSP000334.rothChainCoefficient_eq_zero_of_order
+#print axioms JSP000334.rothChainCoefficient_eq_zero_of_order
+
+#check JSP000334.roth_generalized_wronskian_ne_zero
+#print JSP000334.roth_generalized_wronskian_ne_zero
+#print axioms JSP000334.roth_generalized_wronskian_ne_zero
+
+#check JSP000334.rothSeparatedProduct
+#print JSP000334.rothSeparatedProduct
+#print axioms JSP000334.rothSeparatedProduct
+
+#check JSP000334.rothSeparatedProduct_apply
+#print JSP000334.rothSeparatedProduct_apply
+#print axioms JSP000334.rothSeparatedProduct_apply
+
+#check JSP000334.roth_exists_minimum_separated_polynomial
+#print JSP000334.roth_exists_minimum_separated_polynomial
+#print axioms JSP000334.roth_exists_minimum_separated_polynomial
+
+#check JSP000334.rothCoefficientDividedDerivative
+#print JSP000334.rothCoefficientDividedDerivative
+#print axioms JSP000334.rothCoefficientDividedDerivative
+
+#check JSP000334.rothCoefficientDividedDerivative_coeff
+#print JSP000334.rothCoefficientDividedDerivative_coeff
+#print axioms JSP000334.rothCoefficientDividedDerivative_coeff
+
+#check JSP000334.rothMixedDividedDerivative
+#print JSP000334.rothMixedDividedDerivative
+#print axioms JSP000334.rothMixedDividedDerivative
+
+#check JSP000334.rothMixedDividedDerivative_separated
+#print JSP000334.rothMixedDividedDerivative_separated
+#print axioms JSP000334.rothMixedDividedDerivative_separated
+
+#check JSP000334.roth_exists_separated_mixed_wronskian
+#print JSP000334.roth_exists_separated_mixed_wronskian
+#print axioms JSP000334.roth_exists_separated_mixed_wronskian
+
+#check JSP000334.roth_primitive_rational_scalar_integral
+#print JSP000334.roth_primitive_rational_scalar_integral
+#print axioms JSP000334.roth_primitive_rational_scalar_integral
+
+#check JSP000334.roth_exists_primitive_integer_factor
+#print JSP000334.roth_exists_primitive_integer_factor
+#print axioms JSP000334.roth_exists_primitive_integer_factor
+
+#check JSP000334.roth_separated_integral_rescaling
+#print JSP000334.roth_separated_integral_rescaling
+#print axioms JSP000334.roth_separated_integral_rescaling
+
+#check JSP000334.rothIntegerDividedDerivative
+#print JSP000334.rothIntegerDividedDerivative
+#print axioms JSP000334.rothIntegerDividedDerivative
+
+#check JSP000334.rothIntegerDividedDerivative_map
+#print JSP000334.rothIntegerDividedDerivative_map
+#print axioms JSP000334.rothIntegerDividedDerivative_map
+
+#check JSP000334.rothIntegerMixedDividedDerivative
+#print JSP000334.rothIntegerMixedDividedDerivative
+#print axioms JSP000334.rothIntegerMixedDividedDerivative
+
+#check JSP000334.rothIntegerMixedDividedDerivative_map
+#print JSP000334.rothIntegerMixedDividedDerivative_map
+#print axioms JSP000334.rothIntegerMixedDividedDerivative_map
+
+#check JSP000334.roth_exists_integral_separated_wronskian
+#print JSP000334.roth_exists_integral_separated_wronskian
+#print axioms JSP000334.roth_exists_integral_separated_wronskian
+
+#check JSP000334.rothIntegerDividedDerivative_coeff
+#print JSP000334.rothIntegerDividedDerivative_coeff
+#print axioms JSP000334.rothIntegerDividedDerivative_coeff
+
+#check JSP000334.rothIntegerHeight
+#print JSP000334.rothIntegerHeight
+#print axioms JSP000334.rothIntegerHeight
+
+#check JSP000334.rothIntegerHeight_coeff_le
+#print JSP000334.rothIntegerHeight_coeff_le
+#print axioms JSP000334.rothIntegerHeight_coeff_le
+
+#check JSP000334.rothIntegerHeight_dividedDerivative_le
+#print JSP000334.rothIntegerHeight_dividedDerivative_le
+#print axioms JSP000334.rothIntegerHeight_dividedDerivative_le
+
+
+#check JSP000334.rothUnivariateIntegerHeight
+#print JSP000334.rothUnivariateIntegerHeight
+#print axioms JSP000334.rothUnivariateIntegerHeight
+
+#check JSP000334.rothNestedIntegerHeight
+#print JSP000334.rothNestedIntegerHeight
+#print axioms JSP000334.rothNestedIntegerHeight
+
+#check JSP000334.rothUnivariateIntegerHeight_coeff_le
+#print JSP000334.rothUnivariateIntegerHeight_coeff_le
+#print axioms JSP000334.rothUnivariateIntegerHeight_coeff_le
+
+#check JSP000334.rothNestedIntegerHeight_coeff_le
+#print JSP000334.rothNestedIntegerHeight_coeff_le
+#print axioms JSP000334.rothNestedIntegerHeight_coeff_le
+
+#check JSP000334.rothNestedIntegerHeight_le_iff
+#print JSP000334.rothNestedIntegerHeight_le_iff
+#print axioms JSP000334.rothNestedIntegerHeight_le_iff
+
+#check JSP000334.rothSeparatedInteger_coeff
+#print JSP000334.rothSeparatedInteger_coeff
+#print axioms JSP000334.rothSeparatedInteger_coeff
+
+#check JSP000334.rothNestedIntegerHeight_separated
+#print JSP000334.rothNestedIntegerHeight_separated
+#print axioms JSP000334.rothNestedIntegerHeight_separated
+
+#check JSP000334.rothIntegerHeight_pos
+#print JSP000334.rothIntegerHeight_pos
+#print axioms JSP000334.rothIntegerHeight_pos
+
+#check JSP000334.rothUnivariateIntegerHeight_pos
+#print JSP000334.rothUnivariateIntegerHeight_pos
+#print axioms JSP000334.rothUnivariateIntegerHeight_pos
+
+#check JSP000334.rothSeparatedIntegerHeight_bounds
+#print JSP000334.rothSeparatedIntegerHeight_bounds
+#print axioms JSP000334.rothSeparatedIntegerHeight_bounds
+
+#check JSP000334.rothNestedSupportBound
+#print JSP000334.rothNestedSupportBound
+#print axioms JSP000334.rothNestedSupportBound
+
+#check JSP000334.rothIntegerMixedDividedDerivative_coeff
+#print JSP000334.rothIntegerMixedDividedDerivative_coeff
+#print axioms JSP000334.rothIntegerMixedDividedDerivative_coeff
+
+#check JSP000334.rothNestedSupportBound_mixed
+#print JSP000334.rothNestedSupportBound_mixed
+#print axioms JSP000334.rothNestedSupportBound_mixed
+
+#check JSP000334.rothNestedSupportBound_det
+#print JSP000334.rothNestedSupportBound_det
+#print axioms JSP000334.rothNestedSupportBound_det
+
+#check JSP000334.rothMixedWronskian_support
+#print JSP000334.rothMixedWronskian_support
+#print axioms JSP000334.rothMixedWronskian_support
+
+#check JSP000334.rothSeparatedInteger_degree_bounds
+#print JSP000334.rothSeparatedInteger_degree_bounds
+#print axioms JSP000334.rothSeparatedInteger_degree_bounds
+
+#check JSP000334.roth_exists_integral_separated_wronskian_bounds
+#print JSP000334.roth_exists_integral_separated_wronskian_bounds
+#print axioms JSP000334.roth_exists_integral_separated_wronskian_bounds
+
+#check JSP000334.rothNestedIntegerMass
+#print JSP000334.rothNestedIntegerMass
+#print axioms JSP000334.rothNestedIntegerMass
+
+#check JSP000334.rothNestedIntegerHeight_mixed_le
+#print JSP000334.rothNestedIntegerHeight_mixed_le
+#print axioms JSP000334.rothNestedIntegerHeight_mixed_le
+
+#check JSP000334.rothMixedWronskian_height_le
+#print JSP000334.rothMixedWronskian_height_le
+#print axioms JSP000334.rothMixedWronskian_height_le
+
+#check JSP000334.rothMixedWronskian_height_le_ordered
+#print JSP000334.rothMixedWronskian_height_le_ordered
+#print axioms JSP000334.rothMixedWronskian_height_le_ordered
+
+#check JSP000334.rothLastVariableEquiv
+#print JSP000334.rothLastVariableEquiv
+#print axioms JSP000334.rothLastVariableEquiv
+
+#check JSP000334.rothLastVariableEquiv_X_last
+#print JSP000334.rothLastVariableEquiv_X_last
+#print axioms JSP000334.rothLastVariableEquiv_X_last
+
+#check JSP000334.rothLastVariableEquiv_X_castSucc
+#print JSP000334.rothLastVariableEquiv_X_castSucc
+#print axioms JSP000334.rothLastVariableEquiv_X_castSucc
+
+#check JSP000334.rothLastExponent
+#print JSP000334.rothLastExponent
+#print axioms JSP000334.rothLastExponent
+
+#check JSP000334.rothLastExponent_last
+#print JSP000334.rothLastExponent_last
+#print axioms JSP000334.rothLastExponent_last
+
+#check JSP000334.rothLastExponent_castSucc
+#print JSP000334.rothLastExponent_castSucc
+#print axioms JSP000334.rothLastExponent_castSucc
+
+#check JSP000334.rothLastVariableEquiv_coeff
+#print JSP000334.rothLastVariableEquiv_coeff
+#print axioms JSP000334.rothLastVariableEquiv_coeff
+
+#check JSP000334.rothWronskian_height_absorption
+#print JSP000334.rothWronskian_height_absorption
+#print axioms JSP000334.rothWronskian_height_absorption
+
+#check JSP000334.rothSeparated_height_absorption
+#print JSP000334.rothSeparated_height_absorption
+#print axioms JSP000334.rothSeparated_height_absorption
+
+
+#check JSP000334.rothTaylorPolynomial
+#print JSP000334.rothTaylorPolynomial
+#print axioms JSP000334.rothTaylorPolynomial
+
+#check JSP000334.rothTaylorPolynomial_eq_divided_sum
+#print JSP000334.rothTaylorPolynomial_eq_divided_sum
+#print axioms JSP000334.rothTaylorPolynomial_eq_divided_sum
+
+#check JSP000334.rothTaylorWeight
+#print JSP000334.rothTaylorWeight
+#print axioms JSP000334.rothTaylorWeight
+
+#check JSP000334.rothWeightedTaylorIndex
+#print JSP000334.rothWeightedTaylorIndex
+#print axioms JSP000334.rothWeightedTaylorIndex
+
+#check JSP000334.rothTaylorWeight_add
+#print JSP000334.rothTaylorWeight_add
+#print axioms JSP000334.rothTaylorWeight_add
+
+#check JSP000334.rothWeightedTaylorIndex_lower_iff
+#print JSP000334.rothWeightedTaylorIndex_lower_iff
+#print axioms JSP000334.rothWeightedTaylorIndex_lower_iff
+
+#check JSP000334.rothWeightedTaylorIndex_mul_lower
+#print JSP000334.rothWeightedTaylorIndex_mul_lower
+#print axioms JSP000334.rothWeightedTaylorIndex_mul_lower
+
+#check JSP000334.rothWeightedTaylorIndex_add_lower
+#print JSP000334.rothWeightedTaylorIndex_add_lower
+#print axioms JSP000334.rothWeightedTaylorIndex_add_lower
+
+#check JSP000334.rothTaylorPolynomial_coeff
+#print JSP000334.rothTaylorPolynomial_coeff
+#print axioms JSP000334.rothTaylorPolynomial_coeff
+
+#check JSP000334.rothWeightedTaylorIndex_zero
+#print JSP000334.rothWeightedTaylorIndex_zero
+#print axioms JSP000334.rothWeightedTaylorIndex_zero
+
+#check JSP000334.rothWeightedTaylorIndex_nonneg
+#print JSP000334.rothWeightedTaylorIndex_nonneg
+#print axioms JSP000334.rothWeightedTaylorIndex_nonneg
+
+#check JSP000334.rothDividedDerivative_coeff
+#print JSP000334.rothDividedDerivative_coeff
+#print axioms JSP000334.rothDividedDerivative_coeff
+
+#check JSP000334.rothDividedDerivative_comp
+#print JSP000334.rothDividedDerivative_comp
+#print axioms JSP000334.rothDividedDerivative_comp
+
+#check JSP000334.rothWeightedTaylorIndex_derivative_lower
+#print JSP000334.rothWeightedTaylorIndex_derivative_lower
+#print axioms JSP000334.rothWeightedTaylorIndex_derivative_lower
+
+#check JSP000334.rothDerivativeDeterminant_index_lower
+#print JSP000334.rothDerivativeDeterminant_index_lower
+#print axioms JSP000334.rothDerivativeDeterminant_index_lower
+
+#check JSP000334.rothFlattenRational
+#print JSP000334.rothFlattenRational
+#print axioms JSP000334.rothFlattenRational
+
+#check JSP000334.rothFlattenRational_coeff
+#print JSP000334.rothFlattenRational_coeff
+#print axioms JSP000334.rothFlattenRational_coeff
+
+#check JSP000334.rothLastExponent_add
+#print JSP000334.rothLastExponent_add
+#print axioms JSP000334.rothLastExponent_add
+
+#check JSP000334.rothLastExponent_surjective
+#print JSP000334.rothLastExponent_surjective
+#print axioms JSP000334.rothLastExponent_surjective
+
+#check JSP000334.rothFlattenRational_mixed
+#print JSP000334.rothFlattenRational_mixed
+#print axioms JSP000334.rothFlattenRational_mixed
+
+#check JSP000334.rothLastExponent_weight
+#print JSP000334.rothLastExponent_weight
+#print axioms JSP000334.rothLastExponent_weight
+
+#check JSP000334.rothTaylorWeight_le_separation
+#print JSP000334.rothTaylorWeight_le_separation
+#print axioms JSP000334.rothTaylorWeight_le_separation
+
+#check JSP000334.rothNestedWeightedTaylorIndex
+#print JSP000334.rothNestedWeightedTaylorIndex
+#print axioms JSP000334.rothNestedWeightedTaylorIndex
+
+#check JSP000334.rothMixedWronskian_index_lower
+#print JSP000334.rothMixedWronskian_index_lower
+#print axioms JSP000334.rothMixedWronskian_index_lower
+
+#check JSP000334.roth_exists_integral_separated_wronskian_all
+#print JSP000334.roth_exists_integral_separated_wronskian_all
+#print axioms JSP000334.roth_exists_integral_separated_wronskian_all
+
+#check JSP000334.rothTaylorPolynomial_inverse
+#print JSP000334.rothTaylorPolynomial_inverse
+#print axioms JSP000334.rothTaylorPolynomial_inverse
+
+#check JSP000334.rothWeightedTaylorIndex_finite
+#print JSP000334.rothWeightedTaylorIndex_finite
+#print axioms JSP000334.rothWeightedTaylorIndex_finite
+
+#check JSP000334.rothInductionOmega_le_t
+#print JSP000334.rothInductionOmega_le_t
+#print axioms JSP000334.rothInductionOmega_le_t
+
+#check JSP000334.rothDegrees_antitone
+#print JSP000334.rothDegrees_antitone
+#print axioms JSP000334.rothDegrees_antitone
+
+#check JSP000334.roth_exists_quantitative_separated_wronskian
+#print JSP000334.roth_exists_quantitative_separated_wronskian
+#print axioms JSP000334.roth_exists_quantitative_separated_wronskian
+
+#check JSP000334.rothLastVariableEquiv_supportBound
+#print JSP000334.rothLastVariableEquiv_supportBound
+#print axioms JSP000334.rothLastVariableEquiv_supportBound
+
+#check JSP000334.rothLastVariableEquiv_height
+#print JSP000334.rothLastVariableEquiv_height
+#print axioms JSP000334.rothLastVariableEquiv_height
+
+#check JSP000334.rothWeightedTaylorIndex_mul
+#print JSP000334.rothWeightedTaylorIndex_mul
+#print axioms JSP000334.rothWeightedTaylorIndex_mul
+
+#check JSP000334.rothPrimitive_integer_dvd_of_rational_dvd
+#print JSP000334.rothPrimitive_integer_dvd_of_rational_dvd
+#print axioms JSP000334.rothPrimitive_integer_dvd_of_rational_dvd
+#check JSP000334.rothReducedLinear_isPrimitive
+#print JSP000334.rothReducedLinear_isPrimitive
+#print axioms JSP000334.rothReducedLinear_isPrimitive
+#check JSP000334.rothReducedLinear_pow_isPrimitive
+#print JSP000334.rothReducedLinear_pow_isPrimitive
+#print axioms JSP000334.rothReducedLinear_pow_isPrimitive
+#check JSP000334.rothRationalMultiplicity_denominator_dvd
+#print JSP000334.rothRationalMultiplicity_denominator_dvd
+#print axioms JSP000334.rothRationalMultiplicity_denominator_dvd
+#check JSP000334.rothRationalMultiplicity_height_le
+#print JSP000334.rothRationalMultiplicity_height_le
+#print axioms JSP000334.rothRationalMultiplicity_height_le
+#check JSP000334.rothRationalMultiplicity_hasse_ne_zero
+#print JSP000334.rothRationalMultiplicity_hasse_ne_zero
+#print axioms JSP000334.rothRationalMultiplicity_hasse_ne_zero
+#check JSP000334.rothRationalDenominator_hasse_witness
+#print JSP000334.rothRationalDenominator_hasse_witness
+#print axioms JSP000334.rothRationalDenominator_hasse_witness
+#check JSP000334.rothFlattenRational_eval
+#print JSP000334.rothFlattenRational_eval
+#print axioms JSP000334.rothFlattenRational_eval
+#check JSP000334.rothIntegerMixed_separated
+#print JSP000334.rothIntegerMixed_separated
+#print axioms JSP000334.rothIntegerMixed_separated
+#check JSP000334.rothSeparated_hasse_eval
+#print JSP000334.rothSeparated_hasse_eval
+#print axioms JSP000334.rothSeparated_hasse_eval
+#check JSP000334.rothWeightedTaylorIndex_le_iff
+#print JSP000334.rothWeightedTaylorIndex_le_iff
+#print axioms JSP000334.rothWeightedTaylorIndex_le_iff
+#check JSP000334.rothTaylorWeight_scale
+#print JSP000334.rothTaylorWeight_scale
+#print axioms JSP000334.rothTaylorWeight_scale
+#check JSP000334.rothOneVariablePolynomial
+#print JSP000334.rothOneVariablePolynomial
+#print axioms JSP000334.rothOneVariablePolynomial
+#check JSP000334.rothOneVariablePolynomial_coeff
+#print JSP000334.rothOneVariablePolynomial_coeff
+#print axioms JSP000334.rothOneVariablePolynomial_coeff
+#check JSP000334.rothOneVariablePolynomial_restore
+#print JSP000334.rothOneVariablePolynomial_restore
+#print axioms JSP000334.rothOneVariablePolynomial_restore
+#check JSP000334.rothOneVariablePolynomial_ne_zero
+#print JSP000334.rothOneVariablePolynomial_ne_zero
+#print axioms JSP000334.rothOneVariablePolynomial_ne_zero
+#check JSP000334.rothOneVariablePolynomial_height_le
+#print JSP000334.rothOneVariablePolynomial_height_le
+#print axioms JSP000334.rothOneVariablePolynomial_height_le
+#check JSP000334.rothIntegerDividedDerivative_zero_order
+#print JSP000334.rothIntegerDividedDerivative_zero_order
+#print axioms JSP000334.rothIntegerDividedDerivative_zero_order
+#check JSP000334.rothScalarOne_index_bound
+#print JSP000334.rothScalarOne_index_bound
+#print axioms JSP000334.rothScalarOne_index_bound
+#check JSP000334.rothClippedSum_arithmetic
+#print JSP000334.rothClippedSum_arithmetic
+#print axioms JSP000334.rothClippedSum_arithmetic
+#check JSP000334.rothClippedSum_prefix_lower
+#print JSP000334.rothClippedSum_prefix_lower
+#print axioms JSP000334.rothClippedSum_prefix_lower
+#check JSP000334.rothClippedSum_contradiction
+#print JSP000334.rothClippedSum_contradiction
+#print axioms JSP000334.rothClippedSum_contradiction
+#check JSP000334.rothDenominatorSize_one_lt
+#print JSP000334.rothDenominatorSize_one_lt
+#print axioms JSP000334.rothDenominatorSize_one_lt
+#check JSP000334.rothIntegerDividedDerivative_eval
+#print JSP000334.rothIntegerDividedDerivative_eval
+#print axioms JSP000334.rothIntegerDividedDerivative_eval
+#check JSP000334.rothScalarOne_omega65
+#print JSP000334.rothScalarOne_omega65
+#print axioms JSP000334.rothScalarOne_omega65
+#check JSP000334.rothWeightedTaylorIndex_scale_finite
+#print JSP000334.rothWeightedTaylorIndex_scale_finite
+#print axioms JSP000334.rothWeightedTaylorIndex_scale_finite
+#check JSP000334.rothNestedWeightedTaylorIndex_mul
+#print JSP000334.rothNestedWeightedTaylorIndex_mul
+#print axioms JSP000334.rothNestedWeightedTaylorIndex_mul
+#check JSP000334.rothHasse_order_ge_rootMultiplicity
+#print JSP000334.rothHasse_order_ge_rootMultiplicity
+#print axioms JSP000334.rothHasse_order_ge_rootMultiplicity
+#check JSP000334.rothSeparated_index_eq
+#print JSP000334.rothSeparated_index_eq
+#print axioms JSP000334.rothSeparated_index_eq
+#check JSP000334.rothScalar_index_omega65
+#print JSP000334.rothScalar_index_omega65
+#print axioms JSP000334.rothScalar_index_omega65
+#check JSP000334.roth_scalar_omega65_nonvanishing
+#print JSP000334.roth_scalar_omega65_nonvanishing
+#print axioms JSP000334.roth_scalar_omega65_nonvanishing
+
+#check JSP000334.rothPrimitiveTriple_common_divisor
+#print JSP000334.rothPrimitiveTriple_common_divisor
+#print axioms JSP000334.rothPrimitiveTriple_common_divisor
+#check JSP000334.rothPrimitiveTriple_pair_gcd_product
+#print JSP000334.rothPrimitiveTriple_pair_gcd_product
+#print axioms JSP000334.rothPrimitiveTriple_pair_gcd_product
+#check JSP000334.rothPrimitiveTriple_select_pair
+#print JSP000334.rothPrimitiveTriple_select_pair
+#print axioms JSP000334.rothPrimitiveTriple_select_pair
+#check JSP000334.rothReducedPair_denominator_bounds
+#print JSP000334.rothReducedPair_denominator_bounds
+#print axioms JSP000334.rothReducedPair_denominator_bounds
+#check JSP000334.rothPrimitiveTriple_rational_parameters
+#print JSP000334.rothPrimitiveTriple_rational_parameters
+#print axioms JSP000334.rothPrimitiveTriple_rational_parameters
+#check JSP000334.rothKernel_square_rpow
+#print JSP000334.rothKernel_square_rpow
+#print axioms JSP000334.rothKernel_square_rpow
+#check JSP000334.rothKernel_scalar_budgets
+#print JSP000334.rothKernel_scalar_budgets
+#print axioms JSP000334.rothKernel_scalar_budgets
+#check JSP000334.RothBlockVars
+#print JSP000334.RothBlockVars
+#print axioms JSP000334.RothBlockVars
+#check JSP000334.rothBlockIntegerDividedDerivative
+#print JSP000334.rothBlockIntegerDividedDerivative
+#print axioms JSP000334.rothBlockIntegerDividedDerivative
+#check JSP000334.rothBlockIntegerDividedDerivative_coeff
+#print JSP000334.rothBlockIntegerDividedDerivative_coeff
+#print axioms JSP000334.rothBlockIntegerDividedDerivative_coeff
+#check JSP000334.rothKernelChart
+#print JSP000334.rothKernelChart
+#print axioms JSP000334.rothKernelChart
+#check JSP000334.rothKernelRestriction
+#print JSP000334.rothKernelRestriction
+#print axioms JSP000334.rothKernelRestriction
+#check JSP000334.rothBlockIntegerDividedDerivative_free_monomial
+#print JSP000334.rothBlockIntegerDividedDerivative_free_monomial
+#print axioms JSP000334.rothBlockIntegerDividedDerivative_free_monomial
+#check JSP000334.rothKernelRestriction_free_monomial_ne_zero
+#print JSP000334.rothKernelRestriction_free_monomial_ne_zero
+#print axioms JSP000334.rothKernelRestriction_free_monomial_ne_zero
+#check JSP000334.rothKernelRestriction_derivative_strip
+#print JSP000334.rothKernelRestriction_derivative_strip
+#print axioms JSP000334.rothKernelRestriction_derivative_strip
+#check JSP000334.rothKernelSetZero
+#print JSP000334.rothKernelSetZero
+#print axioms JSP000334.rothKernelSetZero
+#check JSP000334.rothKernelSetZero_monomial
+#print JSP000334.rothKernelSetZero_monomial
+#print axioms JSP000334.rothKernelSetZero_monomial
+#check JSP000334.rothKernelSetZero_coeff
+#print JSP000334.rothKernelSetZero_coeff
+#print axioms JSP000334.rothKernelSetZero_coeff
+#check JSP000334.rothKernel_exists_strip_specialize
+#print JSP000334.rothKernel_exists_strip_specialize
+#print axioms JSP000334.rothKernel_exists_strip_specialize
+#check JSP000334.rothBlockHomogeneous
+#print JSP000334.rothBlockHomogeneous
+#print axioms JSP000334.rothBlockHomogeneous
+#check JSP000334.rothBlock_single_sum
+#print JSP000334.rothBlock_single_sum
+#print axioms JSP000334.rothBlock_single_sum
+#check JSP000334.rothBlockHomogeneous_divMonomial
+#print JSP000334.rothBlockHomogeneous_divMonomial
+#print axioms JSP000334.rothBlockHomogeneous_divMonomial
+#check JSP000334.rothBlockHomogeneous_setZero
+#print JSP000334.rothBlockHomogeneous_setZero
+#print axioms JSP000334.rothBlockHomogeneous_setZero
+#check JSP000334.rothKernelSetZero_derivative
+#print JSP000334.rothKernelSetZero_derivative
+#print axioms JSP000334.rothKernelSetZero_derivative
+#check JSP000334.rothKernelZeroRow
+#print JSP000334.rothKernelZeroRow
+#print axioms JSP000334.rothKernelZeroRow
+#check JSP000334.rothKernelSetZeroRat
+#print JSP000334.rothKernelSetZeroRat
+#print axioms JSP000334.rothKernelSetZeroRat
+#check JSP000334.rothKernelChart_specialize
+#print JSP000334.rothKernelChart_specialize
+#print axioms JSP000334.rothKernelChart_specialize
+#check JSP000334.rothKernelRestriction_specialize
+#print JSP000334.rothKernelRestriction_specialize
+#print axioms JSP000334.rothKernelRestriction_specialize
+#check JSP000334.rothKernelRestriction_lift_elimination
+#print JSP000334.rothKernelRestriction_lift_elimination
+#print axioms JSP000334.rothKernelRestriction_lift_elimination
+#check JSP000334.rothKernelZeroRows
+#print JSP000334.rothKernelZeroRows
+#print axioms JSP000334.rothKernelZeroRows
+#check JSP000334.rothKernel_eliminate_discarded
+#print JSP000334.rothKernel_eliminate_discarded
+#print axioms JSP000334.rothKernel_eliminate_discarded
+#check JSP000334.rothKernelPivotExponent
+#print JSP000334.rothKernelPivotExponent
+#print axioms JSP000334.rothKernelPivotExponent
+#check JSP000334.rothKernelDehom
+#print JSP000334.rothKernelDehom
+#print axioms JSP000334.rothKernelDehom
+#check JSP000334.rothKernel_binary_sum
+#print JSP000334.rothKernel_binary_sum
+#print axioms JSP000334.rothKernel_binary_sum
+#check JSP000334.rothKernelPivotExponent_injective
+#print JSP000334.rothKernelPivotExponent_injective
+#print axioms JSP000334.rothKernelPivotExponent_injective
+#check JSP000334.rothKernelDehom_coeff_at
+#print JSP000334.rothKernelDehom_coeff_at
+#print axioms JSP000334.rothKernelDehom_coeff_at
+#check JSP000334.rothKernelDehom_nonzero_height_degree
+#print JSP000334.rothKernelDehom_nonzero_height_degree
+#print axioms JSP000334.rothKernelDehom_nonzero_height_degree
+#check JSP000334.rothKernelPivotOrder
+#print JSP000334.rothKernelPivotOrder
+#print axioms JSP000334.rothKernelPivotOrder
+#check JSP000334.rothKernelDehom_monomial
+#print JSP000334.rothKernelDehom_monomial
+#print axioms JSP000334.rothKernelDehom_monomial
+#check JSP000334.rothKernelDehom_add
+#print JSP000334.rothKernelDehom_add
+#print axioms JSP000334.rothKernelDehom_add
+#check JSP000334.rothKernel_scalarDerivative_add
+#print JSP000334.rothKernel_scalarDerivative_add
+#print axioms JSP000334.rothKernel_scalarDerivative_add
+#check JSP000334.rothBlockIntegerDividedDerivative_add
+#print JSP000334.rothBlockIntegerDividedDerivative_add
+#print axioms JSP000334.rothBlockIntegerDividedDerivative_add
+#check JSP000334.rothKernelDehom_derivative
+#print JSP000334.rothKernelDehom_derivative
+#print axioms JSP000334.rothKernelDehom_derivative
+#check JSP000334.rothKernelPivotOrder_budget
+#print JSP000334.rothKernelPivotOrder_budget
+#print axioms JSP000334.rothKernelPivotOrder_budget
+#check JSP000334.rothKernelDehom_eval
+#print JSP000334.rothKernelDehom_eval
+#print axioms JSP000334.rothKernelDehom_eval
+#check JSP000334.rothKernelRestriction_eval
+#print JSP000334.rothKernelRestriction_eval
+#print axioms JSP000334.rothKernelRestriction_eval
+#check JSP000334.rothKernelDiscarded
+#print JSP000334.rothKernelDiscarded
+#print axioms JSP000334.rothKernelDiscarded
+#check JSP000334.rothKernelRestriction_binary_eval
+#print JSP000334.rothKernelRestriction_binary_eval
+#print axioms JSP000334.rothKernelRestriction_binary_eval
+#check JSP000334.rothKernelRowHeight
+#print JSP000334.rothKernelRowHeight
+#print axioms JSP000334.rothKernelRowHeight
+#check JSP000334.rothKernelBlockHeight
+#print JSP000334.rothKernelBlockHeight
+#print axioms JSP000334.rothKernelBlockHeight
+#check JSP000334.roth_full_kernel_omega65_nonvanishing
+#print JSP000334.roth_full_kernel_omega65_nonvanishing
+#print axioms JSP000334.roth_full_kernel_omega65_nonvanishing
+
+
+set_option pp.proofs false
+
+#check JSP000334.RothAuxBlock
+#print JSP000334.RothAuxBlock
+#print axioms JSP000334.RothAuxBlock
+#check JSP000334.rothAuxBlockPerm
+#print JSP000334.rothAuxBlockPerm
+#print axioms JSP000334.rothAuxBlockPerm
+#check JSP000334.rothAuxBlock_coordinate_sum
+#print JSP000334.rothAuxBlock_coordinate_sum
+#print axioms JSP000334.rothAuxBlock_coordinate_sum
+#check JSP000334.rothAuxBlock_center_sum
+#print JSP000334.rothAuxBlock_center_sum
+#print axioms JSP000334.rothAuxBlock_center_sum
+#check JSP000334.rothAuxBlock_center_bound
+#print JSP000334.rothAuxBlock_center_bound
+#print axioms JSP000334.rothAuxBlock_center_bound
+#check JSP000334.rothAuxBlock_exp_sum
+#print JSP000334.rothAuxBlock_exp_sum
+#print axioms JSP000334.rothAuxBlock_exp_sum
+#check JSP000334.rothAuxBlockPivotEquiv
+#print JSP000334.rothAuxBlockPivotEquiv
+#print axioms JSP000334.rothAuxBlockPivotEquiv
+#check JSP000334.rothAuxBlock_card
+#print JSP000334.rothAuxBlock_card
+#print axioms JSP000334.rothAuxBlock_card
+#check JSP000334.RothAuxCoefficients
+#print JSP000334.RothAuxCoefficients
+#print axioms JSP000334.RothAuxCoefficients
+#check JSP000334.RothAuxPivots
+#print JSP000334.RothAuxPivots
+#print axioms JSP000334.RothAuxPivots
+#check JSP000334.rothAuxDimension
+#print JSP000334.rothAuxDimension
+#print axioms JSP000334.rothAuxDimension
+#check JSP000334.rothAuxDimension_eq
+#print JSP000334.rothAuxDimension_eq
+#print axioms JSP000334.rothAuxDimension_eq
+#check JSP000334.rothAuxCentered
+#print JSP000334.rothAuxCentered
+#print axioms JSP000334.rothAuxCentered
+#check JSP000334.RothAuxBad
+#print JSP000334.RothAuxBad
+#print axioms JSP000334.RothAuxBad
+#check JSP000334.rothAuxPivotCondition
+#print JSP000334.rothAuxPivotCondition
+#print axioms JSP000334.rothAuxPivotCondition
+#check JSP000334.rothAux_bad_iff_pivot
+#print JSP000334.rothAux_bad_iff_pivot
+#print axioms JSP000334.rothAux_bad_iff_pivot
+#check JSP000334.rothAuxBadPivotEquiv
+#print JSP000334.rothAuxBadPivotEquiv
+#print axioms JSP000334.rothAuxBadPivotEquiv
+#check JSP000334.rothAuxBad_card_source
+#print JSP000334.rothAuxBad_card_source
+#print axioms JSP000334.rothAuxBad_card_source
+#check JSP000334.rothAux_exp_moment
+#print JSP000334.rothAux_exp_moment
+#print axioms JSP000334.rothAux_exp_moment
+#check JSP000334.rothAux_exp_tail_parameter
+#print JSP000334.rothAux_exp_tail_parameter
+#print axioms JSP000334.rothAux_exp_tail_parameter
+#check JSP000334.rothAuxBad_card_zero
+#print JSP000334.rothAuxBad_card_zero
+#print axioms JSP000334.rothAuxBad_card_zero
+#check JSP000334.rothAuxBad_exp_bound
+#print JSP000334.rothAuxBad_exp_bound
+#print axioms JSP000334.rothAuxBad_exp_bound
+#check JSP000334.RothAuxEquations
+#print JSP000334.RothAuxEquations
+#print axioms JSP000334.RothAuxEquations
+#check JSP000334.rothAuxConstraintCount
+#print JSP000334.rothAuxConstraintCount
+#print axioms JSP000334.rothAuxConstraintCount
+#check JSP000334.rothAuxConstraintCount_eq
+#print JSP000334.rothAuxConstraintCount_eq
+#print axioms JSP000334.rothAuxConstraintCount_eq
+#check JSP000334.rothAuxConstraintCount_source
+#print JSP000334.rothAuxConstraintCount_source
+#print axioms JSP000334.rothAuxConstraintCount_source
+#check JSP000334.rothAuxDimension_pos
+#print JSP000334.rothAuxDimension_pos
+#print axioms JSP000334.rothAuxDimension_pos
+#check JSP000334.rothAuxConstraintCount_exp_bound
+#print JSP000334.rothAuxConstraintCount_exp_bound
+#print axioms JSP000334.rothAuxConstraintCount_exp_bound
+#check JSP000334.rothAuxConstraintCount_le_half
+#print JSP000334.rothAuxConstraintCount_le_half
+#print axioms JSP000334.rothAuxConstraintCount_le_half
+
+
+#check JSP000334.rothAux_derivative_monomial
+#print JSP000334.rothAux_derivative_monomial
+#print axioms JSP000334.rothAux_derivative_monomial
+#check JSP000334.rothAux_transformed_coeff_sum
+#print JSP000334.rothAux_transformed_coeff_sum
+#print axioms JSP000334.rothAux_transformed_coeff_sum
+#check JSP000334.rothAuxExponent
+#print JSP000334.rothAuxExponent
+#print axioms JSP000334.rothAuxExponent
+#check JSP000334.rothAuxExponent_injective
+#print JSP000334.rothAuxExponent_injective
+#print axioms JSP000334.rothAuxExponent_injective
+#check JSP000334.rothAuxPolynomial
+#print JSP000334.rothAuxPolynomial
+#print axioms JSP000334.rothAuxPolynomial
+#check JSP000334.rothAuxPolynomial_coeff
+#print JSP000334.rothAuxPolynomial_coeff
+#print axioms JSP000334.rothAuxPolynomial_coeff
+#check JSP000334.rothAuxPolynomial_eq_zero_iff
+#print JSP000334.rothAuxPolynomial_eq_zero_iff
+#print axioms JSP000334.rothAuxPolynomial_eq_zero_iff
+#check JSP000334.rothAuxPolynomial_homogeneous
+#print JSP000334.rothAuxPolynomial_homogeneous
+#print axioms JSP000334.rothAuxPolynomial_homogeneous
+#check JSP000334.rothAuxFormEquiv
+#print JSP000334.rothAuxFormEquiv
+#print axioms JSP000334.rothAuxFormEquiv
+#check JSP000334.rothAuxPivot
+#print JSP000334.rothAuxPivot
+#print axioms JSP000334.rothAuxPivot
+#check JSP000334.rothAuxPivot_ne_zero
+#print JSP000334.rothAuxPivot_ne_zero
+#print axioms JSP000334.rothAuxPivot_ne_zero
+#check JSP000334.rothAuxScaledChart
+#print JSP000334.rothAuxScaledChart
+#print axioms JSP000334.rothAuxScaledChart
+#check JSP000334.rothAuxScaledSubstitution
+#print JSP000334.rothAuxScaledSubstitution
+#print axioms JSP000334.rothAuxScaledSubstitution
+#check JSP000334.rothAuxPivotDerivative
+#print JSP000334.rothAuxPivotDerivative
+#print axioms JSP000334.rothAuxPivotDerivative
+#check JSP000334.rothAuxFreeExponent
+#print JSP000334.rothAuxFreeExponent
+#print axioms JSP000334.rothAuxFreeExponent
+#check JSP000334.rothAuxEquation
+#print JSP000334.rothAuxEquation
+#print axioms JSP000334.rothAuxEquation
+#check JSP000334.rothAuxMatrix
+#print JSP000334.rothAuxMatrix
+#print axioms JSP000334.rothAuxMatrix
+#check JSP000334.rothAuxMatrix_mulVec
+#print JSP000334.rothAuxMatrix_mulVec
+#print axioms JSP000334.rothAuxMatrix_mulVec
+#check JSP000334.rothAuxMatrix_mulVec_zero_iff
+#print JSP000334.rothAuxMatrix_mulVec_zero_iff
+#print axioms JSP000334.rothAuxMatrix_mulVec_zero_iff
+#check JSP000334.rothAuxMatrix_cardinalities
+#print JSP000334.rothAuxMatrix_cardinalities
+#print axioms JSP000334.rothAuxMatrix_cardinalities
+#check JSP000334.rothAuxMass
+#print JSP000334.rothAuxMass
+#print axioms JSP000334.rothAuxMass
+#check JSP000334.rothAuxMass_nonneg
+#print JSP000334.rothAuxMass_nonneg
+#print axioms JSP000334.rothAuxMass_nonneg
+#check JSP000334.rothAuxMass_monomial
+#print JSP000334.rothAuxMass_monomial
+#print axioms JSP000334.rothAuxMass_monomial
+#check JSP000334.rothAuxMass_support_sum
+#print JSP000334.rothAuxMass_support_sum
+#print axioms JSP000334.rothAuxMass_support_sum
+#check JSP000334.rothAuxMass_add
+#print JSP000334.rothAuxMass_add
+#print axioms JSP000334.rothAuxMass_add
+#check JSP000334.rothAuxMass_sum
+#print JSP000334.rothAuxMass_sum
+#print axioms JSP000334.rothAuxMass_sum
+#check JSP000334.rothAuxMass_mul
+#print JSP000334.rothAuxMass_mul
+#print axioms JSP000334.rothAuxMass_mul
+#check JSP000334.rothAuxMass_pow
+#print JSP000334.rothAuxMass_pow
+#print axioms JSP000334.rothAuxMass_pow
+#check JSP000334.rothAuxMass_prod
+#print JSP000334.rothAuxMass_prod
+#print axioms JSP000334.rothAuxMass_prod
+#check JSP000334.rothAux_coeff_le_mass
+#print JSP000334.rothAux_coeff_le_mass
+#print axioms JSP000334.rothAux_coeff_le_mass
+#check JSP000334.rothAuxMass_neg
+#print JSP000334.rothAuxMass_neg
+#print axioms JSP000334.rothAuxMass_neg
+#check JSP000334.rothAuxMass_C_mul_X
+#print JSP000334.rothAuxMass_C_mul_X
+#print axioms JSP000334.rothAuxMass_C_mul_X
+#check JSP000334.rothAuxSourceHeight
+#print JSP000334.rothAuxSourceHeight
+#print axioms JSP000334.rothAuxSourceHeight
+#check JSP000334.rothAuxSourceHeight_one_le
+#print JSP000334.rothAuxSourceHeight_one_le
+#print axioms JSP000334.rothAuxSourceHeight_one_le
+#check JSP000334.rothAuxSourceHeight_coeff
+#print JSP000334.rothAuxSourceHeight_coeff
+#print axioms JSP000334.rothAuxSourceHeight_coeff
+#check JSP000334.rothAuxScaledChart_mass
+#print JSP000334.rothAuxScaledChart_mass
+#print axioms JSP000334.rothAuxScaledChart_mass
+#check JSP000334.rothAux_scaled_derivative_monomial
+#print JSP000334.rothAux_scaled_derivative_monomial
+#print axioms JSP000334.rothAux_scaled_derivative_monomial
+#check JSP000334.rothAux_exponent_sum
+#print JSP000334.rothAux_exponent_sum
+#print axioms JSP000334.rothAux_exponent_sum
+#check JSP000334.rothAux_binomial_product_bound
+#print JSP000334.rothAux_binomial_product_bound
+#print axioms JSP000334.rothAux_binomial_product_bound
+#check JSP000334.rothAux_transformed_entry_bound
+#print JSP000334.rothAux_transformed_entry_bound
+#print axioms JSP000334.rothAux_transformed_entry_bound
+#check JSP000334.rothAuxMatrix_entry_bound
+#print JSP000334.rothAuxMatrix_entry_bound
+#print axioms JSP000334.rothAuxMatrix_entry_bound
+
+
+#check JSP000334.rothAux_weight_block
+#print JSP000334.rothAux_weight_block
+#print axioms JSP000334.rothAux_weight_block
+#check JSP000334.rothAux_weight_pivot
+#print JSP000334.rothAux_weight_pivot
+#print axioms JSP000334.rothAux_weight_pivot
+#check JSP000334.rothAux_weighted_neg
+#print JSP000334.rothAux_weighted_neg
+#print axioms JSP000334.rothAux_weighted_neg
+#check JSP000334.rothAuxScaledChart_block_weight
+#print JSP000334.rothAuxScaledChart_block_weight
+#print axioms JSP000334.rothAuxScaledChart_block_weight
+#check JSP000334.rothAuxScaledChart_pivot_weight
+#print JSP000334.rothAuxScaledChart_pivot_weight
+#print axioms JSP000334.rothAuxScaledChart_pivot_weight
+#check JSP000334.rothAux_scaled_monomial_weighted
+#print JSP000334.rothAux_scaled_monomial_weighted
+#print axioms JSP000334.rothAux_scaled_monomial_weighted
+#check JSP000334.rothAux_transformed_polynomial
+#print JSP000334.rothAux_transformed_polynomial
+#print axioms JSP000334.rothAux_transformed_polynomial
+#check JSP000334.rothAux_pivot_monomial_block_weight
+#print JSP000334.rothAux_pivot_monomial_block_weight
+#print axioms JSP000334.rothAux_pivot_monomial_block_weight
+#check JSP000334.rothAux_transformed_block_weight
+#print JSP000334.rothAux_transformed_block_weight
+#print axioms JSP000334.rothAux_transformed_block_weight
+#check JSP000334.rothAux_transformed_block_homogeneous
+#print JSP000334.rothAux_transformed_block_homogeneous
+#print axioms JSP000334.rothAux_transformed_block_homogeneous
+#check JSP000334.rothAux_transformed_pivot_weight
+#print JSP000334.rothAux_transformed_pivot_weight
+#print axioms JSP000334.rothAux_transformed_pivot_weight
+#check JSP000334.rothAux_transformed_pivot_zero
+#print JSP000334.rothAux_transformed_pivot_zero
+#print axioms JSP000334.rothAux_transformed_pivot_zero
+#check JSP000334.rothAuxFreeExponent_reconstruct
+#print JSP000334.rothAuxFreeExponent_reconstruct
+#print axioms JSP000334.rothAuxFreeExponent_reconstruct
+#check JSP000334.rothAux_transformed_support
+#print JSP000334.rothAux_transformed_support
+#print axioms JSP000334.rothAux_transformed_support
+#check JSP000334.rothAux_transformed_eq_zero_iff
+#print JSP000334.rothAux_transformed_eq_zero_iff
+#print axioms JSP000334.rothAux_transformed_eq_zero_iff
+#check JSP000334.rothAuxEquation_all_iff_polynomial_zero
+#print JSP000334.rothAuxEquation_all_iff_polynomial_zero
+#print axioms JSP000334.rothAuxEquation_all_iff_polynomial_zero
+#check JSP000334.rothAuxMatrix_mulVec_zero_iff_polynomials_zero
+#print JSP000334.rothAuxMatrix_mulVec_zero_iff_polynomials_zero
+#print axioms JSP000334.rothAuxMatrix_mulVec_zero_iff_polynomials_zero
+
+set_option pp.proofs false
+#check JSP000334.rothAux_block_choose_le_pow
+#print JSP000334.rothAux_block_choose_le_pow
+#print axioms JSP000334.rothAux_block_choose_le_pow
+#check JSP000334.rothAuxDimension_le_three_pow
+#print JSP000334.rothAuxDimension_le_three_pow
+#print axioms JSP000334.rothAuxDimension_le_three_pow
+#check JSP000334.rothAuxMatrix_norm_bound
+#print JSP000334.rothAuxMatrix_norm_bound
+#print axioms JSP000334.rothAuxMatrix_norm_bound
+#check JSP000334.rothAuxMatrix_siegel_base_bound
+#print JSP000334.rothAuxMatrix_siegel_base_bound
+#print axioms JSP000334.rothAuxMatrix_siegel_base_bound
+#check JSP000334.rothAuxRowsEquivFin
+#print JSP000334.rothAuxRowsEquivFin
+#print axioms JSP000334.rothAuxRowsEquivFin
+#check JSP000334.rothAuxColsEquivFin
+#print JSP000334.rothAuxColsEquivFin
+#print axioms JSP000334.rothAuxColsEquivFin
+#check JSP000334.rothAuxFinMatrix
+#print JSP000334.rothAuxFinMatrix
+#print axioms JSP000334.rothAuxFinMatrix
+#check JSP000334.rothAuxFinMatrix_mulVec
+#print JSP000334.rothAuxFinMatrix_mulVec
+#print axioms JSP000334.rothAuxFinMatrix_mulVec
+#check JSP000334.rothAuxFinVector_transport
+#print JSP000334.rothAuxFinVector_transport
+#print axioms JSP000334.rothAuxFinVector_transport
+#check JSP000334.rothAuxFinMatrix_norm
+#print JSP000334.rothAuxFinMatrix_norm
+#print axioms JSP000334.rothAuxFinMatrix_norm
+#check JSP000334.rothAuxMatrix_exists_bounded_int_kernel
+#print JSP000334.rothAuxMatrix_exists_bounded_int_kernel
+#print axioms JSP000334.rothAuxMatrix_exists_bounded_int_kernel
+
+set_option pp.proofs false
+#check JSP000334.rothAuxPolynomial_support
+#print JSP000334.rothAuxPolynomial_support
+#print axioms JSP000334.rothAuxPolynomial_support
+#check JSP000334.rothAuxPolynomial_coeff_zero_of_not_indexed
+#print JSP000334.rothAuxPolynomial_coeff_zero_of_not_indexed
+#print axioms JSP000334.rothAuxPolynomial_coeff_zero_of_not_indexed
+#check JSP000334.rothAuxPolynomial_height_le
+#print JSP000334.rothAuxPolynomial_height_le
+#print axioms JSP000334.rothAuxPolynomial_height_le
+#check JSP000334.rothAuxHeightConstant
+#print JSP000334.rothAuxHeightConstant
+#print axioms JSP000334.rothAuxHeightConstant
+#check JSP000334.rothAuxHeightConstant_one_le
+#print JSP000334.rothAuxHeightConstant_one_le
+#print axioms JSP000334.rothAuxHeightConstant_one_le
+#check JSP000334.roth_auxiliary_integer_polynomial
+#print JSP000334.roth_auxiliary_integer_polynomial
+#print axioms JSP000334.roth_auxiliary_integer_polynomial
+
+set_option pp.proofs false
+#check JSP000334.rothSourceDerivativeWeight
+#print JSP000334.rothSourceDerivativeWeight
+#print axioms JSP000334.rothSourceDerivativeWeight
+#check JSP000334.rothSourceHighIndex
+#print JSP000334.rothSourceHighIndex
+#print axioms JSP000334.rothSourceHighIndex
+#check JSP000334.rothSource_pderiv_eq_single
+#print JSP000334.rothSource_pderiv_eq_single
+#print axioms JSP000334.rothSource_pderiv_eq_single
+#check JSP000334.rothSource_derivative_comp
+#print JSP000334.rothSource_derivative_comp
+#print axioms JSP000334.rothSource_derivative_comp
+#check JSP000334.rothSource_pderiv_hasse
+#print JSP000334.rothSource_pderiv_hasse
+#print axioms JSP000334.rothSource_pderiv_hasse
+#check JSP000334.rothSource_scaled_chart_pderiv
+#print JSP000334.rothSource_scaled_chart_pderiv
+#print axioms JSP000334.rothSource_scaled_chart_pderiv
+#check JSP000334.rothSource_scaled_chain
+#print JSP000334.rothSource_scaled_chain
+#print axioms JSP000334.rothSource_scaled_chain
+#check JSP000334.rothSource_weight_add
+#print JSP000334.rothSource_weight_add
+#print axioms JSP000334.rothSource_weight_add
+#check JSP000334.rothSource_weight_mono
+#print JSP000334.rothSource_weight_mono
+#print axioms JSP000334.rothSource_weight_mono
+#check JSP000334.rothSource_weight_single
+#print JSP000334.rothSource_weight_single
+#print axioms JSP000334.rothSource_weight_single
+#check JSP000334.rothSource_weight_pivot
+#print JSP000334.rothSource_weight_pivot
+#print axioms JSP000334.rothSource_weight_pivot
+#check JSP000334.rothSourceFreeOrder
+#print JSP000334.rothSourceFreeOrder
+#print axioms JSP000334.rothSourceFreeOrder
+#check JSP000334.rothSource_free_add
+#print JSP000334.rothSource_free_add
+#print axioms JSP000334.rothSource_free_add
+#check JSP000334.rothSource_free_single
+#print JSP000334.rothSource_free_single
+#print axioms JSP000334.rothSource_free_single
+#check JSP000334.rothSource_free_zero_pivot
+#print JSP000334.rothSource_free_zero_pivot
+#print axioms JSP000334.rothSource_free_zero_pivot
+
+set_option pp.proofs false
+#check JSP000334.rothSource_scaled_mixed_vanishing
+#print JSP000334.rothSource_scaled_mixed_vanishing
+#print axioms JSP000334.rothSource_scaled_mixed_vanishing
+#check JSP000334.rothSource_kernel_chart_form
+#print JSP000334.rothSource_kernel_chart_form
+#print axioms JSP000334.rothSource_kernel_chart_form
+#check JSP000334.rothSourceChartTransport
+#print JSP000334.rothSourceChartTransport
+#print axioms JSP000334.rothSourceChartTransport
+#check JSP000334.rothSource_chart_transport_variable
+#print JSP000334.rothSource_chart_transport_variable
+#print axioms JSP000334.rothSource_chart_transport_variable
+#check JSP000334.rothSource_chart_transport
+#print JSP000334.rothSource_chart_transport
+#print axioms JSP000334.rothSource_chart_transport
+#check JSP000334.rothSource_derivative_zero_of_block_excess
+#print JSP000334.rothSource_derivative_zero_of_block_excess
+#print axioms JSP000334.rothSource_derivative_zero_of_block_excess
+#check JSP000334.rothSource_highIndex_of_scaled
+#print JSP000334.rothSource_highIndex_of_scaled
+#print axioms JSP000334.rothSource_highIndex_of_scaled
+#check JSP000334.roth_auxiliary_integer_three_place
+#print JSP000334.roth_auxiliary_integer_three_place
+#print axioms JSP000334.roth_auxiliary_integer_three_place
+
+set_option pp.proofs false
+#check JSP000334.rothLocalRationalMatrix
+#print JSP000334.rothLocalRationalMatrix
+#print axioms JSP000334.rothLocalRationalMatrix
+#check JSP000334.rothLocalLinearChart
+#print JSP000334.rothLocalLinearChart
+#print axioms JSP000334.rothLocalLinearChart
+#check JSP000334.rothLocalSubstitution
+#print JSP000334.rothLocalSubstitution
+#print axioms JSP000334.rothLocalSubstitution
+#check JSP000334.rothLocalExpansion
+#print JSP000334.rothLocalExpansion
+#print axioms JSP000334.rothLocalExpansion
+#check JSP000334.rothLocalAbs
+#print JSP000334.rothLocalAbs
+#print axioms JSP000334.rothLocalAbs
+#check JSP000334.rothLocal_chart_one
+#print JSP000334.rothLocal_chart_one
+#print axioms JSP000334.rothLocal_chart_one
+#check JSP000334.rothLocal_chart_comp
+#print JSP000334.rothLocal_chart_comp
+#print axioms JSP000334.rothLocal_chart_comp
+#check JSP000334.rothLocal_expansion_reconstruct
+#print JSP000334.rothLocal_expansion_reconstruct
+#print axioms JSP000334.rothLocal_expansion_reconstruct
+#check JSP000334.rothLocal_chart_pderiv
+#print JSP000334.rothLocal_chart_pderiv
+#print axioms JSP000334.rothLocal_chart_pderiv
+#check JSP000334.rothLocal_substitution_one
+#print JSP000334.rothLocal_substitution_one
+#print axioms JSP000334.rothLocal_substitution_one
+#check JSP000334.rothLocal_substitution_comp
+#print JSP000334.rothLocal_substitution_comp
+#print axioms JSP000334.rothLocal_substitution_comp
+#check JSP000334.rothLocal_substitution_injective
+#print JSP000334.rothLocal_substitution_injective
+#print axioms JSP000334.rothLocal_substitution_injective
+#check JSP000334.rothLocal_expansion_unique
+#print JSP000334.rothLocal_expansion_unique
+#print axioms JSP000334.rothLocal_expansion_unique
+#check JSP000334.rothLocal_substitution_chain
+#print JSP000334.rothLocal_substitution_chain
+#print axioms JSP000334.rothLocal_substitution_chain
+#check JSP000334.rothLocalZeroCoordinate
+#print JSP000334.rothLocalZeroCoordinate
+#print axioms JSP000334.rothLocalZeroCoordinate
+#check JSP000334.rothLocalKernelImage
+#print JSP000334.rothLocalKernelImage
+#print axioms JSP000334.rothLocalKernelImage
+#check JSP000334.rothLocal_kernel_image_form
+#print JSP000334.rothLocal_kernel_image_form
+#print axioms JSP000334.rothLocal_kernel_image_form
+#check JSP000334.rothLocal_kernel_factor_variable
+#print JSP000334.rothLocal_kernel_factor_variable
+#print axioms JSP000334.rothLocal_kernel_factor_variable
+#check JSP000334.rothLocal_kernel_factor
+#print JSP000334.rothLocal_kernel_factor
+#print axioms JSP000334.rothLocal_kernel_factor
+#check JSP000334.rothLocal_index_zero_slice
+#print JSP000334.rothLocal_index_zero_slice
+#print axioms JSP000334.rothLocal_index_zero_slice
+#check JSP000334.rothLocal_zero_monomial
+#print JSP000334.rothLocal_zero_monomial
+#print axioms JSP000334.rothLocal_zero_monomial
+#check JSP000334.rothLocal_zero_coeff
+#print JSP000334.rothLocal_zero_coeff
+#print axioms JSP000334.rothLocal_zero_coeff
+#check JSP000334.rothLocal_pderiv_coeff
+#print JSP000334.rothLocal_pderiv_coeff
+#print axioms JSP000334.rothLocal_pderiv_coeff
+#check JSP000334.rothLocal_substitution_map
+#print JSP000334.rothLocal_substitution_map
+#print axioms JSP000334.rothLocal_substitution_map
+#check JSP000334.rothLocal_expansion_chain
+#print JSP000334.rothLocal_expansion_chain
+#print axioms JSP000334.rothLocal_expansion_chain
+#check JSP000334.rothLocalCoordinateWeight
+#print JSP000334.rothLocalCoordinateWeight
+#print axioms JSP000334.rothLocalCoordinateWeight
+#check JSP000334.rothLocal_coordinate_weight_add
+#print JSP000334.rothLocal_coordinate_weight_add
+#print axioms JSP000334.rothLocal_coordinate_weight_add
+#check JSP000334.rothLocal_coordinate_weight_single
+#print JSP000334.rothLocal_coordinate_weight_single
+#print axioms JSP000334.rothLocal_coordinate_weight_single
+#check JSP000334.rothLocal_coeff_zero_below_index
+#print JSP000334.rothLocal_coeff_zero_below_index
+#print axioms JSP000334.rothLocal_coeff_zero_below_index
+#check JSP000334.rothLocal_chart_block_weight
+#print JSP000334.rothLocal_chart_block_weight
+#print axioms JSP000334.rothLocal_chart_block_weight
+
+set_option pp.proofs false
+#check JSP000334.rothLocal_expansion_block_weight
+#print JSP000334.rothLocal_expansion_block_weight
+#print axioms JSP000334.rothLocal_expansion_block_weight
+#check JSP000334.rothLocal_expansion_block_degree
+#print JSP000334.rothLocal_expansion_block_degree
+#print axioms JSP000334.rothLocal_expansion_block_degree
+#check JSP000334.rothLocal_total_coordinate_weight_le
+#print JSP000334.rothLocal_total_coordinate_weight_le
+#print axioms JSP000334.rothLocal_total_coordinate_weight_le
+#check JSP000334.rothLocal_nonzero_row
+#print JSP000334.rothLocal_nonzero_row
+#print axioms JSP000334.rothLocal_nonzero_row
+#check JSP000334.rothLocal_coefficient_balance
+#print JSP000334.rothLocal_coefficient_balance
+#print axioms JSP000334.rothLocal_coefficient_balance
+#check JSP000334.rothLocalAbs_nonneg
+#print JSP000334.rothLocalAbs_nonneg
+#print axioms JSP000334.rothLocalAbs_nonneg
+#check JSP000334.rothLocalAbs_zero
+#print JSP000334.rothLocalAbs_zero
+#print axioms JSP000334.rothLocalAbs_zero
+#check JSP000334.rothLocalAbs_one
+#print JSP000334.rothLocalAbs_one
+#print axioms JSP000334.rothLocalAbs_one
+#check JSP000334.rothLocalAbs_mul
+#print JSP000334.rothLocalAbs_mul
+#print axioms JSP000334.rothLocalAbs_mul
+#check JSP000334.rothLocalAbs_add
+#print JSP000334.rothLocalAbs_add
+#print axioms JSP000334.rothLocalAbs_add
+#check JSP000334.rothLocalAbs_int
+#print JSP000334.rothLocalAbs_int
+#print axioms JSP000334.rothLocalAbs_int
+#check JSP000334.rothLocalMass
+#print JSP000334.rothLocalMass
+#print axioms JSP000334.rothLocalMass
+#check JSP000334.rothLocalMass_nonneg
+#print JSP000334.rothLocalMass_nonneg
+#print axioms JSP000334.rothLocalMass_nonneg
+#check JSP000334.rothLocalMass_monomial
+#print JSP000334.rothLocalMass_monomial
+#print axioms JSP000334.rothLocalMass_monomial
+#check JSP000334.rothLocalMass_support_sum
+#print JSP000334.rothLocalMass_support_sum
+#print axioms JSP000334.rothLocalMass_support_sum
+#check JSP000334.rothLocalMass_add
+#print JSP000334.rothLocalMass_add
+#print axioms JSP000334.rothLocalMass_add
+#check JSP000334.rothLocalMass_sum
+#print JSP000334.rothLocalMass_sum
+#print axioms JSP000334.rothLocalMass_sum
+#check JSP000334.rothLocalMass_mul
+#print JSP000334.rothLocalMass_mul
+#print axioms JSP000334.rothLocalMass_mul
+#check JSP000334.rothLocalMass_pow
+#print JSP000334.rothLocalMass_pow
+#print axioms JSP000334.rothLocalMass_pow
+#check JSP000334.rothLocalMass_prod
+#print JSP000334.rothLocalMass_prod
+#print axioms JSP000334.rothLocalMass_prod
+#check JSP000334.rothLocal_coeff_le_mass
+#print JSP000334.rothLocal_coeff_le_mass
+#print axioms JSP000334.rothLocal_coeff_le_mass
+#check JSP000334.rothLocalMass_C
+#print JSP000334.rothLocalMass_C
+#print axioms JSP000334.rothLocalMass_C
+#check JSP000334.rothLocalMass_C_mul_X
+#print JSP000334.rothLocalMass_C_mul_X
+#print axioms JSP000334.rothLocalMass_C_mul_X
+#check JSP000334.rothLocalInverseBound
+#print JSP000334.rothLocalInverseBound
+#print axioms JSP000334.rothLocalInverseBound
+#check JSP000334.rothLocalInverseBound_one_le
+#print JSP000334.rothLocalInverseBound_one_le
+#print axioms JSP000334.rothLocalInverseBound_one_le
+#check JSP000334.rothLocalInverseBound_entry
+#print JSP000334.rothLocalInverseBound_entry
+#print axioms JSP000334.rothLocalInverseBound_entry
+#check JSP000334.rothLocal_chart_mass
+#print JSP000334.rothLocal_chart_mass
+#print axioms JSP000334.rothLocal_chart_mass
+#check JSP000334.rothLocal_support_index
+#print JSP000334.rothLocal_support_index
+#print axioms JSP000334.rothLocal_support_index
+#check JSP000334.rothLocal_support_card
+#print JSP000334.rothLocal_support_card
+#print axioms JSP000334.rothLocal_support_card
+#check JSP000334.rothLocal_transformed_monomial_mass
+#print JSP000334.rothLocal_transformed_monomial_mass
+#print axioms JSP000334.rothLocal_transformed_monomial_mass
+#check JSP000334.rothLocal_expansion_coeff_bound
+#print JSP000334.rothLocal_expansion_coeff_bound
+#print axioms JSP000334.rothLocal_expansion_coeff_bound
+#check JSP000334.roth_auxiliary_integer_satz33
+#print JSP000334.roth_auxiliary_integer_satz33
+#print axioms JSP000334.roth_auxiliary_integer_satz33
+
+set_option pp.proofs false
+#check JSP000334.rothNormalForm
+#print JSP000334.rothNormalForm
+#print axioms JSP000334.rothNormalForm
+#check JSP000334.rothNormalKernel
+#print JSP000334.rothNormalKernel
+#print axioms JSP000334.rothNormalKernel
+#check JSP000334.rothNormalKernel_finrank
+#print JSP000334.rothNormalKernel_finrank
+#print axioms JSP000334.rothNormalKernel_finrank
+#check JSP000334.rothNormalKernelVector
+#print JSP000334.rothNormalKernelVector
+#print axioms JSP000334.rothNormalKernelVector
+#check JSP000334.rothNormalBasis
+#print JSP000334.rothNormalBasis
+#print axioms JSP000334.rothNormalBasis
+#check JSP000334.rothNormalBasis_apply
+#print JSP000334.rothNormalBasis_apply
+#print axioms JSP000334.rothNormalBasis_apply
+#check JSP000334.rothNormalBasis_reconstruct
+#print JSP000334.rothNormalBasis_reconstruct
+#print axioms JSP000334.rothNormalBasis_reconstruct
+#check JSP000334.rothNormalChartColumn
+#print JSP000334.rothNormalChartColumn
+#print axioms JSP000334.rothNormalChartColumn
+#check JSP000334.rothNormalChartColumn_mem
+#print JSP000334.rothNormalChartColumn_mem
+#print axioms JSP000334.rothNormalChartColumn_mem
+#check JSP000334.rothNormalChartColumn_chart
+#print JSP000334.rothNormalChartColumn_chart
+#print axioms JSP000334.rothNormalChartColumn_chart
+#check JSP000334.RothNormalVars
+#print JSP000334.RothNormalVars
+#print axioms JSP000334.RothNormalVars
+#check JSP000334.rothNormalVectorChart
+#print JSP000334.rothNormalVectorChart
+#print axioms JSP000334.rothNormalVectorChart
+#check JSP000334.rothNormalSubstitution
+#print JSP000334.rothNormalSubstitution
+#print axioms JSP000334.rothNormalSubstitution
+#check JSP000334.rothNormalDerivativeRestriction
+#print JSP000334.rothNormalDerivativeRestriction
+#print axioms JSP000334.rothNormalDerivativeRestriction
+#check JSP000334.rothNormalVectorChart_form
+#print JSP000334.rothNormalVectorChart_form
+#print axioms JSP000334.rothNormalVectorChart_form
+#check JSP000334.rothNormal_chart_factor_variable
+#print JSP000334.rothNormal_chart_factor_variable
+#print axioms JSP000334.rothNormal_chart_factor_variable
+#check JSP000334.rothNormalBackChart
+#print JSP000334.rothNormalBackChart
+#print axioms JSP000334.rothNormalBackChart
+#check JSP000334.rothNormal_back_chart_variable
+#print JSP000334.rothNormal_back_chart_variable
+#print axioms JSP000334.rothNormal_back_chart_variable
+#check JSP000334.rothNormal_chart_factor
+#print JSP000334.rothNormal_chart_factor
+#print axioms JSP000334.rothNormal_chart_factor
+#check JSP000334.rothNormal_chart_recover
+#print JSP000334.rothNormal_chart_recover
+#print axioms JSP000334.rothNormal_chart_recover
+#check JSP000334.rothNormal_restriction_ne_zero_iff
+#print JSP000334.rothNormal_restriction_ne_zero_iff
+#print axioms JSP000334.rothNormal_restriction_ne_zero_iff
+#check JSP000334.rothNormal_derivative_ne_zero_iff
+#print JSP000334.rothNormal_derivative_ne_zero_iff
+#print axioms JSP000334.rothNormal_derivative_ne_zero_iff
+#check JSP000334.rothNormal_exists_basis
+#print JSP000334.rothNormal_exists_basis
+#print axioms JSP000334.rothNormal_exists_basis
+#check JSP000334.rothNormalIntegerVectorChart
+#print JSP000334.rothNormalIntegerVectorChart
+#print axioms JSP000334.rothNormalIntegerVectorChart
+#check JSP000334.rothNormalIntegerRestriction
+#print JSP000334.rothNormalIntegerRestriction
+#print axioms JSP000334.rothNormalIntegerRestriction
+#check JSP000334.rothNormal_integer_map
+#print JSP000334.rothNormal_integer_map
+#print axioms JSP000334.rothNormal_integer_map
+#check JSP000334.rothNormal_integer_coeff
+#print JSP000334.rothNormal_integer_coeff
+#print axioms JSP000334.rothNormal_integer_coeff
+#check JSP000334.rothNormal_integer_support
+#print JSP000334.rothNormal_integer_support
+#print axioms JSP000334.rothNormal_integer_support
+#check JSP000334.rothNormalFiniteExponents
+#print JSP000334.rothNormalFiniteExponents
+#print axioms JSP000334.rothNormalFiniteExponents
+#check JSP000334.rothNormal_finite_exponents_mem
+#print JSP000334.rothNormal_finite_exponents_mem
+#print axioms JSP000334.rothNormal_finite_exponents_mem
+#check JSP000334.rothNormal_derivative_expansion
+#print JSP000334.rothNormal_derivative_expansion
+#print axioms JSP000334.rothNormal_derivative_expansion
+#check JSP000334.rothNormal_nonzero_coefficient
+#print JSP000334.rothNormal_nonzero_coefficient
+#print axioms JSP000334.rothNormal_nonzero_coefficient
+#check JSP000334.rothNormal_kernel_basis_bridge
+#print JSP000334.rothNormal_kernel_basis_bridge
+#print axioms JSP000334.rothNormal_kernel_basis_bridge
+
+#check JSP000334.rothNormalLocalValue
+#print JSP000334.rothNormalLocalValue
+#print axioms JSP000334.rothNormalLocalValue
+#check JSP000334.rothNormalLocalChart
+#print JSP000334.rothNormalLocalChart
+#print axioms JSP000334.rothNormalLocalChart
+#check JSP000334.rothNormal_local_chart
+#print JSP000334.rothNormal_local_chart
+#print axioms JSP000334.rothNormal_local_chart
+#check JSP000334.rothNormal_local_reconstruct
+#print JSP000334.rothNormal_local_reconstruct
+#print axioms JSP000334.rothNormal_local_reconstruct
+#check JSP000334.rothNormalSplitExponent
+#print JSP000334.rothNormalSplitExponent
+#print axioms JSP000334.rothNormalSplitExponent
+#check JSP000334.rothNormalSplitScalar
+#print JSP000334.rothNormalSplitScalar
+#print axioms JSP000334.rothNormalSplitScalar
+#check JSP000334.rothNormal_local_chart_pow
+#print JSP000334.rothNormal_local_chart_pow
+#print axioms JSP000334.rothNormal_local_chart_pow
+#check JSP000334.rothNormalSplits
+#print JSP000334.rothNormalSplits
+#print axioms JSP000334.rothNormalSplits
+#check JSP000334.rothNormalConvolutionExponent
+#print JSP000334.rothNormalConvolutionExponent
+#print axioms JSP000334.rothNormalConvolutionExponent
+#check JSP000334.rothNormal_monomial_product
+#print JSP000334.rothNormal_monomial_product
+#print axioms JSP000334.rothNormal_monomial_product
+#check JSP000334.rothNormal_local_monomial
+#print JSP000334.rothNormal_local_monomial
+#print axioms JSP000334.rothNormal_local_monomial
+#check JSP000334.rothNormal_local_coefficient
+#print JSP000334.rothNormal_local_coefficient
+#print axioms JSP000334.rothNormal_local_coefficient
+#check JSP000334.rothNormal_same_integer_coefficient
+#print JSP000334.rothNormal_same_integer_coefficient
+#print axioms JSP000334.rothNormal_same_integer_coefficient
+#check JSP000334.rothNormal_local_order_le
+#print JSP000334.rothNormal_local_order_le
+#print axioms JSP000334.rothNormal_local_order_le
+#check JSP000334.rothNormal_local_total_weight
+#print JSP000334.rothNormal_local_total_weight
+#print axioms JSP000334.rothNormal_local_total_weight
+#check JSP000334.rothNormalLogWeight
+#print JSP000334.rothNormalLogWeight
+#print axioms JSP000334.rothNormalLogWeight
+#check JSP000334.rothNormal_log_weight_transport
+#print JSP000334.rothNormal_log_weight_transport
+#print axioms JSP000334.rothNormal_log_weight_transport
+#check JSP000334.rothNormalAbs_pow
+#print JSP000334.rothNormalAbs_pow
+#print axioms JSP000334.rothNormalAbs_pow
+#check JSP000334.rothNormalAbs_prod
+#print JSP000334.rothNormalAbs_prod
+#print axioms JSP000334.rothNormalAbs_prod
+#check JSP000334.rothNormalAbs_int_finite
+#print JSP000334.rothNormalAbs_int_finite
+#print axioms JSP000334.rothNormalAbs_int_finite
+#check JSP000334.rothNormalAbs_add_finite
+#print JSP000334.rothNormalAbs_add_finite
+#print axioms JSP000334.rothNormalAbs_add_finite
+#check JSP000334.rothNormalAbs_sum_finite
+#print JSP000334.rothNormalAbs_sum_finite
+#print axioms JSP000334.rothNormalAbs_sum_finite
+#check JSP000334.rothNormalBinomialBudget
+#print JSP000334.rothNormalBinomialBudget
+#print axioms JSP000334.rothNormalBinomialBudget
+#check JSP000334.rothNormal_split_bound
+#print JSP000334.rothNormal_split_bound
+#print axioms JSP000334.rothNormal_split_bound
+#check JSP000334.rothNormalLocalExponent
+#print JSP000334.rothNormalLocalExponent
+#print axioms JSP000334.rothNormalLocalExponent
+#check JSP000334.rothNormal_log_total_lower
+#print JSP000334.rothNormal_log_total_lower
+#print axioms JSP000334.rothNormal_log_total_lower
+#check JSP000334.rothNormal_source_exponent
+#print JSP000334.rothNormal_source_exponent
+#print axioms JSP000334.rothNormal_source_exponent
+#check JSP000334.rothNormal_local_support_card
+#print JSP000334.rothNormal_local_support_card
+#print axioms JSP000334.rothNormal_local_support_card
+#check JSP000334.rothNormal_binomial_sum
+#print JSP000334.rothNormal_binomial_sum
+#print axioms JSP000334.rothNormal_binomial_sum
+#check JSP000334.rothNormal_split_product_bound
+#print JSP000334.rothNormal_split_product_bound
+#print axioms JSP000334.rothNormal_split_product_bound
+#check JSP000334.rothNormalAbs_sum
+#print JSP000334.rothNormalAbs_sum
+#print axioms JSP000334.rothNormalAbs_sum
+#check JSP000334.rothNormal_coefficient_uniform_bound
+#print JSP000334.rothNormal_coefficient_uniform_bound
+#print axioms JSP000334.rothNormal_coefficient_uniform_bound
+#check JSP000334.rothNormalSourceBound
+#print JSP000334.rothNormalSourceBound
+#print axioms JSP000334.rothNormalSourceBound
+#check JSP000334.rothNormal_three_place_bound
+#print JSP000334.rothNormal_three_place_bound
+#print axioms JSP000334.rothNormal_three_place_bound
+#check JSP000334.roth_auxiliary_integer_satz34_coefficients
+#print JSP000334.roth_auxiliary_integer_satz34_coefficients
+#print axioms JSP000334.roth_auxiliary_integer_satz34_coefficients
+#check JSP000334.roth_auxiliary_integer_satz34_normal_coefficients
+#print JSP000334.roth_auxiliary_integer_satz34_normal_coefficients
+#print axioms JSP000334.roth_auxiliary_integer_satz34_normal_coefficients
+
+#check JSP000334.rothInteger_nat_three_place_lower
+#print JSP000334.rothInteger_nat_three_place_lower
+#print axioms JSP000334.rothInteger_nat_three_place_lower
+#check JSP000334.rothInteger_three_place_lower
+#print JSP000334.rothInteger_three_place_lower
+#print axioms JSP000334.rothInteger_three_place_lower
+#check JSP000334.rothNormalSourceBound_nonneg
+#print JSP000334.rothNormalSourceBound_nonneg
+#print axioms JSP000334.rothNormalSourceBound_nonneg
+#check JSP000334.rothInteger_three_place_upper
+#print JSP000334.rothInteger_three_place_upper
+#print axioms JSP000334.rothInteger_three_place_upper
+#check JSP000334.rothSource_product_bound_lt_one
+#print JSP000334.rothSource_product_bound_lt_one
+#print axioms JSP000334.rothSource_product_bound_lt_one
+#check JSP000334.rothInteger_three_place_contradiction
+#print JSP000334.rothInteger_three_place_contradiction
+#print axioms JSP000334.rothInteger_three_place_contradiction
+#check JSP000334.roth_auxiliary_integer_satz34
+#print JSP000334.roth_auxiliary_integer_satz34
+#print axioms JSP000334.roth_auxiliary_integer_satz34
+
+#check JSP000334.dualFrameIntegerMatrix3
+#print JSP000334.dualFrameIntegerMatrix3
+#print axioms JSP000334.dualFrameIntegerMatrix3
+#check JSP000334.dualFrameRationalMatrix3
+#print JSP000334.dualFrameRationalMatrix3
+#print axioms JSP000334.dualFrameRationalMatrix3
+#check JSP000334.dualFrameVector3
+#print JSP000334.dualFrameVector3
+#print axioms JSP000334.dualFrameVector3
+#check JSP000334.dualFrameMatrix3_det_ne_zero
+#print JSP000334.dualFrameMatrix3_det_ne_zero
+#print axioms JSP000334.dualFrameMatrix3_det_ne_zero
+#check JSP000334.dualFrameVector3_pairing
+#print JSP000334.dualFrameVector3_pairing
+#print axioms JSP000334.dualFrameVector3_pairing
+#check JSP000334.dualFrameVector3_det_scaled
+#print JSP000334.dualFrameVector3_det_scaled
+#print axioms JSP000334.dualFrameVector3_det_scaled
+#check JSP000334.dualFrameVector3_det_integral
+#print JSP000334.dualFrameVector3_det_integral
+#print axioms JSP000334.dualFrameVector3_det_integral
+#check JSP000334.dualFrameRationalLattice3
+#print JSP000334.dualFrameRationalLattice3
+#print axioms JSP000334.dualFrameRationalLattice3
+#check JSP000334.dualFrameSourceLattice3
+#print JSP000334.dualFrameSourceLattice3
+#print axioms JSP000334.dualFrameSourceLattice3
+#check JSP000334.dualFrameRelativeIndex3
+#print JSP000334.dualFrameRelativeIndex3
+#print axioms JSP000334.dualFrameRelativeIndex3
+#check JSP000334.dualFrameVector3_index_mem
+#print JSP000334.dualFrameVector3_index_mem
+#print axioms JSP000334.dualFrameVector3_index_mem
+#check JSP000334.dualFrameSourceLattice3_integral
+#print JSP000334.dualFrameSourceLattice3_integral
+#print axioms JSP000334.dualFrameSourceLattice3_integral
+#check JSP000334.dualFrameVector3_source_mem
+#print JSP000334.dualFrameVector3_source_mem
+#print axioms JSP000334.dualFrameVector3_source_mem
+#check JSP000334.dualFrameMatrix3_rational_independent
+#print JSP000334.dualFrameMatrix3_rational_independent
+#print axioms JSP000334.dualFrameMatrix3_rational_independent
+#check JSP000334.dualFrameRelativeIndex3_mul_index
+#print JSP000334.dualFrameRelativeIndex3_mul_index
+#print axioms JSP000334.dualFrameRelativeIndex3_mul_index
+#check JSP000334.dualFrame3_abs_det_row_column_bounds
+#print JSP000334.dualFrame3_abs_det_row_column_bounds
+#print axioms JSP000334.dualFrame3_abs_det_row_column_bounds
+#check JSP000334.dualFrame3_cofactor_bound
+#print JSP000334.dualFrame3_cofactor_bound
+#print axioms JSP000334.dualFrame3_cofactor_bound
+#check JSP000334.dualFrameRealMatrix3
+#print JSP000334.dualFrameRealMatrix3
+#print axioms JSP000334.dualFrameRealMatrix3
+#check JSP000334.dualFrameRealLocalValue3
+#print JSP000334.dualFrameRealLocalValue3
+#print axioms JSP000334.dualFrameRealLocalValue3
+#check JSP000334.dualFrameVector3_real_inverse
+#print JSP000334.dualFrameVector3_real_inverse
+#print axioms JSP000334.dualFrameVector3_real_inverse
+#check JSP000334.dualFrameRealLocalValue3_inverse
+#print JSP000334.dualFrameRealLocalValue3_inverse
+#print axioms JSP000334.dualFrameRealLocalValue3_inverse
+#check JSP000334.dualFrame3_source_real_bound
+#print JSP000334.dualFrame3_source_real_bound
+#print axioms JSP000334.dualFrame3_source_real_bound
+#check JSP000334.exists_qSource_dual_frame3
+#print JSP000334.exists_qSource_dual_frame3
+#print axioms JSP000334.exists_qSource_dual_frame3
+
+#check JSP000334.dualFrameSourceBasisLattice3
+#print JSP000334.dualFrameSourceBasisLattice3
+#print axioms JSP000334.dualFrameSourceBasisLattice3
+
+#check JSP000334.dualFrameSourceLattice3_subset_basis
+#print JSP000334.dualFrameSourceLattice3_subset_basis
+#print axioms JSP000334.dualFrameSourceLattice3_subset_basis
+
+#check JSP000334.dualFrameVector3_source_basis_mem
+#print JSP000334.dualFrameVector3_source_basis_mem
+#print axioms JSP000334.dualFrameVector3_source_basis_mem
+
+#check JSP000334.qSource_dual_frame3_basis
+#print JSP000334.qSource_dual_frame3_basis
+#print axioms JSP000334.qSource_dual_frame3_basis
+
+#check JSP000334.exists_qSource_complete_dual_frame3
+#print JSP000334.exists_qSource_complete_dual_frame3
+#print axioms JSP000334.exists_qSource_complete_dual_frame3
+
+#check JSP000334.sourceDualRealCoordinates3
+#print JSP000334.sourceDualRealCoordinates3
+#print axioms JSP000334.sourceDualRealCoordinates3
+#check JSP000334.sourceDualBody3
+#print JSP000334.sourceDualBody3
+#print axioms JSP000334.sourceDualBody3
+#check JSP000334.sourceDualCoordinates3
+#print JSP000334.sourceDualCoordinates3
+#print axioms JSP000334.sourceDualCoordinates3
+#check JSP000334.sourceDualRealCoordinates3_apply
+#print JSP000334.sourceDualRealCoordinates3_apply
+#print axioms JSP000334.sourceDualRealCoordinates3_apply
+#check JSP000334.sourceDualRealCoordinates3_abs_det
+#print JSP000334.sourceDualRealCoordinates3_abs_det
+#print axioms JSP000334.sourceDualRealCoordinates3_abs_det
+#check JSP000334.sourceDualBody3_eq_parallelepiped
+#print JSP000334.sourceDualBody3_eq_parallelepiped
+#print axioms JSP000334.sourceDualBody3_eq_parallelepiped
+#check JSP000334.sourceDualBody3_volume
+#print JSP000334.sourceDualBody3_volume
+#print axioms JSP000334.sourceDualBody3_volume
+#check JSP000334.rationalTripleReal3
+#print JSP000334.rationalTripleReal3
+#print axioms JSP000334.rationalTripleReal3
+#check JSP000334.dualFrameVector3_real_independent
+#print JSP000334.dualFrameVector3_real_independent
+#print axioms JSP000334.dualFrameVector3_real_independent
+#check JSP000334.sourceDualBasis3_independent
+#print JSP000334.sourceDualBasis3_independent
+#print axioms JSP000334.sourceDualBasis3_independent
+#check JSP000334.sourceDualBasis3
+#print JSP000334.sourceDualBasis3
+#print axioms JSP000334.sourceDualBasis3
+#check JSP000334.sourceDualBasis3_apply
+#print JSP000334.sourceDualBasis3_apply
+#print axioms JSP000334.sourceDualBasis3_apply
+#check JSP000334.sourceDualBasis3_lattice
+#print JSP000334.sourceDualBasis3_lattice
+#print axioms JSP000334.sourceDualBasis3_lattice
+#check JSP000334.successiveRadius3_monotone
+#print JSP000334.successiveRadius3_monotone
+#print axioms JSP000334.successiveRadius3_monotone
+#check JSP000334.successiveRadius3_reverse_family
+#print JSP000334.successiveRadius3_reverse_family
+#print axioms JSP000334.successiveRadius3_reverse_family
+#check JSP000334.sourceDual_frame_gauge_bound3
+#print JSP000334.sourceDual_frame_gauge_bound3
+#print axioms JSP000334.sourceDual_frame_gauge_bound3
+#check JSP000334.dualFrameRelativeIndex3_pos
+#print JSP000334.dualFrameRelativeIndex3_pos
+#print axioms JSP000334.dualFrameRelativeIndex3_pos
+#check JSP000334.sourceDual_minima_upper3
+#print JSP000334.sourceDual_minima_upper3
+#print axioms JSP000334.sourceDual_minima_upper3
+#check JSP000334.sourceBasis3_abs_det
+#print JSP000334.sourceBasis3_abs_det
+#print axioms JSP000334.sourceBasis3_abs_det
+#check JSP000334.sourceDualBasis3_covolume
+#print JSP000334.sourceDualBasis3_covolume
+#print axioms JSP000334.sourceDualBasis3_covolume
+#check JSP000334.sourceDual_minima_product_lower3
+#print JSP000334.sourceDual_minima_product_lower3
+#print axioms JSP000334.sourceDual_minima_product_lower3
+#check JSP000334.source_minima_product_lower3
+#print JSP000334.source_minima_product_lower3
+#print axioms JSP000334.source_minima_product_lower3
+#check JSP000334.ternary_transference_product_lower3
+#print JSP000334.ternary_transference_product_lower3
+#print axioms JSP000334.ternary_transference_product_lower3
+#check JSP000334.sourceDual_minima_product_upper3
+#print JSP000334.sourceDual_minima_product_upper3
+#print axioms JSP000334.sourceDual_minima_product_upper3
+#check JSP000334.sourceDual_minima_transference3
+#print JSP000334.sourceDual_minima_transference3
+#print axioms JSP000334.sourceDual_minima_transference3
+#check JSP000334.exists_qSource_dual_minima3
+#print JSP000334.exists_qSource_dual_minima3
+#print axioms JSP000334.exists_qSource_dual_minima3
+#check JSP000334.sourceDual_minima_normalization3
+#print JSP000334.sourceDual_minima_normalization3
+#print axioms JSP000334.sourceDual_minima_normalization3
+
+#check JSP000334.conditionalRationalMatrix3
+#print JSP000334.conditionalRationalMatrix3
+#print axioms JSP000334.conditionalRationalMatrix3
+#check JSP000334.conditionalDualValue3
+#print JSP000334.conditionalDualValue3
+#print axioms JSP000334.conditionalDualValue3
+#check JSP000334.conditionalRationalMatrix3_det
+#print JSP000334.conditionalRationalMatrix3_det
+#print axioms JSP000334.conditionalRationalMatrix3_det
+#check JSP000334.conditionalDualValue3_inverse
+#print JSP000334.conditionalDualValue3_inverse
+#print axioms JSP000334.conditionalDualValue3_inverse
+#check JSP000334.conditional_padic_minor_bound3
+#print JSP000334.conditional_padic_minor_bound3
+#print axioms JSP000334.conditional_padic_minor_bound3
+#check JSP000334.conditional_last_cofactor_bound3
+#print JSP000334.conditional_last_cofactor_bound3
+#print axioms JSP000334.conditional_last_cofactor_bound3
+#check JSP000334.conditional_scaled_dual_padic_bound3
+#print JSP000334.conditional_scaled_dual_padic_bound3
+#print axioms JSP000334.conditional_scaled_dual_padic_bound3
+#check JSP000334.conditional_source_value3
+#print JSP000334.conditional_source_value3
+#print axioms JSP000334.conditional_source_value3
+#check JSP000334.conditional_actual_finite_bounds3
+#print JSP000334.conditional_actual_finite_bounds3
+#print axioms JSP000334.conditional_actual_finite_bounds3
+#check JSP000334.conditional_primitive_integer3
+#print JSP000334.conditional_primitive_integer3
+#print axioms JSP000334.conditional_primitive_integer3
+#check JSP000334.conditional_actual_primitive_normal3
+#print JSP000334.conditional_actual_primitive_normal3
+#print axioms JSP000334.conditional_actual_primitive_normal3
+#check JSP000334.conditionalDualInt3
+#print JSP000334.conditionalDualInt3
+#print axioms JSP000334.conditionalDualInt3
+#check JSP000334.conditionalDualInt3_value
+#print JSP000334.conditionalDualInt3_value
+#print axioms JSP000334.conditionalDualInt3_value
+#check JSP000334.conditional_height_coord3
+#print JSP000334.conditional_height_coord3
+#print axioms JSP000334.conditional_height_coord3
+#check JSP000334.conditional_height_pos3
+#print JSP000334.conditional_height_pos3
+#print axioms JSP000334.conditional_height_pos3
+#check JSP000334.conditionalDualInt3_height_bound
+#print JSP000334.conditionalDualInt3_height_bound
+#print axioms JSP000334.conditionalDualInt3_height_bound
+#check JSP000334.conditional_integer_local_lower3
+#print JSP000334.conditional_integer_local_lower3
+#print axioms JSP000334.conditional_integer_local_lower3
+#check JSP000334.conditionalSelectedProduct3
+#print JSP000334.conditionalSelectedProduct3
+#print axioms JSP000334.conditionalSelectedProduct3
+#check JSP000334.conditional_selected_product_lower3
+#print JSP000334.conditional_selected_product_lower3
+#print axioms JSP000334.conditional_selected_product_lower3
+#check JSP000334.conditional_reciprocal_last3
+#print JSP000334.conditional_reciprocal_last3
+#print axioms JSP000334.conditional_reciprocal_last3
+#check JSP000334.conditional_actual_real_bound3
+#print JSP000334.conditional_actual_real_bound3
+#print axioms JSP000334.conditional_actual_real_bound3
+#check JSP000334.conditionalDualInt3_real_value
+#print JSP000334.conditionalDualInt3_real_value
+#print axioms JSP000334.conditionalDualInt3_real_value
+#check JSP000334.conditional_scaled_real_value3
+#print JSP000334.conditional_scaled_real_value3
+#print axioms JSP000334.conditional_scaled_real_value3
+#check JSP000334.conditionalDualValue3_scale
+#print JSP000334.conditionalDualValue3_scale
+#print axioms JSP000334.conditionalDualValue3_scale
+#check JSP000334.conditionalSelectedProduct3_nonneg
+#print JSP000334.conditionalSelectedProduct3_nonneg
+#print axioms JSP000334.conditionalSelectedProduct3_nonneg
+#check JSP000334.conditionalSelectedProduct3_scale
+#print JSP000334.conditionalSelectedProduct3_scale
+#print axioms JSP000334.conditionalSelectedProduct3_scale
+#check JSP000334.conditional_primitive_product_le3
+#print JSP000334.conditional_primitive_product_le3
+#print axioms JSP000334.conditional_primitive_product_le3
+#check JSP000334.conditional_primitive_padic_bound3
+#print JSP000334.conditional_primitive_padic_bound3
+#print axioms JSP000334.conditional_primitive_padic_bound3
+#check JSP000334.conditional_sum_others3
+#print JSP000334.conditional_sum_others3
+#print axioms JSP000334.conditional_sum_others3
+#check JSP000334.conditional_selected_product_upper3
+#print JSP000334.conditional_selected_product_upper3
+#print axioms JSP000334.conditional_selected_product_upper3
+#check JSP000334.conditional_height_lower_power3
+#print JSP000334.conditional_height_lower_power3
+#print axioms JSP000334.conditional_height_lower_power3
+#check JSP000334.conditional_height_lower_absorb3
+#print JSP000334.conditional_height_lower_absorb3
+#print axioms JSP000334.conditional_height_lower_absorb3
+#check JSP000334.conditionalDualInt3_reconstruct
+#print JSP000334.conditionalDualInt3_reconstruct
+#print axioms JSP000334.conditionalDualInt3_reconstruct
+#check JSP000334.conditional_primitive_height_bound3
+#print JSP000334.conditional_primitive_height_bound3
+#print axioms JSP000334.conditional_primitive_height_bound3
+#check JSP000334.conditional_upper_height_power3
+#print JSP000334.conditional_upper_height_power3
+#print axioms JSP000334.conditional_upper_height_power3
+#check JSP000334.conditional_normal_height3
+#print JSP000334.conditional_normal_height3
+#print axioms JSP000334.conditional_normal_height3
+#check JSP000334.conditionalDualValue3_real_cast
+#print JSP000334.conditionalDualValue3_real_cast
+#print axioms JSP000334.conditionalDualValue3_real_cast
+
+#check JSP000334.parameter_eta_theta_m
+#print JSP000334.parameter_eta_theta_m
+#print axioms JSP000334.parameter_eta_theta_m
+#check JSP000334.parameter_gamma
+#print JSP000334.parameter_gamma
+#print axioms JSP000334.parameter_gamma
+#check JSP000334.parameter_sparse_Q
+#print JSP000334.parameter_sparse_Q
+#print axioms JSP000334.parameter_sparse_Q
+#check JSP000334.parameter_integer_degrees
+#print JSP000334.parameter_integer_degrees
+#print axioms JSP000334.parameter_integer_degrees
+#check JSP000334.parameter_degree_sum
+#print JSP000334.parameter_degree_sum
+#print axioms JSP000334.parameter_degree_sum
+#check JSP000334.parameter_height_logs
+#print JSP000334.parameter_height_logs
+#print axioms JSP000334.parameter_height_logs
+#check JSP000334.parameter_roth_growth
+#print JSP000334.parameter_roth_growth
+#print axioms JSP000334.parameter_roth_growth
+#check JSP000334.parameter_roth_denominator
+#print JSP000334.parameter_roth_denominator
+#print axioms JSP000334.parameter_roth_denominator
+#check JSP000334.parameter_roth_polynomial_height
+#print JSP000334.parameter_roth_polynomial_height
+#print axioms JSP000334.parameter_roth_polynomial_height
+#check JSP000334.parameter_rpow_threshold
+#print JSP000334.parameter_rpow_threshold
+#print axioms JSP000334.parameter_rpow_threshold
+#check JSP000334.parameter_Q_degrees_budgets
+#print JSP000334.parameter_Q_degrees_budgets
+#print axioms JSP000334.parameter_Q_degrees_budgets
+#check JSP000334.source_compatible_parameter_selection3
+#print JSP000334.source_compatible_parameter_selection3
+#print axioms JSP000334.source_compatible_parameter_selection3
+
+#check JSP000334.sourceWeightConditions3
+#print JSP000334.sourceWeightConditions3
+#print axioms JSP000334.sourceWeightConditions3
+#check JSP000334.finiteWeightIndex3
+#print JSP000334.finiteWeightIndex3
+#print axioms JSP000334.finiteWeightIndex3
+#check JSP000334.finiteWeightRaw3
+#print JSP000334.finiteWeightRaw3
+#print axioms JSP000334.finiteWeightRaw3
+#check JSP000334.finiteWeightCandidate3
+#print JSP000334.finiteWeightCandidate3
+#print axioms JSP000334.finiteWeightCandidate3
+#check JSP000334.finiteWeightApprox3
+#print JSP000334.finiteWeightApprox3
+#print axioms JSP000334.finiteWeightApprox3
+#check JSP000334.finiteWeight_floor_bounds3
+#print JSP000334.finiteWeight_floor_bounds3
+#print axioms JSP000334.finiteWeight_floor_bounds3
+#check JSP000334.finiteWeight_ceil_bounds3
+#print JSP000334.finiteWeight_ceil_bounds3
+#print axioms JSP000334.finiteWeight_ceil_bounds3
+#check JSP000334.finiteWeightCandidate3_balance
+#print JSP000334.finiteWeightCandidate3_balance
+#print axioms JSP000334.finiteWeightCandidate3_balance
+#check JSP000334.finiteWeight_raw_errors3
+#print JSP000334.finiteWeight_raw_errors3
+#print axioms JSP000334.finiteWeight_raw_errors3
+#check JSP000334.finiteWeight_raw_sum3
+#print JSP000334.finiteWeight_raw_sum3
+#print axioms JSP000334.finiteWeight_raw_sum3
+#check JSP000334.finiteWeightApprox3_bounds
+#print JSP000334.finiteWeightApprox3_bounds
+#print axioms JSP000334.finiteWeightApprox3_bounds
+#check JSP000334.finiteWeightCandidates3
+#print JSP000334.finiteWeightCandidates3
+#print axioms JSP000334.finiteWeightCandidates3
+#check JSP000334.finiteWeightCandidates3_finite
+#print JSP000334.finiteWeightCandidates3_finite
+#print axioms JSP000334.finiteWeightCandidates3_finite
+#check JSP000334.finiteWeightIndex3_bounded
+#print JSP000334.finiteWeightIndex3_bounded
+#print axioms JSP000334.finiteWeightIndex3_bounded
+#check JSP000334.finiteWeightApprox3_mem
+#print JSP000334.finiteWeightApprox3_mem
+#print axioms JSP000334.finiteWeightApprox3_mem
+#check JSP000334.finiteWeight_unbounded_fiber3
+#print JSP000334.finiteWeight_unbounded_fiber3
+#print axioms JSP000334.finiteWeight_unbounded_fiber3
+#check JSP000334.finiteWeight_select3
+#print JSP000334.finiteWeight_select3
+#print axioms JSP000334.finiteWeight_select3
+#check JSP000334.finiteWeight_resolution3
+#print JSP000334.finiteWeight_resolution3
+#print axioms JSP000334.finiteWeight_resolution3
+#check JSP000334.finiteWeight_tuple3
+#print JSP000334.finiteWeight_tuple3
+#print axioms JSP000334.finiteWeight_tuple3
+#check JSP000334.finiteWeight_delta3
+#print JSP000334.finiteWeight_delta3
+#print axioms JSP000334.finiteWeight_delta3
+#check JSP000334.sourceLogWeights3
+#print JSP000334.sourceLogWeights3
+#print axioms JSP000334.sourceLogWeights3
+#check JSP000334.sourceLogWeights3_rpow
+#print JSP000334.sourceLogWeights3_rpow
+#print axioms JSP000334.sourceLogWeights3_rpow
+#check JSP000334.sourceLogWeights3_conditions
+#print JSP000334.sourceLogWeights3_conditions
+#print axioms JSP000334.sourceLogWeights3_conditions
+#check JSP000334.sourceWeight48_log3
+#print JSP000334.sourceWeight48_log3
+#print axioms JSP000334.sourceWeight48_log3
+#check JSP000334.finiteWeight_real_local_value3
+#print JSP000334.finiteWeight_real_local_value3
+#print axioms JSP000334.finiteWeight_real_local_value3
+#check JSP000334.finiteWeight_rational_local_value3
+#print JSP000334.finiteWeight_rational_local_value3
+#print axioms JSP000334.finiteWeight_rational_local_value3
+#check JSP000334.finiteWeight_same_frame3
+#print JSP000334.finiteWeight_same_frame3
+#print axioms JSP000334.finiteWeight_same_frame3
+#check JSP000334.finiteWeightReduction3
+#print JSP000334.finiteWeightReduction3
+#print axioms JSP000334.finiteWeightReduction3
+
+#check JSP000334.sameIndex_delta_compatibility3
+#print JSP000334.sameIndex_delta_compatibility3
+#print axioms JSP000334.sameIndex_delta_compatibility3
+
+#check JSP000334.sameIndex_height_transport3
+#print JSP000334.sameIndex_height_transport3
+#print axioms JSP000334.sameIndex_height_transport3
+
+#check JSP000334.sameIndex_cutoff_transport3
+#print JSP000334.sameIndex_cutoff_transport3
+#print axioms JSP000334.sameIndex_cutoff_transport3
+
+#check JSP000334.sameIndex_selector_compatibility3
+#print JSP000334.sameIndex_selector_compatibility3
+#print axioms JSP000334.sameIndex_selector_compatibility3
+
+#check JSP000334.sameIndex_original_normal_height3
+#print JSP000334.sameIndex_original_normal_height3
+#print axioms JSP000334.sameIndex_original_normal_height3
+
+#check JSP000334.sameIndex_source_family_contradiction3
+#print JSP000334.sameIndex_source_family_contradiction3
+#print axioms JSP000334.sameIndex_source_family_contradiction3
+
+#check JSP000334.selectedBadQ3
+#print JSP000334.selectedBadQ3
+#print axioms JSP000334.selectedBadQ3
+
+#check JSP000334.selectedBadQ3_bddAbove
+#print JSP000334.selectedBadQ3_bddAbove
+#print axioms JSP000334.selectedBadQ3_bddAbove
+
+#check JSP000334.source_attaining_frame_index_le_six3
+#print JSP000334.source_attaining_frame_index_le_six3
+#print axioms JSP000334.source_attaining_frame_index_le_six3
+
+#check JSP000334.normalized_uniform_selected_vanishing3
+#print JSP000334.normalized_uniform_selected_vanishing3
+#print axioms JSP000334.normalized_uniform_selected_vanishing3
+
+#check JSP000334.sourceIntegralWidths3
+#print JSP000334.sourceIntegralWidths3
+#print axioms JSP000334.sourceIntegralWidths3
+
+#check JSP000334.sourceIntegralLattice3
+#print JSP000334.sourceIntegralLattice3
+#print axioms JSP000334.sourceIntegralLattice3
+
+#check JSP000334.sourceIntegralWidths3_pos
+#print JSP000334.sourceIntegralWidths3_pos
+#print axioms JSP000334.sourceIntegralWidths3_pos
+
+#check JSP000334.sourceIntegral_threshold_exact3
+#print JSP000334.sourceIntegral_threshold_exact3
+#print axioms JSP000334.sourceIntegral_threshold_exact3
+
+#check JSP000334.sourceIntegral_prime_threshold3
+#print JSP000334.sourceIntegral_prime_threshold3
+#print axioms JSP000334.sourceIntegral_prime_threshold3
+
+#check JSP000334.sourceIntegral_lattice_eq3
+#print JSP000334.sourceIntegral_lattice_eq3
+#print axioms JSP000334.sourceIntegral_lattice_eq3
+
+#check JSP000334.sourceIntegral_coordinates_eq3
+#print JSP000334.sourceIntegral_coordinates_eq3
+#print axioms JSP000334.sourceIntegral_coordinates_eq3
+
+#check JSP000334.sourceIntegral_rounding_eq_one3
+#print JSP000334.sourceIntegral_rounding_eq_one3
+#print axioms JSP000334.sourceIntegral_rounding_eq_one3
+
+#check JSP000334.sourceIntegral_covolume_eq_index3
+#print JSP000334.sourceIntegral_covolume_eq_index3
+#print axioms JSP000334.sourceIntegral_covolume_eq_index3
+
+#check JSP000334.selected_product_index_scaling_zero3
+#print JSP000334.selected_product_index_scaling_zero3
+#print axioms JSP000334.selected_product_index_scaling_zero3
+
+#check JSP000334.sourceIntegral_weights_conditions3
+#print JSP000334.sourceIntegral_weights_conditions3
+#print axioms JSP000334.sourceIntegral_weights_conditions3
+
+#check JSP000334.sourceIntegral_lattice_spec3
+#print JSP000334.sourceIntegral_lattice_spec3
+#print axioms JSP000334.sourceIntegral_lattice_spec3
+
+#check JSP000334.source_uniform_selected_vanishing3
+#print JSP000334.source_uniform_selected_vanishing3
+#print axioms JSP000334.source_uniform_selected_vanishing3
+
+#check JSP000334.sourceDual_integer_pairing3
+#print JSP000334.sourceDual_integer_pairing3
+#print axioms JSP000334.sourceDual_integer_pairing3
+#check JSP000334.sourceDual_complementary_divisibility3
+#print JSP000334.sourceDual_complementary_divisibility3
+#print axioms JSP000334.sourceDual_complementary_divisibility3
+#check JSP000334.sourceDual_complementary_mem3
+#print JSP000334.sourceDual_complementary_mem3
+#print axioms JSP000334.sourceDual_complementary_mem3
+#check JSP000334.sourceDual_floor_margin3
+#print JSP000334.sourceDual_floor_margin3
+#print axioms JSP000334.sourceDual_floor_margin3
+#check JSP000334.sourceDual_floor_bound3
+#print JSP000334.sourceDual_floor_bound3
+#print axioms JSP000334.sourceDual_floor_bound3
+#check JSP000334.sourceDualSupport3
+#print JSP000334.sourceDualSupport3
+#print axioms JSP000334.sourceDualSupport3
+#check JSP000334.sourceDualSupport3_nonempty
+#print JSP000334.sourceDualSupport3_nonempty
+#print axioms JSP000334.sourceDualSupport3_nonempty
+#check JSP000334.sourceDualFloorMin3
+#print JSP000334.sourceDualFloorMin3
+#print axioms JSP000334.sourceDualFloorMin3
+#check JSP000334.sourceDualFloorMin3_le
+#print JSP000334.sourceDualFloorMin3_le
+#print axioms JSP000334.sourceDualFloorMin3_le
+#check JSP000334.sourceDualInt_smul3
+#print JSP000334.sourceDualInt_smul3
+#print axioms JSP000334.sourceDualInt_smul3
+#check JSP000334.sourceDual_rescale_mem3
+#print JSP000334.sourceDual_rescale_mem3
+#print axioms JSP000334.sourceDual_rescale_mem3
+#check JSP000334.sourceTupleSet3
+#print JSP000334.sourceTupleSet3
+#print axioms JSP000334.sourceTupleSet3
+#check JSP000334.sourceTupleSet3_nonempty
+#print JSP000334.sourceTupleSet3_nonempty
+#print axioms JSP000334.sourceTupleSet3_nonempty
+#check JSP000334.sourceTupleSet3_unbounded_selection
+#print JSP000334.sourceTupleSet3_unbounded_selection
+#print axioms JSP000334.sourceTupleSet3_unbounded_selection
+#check JSP000334.sourceDual_second_minimum_gt_one3
+#print JSP000334.sourceDual_second_minimum_gt_one3
+#print axioms JSP000334.sourceDual_second_minimum_gt_one3
+#check JSP000334.sourceDual_body_proportional3
+#print JSP000334.sourceDual_body_proportional3
+#print axioms JSP000334.sourceDual_body_proportional3
+#check JSP000334.sourceRealLogWeights3
+#print JSP000334.sourceRealLogWeights3
+#print axioms JSP000334.sourceRealLogWeights3
+#check JSP000334.sourceRealLogWeights3_conditions
+#print JSP000334.sourceRealLogWeights3_conditions
+#print axioms JSP000334.sourceRealLogWeights3_conditions
+#check JSP000334.sourceRealLogWeights3_coordinates
+#print JSP000334.sourceRealLogWeights3_coordinates
+#print axioms JSP000334.sourceRealLogWeights3_coordinates
+#check JSP000334.sourceReal_uniform_selected_vanishing3
+#print JSP000334.sourceReal_uniform_selected_vanishing3
+#print axioms JSP000334.sourceReal_uniform_selected_vanishing3
+#check JSP000334.sourceDual_floor_real_bound3
+#print JSP000334.sourceDual_floor_real_bound3
+#print axioms JSP000334.sourceDual_floor_real_bound3
+#check JSP000334.sourceDual_rescale_real_bound3
+#print JSP000334.sourceDual_rescale_real_bound3
+#print axioms JSP000334.sourceDual_rescale_real_bound3
+#check JSP000334.sourceReal_width_geometry3
+#print JSP000334.sourceReal_width_geometry3
+#print axioms JSP000334.sourceReal_width_geometry3
+#check JSP000334.sourceReal_dual_second_gt_one3
+#print JSP000334.sourceReal_dual_second_gt_one3
+#print axioms JSP000334.sourceReal_dual_second_gt_one3
+#check JSP000334.sourceReal_index_lower3
+#print JSP000334.sourceReal_index_lower3
+#print axioms JSP000334.sourceReal_index_lower3
+#check JSP000334.sourceDual_complement_exponent3
+#print JSP000334.sourceDual_complement_exponent3
+#print axioms JSP000334.sourceDual_complement_exponent3
+#check JSP000334.sourceDual_two_case_body3
+#print JSP000334.sourceDual_two_case_body3
+#print axioms JSP000334.sourceDual_two_case_body3
+#check JSP000334.sourceReal_width_product3
+#print JSP000334.sourceReal_width_product3
+#print axioms JSP000334.sourceReal_width_product3
+#check JSP000334.sourceReal_last_dual_body3
+#print JSP000334.sourceReal_last_dual_body3
+#print axioms JSP000334.sourceReal_last_dual_body3
+#check JSP000334.source_scaled_last_dual_nonzero3
+#print JSP000334.source_scaled_last_dual_nonzero3
+#print axioms JSP000334.source_scaled_last_dual_nonzero3
+#check JSP000334.sourceDual_power_cutoff3
+#print JSP000334.sourceDual_power_cutoff3
+#print axioms JSP000334.sourceDual_power_cutoff3
+#check JSP000334.sourceDual_unbounded_tail3
+#print JSP000334.sourceDual_unbounded_tail3
+#print axioms JSP000334.sourceDual_unbounded_tail3
+#check JSP000334.sourceReal_fixed_reference_line3
+#print JSP000334.sourceReal_fixed_reference_line3
+#print axioms JSP000334.sourceReal_fixed_reference_line3
+#check JSP000334.source_fixed_dual_direction3
+#print JSP000334.source_fixed_dual_direction3
+#print axioms JSP000334.source_fixed_dual_direction3
+
+#check JSP000334.davenportWidths3
+#print JSP000334.davenportWidths3
+#print axioms JSP000334.davenportWidths3
+#check JSP000334.davenportWidths3_pos
+#print JSP000334.davenportWidths3_pos
+#print axioms JSP000334.davenportWidths3_pos
+#check JSP000334.davenportCoordinates3
+#print JSP000334.davenportCoordinates3
+#print axioms JSP000334.davenportCoordinates3
+#check JSP000334.davenportBody3
+#print JSP000334.davenportBody3
+#print axioms JSP000334.davenportBody3
+#check JSP000334.davenportCoordinates3_apply
+#print JSP000334.davenportCoordinates3_apply
+#print axioms JSP000334.davenportCoordinates3_apply
+#check JSP000334.davenportCoordinates3_inverse
+#print JSP000334.davenportCoordinates3_inverse
+#print axioms JSP000334.davenportCoordinates3_inverse
+#check JSP000334.davenportBody3_eq_parallelepiped
+#print JSP000334.davenportBody3_eq_parallelepiped
+#print axioms JSP000334.davenportBody3_eq_parallelepiped
+#check JSP000334.davenportBody3_mem
+#print JSP000334.davenportBody3_mem
+#print axioms JSP000334.davenportBody3_mem
+#check JSP000334.davenportWidths3_product
+#print JSP000334.davenportWidths3_product
+#print axioms JSP000334.davenportWidths3_product
+#check JSP000334.davenportBody3_volume
+#print JSP000334.davenportBody3_volume
+#print axioms JSP000334.davenportBody3_volume
+#check JSP000334.davenport_plane_pivot_bound3
+#print JSP000334.davenport_plane_pivot_bound3
+#print axioms JSP000334.davenport_plane_pivot_bound3
+#check JSP000334.davenport_flag_pivot3
+#print JSP000334.davenport_flag_pivot3
+#print axioms JSP000334.davenport_flag_pivot3
+#check JSP000334.davenport_original_off_flag3
+#print JSP000334.davenport_original_off_flag3
+#print axioms JSP000334.davenport_original_off_flag3
+#check JSP000334.davenport_flag_map3
+#print JSP000334.davenport_flag_map3
+#print axioms JSP000334.davenport_flag_map3
+#check JSP000334.davenport_flag_mono3
+#print JSP000334.davenport_flag_mono3
+#print axioms JSP000334.davenport_flag_mono3
+#check JSP000334.davenport_off_span3
+#print JSP000334.davenport_off_span3
+#print axioms JSP000334.davenport_off_span3
+#check JSP000334.davenport_independent_outside_flag3
+#print JSP000334.davenport_independent_outside_flag3
+#print axioms JSP000334.davenport_independent_outside_flag3
+#check JSP000334.davenport_minima_lower3
+#print JSP000334.davenport_minima_lower3
+#print axioms JSP000334.davenport_minima_lower3
+#check JSP000334.davenport_minima_product3
+#print JSP000334.davenport_minima_product3
+#print axioms JSP000334.davenport_minima_product3
+#check JSP000334.davenport_three_ratios_bound3
+#print JSP000334.davenport_three_ratios_bound3
+#print axioms JSP000334.davenport_three_ratios_bound3
+#check JSP000334.davenport_lemma3
+#print JSP000334.davenport_lemma3
+#print axioms JSP000334.davenport_lemma3
+#check JSP000334.source_davenport_lemma3
+#print JSP000334.source_davenport_lemma3
+#print axioms JSP000334.source_davenport_lemma3
+#check JSP000334.davenportBody3_compact_convex
+#print JSP000334.davenportBody3_compact_convex
+#print axioms JSP000334.davenportBody3_compact_convex
+
+#check JSP000334.gapRadius3
+#print axioms JSP000334.gapRadius3
+
+#check JSP000334.gapFactors3
+#print axioms JSP000334.gapFactors3
+
+#check JSP000334.gapRadius3_pos
+#print axioms JSP000334.gapRadius3_pos
+
+#check JSP000334.gapRadius3_cube
+#print axioms JSP000334.gapRadius3_cube
+
+#check JSP000334.gapFactors3_properties
+#print axioms JSP000334.gapFactors3_properties
+
+#check JSP000334.gap_rescaled_power3
+#print axioms JSP000334.gap_rescaled_power3
+
+#check JSP000334.gap_rescaled_threshold3
+#print axioms JSP000334.gap_rescaled_threshold3
+
+#check JSP000334.gap_rescaled_lattice3
+#print axioms JSP000334.gap_rescaled_lattice3
+
+#check JSP000334.gapRadius3_quantitative
+#print axioms JSP000334.gapRadius3_quantitative
+
+#check JSP000334.gap_power_cutoff3
+#print axioms JSP000334.gap_power_cutoff3
+
+#check JSP000334.gap_rescaled_small3
+#print axioms JSP000334.gap_rescaled_small3
+
+#check JSP000334.gap_source_product3
+#print axioms JSP000334.gap_source_product3
+
+#check JSP000334.gap_integer_real_lower3
+#print axioms JSP000334.gap_integer_real_lower3
+
+#check JSP000334.gap_source_first_lower3
+#print axioms JSP000334.gap_source_first_lower3
+
+#check JSP000334.gapPrimeExponent3
+#print axioms JSP000334.gapPrimeExponent3
+
+#check JSP000334.gapLatticeScale3
+#print axioms JSP000334.gapLatticeScale3
+
+#check JSP000334.gap_prime_power_bound3
+#print axioms JSP000334.gap_prime_power_bound3
+
+#check JSP000334.gap_lattice_scale_bounds3
+#print axioms JSP000334.gap_lattice_scale_bounds3
+
+#check JSP000334.gap_lattice_scale_mem3
+#print axioms JSP000334.gap_lattice_scale_mem3
+
+#check JSP000334.gap_source_last_upper3
+#print axioms JSP000334.gap_source_last_upper3
+
+#check JSP000334.gapFactors3_bounds
+#print axioms JSP000334.gapFactors3_bounds
+
+#check JSP000334.gap_deformed_width_bounds3
+#print axioms JSP000334.gap_deformed_width_bounds3
+
+#check JSP000334.gap_source_normalization3
+#print axioms JSP000334.gap_source_normalization3
+
+#check JSP000334.gap_deformed_normalization3
+#print axioms JSP000334.gap_deformed_normalization3
+
+#check JSP000334.gap_width_cutoff3
+#print axioms JSP000334.gap_width_cutoff3
+
+#check JSP000334.gap_source_integral_lattice3
+#print axioms JSP000334.gap_source_integral_lattice3
+
+#check JSP000334.gap_source_davenport3
+#print axioms JSP000334.gap_source_davenport3
+
+#check JSP000334.GapDeformedData3
+#print axioms JSP000334.GapDeformedData3
+
+#check JSP000334.gap_deformed_data3
+#print axioms JSP000334.gap_deformed_data3
+
+#check JSP000334.gap_rescaled_weight_bounds3
+#print axioms JSP000334.gap_rescaled_weight_bounds3
+
+#check JSP000334.gapRescaledDomain3
+#print axioms JSP000334.gapRescaledDomain3
+
+#check JSP000334.gapRescaledDomain3_unbounded
+#print axioms JSP000334.gapRescaledDomain3_unbounded
+
+#check JSP000334.GapSatz51Family3
+#print axioms JSP000334.GapSatz51Family3
+
+#check JSP000334.gap_satz51_family3
+#print axioms JSP000334.gap_satz51_family3
+
+#check JSP000334.gap_satz51_apply3
+#print axioms JSP000334.gap_satz51_apply3
+
+#check JSP000334.source_gap_satz51_applicable3
+#print axioms JSP000334.source_gap_satz51_applicable3
+
+#check JSP000334.GapDeformedData3.sigma
+#print axioms JSP000334.GapDeformedData3.sigma
+
+#check JSP000334.GapDeformedData3.widths
+#print axioms JSP000334.GapDeformedData3.widths
+
+#check JSP000334.GapDeformedData3.positive
+#print axioms JSP000334.GapDeformedData3.positive
+
+#check JSP000334.GapDeformedData3.correspondence
+#print axioms JSP000334.GapDeformedData3.correspondence
+
+#check JSP000334.GapDeformedData3.bounds
+#print axioms JSP000334.GapDeformedData3.bounds
+
+#check JSP000334.GapDeformedData3.normalization
+#print axioms JSP000334.GapDeformedData3.normalization
+
+#check JSP000334.GapDeformedData3.cutoff
+#print axioms JSP000334.GapDeformedData3.cutoff
+
+#check JSP000334.GapDeformedData3.small
+#print axioms JSP000334.GapDeformedData3.small
+
+#check JSP000334.GapDeformedData3.lattice_eq
+#print axioms JSP000334.GapDeformedData3.lattice_eq
+
+#check JSP000334.GapDeformedData3.frame
+#print axioms JSP000334.GapDeformedData3.frame
+
+#check JSP000334.GapDeformedData3.independent
+#print axioms JSP000334.GapDeformedData3.independent
+
+#check JSP000334.GapDeformedData3.attaining
+#print axioms JSP000334.GapDeformedData3.attaining
+
+#check JSP000334.GapDeformedData3.separation
+#print axioms JSP000334.GapDeformedData3.separation
+
+#check JSP000334.GapSatz51Family3.cutoff
+#print axioms JSP000334.GapSatz51Family3.cutoff
+
+#check JSP000334.GapSatz51Family3.domain
+#print axioms JSP000334.GapSatz51Family3.domain
+
+#check JSP000334.GapSatz51Family3.domain_eq
+#print axioms JSP000334.GapSatz51Family3.domain_eq
+
+#check JSP000334.GapSatz51Family3.unbounded
+#print axioms JSP000334.GapSatz51Family3.unbounded
+
+#check JSP000334.GapSatz51Family3.original
+#print axioms JSP000334.GapSatz51Family3.original
+
+#check JSP000334.GapSatz51Family3.parameter
+#print axioms JSP000334.GapSatz51Family3.parameter
+
+#check JSP000334.GapSatz51Family3.large
+#print axioms JSP000334.GapSatz51Family3.large
+
+#check JSP000334.GapSatz51Family3.data
+#print axioms JSP000334.GapSatz51Family3.data
+
+#check JSP000334.originalPlanePairing3
+#print axioms JSP000334.originalPlanePairing3
+
+#check JSP000334.originalPlane_annihilator_line3
+#print axioms JSP000334.originalPlane_annihilator_line3
+
+#check JSP000334.originalPlane_last_dual_nonzero3
+#print axioms JSP000334.originalPlane_last_dual_nonzero3
+
+#check JSP000334.originalPlane_real_to_rational_dual3
+#print axioms JSP000334.originalPlane_real_to_rational_dual3
+
+#check JSP000334.originalPlane_scaled_cube3
+#print axioms JSP000334.originalPlane_scaled_cube3
+
+#check JSP000334.originalPlane_scaled_cube_gt3
+#print axioms JSP000334.originalPlane_scaled_cube_gt3
+
+#check JSP000334.originalPlane_power_cutoff3
+#print axioms JSP000334.originalPlane_power_cutoff3
+
+#check JSP000334.originalPlane_off_plane_margin3
+#print axioms JSP000334.originalPlane_off_plane_margin3
+
+#check JSP000334.originalPlane_deformed_transport3
+#print axioms JSP000334.originalPlane_deformed_transport3
+
+#check JSP000334.originalPlane_pullback_unbounded3
+#print axioms JSP000334.originalPlane_pullback_unbounded3
+
+#check JSP000334.source_fixed_last_dual_under_gap3
+#print axioms JSP000334.source_fixed_last_dual_under_gap3
+
+#check CompoundFeasibility.lo
+#print axioms CompoundFeasibility.lo
+
+#check CompoundFeasibility.hi
+#print axioms CompoundFeasibility.hi
+
+#check CompoundFeasibility.wedge
+#print axioms CompoundFeasibility.wedge
+
+#check CompoundFeasibility.compound
+#print axioms CompoundFeasibility.compound
+
+#check CompoundFeasibility.wedge_transform
+#print axioms CompoundFeasibility.wedge_transform
+
+#check CompoundFeasibility.compound_mul
+#print axioms CompoundFeasibility.compound_mul
+
+#check CompoundFeasibility.wedge_integer_cast
+#print axioms CompoundFeasibility.wedge_integer_cast
+
+#check CompoundFeasibility.compound_dimension
+#print axioms CompoundFeasibility.compound_dimension
+
+#check CompoundFeasibility.compound_one
+#print axioms CompoundFeasibility.compound_one
+
+#check CompoundFeasibility.compound_unit
+#print axioms CompoundFeasibility.compound_unit
+
+#check CompoundFeasibility.compound_rows_independent
+#print axioms CompoundFeasibility.compound_rows_independent
+
+#check CompoundFeasibility.compound_columns_independent
+#print axioms CompoundFeasibility.compound_columns_independent
+
+#check CompoundFeasibility.normBall
+#print axioms CompoundFeasibility.normBall
+
+#check CompoundFeasibility.row4
+#print axioms CompoundFeasibility.row4
+
+#check CompoundFeasibility.row6
+#print axioms CompoundFeasibility.row6
+
+#check CompoundFeasibility.lattice4
+#print axioms CompoundFeasibility.lattice4
+
+#check CompoundFeasibility.lattice6
+#print axioms CompoundFeasibility.lattice6
+
+#check CompoundFeasibility.wedge_lattice
+#print axioms CompoundFeasibility.wedge_lattice
+
+#check CompoundFeasibility.sourceLattice4
+#print axioms CompoundFeasibility.sourceLattice4
+
+#check CompoundFeasibility.sourceLattice6
+#print axioms CompoundFeasibility.sourceLattice6
+
+#check CompoundFeasibility.source_wedge_mem
+#print axioms CompoundFeasibility.source_wedge_mem
+
+#check CompoundFeasibility.compoundFrame
+#print axioms CompoundFeasibility.compoundFrame
+
+#check CompoundFeasibility.compoundFrame_cast
+#print axioms CompoundFeasibility.compoundFrame_cast
+
+#check CompoundFeasibility.integral_frame_rational_independent
+#print axioms CompoundFeasibility.integral_frame_rational_independent
+
+#check CompoundFeasibility.compoundFrame_independent
+#print axioms CompoundFeasibility.compoundFrame_independent
+
+#check CompoundFeasibility.arch_minor_bound
+#print axioms CompoundFeasibility.arch_minor_bound
+
+#check CompoundFeasibility.ceil_pair_bounds
+#print axioms CompoundFeasibility.ceil_pair_bounds
+
+#check CompoundFeasibility.ceil_pair_prime_powers
+#print axioms CompoundFeasibility.ceil_pair_prime_powers
+
+#check CompoundFeasibility.lattice4_spec
+#print axioms CompoundFeasibility.lattice4_spec
+
+#check CompoundFeasibility.lattice6_spec
+#print axioms CompoundFeasibility.lattice6_spec
+
+#check CompoundFeasibility.compound_width_positive
+#print axioms CompoundFeasibility.compound_width_positive
+
+#check CompoundFeasibility.compound_width_product
+#print axioms CompoundFeasibility.compound_width_product
+
+#check CompoundFeasibility.compound_exponent_sum
+#print axioms CompoundFeasibility.compound_exponent_sum
+
+#check CompoundFeasibility.source_compound_bridge42
+#print axioms CompoundFeasibility.source_compound_bridge42
+
+#check CompoundFeasibility.abs_det_le_column_bounds
+#print axioms CompoundFeasibility.abs_det_le_column_bounds
+#check CompoundFeasibility.integer_frame_det_lower6
+#print axioms CompoundFeasibility.integer_frame_det_lower6
+#check CompoundFeasibility.abs_det_le_weighted_bounds
+#print axioms CompoundFeasibility.abs_det_le_weighted_bounds
+#check CompoundFeasibility.integer_frame_body_product_lower6
+#print axioms CompoundFeasibility.integer_frame_body_product_lower6
+#check CompoundFeasibility.clear_matrix_denominators
+#print axioms CompoundFeasibility.clear_matrix_denominators
+#check CompoundFeasibility.local_multiple_bounds
+#print axioms CompoundFeasibility.local_multiple_bounds
+#check CompoundFeasibility.sourceLattice6_multiple
+#print axioms CompoundFeasibility.sourceLattice6_multiple
+#check CompoundFeasibility.integer_subgroup_has_basis
+#print axioms CompoundFeasibility.integer_subgroup_has_basis
+#check CompoundFeasibility.sourceLattice6_has_basis
+#print axioms CompoundFeasibility.sourceLattice6_has_basis
+#check CompoundFeasibility.integerReal
+#print axioms CompoundFeasibility.integerReal
+#check CompoundFeasibility.integerReal_injective
+#print axioms CompoundFeasibility.integerReal_injective
+#check CompoundFeasibility.integerRealImage
+#print axioms CompoundFeasibility.integerRealImage
+#check CompoundFeasibility.integerRealImage_discrete
+#print axioms CompoundFeasibility.integerRealImage_discrete
+#check CompoundFeasibility.integerRealImage_span_top
+#print axioms CompoundFeasibility.integerRealImage_span_top
+#check CompoundFeasibility.integerRealImageBasis
+#print axioms CompoundFeasibility.integerRealImageBasis
+#check CompoundFeasibility.sourceLattice6_isZLattice
+#print axioms CompoundFeasibility.sourceLattice6_isZLattice
+#check CompoundFeasibility.integerRealImage_covolume_det
+#print axioms CompoundFeasibility.integerRealImage_covolume_det
+#check CompoundFeasibility.sourceLattice6_covolume_det
+#print axioms CompoundFeasibility.sourceLattice6_covolume_det
+#check CompoundFeasibility.integer_matrix_det_cast
+#print axioms CompoundFeasibility.integer_matrix_det_cast
+#check CompoundFeasibility.padic_det_row_bound
+#print axioms CompoundFeasibility.padic_det_row_bound
+#check CompoundFeasibility.padic_det_frame_bound
+#print axioms CompoundFeasibility.padic_det_frame_bound
+#check CompoundFeasibility.integerRealImage_basis_independent
+#print axioms CompoundFeasibility.integerRealImage_basis_independent
+#check CompoundFeasibility.integer_matrix_three_place_lower
+#print axioms CompoundFeasibility.integer_matrix_three_place_lower
+#check CompoundFeasibility.integerRealImage_padic_covolume_lower
+#print axioms CompoundFeasibility.integerRealImage_padic_covolume_lower
+#check CompoundFeasibility.sourceLattice6_covolume_lower
+#print axioms CompoundFeasibility.sourceLattice6_covolume_lower
+#check CompoundFeasibility.sourceLocalDetFactor42
+#print axioms CompoundFeasibility.sourceLocalDetFactor42
+#check CompoundFeasibility.sourceLocalDetFactor42_pos
+#print axioms CompoundFeasibility.sourceLocalDetFactor42_pos
+#check CompoundFeasibility.q_width_product_le_prime_powers4
+#print axioms CompoundFeasibility.q_width_product_le_prime_powers4
+#check CompoundFeasibility.sourceLattice6_covolume_width_lower
+#print axioms CompoundFeasibility.sourceLattice6_covolume_width_lower
+#check CompoundFeasibility.sourceLattice6_Q_normalized_covolume_lower
+#print axioms CompoundFeasibility.sourceLattice6_Q_normalized_covolume_lower
+#check CompoundFeasibility.real_basis_integer_frame_det_lower
+#print axioms CompoundFeasibility.real_basis_integer_frame_det_lower
+#check CompoundFeasibility.integerRealImage_frame_det_lower
+#print axioms CompoundFeasibility.integerRealImage_frame_det_lower
+#check CompoundFeasibility.integerRealImage_frame_product_lower
+#print axioms CompoundFeasibility.integerRealImage_frame_product_lower
+#check CompoundFeasibility.sourceLattice6_frame_product_lower
+#print axioms CompoundFeasibility.sourceLattice6_frame_product_lower
+#check CompoundFeasibility.sourceLattice6_Q_frame_product_lower
+#print axioms CompoundFeasibility.sourceLattice6_Q_frame_product_lower
+#check CompoundFeasibility.source_compound_lower_constant_pos42
+#print axioms CompoundFeasibility.source_compound_lower_constant_pos42
+#check CompoundFeasibility.source_compound_uniform_frame_lower42
+#print axioms CompoundFeasibility.source_compound_uniform_frame_lower42
+#check CompoundFeasibility.integerRealImage_covolume_index
+#print axioms CompoundFeasibility.integerRealImage_covolume_index
+#check CompoundFeasibility.sourceLattice6_covolume_index
+#print axioms CompoundFeasibility.sourceLattice6_covolume_index
+
+#check CompoundFeasibility.lattice6Span
+#print axioms CompoundFeasibility.lattice6Span
+#check CompoundFeasibility.coordinateGauge6
+#print axioms CompoundFeasibility.coordinateGauge6
+#check CompoundFeasibility.lattice6Span_gauge_ball_finite
+#print axioms CompoundFeasibility.lattice6Span_gauge_ball_finite
+#check CompoundFeasibility.exists_shortest_lattice6Span_vector_outside
+#print axioms CompoundFeasibility.exists_shortest_lattice6Span_vector_outside
+#check CompoundFeasibility.successiveRadius6
+#print axioms CompoundFeasibility.successiveRadius6
+#check CompoundFeasibility.independent_family_escapes_subspace6
+#print axioms CompoundFeasibility.independent_family_escapes_subspace6
+#check CompoundFeasibility.exists_successive_minima6
+#print axioms CompoundFeasibility.exists_successive_minima6
+#check CompoundFeasibility.weightedCoordinates6
+#print axioms CompoundFeasibility.weightedCoordinates6
+#check CompoundFeasibility.compoundFormEquiv42
+#print axioms CompoundFeasibility.compoundFormEquiv42
+#check CompoundFeasibility.compoundFormEquiv42_apply
+#print axioms CompoundFeasibility.compoundFormEquiv42_apply
+#check CompoundFeasibility.compoundCoordinates42
+#print axioms CompoundFeasibility.compoundCoordinates42
+#check CompoundFeasibility.compoundBody42
+#print axioms CompoundFeasibility.compoundBody42
+#check CompoundFeasibility.compoundCoordinates42_bounds
+#print axioms CompoundFeasibility.compoundCoordinates42_bounds
+#check CompoundFeasibility.compoundBody42_mem_iff
+#print axioms CompoundFeasibility.compoundBody42_mem_iff
+#check CompoundFeasibility.sourceRealBasis6
+#print axioms CompoundFeasibility.sourceRealBasis6
+#check CompoundFeasibility.sourceRealBasis6_span
+#print axioms CompoundFeasibility.sourceRealBasis6_span
+#check CompoundFeasibility.compoundSourceGroup6
+#print axioms CompoundFeasibility.compoundSourceGroup6
+#check CompoundFeasibility.sourceMinima6
+#print axioms CompoundFeasibility.sourceMinima6
+#check CompoundFeasibility.sourceMinima6_eq_radius
+#print axioms CompoundFeasibility.sourceMinima6_eq_radius
+#check CompoundFeasibility.exists_sourceMinima6_attaining
+#print axioms CompoundFeasibility.exists_sourceMinima6_attaining
+#check CompoundFeasibility.sourceMinima6_admissible
+#print axioms CompoundFeasibility.sourceMinima6_admissible
+#check CompoundFeasibility.sourceMinima6_radius_set_properties
+#print axioms CompoundFeasibility.sourceMinima6_radius_set_properties
+#check CompoundFeasibility.sourceMinima6_pos_mono
+#print axioms CompoundFeasibility.sourceMinima6_pos_mono
+#check CompoundFeasibility.source_compound_uniform_minima_lower6
+#print axioms CompoundFeasibility.source_compound_uniform_minima_lower6
+#check CompoundFeasibility.sourceMinima6_product_lower
+#print axioms CompoundFeasibility.sourceMinima6_product_lower
+
+#check CompoundFeasibility.sourceLattice4_multiple
+#print axioms CompoundFeasibility.sourceLattice4_multiple
+#check CompoundFeasibility.sourceLattice4_has_basis
+#print axioms CompoundFeasibility.sourceLattice4_has_basis
+#check CompoundFeasibility.sourceLattice4_isZLattice
+#print axioms CompoundFeasibility.sourceLattice4_isZLattice
+#check CompoundFeasibility.sourceLattice4_covolume_det
+#print axioms CompoundFeasibility.sourceLattice4_covolume_det
+#check CompoundFeasibility.sourceLattice4_covolume_index
+#print axioms CompoundFeasibility.sourceLattice4_covolume_index
+#check CompoundFeasibility.integer_span4_index_det
+#print axioms CompoundFeasibility.integer_span4_index_det
+#check CompoundFeasibility.integer_matrix_index_upper4
+#print axioms CompoundFeasibility.integer_matrix_index_upper4
+#check CompoundFeasibility.inverse_integral_frame4
+#print axioms CompoundFeasibility.inverse_integral_frame4
+#check CompoundFeasibility.lattice4_index_upper
+#print axioms CompoundFeasibility.lattice4_index_upper
+#check CompoundFeasibility.sourceLattice4_uniform_index_upper
+#print axioms CompoundFeasibility.sourceLattice4_uniform_index_upper
+#check CompoundFeasibility.q_prime_powers_product_upper4
+#print axioms CompoundFeasibility.q_prime_powers_product_upper4
+#check CompoundFeasibility.q_prime_powers_normalized_upper4
+#print axioms CompoundFeasibility.q_prime_powers_normalized_upper4
+#check CompoundFeasibility.sourceLattice4_uniform_normalized_covolume_upper
+#print axioms CompoundFeasibility.sourceLattice4_uniform_normalized_covolume_upper
+#check CompoundFeasibility.lattice4Span
+#print axioms CompoundFeasibility.lattice4Span
+#check CompoundFeasibility.coordinateGauge4
+#print axioms CompoundFeasibility.coordinateGauge4
+#check CompoundFeasibility.lattice4Span_gauge_ball_finite
+#print axioms CompoundFeasibility.lattice4Span_gauge_ball_finite
+#check CompoundFeasibility.exists_shortest_lattice4Span_vector_outside
+#print axioms CompoundFeasibility.exists_shortest_lattice4Span_vector_outside
+#check CompoundFeasibility.successiveRadius4
+#print axioms CompoundFeasibility.successiveRadius4
+#check CompoundFeasibility.independent_family_escapes_subspace4
+#print axioms CompoundFeasibility.independent_family_escapes_subspace4
+#check CompoundFeasibility.exists_successive_minima4
+#print axioms CompoundFeasibility.exists_successive_minima4
+#check CompoundFeasibility.weightedCoordinates4
+#print axioms CompoundFeasibility.weightedCoordinates4
+#check CompoundFeasibility.originalFormEquiv4
+#print axioms CompoundFeasibility.originalFormEquiv4
+#check CompoundFeasibility.originalFormEquiv4_apply
+#print axioms CompoundFeasibility.originalFormEquiv4_apply
+#check CompoundFeasibility.originalCoordinates4
+#print axioms CompoundFeasibility.originalCoordinates4
+#check CompoundFeasibility.originalBody4
+#print axioms CompoundFeasibility.originalBody4
+#check CompoundFeasibility.originalCoordinates4_bounds
+#print axioms CompoundFeasibility.originalCoordinates4_bounds
+#check CompoundFeasibility.originalBody4_mem_iff
+#print axioms CompoundFeasibility.originalBody4_mem_iff
+#check CompoundFeasibility.sourceRealBasis4
+#print axioms CompoundFeasibility.sourceRealBasis4
+#check CompoundFeasibility.sourceRealBasis4_span
+#print axioms CompoundFeasibility.sourceRealBasis4_span
+#check CompoundFeasibility.originalSourceGroup4
+#print axioms CompoundFeasibility.originalSourceGroup4
+#check CompoundFeasibility.sourceMinima4
+#print axioms CompoundFeasibility.sourceMinima4
+#check CompoundFeasibility.sourceMinima4_eq_radius
+#print axioms CompoundFeasibility.sourceMinima4_eq_radius
+#check CompoundFeasibility.exists_sourceMinima4_attaining
+#print axioms CompoundFeasibility.exists_sourceMinima4_attaining
+#check CompoundFeasibility.sourceMinima4_admissible
+#print axioms CompoundFeasibility.sourceMinima4_admissible
+#check CompoundFeasibility.sourceMinima4_radius_set_properties
+#print axioms CompoundFeasibility.sourceMinima4_radius_set_properties
+#check CompoundFeasibility.sourceMinima4_pos_mono
+#print axioms CompoundFeasibility.sourceMinima4_pos_mono
+#check CompoundFeasibility.parallelepipedBody4
+#print axioms CompoundFeasibility.parallelepipedBody4
+#check CompoundFeasibility.mem_parallelepipedBody4_iff
+#print axioms CompoundFeasibility.mem_parallelepipedBody4_iff
+#check CompoundFeasibility.mem_dilate_parallelepipedBody4_iff
+#print axioms CompoundFeasibility.mem_dilate_parallelepipedBody4_iff
+#check CompoundFeasibility.parallelepipedBody4_volume
+#print axioms CompoundFeasibility.parallelepipedBody4_volume
+#check CompoundFeasibility.minimaFlag4
+#print axioms CompoundFeasibility.minimaFlag4
+#check CompoundFeasibility.minimaFlag4_finrank
+#print axioms CompoundFeasibility.minimaFlag4_finrank
+#check CompoundFeasibility.successiveRadius4_le_family
+#print axioms CompoundFeasibility.successiveRadius4_le_family
+#check CompoundFeasibility.lattice4Span_short_mem_minimaFlag
+#print axioms CompoundFeasibility.lattice4Span_short_mem_minimaFlag
+#check CompoundFeasibility.exists_minimaFlag4
+#print axioms CompoundFeasibility.exists_minimaFlag4
+#check CompoundFeasibility.minimaFlag4_mono
+#print axioms CompoundFeasibility.minimaFlag4_mono
+#check CompoundFeasibility.lattice4Span_halfBody_cosets_disjoint
+#print axioms CompoundFeasibility.lattice4Span_halfBody_cosets_disjoint
+#check CompoundFeasibility.minimaFlag4_halfBody_cosets_disjoint
+#print axioms CompoundFeasibility.minimaFlag4_halfBody_cosets_disjoint
+#check CompoundFeasibility.latticeFlag4
+#print axioms CompoundFeasibility.latticeFlag4
+#check CompoundFeasibility.flagLattice4
+#print axioms CompoundFeasibility.flagLattice4
+#check CompoundFeasibility.latticeFlag4_saturated
+#print axioms CompoundFeasibility.latticeFlag4_saturated
+#check CompoundFeasibility.latticeFlag4_equiv_flagLattice4
+#print axioms CompoundFeasibility.latticeFlag4_equiv_flagLattice4
+#check CompoundFeasibility.flagLattice4_discrete
+#print axioms CompoundFeasibility.flagLattice4_discrete
+#check CompoundFeasibility.flagLattice4_isZLattice
+#print axioms CompoundFeasibility.flagLattice4_isZLattice
+#check CompoundFeasibility.latticeFlag4_finrank
+#print axioms CompoundFeasibility.latticeFlag4_finrank
+#check CompoundFeasibility.latticeFlag4_basis_real_span
+#print axioms CompoundFeasibility.latticeFlag4_basis_real_span
+#check CompoundFeasibility.exists_adapted_integer_basis4
+#print axioms CompoundFeasibility.exists_adapted_integer_basis4
+#check CompoundFeasibility.convex_fiber4_dilate_subset_translate
+#print axioms CompoundFeasibility.convex_fiber4_dilate_subset_translate
+#check CompoundFeasibility.convex_fiber4_translate_union_volume_mono
+#print axioms CompoundFeasibility.convex_fiber4_translate_union_volume_mono
+#check CompoundFeasibility.flagFiberUnion4
+#print axioms CompoundFeasibility.flagFiberUnion4
+#check CompoundFeasibility.flagFiberUnion4_fiber
+#print axioms CompoundFeasibility.flagFiberUnion4_fiber
+#check CompoundFeasibility.convex_flagFiberUnion4_volume_mono
+#print axioms CompoundFeasibility.convex_flagFiberUnion4_volume_mono
+#check CompoundFeasibility.flagFiberUnion4_transverse_volume
+#print axioms CompoundFeasibility.flagFiberUnion4_transverse_volume
+#check CompoundFeasibility.convex_flag4_translate_union_volume_growth
+#print axioms CompoundFeasibility.convex_flag4_translate_union_volume_growth
+#check CompoundFeasibility.exists_adapted_lattice_coordinates4
+#print axioms CompoundFeasibility.exists_adapted_lattice_coordinates4
+#check CompoundFeasibility.parallelepipedBody4_compact_convex
+#print axioms CompoundFeasibility.parallelepipedBody4_compact_convex
+#check CompoundFeasibility.integerBox4
+#print axioms CompoundFeasibility.integerBox4
+#check CompoundFeasibility.mem_integerBox4
+#print axioms CompoundFeasibility.mem_integerBox4
+#check CompoundFeasibility.integerLatticePoint4
+#print axioms CompoundFeasibility.integerLatticePoint4
+#check CompoundFeasibility.integerLatticePoint4_injective
+#print axioms CompoundFeasibility.integerLatticePoint4_injective
+#check CompoundFeasibility.integerLatticePoint4_add
+#print axioms CompoundFeasibility.integerLatticePoint4_add
+#check CompoundFeasibility.integerLatticePoint4_mem_flag_iff
+#print axioms CompoundFeasibility.integerLatticePoint4_mem_flag_iff
+#check CompoundFeasibility.integerBox4_split
+#print axioms CompoundFeasibility.integerBox4_split
+#check CompoundFeasibility.integerBox4_split_unique
+#print axioms CompoundFeasibility.integerBox4_split_unique
+#check CompoundFeasibility.integerLatticePoint4_box_split
+#print axioms CompoundFeasibility.integerLatticePoint4_box_split
+#check CompoundFeasibility.integerBox4_transverse_not_mem_flag
+#print axioms CompoundFeasibility.integerBox4_transverse_not_mem_flag
+#check CompoundFeasibility.integerBox4_strict_gap_disjoint
+#print axioms CompoundFeasibility.integerBox4_strict_gap_disjoint
+#check CompoundFeasibility.integerBox4_strict_gap_volume
+#print axioms CompoundFeasibility.integerBox4_strict_gap_volume
+#check CompoundFeasibility.splitIndex4
+#print axioms CompoundFeasibility.splitIndex4
+#check CompoundFeasibility.splitCoordinates4
+#print axioms CompoundFeasibility.splitCoordinates4
+#check CompoundFeasibility.splitCoordinates4_volume_preserving
+#print axioms CompoundFeasibility.splitCoordinates4_volume_preserving
+#check CompoundFeasibility.splitCoordinates4_volume
+#print axioms CompoundFeasibility.splitCoordinates4_volume
+#check CompoundFeasibility.splitCoordinates4_integerBox_image
+#print axioms CompoundFeasibility.splitCoordinates4_integerBox_image
+#check CompoundFeasibility.adaptedSplitCoordinates4
+#print axioms CompoundFeasibility.adaptedSplitCoordinates4
+#check CompoundFeasibility.adaptedSplitCoordinates4_volume
+#print axioms CompoundFeasibility.adaptedSplitCoordinates4_volume
+#check CompoundFeasibility.adaptedSplitCoordinates4_box_body_image
+#print axioms CompoundFeasibility.adaptedSplitCoordinates4_box_body_image
+#check CompoundFeasibility.adaptedSplitCoordinates4_box_body_volume
+#print axioms CompoundFeasibility.adaptedSplitCoordinates4_box_body_volume
+#check CompoundFeasibility.integerBox4_longitudinal_volume_growth
+#print axioms CompoundFeasibility.integerBox4_longitudinal_volume_growth
+#check CompoundFeasibility.integerBox4_full_volume_growth_step
+#print axioms CompoundFeasibility.integerBox4_full_volume_growth_step
+#check CompoundFeasibility.integerBox4_full_volume_growth
+#print axioms CompoundFeasibility.integerBox4_full_volume_growth
+#check CompoundFeasibility.volume_smul_fin4
+#print axioms CompoundFeasibility.volume_smul_fin4
+#check CompoundFeasibility.integerBox4_full_volume_product_lower
+#print axioms CompoundFeasibility.integerBox4_full_volume_product_lower
+#check CompoundFeasibility.integerBox4_full_body_fixed_enlargement
+#print axioms CompoundFeasibility.integerBox4_full_body_fixed_enlargement
+#check CompoundFeasibility.integerBox4_full_body_volume_upper
+#print axioms CompoundFeasibility.integerBox4_full_body_volume_upper
+#check CompoundFeasibility.integerBox4_full_card
+#print axioms CompoundFeasibility.integerBox4_full_card
+#check CompoundFeasibility.quartic_box_leading_coefficient
+#print axioms CompoundFeasibility.quartic_box_leading_coefficient
+#check CompoundFeasibility.successive_minima4_parallelepiped_volume_upper_contracted
+#print axioms CompoundFeasibility.successive_minima4_parallelepiped_volume_upper_contracted
+#check CompoundFeasibility.successive_minima4_parallelepiped_volume_upper
+#print axioms CompoundFeasibility.successive_minima4_parallelepiped_volume_upper
+#check CompoundFeasibility.weightedCoordinates4_det
+#print axioms CompoundFeasibility.weightedCoordinates4_det
+#check CompoundFeasibility.originalCoordinates4_det
+#print axioms CompoundFeasibility.originalCoordinates4_det
+#check CompoundFeasibility.originalBody4_volume
+#print axioms CompoundFeasibility.originalBody4_volume
+#check CompoundFeasibility.sourceMinima4_product_volume_upper
+#print axioms CompoundFeasibility.sourceMinima4_product_volume_upper
+#check CompoundFeasibility.source_original_uniform_minima_upper4
+#print axioms CompoundFeasibility.source_original_uniform_minima_upper4
+
+#check CompoundFeasibility.sortedPairProducts42
+#print axioms CompoundFeasibility.sortedPairProducts42
+#check CompoundFeasibility.pairProductOrder42
+#print axioms CompoundFeasibility.pairProductOrder42
+#check CompoundFeasibility.sortedPairProducts42_of_middle_le
+#print axioms CompoundFeasibility.sortedPairProducts42_of_middle_le
+#check CompoundFeasibility.sortedPairProducts42_of_middle_ge
+#print axioms CompoundFeasibility.sortedPairProducts42_of_middle_ge
+#check CompoundFeasibility.sortedPairProducts42_reindex
+#print axioms CompoundFeasibility.sortedPairProducts42_reindex
+#check CompoundFeasibility.sortedPairProducts42_pos
+#print axioms CompoundFeasibility.sortedPairProducts42_pos
+#check CompoundFeasibility.sortedPairProducts42_monotone
+#print axioms CompoundFeasibility.sortedPairProducts42_monotone
+#check CompoundFeasibility.sortedPairProducts42_product
+#print axioms CompoundFeasibility.sortedPairProducts42_product
+#check CompoundFeasibility.sourcePairProducts42
+#print axioms CompoundFeasibility.sourcePairProducts42
+#check CompoundFeasibility.sourcePairProducts42_pos_mono
+#print axioms CompoundFeasibility.sourcePairProducts42_pos_mono
+#check CompoundFeasibility.sourcePairProducts42_reindex
+#print axioms CompoundFeasibility.sourcePairProducts42_reindex
+#check CompoundFeasibility.sourcePairProducts42_product
+#print axioms CompoundFeasibility.sourcePairProducts42_product
+#check CompoundFeasibility.source_pair_products42
+#print axioms CompoundFeasibility.source_pair_products42
+
+#check CompoundFeasibility.exists_source_compound_ordered_frame42
+#print axioms CompoundFeasibility.exists_source_compound_ordered_frame42
+#check CompoundFeasibility.source_compound_prefix_admissible42
+#print axioms CompoundFeasibility.source_compound_prefix_admissible42
+#check CompoundFeasibility.source_compound_minima_upper42
+#print axioms CompoundFeasibility.source_compound_minima_upper42
+
+#check CompoundFeasibility.prod_erase_upper42
+#print axioms CompoundFeasibility.prod_erase_upper42
+#check CompoundFeasibility.product_reverse42
+#print axioms CompoundFeasibility.product_reverse42
+#check CompoundFeasibility.source_compound_minima_reverse42
+#print axioms CompoundFeasibility.source_compound_minima_reverse42
+#check CompoundFeasibility.source_compound_uniform_comparison42
+#print axioms CompoundFeasibility.source_compound_uniform_comparison42
+
+#check CompoundFeasibility.sourcePairProducts42_top
+#print axioms CompoundFeasibility.sourcePairProducts42_top
+#check CompoundFeasibility.source_summed_gap_bound42
+#print axioms CompoundFeasibility.source_summed_gap_bound42
+#check CompoundFeasibility.compound_gap_cutoff42
+#print axioms CompoundFeasibility.compound_gap_cutoff42
+#check CompoundFeasibility.absorb_compound_gap42
+#print axioms CompoundFeasibility.absorb_compound_gap42
+#check CompoundFeasibility.directLocal42
+#print axioms CompoundFeasibility.directLocal42
+#check CompoundFeasibility.normBall_antitone42
+#print axioms CompoundFeasibility.normBall_antitone42
+#check CompoundFeasibility.summed_le_directLocal42
+#print axioms CompoundFeasibility.summed_le_directLocal42
+#check CompoundFeasibility.six_norm2_42
+#print axioms CompoundFeasibility.six_norm2_42
+#check CompoundFeasibility.six_norm3_42
+#print axioms CompoundFeasibility.six_norm3_42
+
+#check CompoundFeasibility.padic_rpow_ceil42
+#print axioms CompoundFeasibility.padic_rpow_ceil42
+#check CompoundFeasibility.qThreshold_add42
+#print axioms CompoundFeasibility.qThreshold_add42
+#check CompoundFeasibility.directLocal42_spec
+#print axioms CompoundFeasibility.directLocal42_spec
+#check CompoundFeasibility.directLocal42_raw
+#print axioms CompoundFeasibility.directLocal42_raw
+#check CompoundFeasibility.directCompoundGroup42
+#print axioms CompoundFeasibility.directCompoundGroup42
+#check CompoundFeasibility.directCompoundGroup42_raw
+#print axioms CompoundFeasibility.directCompoundGroup42_raw
+#check CompoundFeasibility.summed_le_directCompoundGroup42
+#print axioms CompoundFeasibility.summed_le_directCompoundGroup42
+#check CompoundFeasibility.directCompoundGroup42_multiple
+#print axioms CompoundFeasibility.directCompoundGroup42_multiple
+#check CompoundFeasibility.directCompoundGroup42_has_basis
+#print axioms CompoundFeasibility.directCompoundGroup42_has_basis
+#check CompoundFeasibility.directCompoundGroup42_isZLattice
+#print axioms CompoundFeasibility.directCompoundGroup42_isZLattice
+#check CompoundFeasibility.directLocal42_scale
+#print axioms CompoundFeasibility.directLocal42_scale
+#check CompoundFeasibility.directCompoundGroup42_six_mem
+#print axioms CompoundFeasibility.directCompoundGroup42_six_mem
+#check CompoundFeasibility.directCompoundGroup42_real_lattice
+#print axioms CompoundFeasibility.directCompoundGroup42_real_lattice
+#check CompoundFeasibility.directRealBasis42
+#print axioms CompoundFeasibility.directRealBasis42
+#check CompoundFeasibility.directRealBasis42_span
+#print axioms CompoundFeasibility.directRealBasis42_span
+#check CompoundFeasibility.directMinima42
+#print axioms CompoundFeasibility.directMinima42
+#check CompoundFeasibility.directMinima42_eq_radius
+#print axioms CompoundFeasibility.directMinima42_eq_radius
+#check CompoundFeasibility.exists_directMinima42_attaining
+#print axioms CompoundFeasibility.exists_directMinima42_attaining
+#check CompoundFeasibility.directMinima42_pos_mono
+#print axioms CompoundFeasibility.directMinima42_pos_mono
+#check CompoundFeasibility.directMinima42_admissible
+#print axioms CompoundFeasibility.directMinima42_admissible
+#check CompoundFeasibility.directMinima42_radius_set_properties
+#print axioms CompoundFeasibility.directMinima42_radius_set_properties
+#check CompoundFeasibility.directMinima42_comparison
+#print axioms CompoundFeasibility.directMinima42_comparison
+#check CompoundFeasibility.source_direct_gap_bound42
+#print axioms CompoundFeasibility.source_direct_gap_bound42
+#check CompoundFeasibility.source_uniform_direct_gap42
+#print axioms CompoundFeasibility.source_uniform_direct_gap42
+#check CompoundFeasibility.firstFiveSpan42
+#print axioms CompoundFeasibility.firstFiveSpan42
+#check CompoundFeasibility.firstFiveSpan42_finrank
+#print axioms CompoundFeasibility.firstFiveSpan42_finrank
+#check CompoundFeasibility.gap_margin42
+#print axioms CompoundFeasibility.gap_margin42
+#check CompoundFeasibility.pairProductOrder42_last
+#print axioms CompoundFeasibility.pairProductOrder42_last
+#check CompoundFeasibility.integer6_independent_iff42
+#print axioms CompoundFeasibility.integer6_independent_iff42
+#check CompoundFeasibility.integer_firstFive_mem_iff42
+#print axioms CompoundFeasibility.integer_firstFive_mem_iff42
+#check CompoundFeasibility.integer_firstFive_span_eq42
+#print axioms CompoundFeasibility.integer_firstFive_span_eq42
+#check CompoundFeasibility.direct_short_mem_firstFive42
+#print axioms CompoundFeasibility.direct_short_mem_firstFive42
+#check CompoundFeasibility.orderedWedges42
+#print axioms CompoundFeasibility.orderedWedges42
+#check CompoundFeasibility.sourceHyperplane42
+#print axioms CompoundFeasibility.sourceHyperplane42
+#check CompoundFeasibility.ordered_source_wedges42
+#print axioms CompoundFeasibility.ordered_source_wedges42
+#check CompoundFeasibility.source_pointwise_hyperplane42
+#print axioms CompoundFeasibility.source_pointwise_hyperplane42
+#check CompoundFeasibility.source_uniform_hyperplane42
+#print axioms CompoundFeasibility.source_uniform_hyperplane42
+#check CompoundFeasibility.wedgeDual42
+#print axioms CompoundFeasibility.wedgeDual42
+#check CompoundFeasibility.functional_coordinates42
+#print axioms CompoundFeasibility.functional_coordinates42
+#check CompoundFeasibility.wedgeDual42_pairing
+#print axioms CompoundFeasibility.wedgeDual42_pairing
+#check CompoundFeasibility.rationalFrameBasis42
+#print axioms CompoundFeasibility.rationalFrameBasis42
+#check CompoundFeasibility.rationalFrameBasis42_apply
+#print axioms CompoundFeasibility.rationalFrameBasis42_apply
+#check CompoundFeasibility.rationalFrameDual42
+#print axioms CompoundFeasibility.rationalFrameDual42
+#check CompoundFeasibility.rationalFrameDual42_pairing
+#print axioms CompoundFeasibility.rationalFrameDual42_pairing
+#check CompoundFeasibility.lastDual42_nonzero
+#print axioms CompoundFeasibility.lastDual42_nonzero
+#check CompoundFeasibility.lastDual42_kernel
+#print axioms CompoundFeasibility.lastDual42_kernel
+#check CompoundFeasibility.functional_lastDual42
+#print axioms CompoundFeasibility.functional_lastDual42
+#check CompoundFeasibility.compoundDual42_pairing
+#print axioms CompoundFeasibility.compoundDual42_pairing
+#check CompoundFeasibility.orderedCompoundDual42_pairing
+#print axioms CompoundFeasibility.orderedCompoundDual42_pairing
+#check CompoundFeasibility.rationalDualLine42
+#print axioms CompoundFeasibility.rationalDualLine42
+#check CompoundFeasibility.same_frame_dual_line42
+#print axioms CompoundFeasibility.same_frame_dual_line42
+#check CompoundFeasibility.source_hyperplane_dual_line42
+#print axioms CompoundFeasibility.source_hyperplane_dual_line42
+#check CompoundFeasibility.source_uniform_dual_line42
+#print axioms CompoundFeasibility.source_uniform_dual_line42
+#check CompoundFeasibility.pairWeights42
+#print axioms CompoundFeasibility.pairWeights42
+#check CompoundFeasibility.pairWeights42_sum
+#print axioms CompoundFeasibility.pairWeights42_sum
+#check CompoundFeasibility.pairWeights42_bounds
+#print axioms CompoundFeasibility.pairWeights42_bounds
+#check CompoundFeasibility.pairWeights42_balance
+#print axioms CompoundFeasibility.pairWeights42_balance
+#check CompoundFeasibility.compound42_algebraic
+#print axioms CompoundFeasibility.compound42_algebraic
+#check CompoundFeasibility.compound42_map
+#print axioms CompoundFeasibility.compound42_map
+#check CompoundFeasibility.compound42_local_algebraic
+#print axioms CompoundFeasibility.compound42_local_algebraic
+#check CompoundFeasibility.compound42_source_body
+#print axioms CompoundFeasibility.compound42_source_body
+#check CompoundFeasibility.compound42_source_lattice
+#print axioms CompoundFeasibility.compound42_source_lattice
+#check CompoundFeasibility.sourceUnit42
+#print axioms CompoundFeasibility.sourceUnit42
+#check CompoundFeasibility.source_compound_unbounded_family42
+#print axioms CompoundFeasibility.source_compound_unbounded_family42
+#check CompoundFeasibility.pair_indices42
+#print axioms CompoundFeasibility.pair_indices42
+#check CompoundFeasibility.pair_order42
+#print axioms CompoundFeasibility.pair_order42
+#check CompoundFeasibility.compound42_upper
+#print axioms CompoundFeasibility.compound42_upper
+#check CompoundFeasibility.compound42_upper_det
+#print axioms CompoundFeasibility.compound42_upper_det
+#check CompoundFeasibility.compound42_transpose
+#print axioms CompoundFeasibility.compound42_transpose
+#check CompoundFeasibility.compound42_transvection_det
+#print axioms CompoundFeasibility.compound42_transvection_det
+#check CompoundFeasibility.compound42_det
+#print axioms CompoundFeasibility.compound42_det
+#check CompoundFeasibility.compound42_det_one
+#print axioms CompoundFeasibility.compound42_det_one
+#check CompoundFeasibility.source_compound_determinant_one42
+#print axioms CompoundFeasibility.source_compound_determinant_one42
+#check CompoundFeasibility.source_compound_admissible42
+#print axioms CompoundFeasibility.source_compound_admissible42
+#check CompoundFeasibility.minimaFlag6
+#print axioms CompoundFeasibility.minimaFlag6
+#check CompoundFeasibility.minimaFlag6_finrank
+#print axioms CompoundFeasibility.minimaFlag6_finrank
+#check CompoundFeasibility.minimaFlag6_mono
+#print axioms CompoundFeasibility.minimaFlag6_mono
+#check CompoundFeasibility.successiveRadius6_le_family
+#print axioms CompoundFeasibility.successiveRadius6_le_family
+#check CompoundFeasibility.lattice6Span_short_mem_minimaFlag
+#print axioms CompoundFeasibility.lattice6Span_short_mem_minimaFlag
+#check CompoundFeasibility.davenport_original_off_flag6
+#print axioms CompoundFeasibility.davenport_original_off_flag6
+#check CompoundFeasibility.direct_original_off_flag42
+#print axioms CompoundFeasibility.direct_original_off_flag42
+#check CompoundFeasibility.davenport_pivot_step6
+#print axioms CompoundFeasibility.davenport_pivot_step6
+#check CompoundFeasibility.prefixSpan6
+#print axioms CompoundFeasibility.prefixSpan6
+#check CompoundFeasibility.prefixSpan6_finrank
+#print axioms CompoundFeasibility.prefixSpan6_finrank
+#check CompoundFeasibility.prefixSpan6_mono
+#print axioms CompoundFeasibility.prefixSpan6_mono
+#check CompoundFeasibility.davenport_pivot_prefix6
+#print axioms CompoundFeasibility.davenport_pivot_prefix6
+#check CompoundFeasibility.prefixSpan6_map
+#print axioms CompoundFeasibility.prefixSpan6_map
+#check CompoundFeasibility.davenport_flag_pivot6
+#print axioms CompoundFeasibility.davenport_flag_pivot6
+#check CompoundFeasibility.davenportCoordinates6
+#print axioms CompoundFeasibility.davenportCoordinates6
+#check CompoundFeasibility.davenportCoordinates6_apply
+#print axioms CompoundFeasibility.davenportCoordinates6_apply
+#check CompoundFeasibility.davenport_off_flag6_of_pivot
+#print axioms CompoundFeasibility.davenport_off_flag6_of_pivot
+#check CompoundFeasibility.davenport_off_flag6
+#print axioms CompoundFeasibility.davenport_off_flag6
+#check CompoundFeasibility.direct_davenport_off_flag42
+#print axioms CompoundFeasibility.direct_davenport_off_flag42
+#check CompoundFeasibility.parallelepipedBody6
+#print axioms CompoundFeasibility.parallelepipedBody6
+#check CompoundFeasibility.mem_parallelepipedBody6_iff
+#print axioms CompoundFeasibility.mem_parallelepipedBody6_iff
+#check CompoundFeasibility.parallelepipedBody6_volume
+#print axioms CompoundFeasibility.parallelepipedBody6_volume
+#check CompoundFeasibility.weightedCoordinates6_det
+#print axioms CompoundFeasibility.weightedCoordinates6_det
+#check CompoundFeasibility.davenportCoordinates6_det
+#print axioms CompoundFeasibility.davenportCoordinates6_det
+#check CompoundFeasibility.davenportBody6_volume
+#print axioms CompoundFeasibility.davenportBody6_volume
+#check CompoundFeasibility.directDavenportMinima42
+#print axioms CompoundFeasibility.directDavenportMinima42
+#check CompoundFeasibility.directDavenportMinima42_eq_inf
+#print axioms CompoundFeasibility.directDavenportMinima42_eq_inf
+#check CompoundFeasibility.exists_directDavenportMinima42_attaining
+#print axioms CompoundFeasibility.exists_directDavenportMinima42_attaining
+#check CompoundFeasibility.davenport_minima_lower6
+#print axioms CompoundFeasibility.davenport_minima_lower6
+#check CompoundFeasibility.davenport_lower6
+#print axioms CompoundFeasibility.davenport_lower6
+#check CompoundFeasibility.gapRadius6
+#print axioms CompoundFeasibility.gapRadius6
+#check CompoundFeasibility.gapDeformation6
+#print axioms CompoundFeasibility.gapDeformation6
+#check CompoundFeasibility.gapRadius6_pos
+#print axioms CompoundFeasibility.gapRadius6_pos
+#check CompoundFeasibility.gapRadius6_power
+#print axioms CompoundFeasibility.gapRadius6_power
+#check CompoundFeasibility.gapDeformation6_pos
+#print axioms CompoundFeasibility.gapDeformation6_pos
+#check CompoundFeasibility.gapDeformation6_product
+#print axioms CompoundFeasibility.gapDeformation6_product
+#check CompoundFeasibility.gapDeformation6_antitone
+#print axioms CompoundFeasibility.gapDeformation6_antitone
+#check CompoundFeasibility.gapDeformation6_scaled
+#print axioms CompoundFeasibility.gapDeformation6_scaled
+#check CompoundFeasibility.gapRadius6_source_formula
+#print axioms CompoundFeasibility.gapRadius6_source_formula
+#check CompoundFeasibility.davenportBody6_mem
+#print axioms CompoundFeasibility.davenportBody6_mem
+#check CompoundFeasibility.direct_davenportCoordinates42_apply
+#print axioms CompoundFeasibility.direct_davenportCoordinates42_apply
+#check CompoundFeasibility.source_davenport_lower42
+#print axioms CompoundFeasibility.source_davenport_lower42
+#check CompoundFeasibility.davenport_adapted_rows6
+#print axioms CompoundFeasibility.davenport_adapted_rows6
+#check CompoundFeasibility.independent_prefix_adjustment6
+#print axioms CompoundFeasibility.independent_prefix_adjustment6
+#check CompoundFeasibility.davenport_integral_reduce6
+#print axioms CompoundFeasibility.davenport_integral_reduce6
+#check CompoundFeasibility.basis_prefix_coordinate_zero6
+#print axioms CompoundFeasibility.basis_prefix_coordinate_zero6
+#check CompoundFeasibility.davenport_adapted_basis6
+#print axioms CompoundFeasibility.davenport_adapted_basis6
+#check CompoundFeasibility.davenportCoordinates6_comp
+#print axioms CompoundFeasibility.davenportCoordinates6_comp
+#check CompoundFeasibility.davenport_row_gauge_bound6
+#print axioms CompoundFeasibility.davenport_row_gauge_bound6
+#check CompoundFeasibility.davenport_reduced_frame6
+#print axioms CompoundFeasibility.davenport_reduced_frame6
+#check CompoundFeasibility.davenport_lemma6
+#print axioms CompoundFeasibility.davenport_lemma6
+#check CompoundFeasibility.source_davenport42
+#print axioms CompoundFeasibility.source_davenport42
+#check CompoundFeasibility.directMinima42_product_upper
+#print axioms CompoundFeasibility.directMinima42_product_upper
+#check CompoundFeasibility.gapRadius6_quantitative
+#print axioms CompoundFeasibility.gapRadius6_quantitative
+#check CompoundFeasibility.davenport_decay_absorb6
+#print axioms CompoundFeasibility.davenport_decay_absorb6
+#check CompoundFeasibility.sourceDavenportDecay42
+#print axioms CompoundFeasibility.sourceDavenportDecay42
+#check CompoundFeasibility.source_uniform_davenport_decay42
+#print axioms CompoundFeasibility.source_uniform_davenport_decay42
+#check CompoundFeasibility.source_compound_unbounded_davenport_decay42
+#print axioms CompoundFeasibility.source_compound_unbounded_davenport_decay42
+#check CompoundFeasibility.integerReal_norm_lower6
+#print axioms CompoundFeasibility.integerReal_norm_lower6
+#check CompoundFeasibility.compound_unweighted_gauge_bound42
+#print axioms CompoundFeasibility.compound_unweighted_gauge_bound42
+#check CompoundFeasibility.source_direct_first_lower42
+#print axioms CompoundFeasibility.source_direct_first_lower42
+#check CompoundFeasibility.directPrimeExponent42
+#print axioms CompoundFeasibility.directPrimeExponent42
+#check CompoundFeasibility.directPrimeExponent42_bound
+#print axioms CompoundFeasibility.directPrimeExponent42_bound
+#check CompoundFeasibility.local_max_multiple_bounds6
+#print axioms CompoundFeasibility.local_max_multiple_bounds6
+#check CompoundFeasibility.direct_scaled_basis42
+#print axioms CompoundFeasibility.direct_scaled_basis42
+#check CompoundFeasibility.direct_scale_bound42
+#print axioms CompoundFeasibility.direct_scale_bound42
+#check CompoundFeasibility.compound_weighted_gauge_bound42
+#print axioms CompoundFeasibility.compound_weighted_gauge_bound42
+#check CompoundFeasibility.source_direct_last_upper42
+#print axioms CompoundFeasibility.source_direct_last_upper42
+#check CompoundFeasibility.gapRadius6_between
+#print axioms CompoundFeasibility.gapRadius6_between
+#check CompoundFeasibility.gapDeformation6_polynomial_bounds
+#print axioms CompoundFeasibility.gapDeformation6_polynomial_bounds
+#check CompoundFeasibility.davenportWidths42
+#print axioms CompoundFeasibility.davenportWidths42
+#check CompoundFeasibility.davenportWidths42_bounds
+#print axioms CompoundFeasibility.davenportWidths42_bounds
+#check CompoundFeasibility.davenport_rescaled_power42
+#print axioms CompoundFeasibility.davenport_rescaled_power42
+#check CompoundFeasibility.davenport_rescaled_threshold42
+#print axioms CompoundFeasibility.davenport_rescaled_threshold42
+#check CompoundFeasibility.davenport_rescaled_group42
+#print axioms CompoundFeasibility.davenport_rescaled_group42
+#check CompoundFeasibility.davenportWidths42_normalization
+#print axioms CompoundFeasibility.davenportWidths42_normalization
+#check CompoundFeasibility.davenportWidths42_coordinates
+#print axioms CompoundFeasibility.davenportWidths42_coordinates
+#check CompoundFeasibility.davenport_rescaled_minima42
+#print axioms CompoundFeasibility.davenport_rescaled_minima42
+#check CompoundFeasibility.davenport_rescaled_small42
+#print axioms CompoundFeasibility.davenport_rescaled_small42
+#check CompoundFeasibility.davenportRescaledDomain42
+#print axioms CompoundFeasibility.davenportRescaledDomain42
+#check CompoundFeasibility.davenportRescaledDomain42_unbounded
+#print axioms CompoundFeasibility.davenportRescaledDomain42_unbounded
+#check CompoundFeasibility.sourceAnalyticReady42
+#print axioms CompoundFeasibility.sourceAnalyticReady42
+#check CompoundFeasibility.source_uniform_analytic_ready42
+#print axioms CompoundFeasibility.source_uniform_analytic_ready42
+#check CompoundFeasibility.source_compound_unbounded_analytic_ready42
+#print axioms CompoundFeasibility.source_compound_unbounded_analytic_ready42
+#check CompoundFeasibility.davenport_rescaled_finite_cutoff42
+#print axioms CompoundFeasibility.davenport_rescaled_finite_cutoff42
+#check CompoundFeasibility.liouville6_common_field
+#print axioms CompoundFeasibility.liouville6_common_field
+#check CompoundFeasibility.liouville6_common_denominator
+#print axioms CompoundFeasibility.liouville6_common_denominator
+#check CompoundFeasibility.liouville6_integral_norm_lower
+#print axioms CompoundFeasibility.liouville6_integral_norm_lower
+#check CompoundFeasibility.liouville6_norm_product
+#print axioms CompoundFeasibility.liouville6_norm_product
+#check CompoundFeasibility.liouville6_conjugate_height
+#print axioms CompoundFeasibility.liouville6_conjugate_height
+#check CompoundFeasibility.liouville6_field_liouville
+#print axioms CompoundFeasibility.liouville6_field_liouville
+#check CompoundFeasibility.algebraic_fin6_liouville_lower
+#print axioms CompoundFeasibility.algebraic_fin6_liouville_lower
+#check CompoundFeasibility.compound_arch_liouville_lower42
+#print axioms CompoundFeasibility.compound_arch_liouville_lower42
+#check CompoundFeasibility.Auxiliary6.Block6
+#print axioms CompoundFeasibility.Auxiliary6.Block6
+#check CompoundFeasibility.Auxiliary6.blockNatEquiv6
+#print axioms CompoundFeasibility.Auxiliary6.blockNatEquiv6
+#check CompoundFeasibility.Auxiliary6.block6_card
+#print axioms CompoundFeasibility.Auxiliary6.block6_card
+#check CompoundFeasibility.Auxiliary6.rothAuxBlockPerm
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxBlockPerm
+#check CompoundFeasibility.Auxiliary6.rothAuxBlock_coordinate_sum
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxBlock_coordinate_sum
+#check CompoundFeasibility.Auxiliary6.rothAuxBlock_center_sum
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxBlock_center_sum
+#check CompoundFeasibility.Auxiliary6.rothAuxBlock_center_bound
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxBlock_center_bound
+#check CompoundFeasibility.Auxiliary6.rothAuxBlock_exp_sum
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxBlock_exp_sum
+#check CompoundFeasibility.Auxiliary6.RothAuxCoefficients
+#print axioms CompoundFeasibility.Auxiliary6.RothAuxCoefficients
+#check CompoundFeasibility.Auxiliary6.RothAuxPivots
+#print axioms CompoundFeasibility.Auxiliary6.RothAuxPivots
+#check CompoundFeasibility.Auxiliary6.rothAuxDimension
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxDimension
+#check CompoundFeasibility.Auxiliary6.rothAuxDimension_eq
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxDimension_eq
+#check CompoundFeasibility.Auxiliary6.rothAuxCentered
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxCentered
+#check CompoundFeasibility.Auxiliary6.RothAuxBad
+#print axioms CompoundFeasibility.Auxiliary6.RothAuxBad
+#check CompoundFeasibility.Auxiliary6.rothAuxPivotCondition
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxPivotCondition
+#check CompoundFeasibility.Auxiliary6.rothAux_exp_moment
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_exp_moment
+#check CompoundFeasibility.Auxiliary6.rothAux_exp_tail_parameter
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_exp_tail_parameter
+#check CompoundFeasibility.Auxiliary6.rothAuxBad_card_zero
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxBad_card_zero
+#check CompoundFeasibility.Auxiliary6.rothAuxBad_exp_bound
+#print axioms CompoundFeasibility.Auxiliary6.rothAuxBad_exp_bound
+#check CompoundFeasibility.Auxiliary6.Equations6
+#print axioms CompoundFeasibility.Auxiliary6.Equations6
+#check CompoundFeasibility.Auxiliary6.dimension6_pos
+#print axioms CompoundFeasibility.Auxiliary6.dimension6_pos
+#check CompoundFeasibility.Auxiliary6.coordinate_rows6_le_half
+#print axioms CompoundFeasibility.Auxiliary6.coordinate_rows6_le_half
+#check CompoundFeasibility.Auxiliary6.coordinate_rows6_lt
+#print axioms CompoundFeasibility.Auxiliary6.coordinate_rows6_lt
+#check CompoundFeasibility.Auxiliary6.Block5
+#print axioms CompoundFeasibility.Auxiliary6.Block5
+#check CompoundFeasibility.Auxiliary6.blockNatEquiv5
+#print axioms CompoundFeasibility.Auxiliary6.blockNatEquiv5
+#check CompoundFeasibility.Auxiliary6.block5_card
+#print axioms CompoundFeasibility.Auxiliary6.block5_card
+#check CompoundFeasibility.Auxiliary6.blockPivotEquiv6
+#print axioms CompoundFeasibility.Auxiliary6.blockPivotEquiv6
+#check CompoundFeasibility.Auxiliary6.bad_iff_pivot6
+#print axioms CompoundFeasibility.Auxiliary6.bad_iff_pivot6
+#check CompoundFeasibility.Auxiliary6.badPivotEquiv6
+#print axioms CompoundFeasibility.Auxiliary6.badPivotEquiv6
+#check CompoundFeasibility.Auxiliary6.bad_count_source6
+#print axioms CompoundFeasibility.Auxiliary6.bad_count_source6
+#check CompoundFeasibility.Auxiliary6.constraint_count_source6
+#print axioms CompoundFeasibility.Auxiliary6.constraint_count_source6
+#check CompoundFeasibility.Auxiliary6.coordinates
+#print axioms CompoundFeasibility.Auxiliary6.coordinates
+#check CompoundFeasibility.Auxiliary6.coordinates_kernel
+#print axioms CompoundFeasibility.Auxiliary6.coordinates_kernel
+#check CompoundFeasibility.Auxiliary6.integer_matrix
+#print axioms CompoundFeasibility.Auxiliary6.integer_matrix
+#check CompoundFeasibility.Auxiliary6.integer_matrix_kernel
+#print axioms CompoundFeasibility.Auxiliary6.integer_matrix_kernel
+#check CompoundFeasibility.Auxiliary6.bounded_kernel
+#print axioms CompoundFeasibility.Auxiliary6.bounded_kernel
+#check CompoundFeasibility.Auxiliary6.forms
+#print axioms CompoundFeasibility.Auxiliary6.forms
+#check CompoundFeasibility.Auxiliary6.common_source_field
+#print axioms CompoundFeasibility.Auxiliary6.common_source_field
+
+#check Aux6Mass.mass
+#print axioms Aux6Mass.mass
+#check Aux6Mass.mass_nonneg
+#print axioms Aux6Mass.mass_nonneg
+#check Aux6Mass.mass_monomial
+#print axioms Aux6Mass.mass_monomial
+#check Aux6Mass.mass_support_sum
+#print axioms Aux6Mass.mass_support_sum
+#check Aux6Mass.mass_add
+#print axioms Aux6Mass.mass_add
+#check Aux6Mass.mass_sum
+#print axioms Aux6Mass.mass_sum
+#check Aux6Mass.mass_mul
+#print axioms Aux6Mass.mass_mul
+#check Aux6Mass.mass_pow
+#print axioms Aux6Mass.mass_pow
+#check Aux6Mass.mass_prod
+#print axioms Aux6Mass.mass_prod
+#check Aux6Mass.coeff_le_mass
+#print axioms Aux6Mass.coeff_le_mass
+#check Aux6Mass.mass_neg
+#print axioms Aux6Mass.mass_neg
+#check Aux6Mass.mass_C_mul_X
+#print axioms Aux6Mass.mass_C_mul_X
+#check CompoundFeasibility.Auxiliary6.Vars6
+#print axioms CompoundFeasibility.Auxiliary6.Vars6
+#check CompoundFeasibility.Auxiliary6.exponent6
+#print axioms CompoundFeasibility.Auxiliary6.exponent6
+#check CompoundFeasibility.Auxiliary6.exponent6_injective
+#print axioms CompoundFeasibility.Auxiliary6.exponent6_injective
+#check CompoundFeasibility.Auxiliary6.polynomial6
+#print axioms CompoundFeasibility.Auxiliary6.polynomial6
+#check CompoundFeasibility.Auxiliary6.polynomial6_coeff
+#print axioms CompoundFeasibility.Auxiliary6.polynomial6_coeff
+#check CompoundFeasibility.Auxiliary6.homogeneous6
+#print axioms CompoundFeasibility.Auxiliary6.homogeneous6
+#check CompoundFeasibility.Auxiliary6.polynomial6_homogeneous
+#print axioms CompoundFeasibility.Auxiliary6.polynomial6_homogeneous
+#check CompoundFeasibility.Auxiliary6.derivative6
+#print axioms CompoundFeasibility.Auxiliary6.derivative6
+#check CompoundFeasibility.Auxiliary6.derivative6_coeff
+#print axioms CompoundFeasibility.Auxiliary6.derivative6_coeff
+#check CompoundFeasibility.Auxiliary6.chart6
+#print axioms CompoundFeasibility.Auxiliary6.chart6
+#check CompoundFeasibility.Auxiliary6.substitute6
+#print axioms CompoundFeasibility.Auxiliary6.substitute6
+#check CompoundFeasibility.Auxiliary6.pivotDerivative6
+#print axioms CompoundFeasibility.Auxiliary6.pivotDerivative6
+#check CompoundFeasibility.Auxiliary6.derivative6_monomial
+#print axioms CompoundFeasibility.Auxiliary6.derivative6_monomial
+#check CompoundFeasibility.Auxiliary6.transformed_monomial6
+#print axioms CompoundFeasibility.Auxiliary6.transformed_monomial6
+#check CompoundFeasibility.Auxiliary6.exponent6_sum
+#print axioms CompoundFeasibility.Auxiliary6.exponent6_sum
+#check CompoundFeasibility.Auxiliary6.transformed_coeff_sum6
+#print axioms CompoundFeasibility.Auxiliary6.transformed_coeff_sum6
+#check CompoundFeasibility.Auxiliary6.rothAux_weight_block
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_weight_block
+#check CompoundFeasibility.Auxiliary6.rothAux_weight_pivot
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_weight_pivot
+#check CompoundFeasibility.Auxiliary6.rothAux_weighted_neg
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_weighted_neg
+#check CompoundFeasibility.Auxiliary6.chart6_block_weight
+#print axioms CompoundFeasibility.Auxiliary6.chart6_block_weight
+#check CompoundFeasibility.Auxiliary6.chart6_pivot_weight
+#print axioms CompoundFeasibility.Auxiliary6.chart6_pivot_weight
+#check CompoundFeasibility.Auxiliary6.rothAux_scaled_monomial_weighted
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_scaled_monomial_weighted
+#check CompoundFeasibility.Auxiliary6.rothAux_transformed_polynomial
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_transformed_polynomial
+#check CompoundFeasibility.Auxiliary6.rothAux_pivot_monomial_block_weight
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_pivot_monomial_block_weight
+#check CompoundFeasibility.Auxiliary6.rothAux_transformed_block_weight
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_transformed_block_weight
+#check CompoundFeasibility.Auxiliary6.rothAux_transformed_block_homogeneous
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_transformed_block_homogeneous
+#check CompoundFeasibility.Auxiliary6.rothAux_transformed_pivot_weight
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_transformed_pivot_weight
+#check CompoundFeasibility.Auxiliary6.rothAux_transformed_pivot_zero
+#print axioms CompoundFeasibility.Auxiliary6.rothAux_transformed_pivot_zero
+#check CompoundFeasibility.Auxiliary6.freeExponent6
+#print axioms CompoundFeasibility.Auxiliary6.freeExponent6
+#check CompoundFeasibility.Auxiliary6.freeExponent6_reconstruct
+#print axioms CompoundFeasibility.Auxiliary6.freeExponent6_reconstruct
+#check Aux6Height.chart_mass6
+#print axioms Aux6Height.chart_mass6
+#check Aux6Height.binomial_norm6
+#print axioms Aux6Height.binomial_norm6
+#check Aux6Height.transformed_entry_norm6
+#print axioms Aux6Height.transformed_entry_norm6
+#check CompoundFeasibility.Auxiliary6.formEquiv6
+#print axioms CompoundFeasibility.Auxiliary6.formEquiv6
+#check CompoundFeasibility.Auxiliary6.equation6
+#print axioms CompoundFeasibility.Auxiliary6.equation6
+#check CompoundFeasibility.Auxiliary6.matrix6
+#print axioms CompoundFeasibility.Auxiliary6.matrix6
+#check CompoundFeasibility.Auxiliary6.matrix6_mulVec
+#print axioms CompoundFeasibility.Auxiliary6.matrix6_mulVec
+#check CompoundFeasibility.Auxiliary6.matrix6_kernel_iff_coefficients
+#print axioms CompoundFeasibility.Auxiliary6.matrix6_kernel_iff_coefficients
+#check CompoundFeasibility.Auxiliary6.restriction6_zero_iff_coefficients
+#print axioms CompoundFeasibility.Auxiliary6.restriction6_zero_iff_coefficients
+#check CompoundFeasibility.Auxiliary6.matrix6_kernel_iff_restrictions
+#print axioms CompoundFeasibility.Auxiliary6.matrix6_kernel_iff_restrictions
+#check CompoundFeasibility.Auxiliary6.rothSourceDerivativeWeight
+#print axioms CompoundFeasibility.Auxiliary6.rothSourceDerivativeWeight
+#check CompoundFeasibility.Auxiliary6.derivative6_add
+#print axioms CompoundFeasibility.Auxiliary6.derivative6_add
+#check CompoundFeasibility.Auxiliary6.rothSource_pderiv_eq_single
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_pderiv_eq_single
+#check CompoundFeasibility.Auxiliary6.rothSource_derivative_comp
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_derivative_comp
+#check CompoundFeasibility.Auxiliary6.rothSource_pderiv_hasse
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_pderiv_hasse
+#check CompoundFeasibility.Auxiliary6.rothSource_scaled_chart_pderiv
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_scaled_chart_pderiv
+#check CompoundFeasibility.Auxiliary6.rothSource_scaled_chain
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_scaled_chain
+#check CompoundFeasibility.Auxiliary6.rothSource_weight_add
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_weight_add
+#check CompoundFeasibility.Auxiliary6.rothSource_weight_mono
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_weight_mono
+#check CompoundFeasibility.Auxiliary6.rothSource_weight_single
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_weight_single
+#check CompoundFeasibility.Auxiliary6.rothSource_weight_pivot
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_weight_pivot
+#check CompoundFeasibility.Auxiliary6.rothSourceFreeOrder
+#print axioms CompoundFeasibility.Auxiliary6.rothSourceFreeOrder
+#check CompoundFeasibility.Auxiliary6.rothSource_free_add
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_free_add
+#check CompoundFeasibility.Auxiliary6.rothSource_free_single
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_free_single
+#check CompoundFeasibility.Auxiliary6.rothSource_free_zero_pivot
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_free_zero_pivot
+#check CompoundFeasibility.Auxiliary6.rothSource_scaled_mixed_vanishing
+#print axioms CompoundFeasibility.Auxiliary6.rothSource_scaled_mixed_vanishing
+#check CompoundFeasibility.Auxiliary6.kernelChart6
+#print axioms CompoundFeasibility.Auxiliary6.kernelChart6
+#check CompoundFeasibility.Auxiliary6.kernelRestriction6
+#print axioms CompoundFeasibility.Auxiliary6.kernelRestriction6
+#check CompoundFeasibility.Auxiliary6.kernelChart6_form
+#print axioms CompoundFeasibility.Auxiliary6.kernelChart6_form
+#check CompoundFeasibility.Auxiliary6.chartTransport6
+#print axioms CompoundFeasibility.Auxiliary6.chartTransport6
+#check CompoundFeasibility.Auxiliary6.chartTransport6_variable
+#print axioms CompoundFeasibility.Auxiliary6.chartTransport6_variable
+#check CompoundFeasibility.Auxiliary6.chartTransport6_substitute
+#print axioms CompoundFeasibility.Auxiliary6.chartTransport6_substitute
+#check CompoundFeasibility.Auxiliary6.derivative6_zero_of_block_excess
+#print axioms CompoundFeasibility.Auxiliary6.derivative6_zero_of_block_excess
+#check CompoundFeasibility.Auxiliary6.matrix6_kernel_all_derivatives
+#print axioms CompoundFeasibility.Auxiliary6.matrix6_kernel_all_derivatives
+#check CompoundFeasibility.Auxiliary6.derivative6_map
+#print axioms CompoundFeasibility.Auxiliary6.derivative6_map
+#check CompoundFeasibility.Auxiliary6.chart6_map
+#print axioms CompoundFeasibility.Auxiliary6.chart6_map
+#check CompoundFeasibility.Auxiliary6.substitute6_map
+#print axioms CompoundFeasibility.Auxiliary6.substitute6_map
+#check CompoundFeasibility.Auxiliary6.polynomial6_map
+#print axioms CompoundFeasibility.Auxiliary6.polynomial6_map
+#check CompoundFeasibility.Auxiliary6.matrix6_map
+#print axioms CompoundFeasibility.Auxiliary6.matrix6_map
+#check Aux6Norm.integralNormModel
+#print axioms Aux6Norm.integralNormModel
+#check Aux6Norm.integralNormModel_norm
+#print axioms Aux6Norm.integralNormModel_norm
+#check Aux6Norm.integralNormModel_one
+#print axioms Aux6Norm.integralNormModel_one
+#check Aux6Norm.integralNormModel_coordinates
+#print axioms Aux6Norm.integralNormModel_coordinates
+#check CompoundFeasibility.Auxiliary6.integralMatrix6
+#print axioms CompoundFeasibility.Auxiliary6.integralMatrix6
+#check CompoundFeasibility.Auxiliary6.integralMatrix6_kernel
+#print axioms CompoundFeasibility.Auxiliary6.integralMatrix6_kernel
+#check CompoundFeasibility.Auxiliary6.integralHeightBase6
+#print axioms CompoundFeasibility.Auxiliary6.integralHeightBase6
+#check CompoundFeasibility.Auxiliary6.integralCoordinateConstant6
+#print axioms CompoundFeasibility.Auxiliary6.integralCoordinateConstant6
+#check CompoundFeasibility.Auxiliary6.integralMatrix6_entry_bound
+#print axioms CompoundFeasibility.Auxiliary6.integralMatrix6_entry_bound
+#check CompoundFeasibility.Auxiliary6.dimension6_le_pow
+#print axioms CompoundFeasibility.Auxiliary6.dimension6_le_pow
+#check CompoundFeasibility.Auxiliary6.integralSiegelConstant6
+#print axioms CompoundFeasibility.Auxiliary6.integralSiegelConstant6
+#check CompoundFeasibility.Auxiliary6.integralSiegelConstant6_ge_one
+#print axioms CompoundFeasibility.Auxiliary6.integralSiegelConstant6_ge_one
+#check CompoundFeasibility.Auxiliary6.integralMatrix6_uniform_bound
+#print axioms CompoundFeasibility.Auxiliary6.integralMatrix6_uniform_bound
+#check CompoundFeasibility.Auxiliary6.integralMatrix6_bounded_kernel
+#print axioms CompoundFeasibility.Auxiliary6.integralMatrix6_bounded_kernel
+#check CompoundFeasibility.Auxiliary6.height6
+#print axioms CompoundFeasibility.Auxiliary6.height6
+#check CompoundFeasibility.Auxiliary6.polynomial6_ne_zero
+#print axioms CompoundFeasibility.Auxiliary6.polynomial6_ne_zero
+#check CompoundFeasibility.Auxiliary6.polynomial6_height_le
+#print axioms CompoundFeasibility.Auxiliary6.polynomial6_height_le
+#check CompoundFeasibility.Auxiliary6.kernelChart6_scale
+#print axioms CompoundFeasibility.Auxiliary6.kernelChart6_scale
+#check CompoundFeasibility.Auxiliary6.kernelRestriction6_scale
+#print axioms CompoundFeasibility.Auxiliary6.kernelRestriction6_scale
+#check CompoundFeasibility.Auxiliary6.kernelRestriction6_map
+#print axioms CompoundFeasibility.Auxiliary6.kernelRestriction6_map
+#check CompoundFeasibility.Auxiliary6.integral_auxiliary6
+#print axioms CompoundFeasibility.Auxiliary6.integral_auxiliary6
+#check CompoundFeasibility.Auxiliary6.source_integral_scaling6
+#print axioms CompoundFeasibility.Auxiliary6.source_integral_scaling6
+#check CompoundFeasibility.Auxiliary6.algebraic_auxiliary6
+#print axioms CompoundFeasibility.Auxiliary6.algebraic_auxiliary6
+
+#check CompoundFeasibility.Auxiliary6.row_nonzero6_of_det_one
+#print axioms CompoundFeasibility.Auxiliary6.row_nonzero6_of_det_one
+#check CompoundFeasibility.Auxiliary6.compound_rows_nonzero6
+#print axioms CompoundFeasibility.Auxiliary6.compound_rows_nonzero6
+#check CompoundFeasibility.Auxiliary6.source_forms_nonzero6
+#print axioms CompoundFeasibility.Auxiliary6.source_forms_nonzero6
+#check CompoundFeasibility.Auxiliary6.integralRationalBasis6
+#print axioms CompoundFeasibility.Auxiliary6.integralRationalBasis6
+#check CompoundFeasibility.Auxiliary6.integralMatrix6_coordinates
+#print axioms CompoundFeasibility.Auxiliary6.integralMatrix6_coordinates
+#check CompoundFeasibility.Auxiliary6.integralMatrix6_field_kernel
+#print axioms CompoundFeasibility.Auxiliary6.integralMatrix6_field_kernel
+#check CompoundFeasibility.Auxiliary6.source_restriction6_real
+#print axioms CompoundFeasibility.Auxiliary6.source_restriction6_real
+#check CompoundFeasibility.Auxiliary6.source_auxiliary6_field
+#print axioms CompoundFeasibility.Auxiliary6.source_auxiliary6_field
+#check CompoundFeasibility.Auxiliary6.source_auxiliary6
+#print axioms CompoundFeasibility.Auxiliary6.source_auxiliary6
+
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.linearChart
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.linearChart
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.substitution
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.substitution
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.expansion
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.expansion
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.chart_one
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.chart_one
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.chart_comp
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.chart_comp
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.substitution_comp
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.substitution_comp
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.substitution_one
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.substitution_one
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.reconstruct
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.reconstruct
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.unique
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.unique
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.chart_mass
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.chart_mass
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.monomial_mass
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.monomial_mass
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.support_index
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.support_index
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.support_card
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.support_card
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.expansion_sum
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.expansion_sum
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.coefficient_bound
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.coefficient_bound
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.finiteMatrix
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.finiteMatrix
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.inverseBudget
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.inverseBudget
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.inverseBudget_one
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.inverseBudget_one
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.inverseBudget_entry
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.inverseBudget_entry
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.finite_norm
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.finite_norm
+#check CompoundFeasibility.Auxiliary6.SourceExpansion.source_coefficient_bounds
+#print axioms CompoundFeasibility.Auxiliary6.SourceExpansion.source_coefficient_bounds
+
+#check CompoundFeasibility.Auxiliary6.SourceSupport.chart_pderiv
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.chart_pderiv
+#check CompoundFeasibility.Auxiliary6.SourceSupport.substitution_chain
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.substitution_chain
+#check CompoundFeasibility.Auxiliary6.SourceSupport.zeroCoordinate
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.zeroCoordinate
+#check CompoundFeasibility.Auxiliary6.SourceSupport.kernelImage
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.kernelImage
+#check CompoundFeasibility.Auxiliary6.SourceSupport.kernel_image_form
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.kernel_image_form
+#check CompoundFeasibility.Auxiliary6.SourceSupport.kernel_factor_variable
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.kernel_factor_variable
+#check CompoundFeasibility.Auxiliary6.SourceSupport.zero_monomial
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.zero_monomial
+#check CompoundFeasibility.Auxiliary6.SourceSupport.zero_coeff
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.zero_coeff
+#check CompoundFeasibility.Auxiliary6.SourceSupport.pderiv_coeff
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.pderiv_coeff
+#check CompoundFeasibility.Auxiliary6.SourceSupport.kernel_factor
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.kernel_factor
+#check CompoundFeasibility.Auxiliary6.SourceSupport.index_zero_slice
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.index_zero_slice
+#check CompoundFeasibility.Auxiliary6.SourceSupport.expansion_chain
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.expansion_chain
+#check CompoundFeasibility.Auxiliary6.SourceSupport.coordinateWeight
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.coordinateWeight
+#check CompoundFeasibility.Auxiliary6.SourceSupport.coordinate_weight_add
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.coordinate_weight_add
+#check CompoundFeasibility.Auxiliary6.SourceSupport.coordinate_weight_single
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.coordinate_weight_single
+#check CompoundFeasibility.Auxiliary6.SourceSupport.coeff_zero_below_index
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.coeff_zero_below_index
+#check CompoundFeasibility.Auxiliary6.SourceSupport.polynomial_map_int
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.polynomial_map_int
+#check CompoundFeasibility.Auxiliary6.SourceSupport.restriction_map
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.restriction_map
+#check CompoundFeasibility.Auxiliary6.SourceSupport.map_injective
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.map_injective
+#check CompoundFeasibility.Auxiliary6.SourceSupport.rational_restriction_zero
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.rational_restriction_zero
+#check CompoundFeasibility.Auxiliary6.SourceSupport.padic_restriction_zero
+#print axioms CompoundFeasibility.Auxiliary6.SourceSupport.padic_restriction_zero
+
+#check CompoundFeasibility.Auxiliary6.SourceBalance.mapped_inverse
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.mapped_inverse
+#check CompoundFeasibility.Auxiliary6.SourceBalance.mapped_nonsingular
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.mapped_nonsingular
+#check CompoundFeasibility.Auxiliary6.SourceBalance.finiteMatrix_nonsingular
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.finiteMatrix_nonsingular
+#check CompoundFeasibility.Auxiliary6.SourceBalance.chart_block_weight
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.chart_block_weight
+#check CompoundFeasibility.Auxiliary6.SourceBalance.expansion_block_weight
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.expansion_block_weight
+#check CompoundFeasibility.Auxiliary6.SourceBalance.expansion_block_degree
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.expansion_block_degree
+#check CompoundFeasibility.Auxiliary6.SourceBalance.total_coordinate_weight_le
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.total_coordinate_weight_le
+#check CompoundFeasibility.Auxiliary6.SourceBalance.balance_from_weights
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.balance_from_weights
+#check CompoundFeasibility.Auxiliary6.SourceBalance.balanced_of_vanishing
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.balanced_of_vanishing
+#check CompoundFeasibility.Auxiliary6.SourceBalance.Claims
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.Claims
+#check CompoundFeasibility.Auxiliary6.SourceBalance.claims_of_charts
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.claims_of_charts
+#check CompoundFeasibility.Auxiliary6.SourceBalance.RealIndex
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.RealIndex
+#check CompoundFeasibility.Auxiliary6.SourceBalance.FieldIndex
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.FieldIndex
+#check CompoundFeasibility.Auxiliary6.SourceBalance.finite_claims
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.finite_claims
+#check CompoundFeasibility.Auxiliary6.SourceBalance.source_claims
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.source_claims
+#check CompoundFeasibility.Auxiliary6.SourceBalance.source_auxiliary6_balanced
+#print axioms CompoundFeasibility.Auxiliary6.SourceBalance.source_auxiliary6_balanced
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.integerValue
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.integerValue
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.integerValue_cast
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.integerValue_cast
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.integerValue_lower
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.integerValue_lower
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.integerValue_finite_le_one
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.integerValue_finite_le_one
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.evaluation_identity
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.evaluation_identity
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.logWeight
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.logWeight
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.log_weight_transport
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.log_weight_transport
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.monomial_bound
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.monomial_bound
+
+#check CompoundFeasibility.Auxiliary6.SourceEvaluation.expansion_support_card
+#print axioms CompoundFeasibility.Auxiliary6.SourceEvaluation.expansion_support_card
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.evaluation_upper
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.evaluation_upper
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.gridPoint
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.gridPoint
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.matrix_grid
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.matrix_grid
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.grid_form_norm
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.grid_form_norm
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.real_multiplier
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.real_multiplier
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.padic_multiplier
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.padic_multiplier
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.grid_form_rpow
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.grid_form_rpow
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.log_total_bounds
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.log_total_bounds
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.weighted_log_upper
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.weighted_log_upper
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.source_exponents
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.source_exponents
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.local_upper
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.local_upper
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.strict_product_bound
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.strict_product_bound
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.real_grid_bounds
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.real_grid_bounds
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.padic_grid_bounds
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.padic_grid_bounds
+
+#check CompoundFeasibility.Auxiliary6.SourceGrid.sourceBound
+#print axioms CompoundFeasibility.Auxiliary6.SourceGrid.sourceBound
+
+#check CompoundFeasibility.Auxiliary6.SourceVanishing.evaluation_identity_of_reconstruction
+#print axioms CompoundFeasibility.Auxiliary6.SourceVanishing.evaluation_identity_of_reconstruction
+
+#check CompoundFeasibility.Auxiliary6.SourceVanishing.evaluation_upper_of_reconstruction
+#print axioms CompoundFeasibility.Auxiliary6.SourceVanishing.evaluation_upper_of_reconstruction
+
+#check CompoundFeasibility.Auxiliary6.SourceVanishing.local_upper_from_claims
+#print axioms CompoundFeasibility.Auxiliary6.SourceVanishing.local_upper_from_claims
+
+#check CompoundFeasibility.Auxiliary6.SourceVanishing.three_place_upper
+#print axioms CompoundFeasibility.Auxiliary6.SourceVanishing.three_place_upper
+
+#check CompoundFeasibility.Auxiliary6.SourceVanishing.sourceBound_product
+#print axioms CompoundFeasibility.Auxiliary6.SourceVanishing.sourceBound_product
+
+#check CompoundFeasibility.Auxiliary6.SourceVanishing.three_place_product_lt_one
+#print axioms CompoundFeasibility.Auxiliary6.SourceVanishing.three_place_product_lt_one
+
+#check CompoundFeasibility.Auxiliary6.SourceVanishing.grid_derivative_vanishes
+#print axioms CompoundFeasibility.Auxiliary6.SourceVanishing.grid_derivative_vanishes
+
+#check CompoundFeasibility.Auxiliary6.SourceVanishing.source_auxiliary6_grid_vanishing
+#print axioms CompoundFeasibility.Auxiliary6.SourceVanishing.source_auxiliary6_grid_vanishing
+
+#check CompoundFeasibility.SourceWeights.select_unbounded_weights
+#print axioms CompoundFeasibility.SourceWeights.select_unbounded_weights
+
+#check CompoundFeasibility.SourceWeights.logWeight
+#print axioms CompoundFeasibility.SourceWeights.logWeight
+
+#check CompoundFeasibility.SourceWeights.logWeight_bounds
+#print axioms CompoundFeasibility.SourceWeights.logWeight_bounds
+
+#check CompoundFeasibility.SourceWeights.logWeight_power
+#print axioms CompoundFeasibility.SourceWeights.logWeight_power
+
+#check CompoundFeasibility.SourceWeights.logWeight_balance
+#print axioms CompoundFeasibility.SourceWeights.logWeight_balance
+
+#check CompoundFeasibility.SourceWeights.finiteWeight
+#print axioms CompoundFeasibility.SourceWeights.finiteWeight
+
+#check CompoundFeasibility.SourceWeights.finiteWeight_bounds
+#print axioms CompoundFeasibility.SourceWeights.finiteWeight_bounds
+
+#check CompoundFeasibility.SourceWeights.fixedWeights
+#print axioms CompoundFeasibility.SourceWeights.fixedWeights
+
+#check CompoundFeasibility.SourceWeights.fixedWeights_bounds_balance
+#print axioms CompoundFeasibility.SourceWeights.fixedWeights_bounds_balance
+
+#check CompoundFeasibility.SourceWeights.selectionSlack
+#print axioms CompoundFeasibility.SourceWeights.selectionSlack
+
+#check CompoundFeasibility.SourceWeights.selectionSlack_bounds
+#print axioms CompoundFeasibility.SourceWeights.selectionSlack_bounds
+
+#check CompoundFeasibility.SourceWeights.weighted_form_bound
+#print axioms CompoundFeasibility.SourceWeights.weighted_form_bound
+
+#check CompoundFeasibility.SourceWeights.finite_form_norm
+#print axioms CompoundFeasibility.SourceWeights.finite_form_norm
+
+#check CompoundFeasibility.SourceWeights.finite_form_bounds
+#print axioms CompoundFeasibility.SourceWeights.finite_form_bounds
+
+#check CompoundFeasibility.SourceWeights.real_form_slack
+#print axioms CompoundFeasibility.SourceWeights.real_form_slack
+
+#check CompoundFeasibility.SourceWeights.ready_frames
+#print axioms CompoundFeasibility.SourceWeights.ready_frames
+
+#check CompoundFeasibility.SourceWeights.actualWidths
+#print axioms CompoundFeasibility.SourceWeights.actualWidths
+
+#check CompoundFeasibility.SourceWeights.power11_unbounded
+#print axioms CompoundFeasibility.SourceWeights.power11_unbounded
+
+#check CompoundFeasibility.SourceWeights.fixedSourceWeights42
+#print axioms CompoundFeasibility.SourceWeights.fixedSourceWeights42
+
+#check CompoundFeasibility.SourceWeights.fixed_weights_of_ready
+#print axioms CompoundFeasibility.SourceWeights.fixed_weights_of_ready
+
+#check CompoundFeasibility.SourceWeights.source_compound_unbounded_fixed_weights42
+#print axioms CompoundFeasibility.SourceWeights.source_compound_unbounded_fixed_weights42
+
+#check CompoundFeasibility.SourceWeights.original_grid_eq
+#print axioms CompoundFeasibility.SourceWeights.original_grid_eq
+
+#check CompoundFeasibility.SourceBlocks.original_blocks
+#print axioms CompoundFeasibility.SourceBlocks.original_blocks
+
+#check CompoundFeasibility.SourceBlocks.positive_degrees
+#print axioms CompoundFeasibility.SourceBlocks.positive_degrees
+
+#check CompoundFeasibility.SourceBlocks.source_separation
+#print axioms CompoundFeasibility.SourceBlocks.source_separation
+
+#check CompoundFeasibility.SourceBlocks.sourceBlockVanishing42
+#print axioms CompoundFeasibility.SourceBlocks.sourceBlockVanishing42
+
+#check CompoundFeasibility.SourceBlocks.fixed_family_grid_vanishing
+#print axioms CompoundFeasibility.SourceBlocks.fixed_family_grid_vanishing
+
+#check CompoundFeasibility.SourceBlocks.source_compound_unbounded_roth_blocks42
+#print axioms CompoundFeasibility.SourceBlocks.source_compound_unbounded_roth_blocks42
+
+#check CompoundFeasibility.SourceNormalIndex.normalForm6
+#print axioms CompoundFeasibility.SourceNormalIndex.normalForm6
+
+#check CompoundFeasibility.SourceNormalIndex.normalForm6_apply
+#print axioms CompoundFeasibility.SourceNormalIndex.normalForm6_apply
+
+#check CompoundFeasibility.SourceNormalIndex.functional_coordinates6
+#print axioms CompoundFeasibility.SourceNormalIndex.functional_coordinates6
+
+#check CompoundFeasibility.SourceNormalIndex.primitive_integer6
+#print axioms CompoundFeasibility.SourceNormalIndex.primitive_integer6
+
+#check CompoundFeasibility.SourceNormalIndex.primitive_normal6
+#print axioms CompoundFeasibility.SourceNormalIndex.primitive_normal6
+
+#check CompoundFeasibility.SourceNormalIndex.realNormalForm6
+#print axioms CompoundFeasibility.SourceNormalIndex.realNormalForm6
+
+#check CompoundFeasibility.SourceNormalIndex.realNormalForm6_apply
+#print axioms CompoundFeasibility.SourceNormalIndex.realNormalForm6_apply
+
+#check CompoundFeasibility.SourceNormalIndex.real_normal_kernel6
+#print axioms CompoundFeasibility.SourceNormalIndex.real_normal_kernel6
+
+#check CompoundFeasibility.SourceNormalIndex.actual_block_normals6
+#print axioms CompoundFeasibility.SourceNormalIndex.actual_block_normals6
+
+#check CompoundFeasibility.SourceNormalIndex.hermite_univariate6
+#print axioms CompoundFeasibility.SourceNormalIndex.hermite_univariate6
+
+#check CompoundFeasibility.SourceNormalIndex.hermite_sizes6
+#print axioms CompoundFeasibility.SourceNormalIndex.hermite_sizes6
+
+#check CompoundFeasibility.SourceNormalIndex.additional_weight6
+#print axioms CompoundFeasibility.SourceNormalIndex.additional_weight6
+
+#check CompoundFeasibility.SourceNormalIndex.additional_cutoff6
+#print axioms CompoundFeasibility.SourceNormalIndex.additional_cutoff6
+
+#check CompoundFeasibility.SourceNormalIndex.hasse_grid_composition6
+#print axioms CompoundFeasibility.SourceNormalIndex.hasse_grid_composition6
+
+#check CompoundFeasibility.SourceNormalIndex.normalPolynomial6
+#print axioms CompoundFeasibility.SourceNormalIndex.normalPolynomial6
+
+#check CompoundFeasibility.SourceNormalIndex.sourceNormalIdeal6
+#print axioms CompoundFeasibility.SourceNormalIndex.sourceNormalIdeal6
+
+#check CompoundFeasibility.SourceNormalIndex.source_actual_normal_grid6
+#print axioms CompoundFeasibility.SourceNormalIndex.source_actual_normal_grid6
+
+
+#check CompoundFeasibility.SourceHermite.gridJet6
+#print axioms CompoundFeasibility.SourceHermite.gridJet6
+
+#check CompoundFeasibility.SourceHermite.gridJet6_add
+#print axioms CompoundFeasibility.SourceHermite.gridJet6_add
+
+#check CompoundFeasibility.SourceHermite.gridJet6_monomial
+#print axioms CompoundFeasibility.SourceHermite.gridJet6_monomial
+
+#check CompoundFeasibility.SourceHermite.coordinateJetPolynomial6
+#print axioms CompoundFeasibility.SourceHermite.coordinateJetPolynomial6
+
+#check CompoundFeasibility.SourceHermite.coordinateJetPolynomial6_coeff
+#print axioms CompoundFeasibility.SourceHermite.coordinateJetPolynomial6_coeff
+
+#check CompoundFeasibility.SourceHermite.finSucc_monomial_coeff6
+#print axioms CompoundFeasibility.SourceHermite.finSucc_monomial_coeff6
+
+#check CompoundFeasibility.SourceHermite.gridJet6_coordinate_split
+#print axioms CompoundFeasibility.SourceHermite.gridJet6_coordinate_split
+
+#check CompoundFeasibility.SourceHermite.gridJet6_zero
+#print axioms CompoundFeasibility.SourceHermite.gridJet6_zero
+
+#check CompoundFeasibility.SourceHermite.coordinateJetPolynomial6_degree
+#print axioms CompoundFeasibility.SourceHermite.coordinateJetPolynomial6_degree
+
+#check CompoundFeasibility.SourceHermite.hermite_degree_budget6
+#print axioms CompoundFeasibility.SourceHermite.hermite_degree_budget6
+
+#check CompoundFeasibility.SourceHermite.hermite_multivariate6
+#print axioms CompoundFeasibility.SourceHermite.hermite_multivariate6
+
+#check CompoundFeasibility.SourceHermite.frameChart6
+#print axioms CompoundFeasibility.SourceHermite.frameChart6
+
+#check CompoundFeasibility.SourceHermite.frameSubstitution6
+#print axioms CompoundFeasibility.SourceHermite.frameSubstitution6
+
+#check CompoundFeasibility.SourceHermite.frameChart6_eval
+#print axioms CompoundFeasibility.SourceHermite.frameChart6_eval
+
+#check CompoundFeasibility.SourceHermite.frameSubstitution6_eval
+#print axioms CompoundFeasibility.SourceHermite.frameSubstitution6_eval
+
+#check CompoundFeasibility.SourceHermite.frameChart6_pderiv
+#print axioms CompoundFeasibility.SourceHermite.frameChart6_pderiv
+
+#check CompoundFeasibility.SourceHermite.frameSubstitution6_chain
+#print axioms CompoundFeasibility.SourceHermite.frameSubstitution6_chain
+
+#check CompoundFeasibility.SourceHermite.frameCoordinates6
+#print axioms CompoundFeasibility.SourceHermite.frameCoordinates6
+
+#check CompoundFeasibility.SourceHermite.frame_coordinates_exist6
+#print axioms CompoundFeasibility.SourceHermite.frame_coordinates_exist6
+
+#check CompoundFeasibility.SourceHermite.gridJet6_pderiv
+#print axioms CompoundFeasibility.SourceHermite.gridJet6_pderiv
+
+#check CompoundFeasibility.SourceHermite.gridJet6_C_mul
+#print axioms CompoundFeasibility.SourceHermite.gridJet6_C_mul
+
+#check CompoundFeasibility.SourceHermite.gridJet6_sum
+#print axioms CompoundFeasibility.SourceHermite.gridJet6_sum
+
+#check CompoundFeasibility.SourceHermite.jet_order_update6
+#print axioms CompoundFeasibility.SourceHermite.jet_order_update6
+
+#check CompoundFeasibility.SourceHermite.frame_hasse_zero_transport6
+#print axioms CompoundFeasibility.SourceHermite.frame_hasse_zero_transport6
+
+#check CompoundFeasibility.SourceHermite.frameChart6_degree
+#print axioms CompoundFeasibility.SourceHermite.frameChart6_degree
+
+#check CompoundFeasibility.SourceHermite.frameSubstitution6_degree
+#print axioms CompoundFeasibility.SourceHermite.frameSubstitution6_degree
+
+#check CompoundFeasibility.SourceHermite.frame_hermite6
+#print axioms CompoundFeasibility.SourceHermite.frame_hermite6
+
+
+#check CompoundFeasibility.SourceMultiblock.blockPartialEval6
+#print axioms CompoundFeasibility.SourceMultiblock.blockPartialEval6
+#check CompoundFeasibility.SourceMultiblock.blockExponent6
+#print axioms CompoundFeasibility.SourceMultiblock.blockExponent6
+#check CompoundFeasibility.SourceMultiblock.blockPartialEval6_eval
+#print axioms CompoundFeasibility.SourceMultiblock.blockPartialEval6_eval
+#check CompoundFeasibility.SourceMultiblock.blockPartialEval6_monomial
+#print axioms CompoundFeasibility.SourceMultiblock.blockPartialEval6_monomial
+#check CompoundFeasibility.SourceMultiblock.blockJetIndex6
+#print axioms CompoundFeasibility.SourceMultiblock.blockJetIndex6
+#check CompoundFeasibility.SourceMultiblock.blockJetIndex6_apply
+#print axioms CompoundFeasibility.SourceMultiblock.blockJetIndex6_apply
+#check CompoundFeasibility.SourceMultiblock.blockJetIndex6_zero
+#print axioms CompoundFeasibility.SourceMultiblock.blockJetIndex6_zero
+#check CompoundFeasibility.SourceMultiblock.blockJetIndex6_update
+#print axioms CompoundFeasibility.SourceMultiblock.blockJetIndex6_update
+#check CompoundFeasibility.SourceMultiblock.derivative6_zero_index
+#print axioms CompoundFeasibility.SourceMultiblock.derivative6_zero_index
+#check CompoundFeasibility.SourceMultiblock.derivative6_commute
+#print axioms CompoundFeasibility.SourceMultiblock.derivative6_commute
+#check CompoundFeasibility.SourceMultiblock.blockPartialEval6_pderiv
+#print axioms CompoundFeasibility.SourceMultiblock.blockPartialEval6_pderiv
+#check CompoundFeasibility.SourceMultiblock.blockPartialEval6_jet
+#print axioms CompoundFeasibility.SourceMultiblock.blockPartialEval6_jet
+#check CompoundFeasibility.SourceMultiblock.blockPartialEval6_integerValue
+#print axioms CompoundFeasibility.SourceMultiblock.blockPartialEval6_integerValue
+#check CompoundFeasibility.SourceMultiblock.blockPartialEval6_degree
+#print axioms CompoundFeasibility.SourceMultiblock.blockPartialEval6_degree
+#check CompoundFeasibility.SourceMultiblock.derivative6_block_degree
+#print axioms CompoundFeasibility.SourceMultiblock.derivative6_block_degree
+#check CompoundFeasibility.SourceMultiblock.blockPartialEval6_map
+#print axioms CompoundFeasibility.SourceMultiblock.blockPartialEval6_map
+#check CompoundFeasibility.SourceMultiblock.blockFramePoint6
+#print axioms CompoundFeasibility.SourceMultiblock.blockFramePoint6
+#check CompoundFeasibility.SourceMultiblock.derivative6_block_degree_bound
+#print axioms CompoundFeasibility.SourceMultiblock.derivative6_block_degree_bound
+#check CompoundFeasibility.SourceMultiblock.multiblock_frame_hermite6
+#print axioms CompoundFeasibility.SourceMultiblock.multiblock_frame_hermite6
+#check CompoundFeasibility.SourceMultiblock.multiblock_span_hermite6
+#print axioms CompoundFeasibility.SourceMultiblock.multiblock_span_hermite6
+#check CompoundFeasibility.SourceMultiblock.homogeneous6_map
+#print axioms CompoundFeasibility.SourceMultiblock.homogeneous6_map
+#check CompoundFeasibility.SourceMultiblock.integer_grid_rational_restriction6
+#print axioms CompoundFeasibility.SourceMultiblock.integer_grid_rational_restriction6
+#check CompoundFeasibility.SourceMultiblock.multiblockFrameSubstitution6
+#print axioms CompoundFeasibility.SourceMultiblock.multiblockFrameSubstitution6
+#check CompoundFeasibility.SourceMultiblock.multiblockFrameSubstitution6_eval
+#print axioms CompoundFeasibility.SourceMultiblock.multiblockFrameSubstitution6_eval
+#check CompoundFeasibility.SourceMultiblock.multiblockFrameSubstitution6_map
+#print axioms CompoundFeasibility.SourceMultiblock.multiblockFrameSubstitution6_map
+#check CompoundFeasibility.SourceMultiblock.rational_real_span_restriction6
+#print axioms CompoundFeasibility.SourceMultiblock.rational_real_span_restriction6
+#check CompoundFeasibility.SourceMultiblock.derivative6_integer_rational_real6
+#print axioms CompoundFeasibility.SourceMultiblock.derivative6_integer_rational_real6
+#check CompoundFeasibility.SourceMultiblock.integer_grid_real_restriction6
+#print axioms CompoundFeasibility.SourceMultiblock.integer_grid_real_restriction6
+#check CompoundFeasibility.SourceMultiblock.source_actual_normal_restrictions6
+#print axioms CompoundFeasibility.SourceMultiblock.source_actual_normal_restrictions6
+#check CompoundFeasibility.SourceMultiblock.normalForward6
+#print axioms CompoundFeasibility.SourceMultiblock.normalForward6
+#check CompoundFeasibility.SourceMultiblock.normalInverse6
+#print axioms CompoundFeasibility.SourceMultiblock.normalInverse6
+#check CompoundFeasibility.SourceMultiblock.normalForward6_inverse6
+#print axioms CompoundFeasibility.SourceMultiblock.normalForward6_inverse6
+#check CompoundFeasibility.SourceMultiblock.normalInverse6_forward6
+#print axioms CompoundFeasibility.SourceMultiblock.normalInverse6_forward6
+#check CompoundFeasibility.SourceMultiblock.zeroNormalCoordinates6
+#print axioms CompoundFeasibility.SourceMultiblock.zeroNormalCoordinates6
+#check CompoundFeasibility.SourceMultiblock.zeroNormalCoordinates6_monomial
+#print axioms CompoundFeasibility.SourceMultiblock.zeroNormalCoordinates6_monomial
+#check CompoundFeasibility.SourceMultiblock.zeroNormalCoordinates6_coeff
+#print axioms CompoundFeasibility.SourceMultiblock.zeroNormalCoordinates6_coeff
+#check CompoundFeasibility.SourceMultiblock.normal_zero_restriction6
+#print axioms CompoundFeasibility.SourceMultiblock.normal_zero_restriction6
+#check CompoundFeasibility.SourceMultiblock.normalInverse6_pderiv_X
+#print axioms CompoundFeasibility.SourceMultiblock.normalInverse6_pderiv_X
+#check CompoundFeasibility.SourceMultiblock.normalInverse6_chain
+#print axioms CompoundFeasibility.SourceMultiblock.normalInverse6_chain
+#check CompoundFeasibility.SourceMultiblock.normalCoordinateWeight6
+#print axioms CompoundFeasibility.SourceMultiblock.normalCoordinateWeight6
+#check CompoundFeasibility.SourceMultiblock.normalCoordinateWeight6_add
+#print axioms CompoundFeasibility.SourceMultiblock.normalCoordinateWeight6_add
+#check CompoundFeasibility.SourceMultiblock.normalCoordinateWeight6_single
+#print axioms CompoundFeasibility.SourceMultiblock.normalCoordinateWeight6_single
+#check CompoundFeasibility.SourceMultiblock.normalInverse6_coeff_zero
+#print axioms CompoundFeasibility.SourceMultiblock.normalInverse6_coeff_zero
+#check CompoundFeasibility.SourceMultiblock.normalForward6_monomial
+#print axioms CompoundFeasibility.SourceMultiblock.normalForward6_monomial
+#check CompoundFeasibility.SourceMultiblock.normalForward6_monomial_mem
+#print axioms CompoundFeasibility.SourceMultiblock.normalForward6_monomial_mem
+#check CompoundFeasibility.SourceMultiblock.sourceNormalIdeal6_of_derivative_restrictions
+#print axioms CompoundFeasibility.SourceMultiblock.sourceNormalIdeal6_of_derivative_restrictions
+#check CompoundFeasibility.SourceMultiblock.integer_grid_high_normal_index6
+#print axioms CompoundFeasibility.SourceMultiblock.integer_grid_high_normal_index6
+#check CompoundFeasibility.SourceMultiblock.sourceHighNormalIndex42
+#print axioms CompoundFeasibility.SourceMultiblock.sourceHighNormalIndex42
+#check CompoundFeasibility.SourceMultiblock.source_actual_high_normal_index6
+#print axioms CompoundFeasibility.SourceMultiblock.source_actual_high_normal_index6
+#check CompoundFeasibility.SourceMultiblock.source_compound_unbounded_high_normal_index42
+#print axioms CompoundFeasibility.SourceMultiblock.source_compound_unbounded_high_normal_index42
+#check CompoundFeasibility.SourceMultiblock.sourceHighNormalIndex42_grid
+#print axioms CompoundFeasibility.SourceMultiblock.sourceHighNormalIndex42_grid
+
+#check CompoundFeasibility.SourceNormalHeight.normalHeight6
+#print axioms CompoundFeasibility.SourceNormalHeight.normalHeight6
+#check CompoundFeasibility.SourceNormalHeight.normalHeight6_coord
+#print axioms CompoundFeasibility.SourceNormalHeight.normalHeight6_coord
+#check CompoundFeasibility.SourceNormalHeight.normalHeight6_pos
+#print axioms CompoundFeasibility.SourceNormalHeight.normalHeight6_pos
+#check CompoundFeasibility.SourceNormalHeight.normalHeight6_neg
+#print axioms CompoundFeasibility.SourceNormalHeight.normalHeight6_neg
+#check CompoundFeasibility.SourceNormalHeight.normalHeight6_le_iff
+#print axioms CompoundFeasibility.SourceNormalHeight.normalHeight6_le_iff
+#check CompoundFeasibility.SourceNormalHeight.normalHeight6_normalization_bound
+#print axioms CompoundFeasibility.SourceNormalHeight.normalHeight6_normalization_bound
+#check CompoundFeasibility.SourceNormalHeight.actual_normal_last_dual6
+#print axioms CompoundFeasibility.SourceNormalHeight.actual_normal_last_dual6
+#check CompoundFeasibility.SourceNormalHeight.standard_frame_normal_height6
+#print axioms CompoundFeasibility.SourceNormalHeight.standard_frame_normal_height6
+#check CompoundFeasibility.SourceNormalHeight.standard_frame_lower_gate6
+#print axioms CompoundFeasibility.SourceNormalHeight.standard_frame_lower_gate6
+#check CompoundFeasibility.SourceNormalHeight.standard_frame_actual_normal_gate6
+#print axioms CompoundFeasibility.SourceNormalHeight.standard_frame_actual_normal_gate6
+#check CompoundFeasibility.SourceNormalHeight.active_row_nonzero6
+#print axioms CompoundFeasibility.SourceNormalHeight.active_row_nonzero6
+#check CompoundFeasibility.SourceNormalHeight.proper_cofactor_selection6
+#print axioms CompoundFeasibility.SourceNormalHeight.proper_cofactor_selection6
+
+#check CompoundFeasibility.SourceProper6.standardArchWeight6
+#print axioms CompoundFeasibility.SourceProper6.standardArchWeight6
+#check CompoundFeasibility.SourceProper6.standardArchWeight6_bounds
+#print axioms CompoundFeasibility.SourceProper6.standardArchWeight6_bounds
+#check CompoundFeasibility.SourceProper6.standard_frame_arch_bounds6
+#print axioms CompoundFeasibility.SourceProper6.standard_frame_arch_bounds6
+#check CompoundFeasibility.SourceProper6.standard_frame_finite_bounds6
+#print axioms CompoundFeasibility.SourceProper6.standard_frame_finite_bounds6
+#check CompoundFeasibility.SourceProper6.standard_frame_admissible_vanishing6
+#print axioms CompoundFeasibility.SourceProper6.standard_frame_admissible_vanishing6
+#check CompoundFeasibility.SourceProper6.cofactor6
+#print axioms CompoundFeasibility.SourceProper6.cofactor6
+#check CompoundFeasibility.SourceProper6.cofactorValue6
+#print axioms CompoundFeasibility.SourceProper6.cofactorValue6
+#check CompoundFeasibility.SourceProper6.cofactor6_map
+#print axioms CompoundFeasibility.SourceProper6.cofactor6_map
+#check CompoundFeasibility.SourceProper6.cofactorValue6_map
+#print axioms CompoundFeasibility.SourceProper6.cofactorValue6_map
+#check CompoundFeasibility.SourceProper6.finite_cofactor6_rational
+#print axioms CompoundFeasibility.SourceProper6.finite_cofactor6_rational
+#check CompoundFeasibility.SourceProper6.rational_active_independence6
+#print axioms CompoundFeasibility.SourceProper6.rational_active_independence6
+#check CompoundFeasibility.SourceProper6.finite_cofactor_active_support6
+#print axioms CompoundFeasibility.SourceProper6.finite_cofactor_active_support6
+
+#check CompoundFeasibility.SourceMixed6.MixedIndex6
+#print axioms CompoundFeasibility.SourceMixed6.MixedIndex6
+#check CompoundFeasibility.SourceMixed6.admissibleMixed6
+#print axioms CompoundFeasibility.SourceMixed6.admissibleMixed6
+#check CompoundFeasibility.SourceMixed6.mem_admissibleMixed6
+#print axioms CompoundFeasibility.SourceMixed6.mem_admissibleMixed6
+#check CompoundFeasibility.SourceMixed6.admissibleMixed6_card
+#print axioms CompoundFeasibility.SourceMixed6.admissibleMixed6_card
+#check CompoundFeasibility.SourceMixed6.actualNonzero6
+#print axioms CompoundFeasibility.SourceMixed6.actualNonzero6
+#check CompoundFeasibility.SourceMixed6.actualNormProduct6
+#print axioms CompoundFeasibility.SourceMixed6.actualNormProduct6
+#check CompoundFeasibility.SourceMixed6.actualNormProduct6_ne_zero
+#print axioms CompoundFeasibility.SourceMixed6.actualNormProduct6_ne_zero
+#check CompoundFeasibility.SourceMixed6.nonzeroFamily6
+#print axioms CompoundFeasibility.SourceMixed6.nonzeroFamily6
+#check CompoundFeasibility.SourceMixed6.nonzeroFamily6_subset
+#print axioms CompoundFeasibility.SourceMixed6.nonzeroFamily6_subset
+#check CompoundFeasibility.SourceMixed6.mem_nonzeroFamily6
+#print axioms CompoundFeasibility.SourceMixed6.mem_nonzeroFamily6
+#check CompoundFeasibility.SourceMixed6.finite_mixed_reduction6
+#print axioms CompoundFeasibility.SourceMixed6.finite_mixed_reduction6
+#check CompoundFeasibility.SourceMixed6.actualNormProduct6_eq_zero
+#print axioms CompoundFeasibility.SourceMixed6.actualNormProduct6_eq_zero
+#check CompoundFeasibility.SourceMixed6.source_half_margin6
+#print axioms CompoundFeasibility.SourceMixed6.source_half_margin6
+#check CompoundFeasibility.SourceMixed6.strict_local_slack6
+#print axioms CompoundFeasibility.SourceMixed6.strict_local_slack6
+#check CompoundFeasibility.SourceMixed6.nonzeroFamily6_lift
+#print axioms CompoundFeasibility.SourceMixed6.nonzeroFamily6_lift
+#check CompoundFeasibility.SourceMixed6.nonzeroFamily6_lift_val
+#print axioms CompoundFeasibility.SourceMixed6.nonzeroFamily6_lift_val
+#check CompoundFeasibility.SourceMixed6.nonzeroFamily6_actual_nonzero
+#print axioms CompoundFeasibility.SourceMixed6.nonzeroFamily6_actual_nonzero
+#check CompoundFeasibility.SourceMixed6.nonzeroFamily6_original_blocks
+#print axioms CompoundFeasibility.SourceMixed6.nonzeroFamily6_original_blocks
+#check CompoundFeasibility.SourceMixed6.bounded_nonzeroFamily6_eventually_zero
+#print axioms CompoundFeasibility.SourceMixed6.bounded_nonzeroFamily6_eventually_zero
+#check CompoundFeasibility.SourceMixed6.nonzeroFamily6_power11_unbounded
+#print axioms CompoundFeasibility.SourceMixed6.nonzeroFamily6_power11_unbounded
+#check CompoundFeasibility.SourceMixed6.sourceMixedReduction42
+#print axioms CompoundFeasibility.SourceMixed6.sourceMixedReduction42
+#check CompoundFeasibility.SourceMixed6.source_actual_mixed_reduction42
+#print axioms CompoundFeasibility.SourceMixed6.source_actual_mixed_reduction42
+#check CompoundFeasibility.SourceMixed6.sourceMixedReduction42_high_index
+#print axioms CompoundFeasibility.SourceMixed6.sourceMixedReduction42_high_index
+#check CompoundFeasibility.SourceMixed6.source_compound_unbounded_mixed_reduction42
+#print axioms CompoundFeasibility.SourceMixed6.source_compound_unbounded_mixed_reduction42
+
+#check CompoundFeasibility.SourceHeightBounds6.rawNormal6
+#print axioms CompoundFeasibility.SourceHeightBounds6.rawNormal6
+#check CompoundFeasibility.SourceHeightBounds6.rawNormal6_signed_minor
+#print axioms CompoundFeasibility.SourceHeightBounds6.rawNormal6_signed_minor
+#check CompoundFeasibility.SourceHeightBounds6.rawNormal6_pairing
+#print axioms CompoundFeasibility.SourceHeightBounds6.rawNormal6_pairing
+#check CompoundFeasibility.SourceHeightBounds6.rawNormal6_annihilates
+#print axioms CompoundFeasibility.SourceHeightBounds6.rawNormal6_annihilates
+
+#check CompoundFeasibility.SourceHeightBounds6.rawNormal6_nonzero
+#print axioms CompoundFeasibility.SourceHeightBounds6.rawNormal6_nonzero
+#check CompoundFeasibility.SourceHeightBounds6.primitive_minor_factor6
+#print axioms CompoundFeasibility.SourceHeightBounds6.primitive_minor_factor6
+#check CompoundFeasibility.SourceHeightBounds6.primitive_minor_gcd6
+#print axioms CompoundFeasibility.SourceHeightBounds6.primitive_minor_gcd6
+#check CompoundFeasibility.SourceHeightBounds6.primitive_minor_normalization6
+#print axioms CompoundFeasibility.SourceHeightBounds6.primitive_minor_normalization6
+#check CompoundFeasibility.SourceHeightBounds6.transformedFrame6
+#print axioms CompoundFeasibility.SourceHeightBounds6.transformedFrame6
+#check CompoundFeasibility.SourceHeightBounds6.transformedFrame6_apply
+#print axioms CompoundFeasibility.SourceHeightBounds6.transformedFrame6_apply
+#check CompoundFeasibility.SourceHeightBounds6.transformed_adjugate_cofactor6
+#print axioms CompoundFeasibility.SourceHeightBounds6.transformed_adjugate_cofactor6
+#check CompoundFeasibility.SourceHeightBounds6.transformed_minor_cofactor6
+#print axioms CompoundFeasibility.SourceHeightBounds6.transformed_minor_cofactor6
+#check CompoundFeasibility.SourceHeightBounds6.primitive_transformed_minor6
+#print axioms CompoundFeasibility.SourceHeightBounds6.primitive_transformed_minor6
+#check CompoundFeasibility.SourceHeightBounds6.minorNormalization6
+#print axioms CompoundFeasibility.SourceHeightBounds6.minorNormalization6
+#check CompoundFeasibility.SourceHeightBounds6.primitive_minor_data6
+#print axioms CompoundFeasibility.SourceHeightBounds6.primitive_minor_data6
+#check CompoundFeasibility.SourceHeightBounds6.transformed_minor_map6
+#print axioms CompoundFeasibility.SourceHeightBounds6.transformed_minor_map6
+#check CompoundFeasibility.SourceHeightBounds6.finite_transformed_minor6
+#print axioms CompoundFeasibility.SourceHeightBounds6.finite_transformed_minor6
+#check CompoundFeasibility.SourceHeightBounds6.actualTransformedCofactors6
+#print axioms CompoundFeasibility.SourceHeightBounds6.actualTransformedCofactors6
+#check CompoundFeasibility.SourceHeightBounds6.actual_primitive_transformed6
+#print axioms CompoundFeasibility.SourceHeightBounds6.actual_primitive_transformed6
+#check CompoundFeasibility.SourceHeightBounds6.actualTransformedNonzero6
+#print axioms CompoundFeasibility.SourceHeightBounds6.actualTransformedNonzero6
+#check CompoundFeasibility.SourceHeightBounds6.actual_transformed_nonzero6
+#print axioms CompoundFeasibility.SourceHeightBounds6.actual_transformed_nonzero6
+#check CompoundFeasibility.SourceMinorIntegration6.sourceMinorReduction42
+#print axioms CompoundFeasibility.SourceMinorIntegration6.sourceMinorReduction42
+#check CompoundFeasibility.SourceMinorIntegration6.source_actual_minor_reduction42
+#print axioms CompoundFeasibility.SourceMinorIntegration6.source_actual_minor_reduction42
+#check CompoundFeasibility.SourceMinorIntegration6.sourceMinorReduction42_mixed
+#print axioms CompoundFeasibility.SourceMinorIntegration6.sourceMinorReduction42_mixed
+#check CompoundFeasibility.SourceMinorIntegration6.source_minor_nonzeroFamily6
+#print axioms CompoundFeasibility.SourceMinorIntegration6.source_minor_nonzeroFamily6
+#check CompoundFeasibility.SourceMinorIntegration6.source_compound_unbounded_minor_reduction42
+#print axioms CompoundFeasibility.SourceMinorIntegration6.source_compound_unbounded_minor_reduction42
+
+#check CompoundFeasibility.SourceLocalUpper6.real_det5_le
+#print CompoundFeasibility.SourceLocalUpper6.real_det5_le
+#print axioms CompoundFeasibility.SourceLocalUpper6.real_det5_le
+#check CompoundFeasibility.SourceLocalUpper6.real_transformed_det5_le
+#print CompoundFeasibility.SourceLocalUpper6.real_transformed_det5_le
+#print axioms CompoundFeasibility.SourceLocalUpper6.real_transformed_det5_le
+#check CompoundFeasibility.SourceLocalUpper6.padic_sum_bound6
+#print CompoundFeasibility.SourceLocalUpper6.padic_sum_bound6
+#print axioms CompoundFeasibility.SourceLocalUpper6.padic_sum_bound6
+#check CompoundFeasibility.SourceLocalUpper6.padic_det5_le
+#print CompoundFeasibility.SourceLocalUpper6.padic_det5_le
+#print axioms CompoundFeasibility.SourceLocalUpper6.padic_det5_le
+#check CompoundFeasibility.SourceLocalUpper6.padic_transformed_det5_le
+#print CompoundFeasibility.SourceLocalUpper6.padic_transformed_det5_le
+#print axioms CompoundFeasibility.SourceLocalUpper6.padic_transformed_det5_le
+#check CompoundFeasibility.SourceLocalUpper6.integer_g_three_place6
+#print CompoundFeasibility.SourceLocalUpper6.integer_g_three_place6
+#print axioms CompoundFeasibility.SourceLocalUpper6.integer_g_three_place6
+#check CompoundFeasibility.SourceLocalUpper6.normalized_mixed_norm_le_det_product6
+#print CompoundFeasibility.SourceLocalUpper6.normalized_mixed_norm_le_det_product6
+#print axioms CompoundFeasibility.SourceLocalUpper6.normalized_mixed_norm_le_det_product6
+#check CompoundFeasibility.SourceLocalUpper6.mixed_exponent_cancel6
+#print CompoundFeasibility.SourceLocalUpper6.mixed_exponent_cancel6
+#print axioms CompoundFeasibility.SourceLocalUpper6.mixed_exponent_cancel6
+#check CompoundFeasibility.SourceLocalUpper6.mixed_power_product6
+#print CompoundFeasibility.SourceLocalUpper6.mixed_power_product6
+#print axioms CompoundFeasibility.SourceLocalUpper6.mixed_power_product6
+#check CompoundFeasibility.SourceLocalUpper6.mixed_det_product_bound6
+#print CompoundFeasibility.SourceLocalUpper6.mixed_det_product_bound6
+#print axioms CompoundFeasibility.SourceLocalUpper6.mixed_det_product_bound6
+#check CompoundFeasibility.SourceLocalUpper6.actual_mixed_upper6
+#print CompoundFeasibility.SourceLocalUpper6.actual_mixed_upper6
+#print axioms CompoundFeasibility.SourceLocalUpper6.actual_mixed_upper6
+#check CompoundFeasibility.SourceLocalUpperIntegration6.sourceLocalUpperReduction42
+#print CompoundFeasibility.SourceLocalUpperIntegration6.sourceLocalUpperReduction42
+#print axioms CompoundFeasibility.SourceLocalUpperIntegration6.sourceLocalUpperReduction42
+#check CompoundFeasibility.SourceLocalUpperIntegration6.source_actual_local_upper42
+#print CompoundFeasibility.SourceLocalUpperIntegration6.source_actual_local_upper42
+#print axioms CompoundFeasibility.SourceLocalUpperIntegration6.source_actual_local_upper42
+#check CompoundFeasibility.SourceLocalUpperIntegration6.sourceLocalUpperReduction42_minor
+#print CompoundFeasibility.SourceLocalUpperIntegration6.sourceLocalUpperReduction42_minor
+#print axioms CompoundFeasibility.SourceLocalUpperIntegration6.sourceLocalUpperReduction42_minor
+#check CompoundFeasibility.SourceLocalUpperIntegration6.source_local_upper_nonzeroFamily6
+#print CompoundFeasibility.SourceLocalUpperIntegration6.source_local_upper_nonzeroFamily6
+#print axioms CompoundFeasibility.SourceLocalUpperIntegration6.source_local_upper_nonzeroFamily6
+#check CompoundFeasibility.SourceLocalUpperIntegration6.source_compound_unbounded_local_upper42
+#print CompoundFeasibility.SourceLocalUpperIntegration6.source_compound_unbounded_local_upper42
+#print axioms CompoundFeasibility.SourceLocalUpperIntegration6.source_compound_unbounded_local_upper42
+
+#check CompoundFeasibility.SourceFieldLower6.cofactor_coefficients_in_field6
+#print CompoundFeasibility.SourceFieldLower6.cofactor_coefficients_in_field6
+#print axioms CompoundFeasibility.SourceFieldLower6.cofactor_coefficients_in_field6
+#check CompoundFeasibility.SourceFieldLower6.actual_cofactor_field6
+#print CompoundFeasibility.SourceFieldLower6.actual_cofactor_field6
+#print axioms CompoundFeasibility.SourceFieldLower6.actual_cofactor_field6
+#check CompoundFeasibility.SourceFieldLower6.cofactor_field_evaluation6
+#print CompoundFeasibility.SourceFieldLower6.cofactor_field_evaluation6
+#print axioms CompoundFeasibility.SourceFieldLower6.cofactor_field_evaluation6
+#check CompoundFeasibility.SourceFieldLower6.liouville6_explicit_degree
+#print CompoundFeasibility.SourceFieldLower6.liouville6_explicit_degree
+#print axioms CompoundFeasibility.SourceFieldLower6.liouville6_explicit_degree
+#check CompoundFeasibility.SourceFieldLower6.normal_pi_norm_le_height6
+#print CompoundFeasibility.SourceFieldLower6.normal_pi_norm_le_height6
+#print axioms CompoundFeasibility.SourceFieldLower6.normal_pi_norm_le_height6
+#check CompoundFeasibility.SourceFieldLower6.real_cofactor_liouville6
+#print CompoundFeasibility.SourceFieldLower6.real_cofactor_liouville6
+#print axioms CompoundFeasibility.SourceFieldLower6.real_cofactor_liouville6
+#check CompoundFeasibility.SourceFieldLower6.real_cofactor_degree_lower6
+#print CompoundFeasibility.SourceFieldLower6.real_cofactor_degree_lower6
+#print axioms CompoundFeasibility.SourceFieldLower6.real_cofactor_degree_lower6
+#check CompoundFeasibility.SourceFieldLower6.fixed_rational_denominator6
+#print CompoundFeasibility.SourceFieldLower6.fixed_rational_denominator6
+#print axioms CompoundFeasibility.SourceFieldLower6.fixed_rational_denominator6
+#check CompoundFeasibility.SourceFieldLower6.finite_denominator_identity6
+#print CompoundFeasibility.SourceFieldLower6.finite_denominator_identity6
+#print axioms CompoundFeasibility.SourceFieldLower6.finite_denominator_identity6
+#check CompoundFeasibility.SourceFieldLower6.finite_numerator_nonzero6
+#print CompoundFeasibility.SourceFieldLower6.finite_numerator_nonzero6
+#print axioms CompoundFeasibility.SourceFieldLower6.finite_numerator_nonzero6
+#check CompoundFeasibility.SourceFieldLower6.integer_numerator_height6
+#print CompoundFeasibility.SourceFieldLower6.integer_numerator_height6
+#print axioms CompoundFeasibility.SourceFieldLower6.integer_numerator_height6
+#check CompoundFeasibility.SourceFieldLower6.integer_padic2_lower6
+#print CompoundFeasibility.SourceFieldLower6.integer_padic2_lower6
+#print axioms CompoundFeasibility.SourceFieldLower6.integer_padic2_lower6
+#check CompoundFeasibility.SourceFieldLower6.integer_padic3_lower6
+#print CompoundFeasibility.SourceFieldLower6.integer_padic3_lower6
+#print axioms CompoundFeasibility.SourceFieldLower6.integer_padic3_lower6
+#check CompoundFeasibility.SourceFieldLower6.finite_cofactor_lower6
+#print CompoundFeasibility.SourceFieldLower6.finite_cofactor_lower6
+#print axioms CompoundFeasibility.SourceFieldLower6.finite_cofactor_lower6
+#check CompoundFeasibility.SourceFieldLower6.actual_cofactor_mem6
+#print CompoundFeasibility.SourceFieldLower6.actual_cofactor_mem6
+#print axioms CompoundFeasibility.SourceFieldLower6.actual_cofactor_mem6
+#check CompoundFeasibility.SourceFieldLower6.field_degree_exponents6
+#print CompoundFeasibility.SourceFieldLower6.field_degree_exponents6
+#print axioms CompoundFeasibility.SourceFieldLower6.field_degree_exponents6
+#check CompoundFeasibility.SourceFieldLower6.actual_mixed_field_lower6
+#print CompoundFeasibility.SourceFieldLower6.actual_mixed_field_lower6
+#print axioms CompoundFeasibility.SourceFieldLower6.actual_mixed_field_lower6
+#check CompoundFeasibility.SourceFieldLowerIntegration6.sourceFieldLowerReduction42
+#print CompoundFeasibility.SourceFieldLowerIntegration6.sourceFieldLowerReduction42
+#print axioms CompoundFeasibility.SourceFieldLowerIntegration6.sourceFieldLowerReduction42
+#check CompoundFeasibility.SourceFieldLowerIntegration6.source_actual_field_lower42
+#print CompoundFeasibility.SourceFieldLowerIntegration6.source_actual_field_lower42
+#print axioms CompoundFeasibility.SourceFieldLowerIntegration6.source_actual_field_lower42
+#check CompoundFeasibility.SourceFieldLowerIntegration6.sourceFieldLowerReduction42_upper
+#print CompoundFeasibility.SourceFieldLowerIntegration6.sourceFieldLowerReduction42_upper
+#print axioms CompoundFeasibility.SourceFieldLowerIntegration6.sourceFieldLowerReduction42_upper
+#check CompoundFeasibility.SourceFieldLowerIntegration6.source_field_lower_nonzero_branch6
+#print CompoundFeasibility.SourceFieldLowerIntegration6.source_field_lower_nonzero_branch6
+#print axioms CompoundFeasibility.SourceFieldLowerIntegration6.source_field_lower_nonzero_branch6
+#check CompoundFeasibility.SourceFieldLowerIntegration6.source_compound_unbounded_field_lower42
+#print CompoundFeasibility.SourceFieldLowerIntegration6.source_compound_unbounded_field_lower42
+#print axioms CompoundFeasibility.SourceFieldLowerIntegration6.source_compound_unbounded_field_lower42
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.combined_product6
+#print CompoundFeasibility.SourceHeightEnvelopes6.combined_product6
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.combined_product6
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.lowerThreshold6
+#print CompoundFeasibility.SourceHeightEnvelopes6.lowerThreshold6
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.lowerThreshold6
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.heightAlpha6
+#print CompoundFeasibility.SourceHeightEnvelopes6.heightAlpha6
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.heightAlpha6
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.heightAlpha6_pos
+#print CompoundFeasibility.SourceHeightEnvelopes6.heightAlpha6_pos
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.heightAlpha6_pos
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.lower_absorption6
+#print CompoundFeasibility.SourceHeightEnvelopes6.lower_absorption6
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.lower_absorption6
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.inverseConstant6
+#print CompoundFeasibility.SourceHeightEnvelopes6.inverseConstant6
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.inverseConstant6
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.inverseConstant6_pos
+#print CompoundFeasibility.SourceHeightEnvelopes6.inverseConstant6_pos
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.inverseConstant6_pos
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.inverse_coordinate6
+#print CompoundFeasibility.SourceHeightEnvelopes6.inverse_coordinate6
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.inverse_coordinate6
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.transformed_le_Q6
+#print CompoundFeasibility.SourceHeightEnvelopes6.transformed_le_Q6
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.transformed_le_Q6
+
+#check CompoundFeasibility.SourceHeightEnvelopes6.frame_coordinate6
+#print CompoundFeasibility.SourceHeightEnvelopes6.frame_coordinate6
+#print axioms CompoundFeasibility.SourceHeightEnvelopes6.frame_coordinate6
+
+#check CompoundFeasibility.SourceHeightUpper6.cofactor_identity6
+#print CompoundFeasibility.SourceHeightUpper6.cofactor_identity6
+#print axioms CompoundFeasibility.SourceHeightUpper6.cofactor_identity6
+
+#check CompoundFeasibility.SourceHeightUpper6.identity_frame_entry6
+#print CompoundFeasibility.SourceHeightUpper6.identity_frame_entry6
+#print axioms CompoundFeasibility.SourceHeightUpper6.identity_frame_entry6
+
+#check CompoundFeasibility.SourceHeightUpper6.identity_signed_minor6
+#print CompoundFeasibility.SourceHeightUpper6.identity_signed_minor6
+#print axioms CompoundFeasibility.SourceHeightUpper6.identity_signed_minor6
+
+#check CompoundFeasibility.SourceHeightUpper6.identity_real_minor_upper6
+#print CompoundFeasibility.SourceHeightUpper6.identity_real_minor_upper6
+#print axioms CompoundFeasibility.SourceHeightUpper6.identity_real_minor_upper6
+
+#check CompoundFeasibility.SourceHeightUpper6.integer_abs_ge_one6
+#print CompoundFeasibility.SourceHeightUpper6.integer_abs_ge_one6
+#print axioms CompoundFeasibility.SourceHeightUpper6.integer_abs_ge_one6
+
+#check CompoundFeasibility.SourceHeightUpper6.normalized_coordinate_upper6
+#print CompoundFeasibility.SourceHeightUpper6.normalized_coordinate_upper6
+#print axioms CompoundFeasibility.SourceHeightUpper6.normalized_coordinate_upper6
+
+#check CompoundFeasibility.SourceHeightUpper6.normalHeight6_real_le
+#print CompoundFeasibility.SourceHeightUpper6.normalHeight6_real_le
+#print axioms CompoundFeasibility.SourceHeightUpper6.normalHeight6_real_le
+
+#check CompoundFeasibility.SourceHeightUpper6.factor_height_upper6
+#print CompoundFeasibility.SourceHeightUpper6.factor_height_upper6
+#print axioms CompoundFeasibility.SourceHeightUpper6.factor_height_upper6
+
+#check CompoundFeasibility.SourceHeightUpper6.primitive_height_upper6
+#print CompoundFeasibility.SourceHeightUpper6.primitive_height_upper6
+#print axioms CompoundFeasibility.SourceHeightUpper6.primitive_height_upper6
+
+#check CompoundFeasibility.SourceHeightUpper6.upperConstant6
+#print CompoundFeasibility.SourceHeightUpper6.upperConstant6
+#print axioms CompoundFeasibility.SourceHeightUpper6.upperConstant6
+
+#check CompoundFeasibility.SourceHeightUpper6.upperConstant6_pos
+#print CompoundFeasibility.SourceHeightUpper6.upperConstant6_pos
+#print axioms CompoundFeasibility.SourceHeightUpper6.upperConstant6_pos
+
+#check CompoundFeasibility.SourceHeightUpper6.actual_height_upper6
+#print CompoundFeasibility.SourceHeightUpper6.actual_height_upper6
+#print axioms CompoundFeasibility.SourceHeightUpper6.actual_height_upper6
+
+#check CompoundFeasibility.SourceHeightUpper6.upper_absorption6
+#print CompoundFeasibility.SourceHeightUpper6.upper_absorption6
+#print axioms CompoundFeasibility.SourceHeightUpper6.upper_absorption6
+
+#check CompoundFeasibility.SourceHeightUpper6.actual_lower_power6
+#print CompoundFeasibility.SourceHeightUpper6.actual_lower_power6
+#print axioms CompoundFeasibility.SourceHeightUpper6.actual_lower_power6
+
+#check CompoundFeasibility.SourceHeightUpper6.sourceHeightCutoff6
+#print CompoundFeasibility.SourceHeightUpper6.sourceHeightCutoff6
+#print axioms CompoundFeasibility.SourceHeightUpper6.sourceHeightCutoff6
+
+#check CompoundFeasibility.SourceHeightUpper6.sourceHeightCutoff6_gt_one
+#print CompoundFeasibility.SourceHeightUpper6.sourceHeightCutoff6_gt_one
+#print axioms CompoundFeasibility.SourceHeightUpper6.sourceHeightCutoff6_gt_one
+
+#check CompoundFeasibility.SourceHeightUpper6.original_q_cutoff6
+#print CompoundFeasibility.SourceHeightUpper6.original_q_cutoff6
+#print axioms CompoundFeasibility.SourceHeightUpper6.original_q_cutoff6
+
+#check CompoundFeasibility.SourceHeightUpper6.same_normal_envelopes6
+#print CompoundFeasibility.SourceHeightUpper6.same_normal_envelopes6
+#print axioms CompoundFeasibility.SourceHeightUpper6.same_normal_envelopes6
+
+#check CompoundFeasibility.SourceHeightUpper6.unbounded_original_q_cutoff6
+#print CompoundFeasibility.SourceHeightUpper6.unbounded_original_q_cutoff6
+#print axioms CompoundFeasibility.SourceHeightUpper6.unbounded_original_q_cutoff6
+
+#check CompoundFeasibility.SourceHeightIntegration6.heightEnvelopeBranch6
+#print CompoundFeasibility.SourceHeightIntegration6.heightEnvelopeBranch6
+#print axioms CompoundFeasibility.SourceHeightIntegration6.heightEnvelopeBranch6
+
+#check CompoundFeasibility.SourceHeightIntegration6.source_height_branch6
+#print CompoundFeasibility.SourceHeightIntegration6.source_height_branch6
+#print axioms CompoundFeasibility.SourceHeightIntegration6.source_height_branch6
+
+#check CompoundFeasibility.SourceHeightIntegration6.sourceHeightEnvelopeReduction42
+#print CompoundFeasibility.SourceHeightIntegration6.sourceHeightEnvelopeReduction42
+#print axioms CompoundFeasibility.SourceHeightIntegration6.sourceHeightEnvelopeReduction42
+
+#check CompoundFeasibility.SourceHeightIntegration6.source_actual_height_envelopes42
+#print CompoundFeasibility.SourceHeightIntegration6.source_actual_height_envelopes42
+#print axioms CompoundFeasibility.SourceHeightIntegration6.source_actual_height_envelopes42
+
+#check CompoundFeasibility.SourceHeightIntegration6.sourceHeightEnvelopeReduction42_lower
+#print CompoundFeasibility.SourceHeightIntegration6.sourceHeightEnvelopeReduction42_lower
+#print axioms CompoundFeasibility.SourceHeightIntegration6.sourceHeightEnvelopeReduction42_lower
+
+#check CompoundFeasibility.SourceHeightIntegration6.source_compound_unbounded_height_envelopes42
+#print CompoundFeasibility.SourceHeightIntegration6.source_compound_unbounded_height_envelopes42
+#print axioms CompoundFeasibility.SourceHeightIntegration6.source_compound_unbounded_height_envelopes42
+
+#check JSP000334.omega65
+#print JSP000334.omega65
+#print axioms JSP000334.omega65
+
+#check JSP000334.omega65_eq_source
+#print JSP000334.omega65_eq_source
+#print axioms JSP000334.omega65_eq_source
+
+#check JSP000334.omega65_pos
+#print JSP000334.omega65_pos
+#print axioms JSP000334.omega65_pos
+
+
+#check JSP000334.omega65_le_induction
+#print JSP000334.omega65_le_induction
+#print axioms JSP000334.omega65_le_induction
+
+#check JSP000334.omega65_two_lt_induction
+#print JSP000334.omega65_two_lt_induction
+#print axioms JSP000334.omega65_two_lt_induction
+
+#check JSP000334.omega65_one
+#print JSP000334.omega65_one
+#print axioms JSP000334.omega65_one
+
+#check JSP000334.omega65_le_t
+#print JSP000334.omega65_le_t
+#print axioms JSP000334.omega65_le_t
+
+
+#check CompoundFeasibility.SourceReadiness6.universalAuxiliary6
+#print CompoundFeasibility.SourceReadiness6.universalAuxiliary6
+#print axioms CompoundFeasibility.SourceReadiness6.universalAuxiliary6
+#check CompoundFeasibility.SourceReadiness6.sourceFrames6
+#print CompoundFeasibility.SourceReadiness6.sourceFrames6
+#print axioms CompoundFeasibility.SourceReadiness6.sourceFrames6
+#check CompoundFeasibility.SourceReadiness6.sourceNormals6
+#print CompoundFeasibility.SourceReadiness6.sourceNormals6
+#print axioms CompoundFeasibility.SourceReadiness6.sourceNormals6
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42
+#check CompoundFeasibility.SourceReadiness6.fixed_family_readiness42
+#print CompoundFeasibility.SourceReadiness6.fixed_family_readiness42
+#print axioms CompoundFeasibility.SourceReadiness6.fixed_family_readiness42
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.construct
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.construct
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.construct
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.height_projection
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.height_projection
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.height_projection
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.restrictedPoint
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.restrictedPoint
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.restrictedPoint
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.restrict_point
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.restrict_point
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.restrict_point
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.nonzeroReady
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.nonzeroReady
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.nonzeroReady
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.ready_on
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.ready_on
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.ready_on
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.branches
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.branches
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.branches
+#check CompoundFeasibility.SourceReadiness6.source_compound_unbounded_readiness42
+#print CompoundFeasibility.SourceReadiness6.source_compound_unbounded_readiness42
+#print axioms CompoundFeasibility.SourceReadiness6.source_compound_unbounded_readiness42
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.mk
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.mk
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.mk
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.unbounded
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.unbounded
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.unbounded
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_eq
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_eq
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_eq
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_pos
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_pos
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_pos
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_lt_one
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_lt_one
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.delta_lt_one
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.c
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.c
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.c
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.weights_bounded
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.weights_bounded
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.weights_bounded
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.weights_balance
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.weights_balance
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.weights_balance
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.finite_weights
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.finite_weights
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.finite_weights
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.sigma
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.sigma
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.sigma
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.widths_pos
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.widths_pos
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.widths_pos
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.w
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.w
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.w
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.q0
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.q0
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.q0
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.anchor
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.anchor
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.anchor
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.frames
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.frames
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.frames
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.M
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.M
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.M
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.a
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.a
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.a
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.normals
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.normals
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.normals
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.minors
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.minors
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.minors
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.upper
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.upper
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.upper
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.mixed
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.mixed
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.mixed
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.K
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.K
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.K
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.finite_dimensional
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.finite_dimensional
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.finite_dimensional
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.hmem
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.hmem
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.hmem
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.cofactors_mem
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.cofactors_mem
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.cofactors_mem
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.C
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.C
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.C
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.C_pos
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.C_pos
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.C_pos
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.lower
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.lower
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.lower
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.envelopes
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.envelopes
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.envelopes
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.D
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.D
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.D
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.E
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.E
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.E
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.D_ge_one
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.D_ge_one
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.D_ge_one
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.E_ge_one
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.E_ge_one
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.E_ge_one
+#check CompoundFeasibility.SourceReadiness6.SourceReadiness42.auxiliary
+#print CompoundFeasibility.SourceReadiness6.SourceReadiness42.auxiliary
+#print axioms CompoundFeasibility.SourceReadiness6.SourceReadiness42.auxiliary
+
+#check CompoundFeasibility.SchmidtParameters6.normal_height_convention6
+#print CompoundFeasibility.SchmidtParameters6.normal_height_convention6
+#print axioms CompoundFeasibility.SchmidtParameters6.normal_height_convention6
+#check CompoundFeasibility.SchmidtParameters6.polynomial_height_bound6
+#print CompoundFeasibility.SchmidtParameters6.polynomial_height_bound6
+#print axioms CompoundFeasibility.SchmidtParameters6.polynomial_height_bound6
+#check CompoundFeasibility.SchmidtParameters6.polynomial_coefficient_bound6
+#print CompoundFeasibility.SchmidtParameters6.polynomial_coefficient_bound6
+#print axioms CompoundFeasibility.SchmidtParameters6.polynomial_coefficient_bound6
+#check CompoundFeasibility.SchmidtParameters6.polynomial_height_pos6
+#print CompoundFeasibility.SchmidtParameters6.polynomial_height_pos6
+#print axioms CompoundFeasibility.SchmidtParameters6.polynomial_height_pos6
+#check CompoundFeasibility.SchmidtParameters6.polynomial_height_convention6
+#print CompoundFeasibility.SchmidtParameters6.polynomial_height_convention6
+#print axioms CompoundFeasibility.SchmidtParameters6.polynomial_height_convention6
+#check CompoundFeasibility.SchmidtParameters6.eta_m_theta6
+#print CompoundFeasibility.SchmidtParameters6.eta_m_theta6
+#print axioms CompoundFeasibility.SchmidtParameters6.eta_m_theta6
+#check CompoundFeasibility.SchmidtParameters6.positive_gamma6
+#print CompoundFeasibility.SchmidtParameters6.positive_gamma6
+#print axioms CompoundFeasibility.SchmidtParameters6.positive_gamma6
+#check CompoundFeasibility.SchmidtParameters6.original_blocks_cutoff6
+#print CompoundFeasibility.SchmidtParameters6.original_blocks_cutoff6
+#print axioms CompoundFeasibility.SchmidtParameters6.original_blocks_cutoff6
+#check CompoundFeasibility.SchmidtParameters6.anchored_degrees6
+#print CompoundFeasibility.SchmidtParameters6.anchored_degrees6
+#print axioms CompoundFeasibility.SchmidtParameters6.anchored_degrees6
+#check CompoundFeasibility.SchmidtParameters6.height_comparison6
+#print CompoundFeasibility.SchmidtParameters6.height_comparison6
+#print axioms CompoundFeasibility.SchmidtParameters6.height_comparison6
+#check CompoundFeasibility.SchmidtParameters6.normal_budget6
+#print CompoundFeasibility.SchmidtParameters6.normal_budget6
+#print axioms CompoundFeasibility.SchmidtParameters6.normal_budget6
+#print CompoundFeasibility.SchmidtParameters6.polynomial_budget6
+#print axioms CompoundFeasibility.SchmidtParameters6.polynomial_budget6
+#print CompoundFeasibility.SchmidtParameters6.budgetLog6
+#print axioms CompoundFeasibility.SchmidtParameters6.budgetLog6
+#print CompoundFeasibility.SchmidtParameters6.originalCutoff6
+#print axioms CompoundFeasibility.SchmidtParameters6.originalCutoff6
+#print CompoundFeasibility.SchmidtParameters6.cutoff_budgets6
+#print axioms CompoundFeasibility.SchmidtParameters6.cutoff_budgets6
+#print CompoundFeasibility.SourceSchmidtParameters6.auxiliaryPolynomialData6
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.auxiliaryPolynomialData6
+#print CompoundFeasibility.SourceSchmidtParameters6.sourceAlpha6
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.sourceAlpha6
+#print CompoundFeasibility.SourceSchmidtParameters6.sourceQ6
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.sourceQ6
+#print CompoundFeasibility.SourceSchmidtParameters6.sourceH6
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.sourceH6
+#print CompoundFeasibility.SourceSchmidtParameters6.sourceCutoff6
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.sourceCutoff6
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6
+#print CompoundFeasibility.SourceSchmidtParameters6.construct_schmidt_package6
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.construct_schmidt_package6
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42
+#print CompoundFeasibility.SourceSchmidtParameters6.source_schmidt_parameters42
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.source_schmidt_parameters42
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.readiness
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.readiness
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.readiness_eq
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.readiness_eq
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.height_projection
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.height_projection
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.mk
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.mk
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.ready
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.ready
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.m
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.m
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta_eq
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta_eq
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta_eq
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta_eq
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta_pos
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta_pos
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta_lt_one
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta_lt_one
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta_slack
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.eta_slack
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.m_pos
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.m_pos
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.m_auxiliary
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.m_auxiliary
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta_pos
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta_pos
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta_lt
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta_lt
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta_index
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.theta_index
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.omega_pos
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.omega_pos
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.gamma
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.gamma
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.gamma_pos
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.gamma_pos
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.gamma_le_five
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.gamma_le_five
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.gamma_compatible
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.gamma_compatible
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.t
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.t
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.member
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.member
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.monotone
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.monotone
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.finite
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.finite
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.above_cutoff
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.above_cutoff
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.source_points
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.source_points
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.growth
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.growth
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.log_separation
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.log_separation
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.r
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.r
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.degrees_pos
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.degrees_pos
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.degrees_separation
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.degrees_separation
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.degree_balance
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.degree_balance
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.degree_sum
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.degree_sum
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.envelopes
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.envelopes
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.normal_height_convention
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.normal_height_convention
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.height_comparison
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.height_comparison
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.normal_budget
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.normal_budget
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.P
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.P
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.auxiliary
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.auxiliary
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.grid
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.grid
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.kernels
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.kernels
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.high_index
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.high_index
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.polynomial_height_convention
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.polynomial_height_convention
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.polynomial_budget
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtPackage6.polynomial_budget
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.mk
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.mk
+#print CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.branches
+#print axioms CompoundFeasibility.SourceSchmidtParameters6.SchmidtSourceResult42.branches
+
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceNormalIdeal6_antitone
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceStrictNormalIdeal6
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceStrictNormalIdeal6_iff
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.pivotExponent6
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.pivotExponent6_weight
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.pivotExponent6_forward
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.normalCoordinateWeight6_nonneg
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceNormalIdeal6_support
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceNormalIdeal6_iff_support
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceNormalIdeal6_iff_coeff
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceStrictNormalIdeal6_iff_support
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceStrictNormalIdeal6_iff_coeff
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceNormalIdeal6_upper_iff
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceNormalIdeal6_upper_iff_coefficient_witness
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.sourceNormalIdeal6_support_coordinate_independent
+#print axioms CompoundFeasibility.SchmidtIndexSemantics6.schmidtPackage6_upper_iff_coefficient_witness
+
+#print axioms JSP000334.SchmidtHilfssatz12.published_omega_comparison
+#print axioms JSP000334.SchmidtHilfssatz12.integer_denominator_base
+#print axioms JSP000334.SchmidtHilfssatz12.exponent_signs
+#print axioms JSP000334.SchmidtHilfssatz12.degree_separation_transfer
+#print axioms JSP000334.SchmidtHilfssatz12.denominator_growth_transfer
+#print axioms JSP000334.SchmidtHilfssatz12.polynomial_height_transfer
+#print axioms JSP000334.SchmidtHilfssatz12.hilfssatz12_nonvanishing
+#print axioms JSP000334.SchmidtHilfssatz12.gamma_fifth_range
+#print axioms JSP000334.SchmidtHilfssatz12.hilfssatz12_gamma_fifth
+
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.primitive_common_divisor6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.height_attaining6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.five_gcd_product_dvd6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.minimum_secondary_gcd6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.primitive_nonzero6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.select_minimum_pair6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.select_pair6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.pairPermutation6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.pairPermutation6_coordinates
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.coefficientMultiset6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.permuted_coefficients6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.permuted_range6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.permuted_primitive6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.permuted_height6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.permuted_bezout6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.normal_coordinate_choice6
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.permuted_data
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.schmidtPackage6_coordinate_choices
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.mk
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.i
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.j
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.distinct
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.primitive
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.first_nonzero
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.maximal
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.height_attains
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.minimum
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.gcd_bound
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.e
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.e_zero
+#print axioms CompoundFeasibility.SchmidtHilfssatz13.NormalCoordinateChoice6.e_one
+
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.variablePermutation6
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.variablePermutation6_apply
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.variablePermutation6_symm_apply
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.variablePermutation6_inverses
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_inverse
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_nonzero
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.exponentPermutation6
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.exponentPermutation6_apply
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_coeff
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_coeff_all
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_support
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_height
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.exponentPermutation6_block_sum
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.blockDegree6
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_blockDegree
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_homogeneous
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_X
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_C
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_map
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.permutedNormals6
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_normalPolynomial
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_normal_products
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_normalIdeal_map
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_normalIdeal_iff
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.transport6_strictIdeal_iff
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.choice_normal_data6
+#print axioms CompoundFeasibility.SchmidtCoordinateTransport6.schmidtPackage6_transport
+
+#check CompoundFeasibility.SchmidtNormalSubstitution6.linearNormal6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.linearNormal6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.forward6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.forward6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.forward6_inverse6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.forward6_inverse6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_forward6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_forward6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.normalEquiv6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.normalEquiv6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_normal
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_normal
+#check CompoundFeasibility.SchmidtNormalSubstitution6.linearNormal6_map
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.linearNormal6_map
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_map
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_map
+#check CompoundFeasibility.SchmidtNormalSubstitution6.forward6_map
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.forward6_map
+#check CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_forward
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_forward
+#check CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_nonzero
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_nonzero
+#check CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_real
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_real
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_normal_products
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_normal_products
+#check CompoundFeasibility.SchmidtNormalSubstitution6.coordinateIdeal6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.coordinateIdeal6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.coordinateStrictIdeal6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.coordinateStrictIdeal6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_ideal_map
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_ideal_map
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_strictIdeal_map
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_strictIdeal_map
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_ideal_iff
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_ideal_iff
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_strictIdeal_iff
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_strictIdeal_iff
+#check CompoundFeasibility.SchmidtNormalSubstitution6.homogeneous6_scale
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.homogeneous6_scale
+#check CompoundFeasibility.SchmidtNormalSubstitution6.numerator6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.numerator6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.numerator6_map
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.numerator6_map
+#check CompoundFeasibility.SchmidtNormalSubstitution6.denominator6
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.denominator6
+#check CompoundFeasibility.SchmidtNormalSubstitution6.denominator6_ne_zero
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.denominator6_ne_zero
+#check CompoundFeasibility.SchmidtNormalSubstitution6.numerator6_homogeneous
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.numerator6_homogeneous
+#check CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_integral_multiple
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_integral_multiple
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_X_weight
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_X_weight
+#check CompoundFeasibility.SchmidtNormalSubstitution6.homogeneous6_substitution
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.homogeneous6_substitution
+#check CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_homogeneous
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.inverse6_homogeneous
+#check CompoundFeasibility.SchmidtNormalSubstitution6.homogeneous6_blockDegree
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.homogeneous6_blockDegree
+#check CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_degrees
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_degrees
+#check CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_blockDegree
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.normalPolynomialQ6_blockDegree
+#check CompoundFeasibility.SchmidtNormalSubstitution6.schmidtPackage6_normal_substitution
+#print axioms CompoundFeasibility.SchmidtNormalSubstitution6.schmidtPackage6_normal_substitution
+
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.pivotNormals6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.pivotNormals6_polynomial
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.pivotNormals6_inverse
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.coordinateIdeal6_support
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.coordinateStrictIdeal6_support
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.support_X_pow_mul6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.free_weight_shift6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.coordinateIdeal6_saturation
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.coordinateStrictIdeal6_saturation
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.normalEquiv6_free
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.sourceNormalIdeal6_saturation
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.sourceStrictNormalIdeal6_saturation
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroSpecialize6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroSpecialize6_monomial
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroSpecialize6_coeff
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.minimumExponent6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.minimumExponent6_spec
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.extracted6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.extracted6_coeff
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.extracted6_factor
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_coeff
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_nonzero
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.extracted6_nonzero
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_support_source
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_height
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_blockDegree
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_preserves_independence
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_homogeneous
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroNormalCoefficient6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroSpecialize6_map
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroNormalCoefficient6_pivot
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroSpecialize6_normal
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroSpecialize6_normal_products
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroSpecialize6_ideal_map
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.zeroSpecialize6_strictIdeal_map
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_closed
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_strict
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminate6_step
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminateList6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.specializeNormalsList6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.specializeNormalsList6_coeff
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.specializeNormalsList6_pivot
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminateList6_nonzero
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminateList6_height
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminateList6_blockDegree
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminateList6_preserves_independence
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminateList6_independent
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminateList6_closed
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.eliminateList6_strict
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.excessVariables6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.mem_excessVariables6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.card_excessVariables6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedNormals6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedPolynomial6
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedNormals6_coeff
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedNormals6_first_two
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedNormals6_polynomial
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedPolynomial6_support
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedPolynomial6_nonzero
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedPolynomial6_height
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedPolynomial6_blockDegree
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.excessVariables6_free
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedPolynomial6_closed
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.reducedPolynomial6_strict
+#print axioms CompoundFeasibility.SchmidtExcessElimination6.schmidtPackage6_excess_elimination
+
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.eliminatedDegrees6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.eliminateList6_homogeneous
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.eliminatedDegrees6_le
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.eliminatedDegrees6_actual
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.reducedPolynomial6_homogeneous
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_generators
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_map
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalarExponent6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.binarySupport6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.binary_block_sum6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_monomial
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalarExponent6_inj
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalarExponent6_injOn
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_as_sum
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_coeff
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_support
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalarSupportEquiv6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_nonzero
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_height
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_support_degree
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_degree
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalarNormal6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_normal
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_normal_products
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalarIdeal6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalarStrictIdeal6
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_ideal_map
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_strictIdeal_map
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_closed
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.scalar6_strict
+#print axioms CompoundFeasibility.SchmidtScalarDehomogenization6.schmidtPackage6_scalar_dehomogenization
+
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.rootNumerator6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.rootDenominator6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.integer_normalization6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.negative_denominator6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.root_ratio6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.monic_generator6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.denominator_nat_bounds6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.denominator_real_bounds6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.monicNormal6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.scalarNormal6_monic
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.normal_constant_unit6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.scalar_products_scaling6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.scalar_products_membership6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.monicIdeal6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.monicStrictIdeal6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.scalarIdeal6_eq_monic
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.scalarStrictIdeal6_eq_monic
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.selected_height6
+#print axioms CompoundFeasibility.SchmidtRationalNormalization6.schmidtPackage6_rational_normalization
+
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_C
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_X
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_inverse
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_monic
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_map
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_rat
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.rootPoint6
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.source_weight6
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_products
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_monomial_inverse
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.weight_nonneg6
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicIdeal6_support
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicIdeal6_iff_support
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicIdeal6_iff_coeff
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicStrictIdeal6_support
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicStrictIdeal6_iff_support
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicStrictIdeal6_iff_coeff
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.rational_coeff_zero6
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.rational_eval_zero6
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_integer_coeff
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_integer_real
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_integer_real_coeff
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.translate6_zero_reflection
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicIdeal6_iff_divided
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicStrictIdeal6_iff_divided
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicIdeal6_index_lower
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.monicStrictIdeal6_index_lower
+#print axioms CompoundFeasibility.SchmidtTaylorCorrespondence6.schmidtPackage6_taylor_correspondence
+
+#print axioms CompoundFeasibility.SchmidtHilfssatz12Readiness6.denominator_growth6
+#print axioms CompoundFeasibility.SchmidtHilfssatz12Readiness6.fifth_budget6
+#print axioms CompoundFeasibility.SchmidtHilfssatz12Readiness6.denominator_absolute6
+#print axioms CompoundFeasibility.SchmidtHilfssatz12Readiness6.polynomial_height6
+#print axioms CompoundFeasibility.SchmidtHilfssatz12Readiness6.source_ranges6
+#print axioms CompoundFeasibility.SchmidtHilfssatz12Readiness6.source_degrees6
+#print axioms CompoundFeasibility.SchmidtHilfssatz12Readiness6.schmidtPackage6_hilfssatz12_readiness
+
+#print axioms CompoundFeasibility.SchmidtSatz11Conclusion6.hilfssatz12_weight6
+#print axioms CompoundFeasibility.SchmidtSatz11Conclusion6.schmidtPackage6_nonvanishing
+#print axioms CompoundFeasibility.SchmidtSatz11Conclusion6.schmidtPackage6_scalar_upper
+#print axioms CompoundFeasibility.SchmidtSatz11Conclusion6.schmidtPackage6_source_upper
+#print axioms CompoundFeasibility.SchmidtSatz11Conclusion6.schmidtPackage6_impossible
+#print axioms CompoundFeasibility.SchmidtSatz11Conclusion6.nonzeroReady_excluded6
+#print axioms CompoundFeasibility.SchmidtSatz11Conclusion6.source_eventual_zero6

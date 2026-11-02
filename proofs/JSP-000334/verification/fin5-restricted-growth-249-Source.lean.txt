@@ -1,0 +1,99 @@
+import SubspaceBridge.RestrictedFlag5
+import SubspaceBridge.MinimaPower5
+open scoped BigOperators Classical Matrix
+open MeasureTheory
+noncomputable section
+namespace RestrictedSourceChallenge249
+open CompoundFeasibility CompoundFeasibility.RestrictedGeometry5
+
+def rawRealSpan249 (P : Submodule ℚ (Fin 5 → ℚ)) : Submodule ℝ (Fin 5 → ℝ) :=
+  Submodule.span ℝ ((fun x : Fin 5 → ℚ => fun i => (x i : ℝ)) '' (P : Set (Fin 5 → ℚ)))
+
+theorem rawRealSpan_eq249 (P : Submodule ℚ (Fin 5 → ℚ)) :
+    rawRealSpan249 P = rationalRealSpan5 P := rfl
+
+theorem raw_real_rank249 (P : Submodule ℚ (Fin 5 → ℚ)) (j : Fin 4)
+    (hP : Module.finrank ℚ P = j.val+1) : Module.finrank ℝ (rawRealSpan249 P) = j.val+1 :=
+  (rationalRealSpan5_finrank P (by omega)).trans hP
+
+theorem raw_place_eq249 (p : ℕ) [Fact p.Prime] (Q c : ℝ) (hQ : 1 < Q) (hc : c ≤ 0) (x : ℚ) :
+    (padicNorm p x : ℝ) ≤ Q^c ↔
+      padicNorm p x ≤ (p : ℚ)^(-(Nat.ceil (JSP000334.qThreshold p Q c) : ℤ)) := by
+  simpa only [zpow_neg,zpow_natCast] using padic_rpow_ceil42 p Q c hQ hc x
+
+theorem raw_lattice_spec249 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (hQ : 1 < Q)
+    (c2 c3 : Fin 5 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (x : rationalRealSpan5 P) :
+    x ∈ restrictedLattice5 P A2 A3 Q c2 c3 ↔
+      ∃ z : Fin 5 → ℤ,
+        (∀ k, (padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) k) : ℝ) ≤ Q^(c2 k)) ∧
+        (∀ k, (padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) k) : ℝ) ≤ Q^(c3 k)) ∧
+        integerReal z = (x : Fin 5 → ℝ) := by
+  change (∃ z, z ∈ originalSourceGroup5 A2 A3 Q c2 c3 ∧ integerReal z = (x : Fin 5 → ℝ)) ↔ _
+  constructor
+  · rintro ⟨z,hz,he⟩
+    exact ⟨z,fun k => (raw_place_eq249 2 Q (c2 k) hQ (hc2 k) _).mpr
+      ((lattice5_spec 2 A2 _ z).mp hz.1 k),fun k => (raw_place_eq249 3 Q (c3 k) hQ (hc3 k) _).mpr
+      ((lattice5_spec 3 A3 _ z).mp hz.2 k),he⟩
+  · rintro ⟨z,h2,h3,he⟩
+    exact ⟨z,⟨(lattice5_spec 2 A2 _ z).mpr (fun k => (raw_place_eq249 2 Q (c2 k) hQ (hc2 k) _).mp (h2 k)),
+      (lattice5_spec 3 A3 _ z).mpr (fun k => (raw_place_eq249 3 Q (c3 k) hQ (hc3 k) _).mp (h3 k))⟩,he⟩
+
+theorem raw_body_spec249 (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c0 : Fin 5 → ℝ) (x : rationalRealSpan5 P) :
+    x ∈ restrictedBody5 P L Q c0 ↔ ∀ k, |(L *ᵥ (x : Fin 5 → ℝ)) k| ≤ Q^(c0 k) := Iff.rfl
+
+def rawRestrictedMinima249 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (Q : ℝ) (c0 c2 c3 : Fin 5 → ℝ) (k : Fin (Module.finrank ℚ P)) : ℝ :=
+  sInf {r : ℝ | ∃ v : Fin (k.val+1) → rationalRealSpan5 P, LinearIndependent ℝ v ∧
+    (∀ i, ∃ z : Fin 5 → ℤ,
+      (∀ a, (padicNorm 2 ((A2 *ᵥ (fun l => (z l : ℚ))) a) : ℝ) ≤ Q^(c2 a)) ∧
+      (∀ a, (padicNorm 3 ((A3 *ᵥ (fun l => (z l : ℚ))) a) : ℝ) ≤ Q^(c3 a)) ∧
+      integerReal z = (v i : Fin 5 → ℝ)) ∧
+    ∀ i a, |(L *ᵥ (v i : Fin 5 → ℝ)) a| ≤ r*Q^(c0 a)}
+
+theorem rawRestrictedMinima_eq249 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0) (k : Fin (Module.finrank ℚ P)) :
+    rawRestrictedMinima249 P A2 A3 L Q c0 c2 c3 k = restrictedMinima5 P A2 A3 L hL Q hQ c0 c2 c3 k := by
+  unfold rawRestrictedMinima249 restrictedMinima5 restrictedRadii5
+  congr 1
+  ext r
+  constructor
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,fun i => (raw_lattice_spec249 P A2 A3 Q hQ c2 c3 hc2 hc3 (v i)).mpr (hm i),?_⟩
+    intro i
+    exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mpr (hb i)
+  · rintro ⟨v,hv,hm,hb⟩
+    refine ⟨v,hv,fun i => (raw_lattice_spec249 P A2 A3 Q hQ c2 c3 hc2 hc3 (v i)).mp (hm i),?_⟩
+    intro i
+    exact (originalCoordinates5_bounds L hL Q hQ c0 (v i) r).mp (hb i)
+
+end RestrictedSourceChallenge249
+#check RestrictedSourceChallenge249.rawRealSpan249
+#print RestrictedSourceChallenge249.rawRealSpan249
+#print axioms RestrictedSourceChallenge249.rawRealSpan249
+#check RestrictedSourceChallenge249.rawRealSpan_eq249
+#print RestrictedSourceChallenge249.rawRealSpan_eq249
+#print axioms RestrictedSourceChallenge249.rawRealSpan_eq249
+#check RestrictedSourceChallenge249.raw_real_rank249
+#print RestrictedSourceChallenge249.raw_real_rank249
+#print axioms RestrictedSourceChallenge249.raw_real_rank249
+#check RestrictedSourceChallenge249.raw_place_eq249
+#print RestrictedSourceChallenge249.raw_place_eq249
+#print axioms RestrictedSourceChallenge249.raw_place_eq249
+#check RestrictedSourceChallenge249.raw_lattice_spec249
+#print RestrictedSourceChallenge249.raw_lattice_spec249
+#print axioms RestrictedSourceChallenge249.raw_lattice_spec249
+#check RestrictedSourceChallenge249.raw_body_spec249
+#print RestrictedSourceChallenge249.raw_body_spec249
+#print axioms RestrictedSourceChallenge249.raw_body_spec249
+#check RestrictedSourceChallenge249.rawRestrictedMinima249
+#print RestrictedSourceChallenge249.rawRestrictedMinima249
+#print axioms RestrictedSourceChallenge249.rawRestrictedMinima249
+#check RestrictedSourceChallenge249.rawRestrictedMinima_eq249
+#print RestrictedSourceChallenge249.rawRestrictedMinima_eq249
+#print axioms RestrictedSourceChallenge249.rawRestrictedMinima_eq249

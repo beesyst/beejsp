@@ -1,0 +1,541 @@
+import SubspaceBridge.AllPointFixedSourceFamily5
+import SubspaceBridge.AllPointPrimitive5
+import SubspaceBridge.AllPointForms5
+import SubspaceBridge.AllPointProduct5
+import SubspaceBridge.AllPointActualValues5
+import SubspaceBridge.AllPointFixedWeights5
+import SubspaceBridge.AllPointWeights5
+import SubspaceBridge.AllPointSourcePoint5
+import SubspaceBridge.AllPointFiniteGeometry5
+import SubspaceBridge.AllPointGeneralPosition5
+import SubspaceBridge.AllPointSourceFamily5
+import SubspaceBridge.AllPointFiniteCover5
+namespace Raw257C
+open JSP000334
+open CompoundFeasibility CompoundFeasibility.OriginalFlagAssembly5
+open scoped BigOperators Classical Matrix
+noncomputable section
+def Gauge (e : (Fin 5 → ℝ) ≃ₗ[ℝ] (Fin 5 → ℝ)) (x : Fin 5 → ℝ) : ℝ := ‖e x‖
+def LatticeSpan (b : Basis (Fin 5) ℝ (Fin 5 → ℝ)) : Submodule ℤ (Fin 5 → ℝ) := Submodule.span ℤ (Set.range b)
+def Radius (b : Basis (Fin 5) ℝ (Fin 5 → ℝ)) (e : (Fin 5 → ℝ) ≃ₗ[ℝ] (Fin 5 → ℝ)) (k : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (k.val+1) → Fin 5 → ℝ,LinearIndependent ℝ u ∧ (∀ i,u i∈LatticeSpan b) ∧ ∀ i,Gauge e (u i)≤r}
+def Flag (u : Fin 5 → Fin 5 → ℝ) (k : Fin 5) : Submodule ℝ (Fin 5 → ℝ) :=
+  Submodule.span ℝ (Set.range (fun i : Fin k.val => u (Fin.castLE (by omega) i)))
+def RationalFlag (j : Fin 4) (u : Fin 5 → Fin 5 → ℤ) : Submodule ℚ (Fin 5 → ℚ) :=
+  Submodule.span ℚ (Set.range (fun i : Fin (j.val+1) => fun k => (u (Fin.castLE (by omega) i) k : ℚ)))
+def Row (A : Matrix (Fin 5) (Fin 5) ℚ) (i : Fin 5) : (Fin 5 → ℤ) →+ ℚ where
+  toFun x := (A *ᵥ (fun j => (x j : ℚ))) i
+  map_zero' := by change (A *ᵥ (0 : Fin 5 → ℚ)) i=0; rw [Matrix.mulVec_zero]; rfl
+  map_add' x y := by
+    simp only [Pi.add_apply,Int.cast_add]
+    change (A *ᵥ ((fun j => (x j : ℚ))+(fun j => (y j : ℚ)))) i=_
+    rw [Matrix.mulVec_add];rfl
+def Local (p : ℕ) [Fact p.Prime] (A : Matrix (Fin 5) (Fin 5) ℚ) (e : Fin 5 → ℕ) : AddSubgroup (Fin 5 → ℤ) :=
+  ⨅ i,(normBall p (e i)).comap (Row A i)
+def Group (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c2 c3 : Fin 5 → ℝ) : AddSubgroup (Fin 5 → ℤ) :=
+  Local 2 A2 (fun i => Nat.ceil (-c2 i*Real.log Q/Real.log 2)) ⊓ Local 3 A3 (fun i => Nat.ceil (-c3 i*Real.log Q/Real.log 3))
+def Minimum (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1<Q) (c0 c2 c3 : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (j.val+1) → Fin 5 → ℝ,LinearIndependent ℝ u ∧
+    (∀ i,u i∈integerRealImage (Group A2 A3 Q c2 c3)) ∧
+    ∀ i,Gauge (originalCoordinates5 L hL Q hQ c0) (u i)≤r}
+def Functional (f : Module.Dual ℚ (Fin 5 → ℚ)) : Module.Dual ℝ (Fin 5 → ℝ) :=
+  ∑ i : Fin 5,(f (Pi.single i 1) : ℝ) • LinearMap.proj i
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def SUnits : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {n : ℕ} (x : Fin n → ℚ) : Prop := ∀ I : Finset (Fin n),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Relations (G : Subgroup ℚˣ) (m : ℕ) : Set (Fin (m+1) → ℚ) :=
+  {x | x 0=1 ∧ (∀ i,∃ u : G,((u : ℚˣ) : ℚ)=x i) ∧ (∑ i,x i=0) ∧ Nondeg x}
+def Solution (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (c0 c2 c3 : Fin 5 → ℝ) (Q epsilon : ℝ) (z : Fin 5 → ℤ) : Prop :=
+  z≠0 ∧ 1<Q ∧ 0<epsilon ∧ (∀ i,|(L *ᵥ integerReal z) i|≤Q^(c0 i-epsilon)) ∧
+    (∀ i,(padicNorm 2 ((A2 *ᵥ (fun j => (z j : ℚ))) i) : ℝ)≤Q^(c2 i)) ∧
+    (∀ i,(padicNorm 3 ((A3 *ᵥ (fun j => (z j : ℚ))) i) : ℝ)≤Q^(c3 i))
+def Raw_PrimitiveFive (z : Fin 5 → ℤ) : Prop := ∃ c : Fin 5 → ℤ,∑ i,c i*z i=1
+
+def Raw_retainedIntegerMatrix5 (k : Fin 5) : Matrix (Fin 5) (Fin 5) ℤ :=
+  fun i j => if i=k then 1 else if i=j then 1 else 0
+
+def Raw_fiveRetainedForm (k i : Fin 5) (y : Fin 5 → ℚ) : ℚ := if i=k then ∑ j,y j else y i
+
+def Raw_localFiveHeight (tau : Fin 3) (y : Fin 5 → ℚ) : ℚ :=
+  max (rationalPlaceNorm tau (y 0)) (max (rationalPlaceNorm tau (y 1))
+    (max (rationalPlaceNorm tau (y 2)) (max (rationalPlaceNorm tau (y 3)) (rationalPlaceNorm tau (y 4)))))
+
+def Raw_fiveHeight (y : Fin 5 → ℚ) : ℚ := ∏ tau : Fin 3,Raw_localFiveHeight tau y
+
+def Raw_archFiveHeight (z : Fin 5 → ℤ) : ℚ :=
+  max |(z 0 : ℚ)| (max |(z 1 : ℚ)| (max |(z 2 : ℚ)| (max |(z 3 : ℚ)| |(z 4 : ℚ)|)))
+
+def Raw_fiveRetainedProduct (choice : Fin 3 → Fin 5) (y : Fin 5 → ℚ) : ℚ :=
+  ∏ tau : Fin 3,∏ i : Fin 5,rationalPlaceNorm tau (Raw_fiveRetainedForm (choice tau) i y)
+
+def Raw_sourceWeightConditions5 (c : Fin 3 → Fin 5 → ℝ) : Prop :=
+  (∀ i, |c 0 i| ≤ 1) ∧ (∀ tau, tau ≠ 0 → ∀ i, -1 ≤ c tau i ∧ c tau i ≤ 0) ∧
+    (∑ tau : Fin 3, ∑ i : Fin 5, c tau i) = 0
+
+noncomputable def Raw_finiteWeightIndex5 (n : ℕ) (c : Fin 3 → Fin 5 → ℝ) (tau : Fin 3) (i : Fin 5) : ℤ :=
+  if tau = 0 then ⌊(n : ℝ)*((1-4/(n : ℝ))*c tau i)⌋
+  else ⌈(n : ℝ)*((1-4/(n : ℝ))*c tau i)⌉
+
+noncomputable def Raw_finiteWeightRaw5 (n : ℕ) (z : Fin 3 → Fin 5 → ℤ) (tau : Fin 3) (i : Fin 5) : ℝ :=
+  (z tau i : ℝ)/(n : ℝ)
+
+noncomputable def Raw_finiteWeightCandidate5 (n : ℕ) (z : Fin 3 → Fin 5 → ℤ) (tau : Fin 3) (i : Fin 5) : ℝ :=
+  if tau = 0 then Raw_finiteWeightRaw5 n z tau i - (∑ t : Fin 3, ∑ j : Fin 5, Raw_finiteWeightRaw5 n z t j)/5
+  else Raw_finiteWeightRaw5 n z tau i
+
+noncomputable def Raw_finiteWeightApprox5 (n : ℕ) (c : Fin 3 → Fin 5 → ℝ) : Fin 3 → Fin 5 → ℝ :=
+  Raw_finiteWeightCandidate5 n (Raw_finiteWeightIndex5 n c)
+
+noncomputable def Raw_finiteWeightCandidates5 (n : ℕ) : Set (Fin 3 → Fin 5 → ℝ) :=
+  (Raw_finiteWeightCandidate5 n '' {z : Fin 3 → Fin 5 → ℤ | ∀ tau i, -(n : ℤ) ≤ z tau i ∧ z tau i ≤ n}) ∩
+    {d | Raw_sourceWeightConditions5 d}
+
+noncomputable def Raw_sourceLogWeights5 (Q : ℝ) (W : Fin 3 → Fin 5 → ℝ) (tau : Fin 3) (i : Fin 5) : ℝ :=
+  Real.log (W tau i)/Real.log Q
+
+def Raw_allpoint_balanced_values5 (Q : ℝ) (a : Fin 3 → Fin 5 → ℝ) (tau : Fin 3) (i : Fin 5) : ℝ :=
+  if tau = 0 then a tau i*Q^((1 : ℝ)/40) else a tau i
+
+def Raw_retainedRationalMatrix5 (k : Fin 5) : Matrix (Fin 5) (Fin 5) ℚ :=
+  fun i j => (Raw_retainedIntegerMatrix5 k i j : ℚ)
+def Raw_retainedRealMatrix5 (k : Fin 5) : Matrix (Fin 5) (Fin 5) ℝ :=
+  fun i j => (Raw_retainedIntegerMatrix5 k i j : ℝ)
+
+noncomputable def Raw_allpoint_norms5 (choice : Fin 3 → Fin 5) (z : Fin 5 → ℤ) (tau : Fin 3) (i : Fin 5) : ℝ :=
+  rationalPlaceNorm tau (Raw_fiveRetainedForm (choice tau) i (fun j => (z j : ℚ)))
+
+def Raw_allpoint_no_finite_cover5 (E : (Fin 5 → ℤ) → Prop) : Prop :=
+  ¬ ∃ F : Set (Submodule ℚ (Fin 5 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+    ∀ z, E z → ∃ P ∈ F, (fun i => (z i : ℚ)) ∈ P
+
+def Raw_allpointEligible5 (z : Fin 5 → ℤ) : Prop :=
+  Raw_PrimitiveFive z ∧ ∃ x : Fin 6 → ℚ,x∈Relations SUnits 5 ∧
+    ∃ s : SUnits,∀ i : Fin 5,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc
+
+theorem source_allpoint_minima_bounds5 : ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2 : A2.det=1) (h3 : A3.det=1) (hLd : L.det=1)
+    (c0 c2 c3 : Fin 5 → ℝ) (hc2 : ∀ i,c2 i≤0) (hc3 : ∀ i,c3 i≤0)
+    (hb : ∑ i,(c0 i+c2 i+c3 i)=0),
+
+    ∃ hL : IsUnit L, ∃ C D : ℝ,0<C ∧ 0<D ∧
+      ∀ (Q : ℝ) (hQ : 1<Q),
+        C≤(∏ i,Minimum A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+        (∏ i,Minimum A2 A3 L hL Q hQ c0 c2 c3 i)≤D :=
+  @JSP000334.allpoint_minima_bounds5
+
+theorem source_allpoint_fixed_source_family5 : ∀ (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2 : A2.det=1) (h3 : A3.det=1) (hL : L.det=1)
+    (hAlg : ∀ i j,IsAlgebraic ℚ (L i j))
+    (c0 c2 c3 : Fin 5 → ℝ) (hc0 : ∀ i,|c0 i|≤1)
+    (hc2 : ∀ i,-1≤c2 i ∧ c2 i≤0) (hc3 : ∀ i,-1≤c3 i ∧ c3 i≤0)
+    (hb : ∑ i,(c0 i+c2 i+c3 i)=0) (epsilon : ℝ) (he : 0<epsilon)
+    (Omega : Set ℝ) (hO : ¬BddAbove Omega) (hQ : ∀ Q∈Omega,1<Q)
+    (z : Omega → Fin 5 → ℤ)
+    (hz : ∀ Q : Omega,Solution A2 A3 L c0 c2 c3 Q.val epsilon (z Q)),
+
+    ∃ P : Submodule ℚ (Fin 5 → ℚ),P≠⊤ ∧ ∃ W : Set ℝ,W⊆Omega ∧ ¬BddAbove W ∧
+      ∀ Q : Omega,Q.val∈W → (fun i => (z Q i : ℚ))∈P :=
+  @JSP000334.allpoint_fixed_source_family5
+
+theorem source_primitive_five_integer_reduction : ∀ (w : Fin 5 → ℤ) (hw0 : w 0≠0),
+
+    ∃ g : ℕ,0<g ∧ (g : ℤ)∣w 0 ∧ ∃ z : Fin 5 → ℤ,
+      Raw_PrimitiveFive z ∧ ∀ i,w i=(g : ℤ)*z i :=
+  @JSP000334.primitive_five_integer_reduction
+
+theorem source_exists_primitive_sunit_five : ∀ {x : Fin 6 → ℚ}
+    (hx : x∈Relations SUnits 5),
+
+    ∃ z : Fin 5 → ℤ,∃ s : SUnits,Raw_PrimitiveFive z ∧ z≠0 ∧
+      ∀ i : Fin 5,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc :=
+  @JSP000334.exists_primitive_sunit_five
+
+theorem source_exists_primitive_six_term_relation : ∀ {x : Fin 6 → ℚ}
+    (hx : x∈Relations SUnits 5),
+
+    ∃ w : Fin 6 → ℤ,∃ s : SUnits,
+      Raw_PrimitiveFive (fun i => w i.castSucc) ∧ (∀ i,w i≠0) ∧ (∑ i,w i=0) ∧
+      Nondeg (fun i => (w i : ℚ)) ∧
+      (∀ i,(w i : ℚ)=((s : ℚˣ) : ℚ)*x i) ∧
+      (∀ i,x i=(w i : ℚ)/(w 0 : ℚ)) :=
+  @JSP000334.exists_primitive_six_term_relation
+
+theorem source_retained_integer_matrix_det5 : ∀ (k : Fin 5),
+ (Raw_retainedIntegerMatrix5 k).det=1 := by
+  intro k
+  have he : Raw_retainedIntegerMatrix5 k = JSP000334.retainedIntegerMatrix5 k := rfl
+  rw [he]
+  exact JSP000334.retained_integer_matrix_det5 k
+
+theorem source_retained_integer_matrix_apply5 : ∀ (k i : Fin 5) (z : Fin 5 → ℤ),
+
+    (Raw_retainedIntegerMatrix5 k *ᵥ z) i=if i=k then ∑ j,z j else z i :=
+  @JSP000334.retained_integer_matrix_apply5
+
+theorem source_five_local_coordinate_le : ∀ (tau : Fin 3) (y : Fin 5 → ℚ) (i : Fin 5),
+
+    rationalPlaceNorm tau (y i)≤Raw_localFiveHeight tau y :=
+  @JSP000334.five_local_coordinate_le
+
+theorem source_primitive_five_local_height : ∀ (z : Fin 5 → ℤ) (hz : Raw_PrimitiveFive z)
+    (p : ℕ) [Fact p.Prime],
+
+    max (padicNorm p (z 0 : ℚ)) (max (padicNorm p (z 1 : ℚ))
+      (max (padicNorm p (z 2 : ℚ)) (max (padicNorm p (z 3 : ℚ)) (padicNorm p (z 4 : ℚ)))))=1 :=
+  @JSP000334.primitive_five_local_height
+
+theorem source_primitive_five_height : ∀ (z : Fin 5 → ℤ) (hz : Raw_PrimitiveFive z),
+
+    Raw_fiveHeight (fun i => (z i : ℚ))=Raw_archFiveHeight z :=
+  @JSP000334.primitive_five_height
+
+theorem source_exists_five_maximal_coordinate : ∀ (tau : Fin 3) (y : Fin 5 → ℚ),
+
+    ∃ k : Fin 5,rationalPlaceNorm tau (y k)=Raw_localFiveHeight tau y :=
+  @JSP000334.exists_five_maximal_coordinate
+
+theorem source_five_retained_product_height : ∀ (choice : Fin 3 → Fin 5) (y : Fin 5 → ℚ)
+    (hchoice : ∀ tau,rationalPlaceNorm tau (y (choice tau))=Raw_localFiveHeight tau y),
+
+    Raw_fiveRetainedProduct choice y*Raw_fiveHeight y=
+      (∏ i : Fin 5,threePlaceProduct (y i))*threePlaceProduct (∑ i,y i) :=
+  @JSP000334.five_retained_product_height
+
+theorem source_retained_integer_cast5 : ∀ (k i : Fin 5) (z : Fin 5 → ℤ),
+
+    ((Raw_retainedIntegerMatrix5 k *ᵥ z) i : ℚ)=Raw_fiveRetainedForm k i (fun j => (z j : ℚ)) :=
+  @JSP000334.retained_integer_cast5
+
+theorem source_six_term_integer_product5 : ∀ {x : Fin 6 → ℚ}
+    (hx : x∈Relations SUnits 5) (z : Fin 5 → ℤ) (s : SUnits)
+    (hscale : ∀ i : Fin 5,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc),
+
+    (∀ i,threePlaceProduct (z i : ℚ)=1) ∧ threePlaceProduct (∑ i : Fin 5,(z i : ℚ))=1 :=
+  @JSP000334.six_term_integer_product5
+
+theorem source_allpoint_primitive_product5 : ∀ {x : Fin 6 → ℚ}
+    (hx : x∈Relations SUnits 5) (z : Fin 5 → ℤ) (s : SUnits)
+    (hz : Raw_PrimitiveFive z) (hscale : ∀ i : Fin 5,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc),
+
+    ∃ choice : Fin 3 → Fin 5,Raw_fiveRetainedProduct choice (fun i => (z i : ℚ))*Raw_archFiveHeight z=1 :=
+  @JSP000334.allpoint_primitive_product5
+
+theorem source_allpoint_form_product5 : ∀ {x : Fin 6 → ℚ}
+    (hx : x∈Relations SUnits 5) (z : Fin 5 → ℤ) (s : SUnits)
+    (hscale : ∀ i : Fin 5,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc) (k i : Fin 5),
+
+    threePlaceProduct (Raw_fiveRetainedForm k i (fun j => (z j : ℚ)))=1 :=
+  @JSP000334.allpoint_form_product5
+
+theorem source_allpoint_form_arch_bound5 : ∀ (z : Fin 5 → ℤ) (k i : Fin 5),
+
+    |Raw_fiveRetainedForm k i (fun j => (z j : ℚ))|≤5*Raw_archFiveHeight z :=
+  @JSP000334.allpoint_form_arch_bound5
+
+theorem source_finiteWeight_floor_bounds5 : ∀ (n : ℕ) (hn : 0 < n) (x : ℝ),
+
+    x-1/(n : ℝ) ≤ (⌊(n : ℝ)*x⌋ : ℝ)/(n : ℝ) ∧
+      (⌊(n : ℝ)*x⌋ : ℝ)/(n : ℝ) ≤ x :=
+  @JSP000334.finiteWeight_floor_bounds5
+
+theorem source_finiteWeight_ceil_bounds5 : ∀ (n : ℕ) (hn : 0 < n) (x : ℝ),
+
+    x ≤ (⌈(n : ℝ)*x⌉ : ℝ)/(n : ℝ) ∧
+      (⌈(n : ℝ)*x⌉ : ℝ)/(n : ℝ) ≤ x+1/(n : ℝ) :=
+  @JSP000334.finiteWeight_ceil_bounds5
+
+theorem source_finiteWeightCandidate5_balance : ∀ (n : ℕ) (z : Fin 3 → Fin 5 → ℤ),
+
+    (∑ tau : Fin 3, ∑ i : Fin 5, Raw_finiteWeightCandidate5 n z tau i) = 0 :=
+  @JSP000334.finiteWeightCandidate5_balance
+
+theorem source_finiteWeight_raw_errors5 : ∀ (n : ℕ) (hn : 0 < n) (c : Fin 3 → Fin 5 → ℝ),
+
+    (∀ i, (1-4/(n : ℝ))*c 0 i-1/(n : ℝ) ≤ Raw_finiteWeightRaw5 n (Raw_finiteWeightIndex5 n c) 0 i ∧
+      Raw_finiteWeightRaw5 n (Raw_finiteWeightIndex5 n c) 0 i ≤ (1-4/(n : ℝ))*c 0 i) ∧
+    (∀ tau, tau ≠ 0 → ∀ i,
+      (1-4/(n : ℝ))*c tau i ≤ Raw_finiteWeightRaw5 n (Raw_finiteWeightIndex5 n c) tau i ∧
+      Raw_finiteWeightRaw5 n (Raw_finiteWeightIndex5 n c) tau i ≤ (1-4/(n : ℝ))*c tau i+1/(n : ℝ)) :=
+  @JSP000334.finiteWeight_raw_errors5
+
+theorem source_finiteWeight_raw_sum5 : ∀ (n : ℕ) (hn : 0 < n) (c : Fin 3 → Fin 5 → ℝ)
+    (hb : (∑ tau : Fin 3, ∑ i : Fin 5, c tau i) = 0),
+
+    -5/(n : ℝ) ≤ (∑ tau : Fin 3, ∑ i : Fin 5, Raw_finiteWeightRaw5 n (Raw_finiteWeightIndex5 n c) tau i) ∧
+    (∑ tau : Fin 3, ∑ i : Fin 5, Raw_finiteWeightRaw5 n (Raw_finiteWeightIndex5 n c) tau i) ≤ 10/(n : ℝ) :=
+  @JSP000334.finiteWeight_raw_sum5
+
+theorem source_finiteWeightApprox5_bounds : ∀ (n : ℕ) (hn : 16 ≤ n)
+    (c : Fin 3 → Fin 5 → ℝ) (hc : Raw_sourceWeightConditions5 c),
+
+    Raw_sourceWeightConditions5 (Raw_finiteWeightApprox5 n c) ∧
+      (∀ i, c 0 i-7/(n : ℝ) ≤ Raw_finiteWeightApprox5 n c 0 i) ∧
+      (∀ tau, tau ≠ 0 → ∀ i, c tau i ≤ Raw_finiteWeightApprox5 n c tau i) :=
+  @JSP000334.finiteWeightApprox5_bounds
+
+theorem source_finiteWeightCandidates5_finite : ∀ (n : ℕ),
+ (Raw_finiteWeightCandidates5 n).Finite :=
+  @JSP000334.finiteWeightCandidates5_finite
+
+theorem source_finiteWeightIndex5_bounded : ∀ (n : ℕ) (hn : 16 ≤ n) (c : Fin 3 → Fin 5 → ℝ)
+    (hc : Raw_sourceWeightConditions5 c),
+
+    ∀ tau i, -(n : ℤ) ≤ Raw_finiteWeightIndex5 n c tau i ∧ Raw_finiteWeightIndex5 n c tau i ≤ n :=
+  @JSP000334.finiteWeightIndex5_bounded
+
+theorem source_finiteWeightApprox5_mem : ∀ (n : ℕ) (hn : 16 ≤ n) (c : Fin 3 → Fin 5 → ℝ)
+    (hc : Raw_sourceWeightConditions5 c),
+ Raw_finiteWeightApprox5 n c ∈ Raw_finiteWeightCandidates5 n :=
+  @JSP000334.finiteWeightApprox5_mem
+
+theorem source_sourceLogWeights5_rpow : ∀ (Q : ℝ) (hQ : 1 < Q) (W : Fin 3 → Fin 5 → ℝ)
+    (hW : ∀ tau i, 0 < W tau i) (tau : Fin 3) (i : Fin 5),
+
+    Q^(Raw_sourceLogWeights5 Q W tau i) = W tau i :=
+  @JSP000334.sourceLogWeights5_rpow
+
+theorem source_sourceLogWeights5_conditions : ∀ (Q : ℝ) (hQ : 1 < Q) (W : Fin 3 → Fin 5 → ℝ)
+    (hW : ∀ tau i, 0 < W tau i)
+    (hcut : ∀ tau i, (W tau i)⁻¹ < Q)
+    (hcut0 : ∀ i, W 0 i < Q)
+    (hfinite : ∀ tau, tau ≠ 0 → ∀ i, W tau i ≤ 1)
+    (hprod : (∏ tau : Fin 3, ∏ i : Fin 5, W tau i) = 1),
+
+    Raw_sourceWeightConditions5 (Raw_sourceLogWeights5 Q W) :=
+  @JSP000334.sourceLogWeights5_conditions
+
+theorem source_allpoint_balanced_weights5 : ∀ (H : ℝ) (hH : 5 ≤ H)
+    (a : Fin 3 → Fin 5 → ℝ) (ha : ∀ tau i, 0 < a tau i)
+    (hreal : ∀ i, a 0 i ≤ 5*H)
+    (hfinite : ∀ tau, tau ≠ 0 → ∀ i, a tau i ≤ 1)
+    (hinv : ∀ tau i, (a tau i)⁻¹ ≤ 5*H)
+    (hprod : (∏ tau, ∏ i, a tau i)*H = 1),
+
+    let Q := H^8
+    let W := Raw_allpoint_balanced_values5 Q a
+    1 < Q ∧ Raw_sourceWeightConditions5 (Raw_sourceLogWeights5 Q W) ∧
+      (∀ tau i, Q^(Raw_sourceLogWeights5 Q W tau i) = W tau i) ∧
+      (∀ i, a 0 i = Q^(Raw_sourceLogWeights5 Q W 0 i-(1 : ℝ)/40)) ∧
+      (∀ tau, tau ≠ 0 → ∀ i, a tau i = Q^(Raw_sourceLogWeights5 Q W tau i)) :=
+  @JSP000334.allpoint_balanced_weights5
+
+theorem source_retained_rational_det5 : ∀ (k : Fin 5),
+ (Raw_retainedRationalMatrix5 k).det=1 := by
+  intro k
+  have he : Raw_retainedRationalMatrix5 k = JSP000334.retainedRationalMatrix5 k := rfl
+  rw [he]
+  exact JSP000334.retained_rational_det5 k
+
+theorem source_retained_real_det5 : ∀ (k : Fin 5),
+ (Raw_retainedRealMatrix5 k).det=1 := by
+  intro k
+  have he : Raw_retainedRealMatrix5 k = JSP000334.retainedRealMatrix5 k := rfl
+  rw [he]
+  exact JSP000334.retained_real_det5 k
+
+theorem source_retained_rational_apply5 : ∀ (k i : Fin 5) (z : Fin 5 → ℤ),
+
+    (Raw_retainedRationalMatrix5 k *ᵥ (fun j => (z j : ℚ))) i=
+      Raw_fiveRetainedForm k i (fun j => (z j : ℚ)) :=
+  @JSP000334.retained_rational_apply5
+
+theorem source_retained_real_apply5 : ∀ (k i : Fin 5) (z : Fin 5 → ℤ),
+
+    (Raw_retainedRealMatrix5 k *ᵥ CompoundFeasibility.integerReal z) i=
+      (Raw_fiveRetainedForm k i (fun j => (z j : ℚ)) : ℝ) :=
+  @JSP000334.retained_real_apply5
+
+theorem source_allpoint_fixed_source_point5 : ∀ {x : Fin 6 → ℚ}
+    (hx : x∈Relations SUnits 5) (z : Fin 5 → ℤ) (s : SUnits)
+    (hz : Raw_PrimitiveFive z) (hscale : ∀ i : Fin 5,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i.castSucc)
+    (hH : 5≤(Raw_archFiveHeight z : ℝ)),
+
+    let Q := (Raw_archFiveHeight z : ℝ)^8
+    ∃ choice : Fin 3 → Fin 5,∃ d∈Raw_finiteWeightCandidates5 560,
+      Raw_sourceWeightConditions5 d ∧
+      Solution
+        (Raw_retainedRationalMatrix5 (choice 1)) (Raw_retainedRationalMatrix5 (choice 2))
+        (Raw_retainedRealMatrix5 (choice 0)) (d 0) (d 1) (d 2) Q ((1 : ℝ)/80) z :=
+  @JSP000334.allpoint_fixed_source_point5
+
+theorem source_allpoint_quad_proper5 : ∀ (a b c d : Fin 5 → ℚ),
+ Submodule.span ℚ {a,b,c,d}≠⊤ :=
+  @JSP000334.allpoint_quad_proper5
+
+theorem source_allpoint_bounded_height_finite5 : ∀ (M : ℝ),
+
+    {z : Fin 5 → ℤ | (Raw_archFiveHeight z : ℝ)≤M}.Finite :=
+  @JSP000334.allpoint_bounded_height_finite5
+
+theorem source_allpoint_avoid_finite5 : ∀ (E : (Fin 5 → ℤ) → Prop) (hno : Raw_allpoint_no_finite_cover5 E)
+    (F : Finset (Submodule ℚ (Fin 5 → ℚ))) (hF : ∀ P ∈ F, P ≠ ⊤),
+
+    ∃ z, E z ∧ ∀ P ∈ F, (fun i => (z i : ℚ)) ∉ P :=
+  @JSP000334.allpoint_avoid_finite5
+
+theorem source_allpoint_general_position_step5 : ∀ (E : (Fin 5 → ℤ) → Prop) (hno : Raw_allpoint_no_finite_cover5 E)
+    (n : ℕ) (v : Fin n → (Fin 5 → ℤ)),
+
+    ∃ z, E z ∧ max 5 (max (n : ℝ) ((∑ i, (Raw_archFiveHeight (v i) : ℝ))+1)) < (Raw_archFiveHeight z : ℝ) ∧
+      ∀ i j k l : Fin n, (fun l => (z l : ℚ)) ∉ Submodule.span ℚ
+        {fun a => (v i a : ℚ),fun a => (v j a : ℚ),fun a => (v k a : ℚ),fun a => (v l a : ℚ)} :=
+  @JSP000334.allpoint_general_position_step5
+
+theorem source_allpoint_general_position_sequence5 : ∀ (E : (Fin 5 → ℤ) → Prop) (hno : Raw_allpoint_no_finite_cover5 E),
+
+    ∃ z : ℕ → (Fin 5 → ℤ), (∀ n, E (z n)) ∧
+      (∀ n, 5 < (Raw_archFiveHeight (z n) : ℝ) ∧ (n : ℝ) < (Raw_archFiveHeight (z n) : ℝ)) ∧
+      StrictMono (fun n => (Raw_archFiveHeight (z n) : ℝ)) ∧
+      ∀ n, ∀ i j k l : Fin n, (fun k => (z n k : ℚ)) ∉ Submodule.span ℚ
+        {fun a => (z i.val a : ℚ),fun a => (z j.val a : ℚ),fun a => (z k.val a : ℚ),fun a => (z l.val a : ℚ)} :=
+  @JSP000334.allpoint_general_position_sequence5
+
+theorem source_allpoint_general_position_intersection5 : ∀ (z : ℕ → Fin 5 → ℤ)
+    (hH : ∀ n,5<(Raw_archFiveHeight (z n) : ℝ))
+    (havoid : ∀ n,∀ i j k l : Fin n,(fun a => (z n a : ℚ))∉Submodule.span ℚ
+      {fun a => (z i.val a : ℚ),fun a => (z j.val a : ℚ),fun a => (z k.val a : ℚ),fun a => (z l.val a : ℚ)})
+    (P : Submodule ℚ (Fin 5 → ℚ)) (hP : P≠⊤),
+
+    {n | (fun i => (z n i : ℚ))∈P}.Finite :=
+  @JSP000334.allpoint_general_position_intersection5
+
+theorem source_five_retained_pattern_count :
+ Fintype.card (Fin 3 → Fin 5)=125 :=
+  @JSP000334.five_retained_pattern_count
+
+theorem source_allpoint_joint_parameters_finite5 :
+
+    ((Set.univ : Set (Fin 3 → Fin 5)) ×ˢ Raw_finiteWeightCandidates5 560).Finite :=
+  @JSP000334.allpoint_joint_parameters_finite5
+
+theorem source_allpoint_source_family5 : ∀ (Omega : Set ℝ) (hOmega : ¬BddAbove Omega)
+    (x : Omega → Fin 6 → ℚ) (hx : ∀ q,x q∈Relations SUnits 5)
+    (z : Omega → Fin 5 → ℤ) (s : Omega → SUnits)
+    (hz : ∀ q,Raw_PrimitiveFive (z q))
+    (hscale : ∀ q,∀ i : Fin 5,(z q i : ℚ)=((s q : ℚˣ) : ℚ)*x q i.castSucc)
+    (hH : ∀ q,5≤(Raw_archFiveHeight (z q) : ℝ))
+    (hparam : ∀ q,q.val=(Raw_archFiveHeight (z q) : ℝ)^8),
+
+    ∃ P : Submodule ℚ (Fin 5 → ℚ),P≠⊤ ∧ ∃ W : Set ℝ,W⊆Omega ∧ ¬BddAbove W ∧
+      ∀ q : Omega,q.val∈W → (fun i => (z q i : ℚ))∈P :=
+  @JSP000334.allpoint_source_family5
+
+theorem source_source_primitive_six_term_finite_cover5 :
+
+    ∃ F : Set (Submodule ℚ (Fin 5 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ z : Fin 5 → ℤ,Raw_allpointEligible5 z → ∃ P∈F,(fun i => (z i : ℚ))∈P :=
+  @JSP000334.source_primitive_six_term_finite_cover5
+
+theorem source_allpoint_six_term_original_mem5 : ∀ {x : Fin 6 → ℚ}
+    (P : Submodule ℚ (Fin 5 → ℚ)) (w : Fin 6 → ℤ) (s : SUnits)
+    (hscale : ∀ i,(w i : ℚ)=((s : ℚˣ) : ℚ)*x i)
+    (hw : (fun i : Fin 5 => (w i.castSucc : ℚ))∈P),
+
+    (fun i : Fin 5 => x i.castSucc)∈P :=
+  @JSP000334.allpoint_six_term_original_mem5
+
+theorem source_source_six_term_finite_cover5 :
+
+    ∃ F : Set (Submodule ℚ (Fin 5 → ℚ)),
+      F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ x∈Relations SUnits 5,
+        ∃ P∈F,(fun i : Fin 5 => x i.castSucc)∈P :=
+  @JSP000334.source_six_term_finite_cover5
+
+end
+end Raw257C
+#check Raw257C.source_allpoint_minima_bounds5
+#print axioms Raw257C.source_allpoint_minima_bounds5
+#check Raw257C.source_allpoint_fixed_source_family5
+#print axioms Raw257C.source_allpoint_fixed_source_family5
+#check Raw257C.source_primitive_five_integer_reduction
+#print axioms Raw257C.source_primitive_five_integer_reduction
+#check Raw257C.source_exists_primitive_sunit_five
+#print axioms Raw257C.source_exists_primitive_sunit_five
+#check Raw257C.source_exists_primitive_six_term_relation
+#print axioms Raw257C.source_exists_primitive_six_term_relation
+#check Raw257C.source_retained_integer_matrix_det5
+#print axioms Raw257C.source_retained_integer_matrix_det5
+#check Raw257C.source_retained_integer_matrix_apply5
+#print axioms Raw257C.source_retained_integer_matrix_apply5
+#check Raw257C.source_five_local_coordinate_le
+#print axioms Raw257C.source_five_local_coordinate_le
+#check Raw257C.source_primitive_five_local_height
+#print axioms Raw257C.source_primitive_five_local_height
+#check Raw257C.source_primitive_five_height
+#print axioms Raw257C.source_primitive_five_height
+#check Raw257C.source_exists_five_maximal_coordinate
+#print axioms Raw257C.source_exists_five_maximal_coordinate
+#check Raw257C.source_five_retained_product_height
+#print axioms Raw257C.source_five_retained_product_height
+#check Raw257C.source_retained_integer_cast5
+#print axioms Raw257C.source_retained_integer_cast5
+#check Raw257C.source_six_term_integer_product5
+#print axioms Raw257C.source_six_term_integer_product5
+#check Raw257C.source_allpoint_primitive_product5
+#print axioms Raw257C.source_allpoint_primitive_product5
+#check Raw257C.source_allpoint_form_product5
+#print axioms Raw257C.source_allpoint_form_product5
+#check Raw257C.source_allpoint_form_arch_bound5
+#print axioms Raw257C.source_allpoint_form_arch_bound5
+#check Raw257C.source_finiteWeight_floor_bounds5
+#print axioms Raw257C.source_finiteWeight_floor_bounds5
+#check Raw257C.source_finiteWeight_ceil_bounds5
+#print axioms Raw257C.source_finiteWeight_ceil_bounds5
+#check Raw257C.source_finiteWeightCandidate5_balance
+#print axioms Raw257C.source_finiteWeightCandidate5_balance
+#check Raw257C.source_finiteWeight_raw_errors5
+#print axioms Raw257C.source_finiteWeight_raw_errors5
+#check Raw257C.source_finiteWeight_raw_sum5
+#print axioms Raw257C.source_finiteWeight_raw_sum5
+#check Raw257C.source_finiteWeightApprox5_bounds
+#print axioms Raw257C.source_finiteWeightApprox5_bounds
+#check Raw257C.source_finiteWeightCandidates5_finite
+#print axioms Raw257C.source_finiteWeightCandidates5_finite
+#check Raw257C.source_finiteWeightIndex5_bounded
+#print axioms Raw257C.source_finiteWeightIndex5_bounded
+#check Raw257C.source_finiteWeightApprox5_mem
+#print axioms Raw257C.source_finiteWeightApprox5_mem
+#check Raw257C.source_sourceLogWeights5_rpow
+#print axioms Raw257C.source_sourceLogWeights5_rpow
+#check Raw257C.source_sourceLogWeights5_conditions
+#print axioms Raw257C.source_sourceLogWeights5_conditions
+#check Raw257C.source_allpoint_balanced_weights5
+#print axioms Raw257C.source_allpoint_balanced_weights5
+#check Raw257C.source_retained_rational_det5
+#print axioms Raw257C.source_retained_rational_det5
+#check Raw257C.source_retained_real_det5
+#print axioms Raw257C.source_retained_real_det5
+#check Raw257C.source_retained_rational_apply5
+#print axioms Raw257C.source_retained_rational_apply5
+#check Raw257C.source_retained_real_apply5
+#print axioms Raw257C.source_retained_real_apply5
+#check Raw257C.source_allpoint_fixed_source_point5
+#print axioms Raw257C.source_allpoint_fixed_source_point5
+#check Raw257C.source_allpoint_quad_proper5
+#print axioms Raw257C.source_allpoint_quad_proper5
+#check Raw257C.source_allpoint_bounded_height_finite5
+#print axioms Raw257C.source_allpoint_bounded_height_finite5
+#check Raw257C.source_allpoint_avoid_finite5
+#print axioms Raw257C.source_allpoint_avoid_finite5
+#check Raw257C.source_allpoint_general_position_step5
+#print axioms Raw257C.source_allpoint_general_position_step5
+#check Raw257C.source_allpoint_general_position_sequence5
+#print axioms Raw257C.source_allpoint_general_position_sequence5
+#check Raw257C.source_allpoint_general_position_intersection5
+#print axioms Raw257C.source_allpoint_general_position_intersection5
+#check Raw257C.source_five_retained_pattern_count
+#print axioms Raw257C.source_five_retained_pattern_count
+#check Raw257C.source_allpoint_joint_parameters_finite5
+#print axioms Raw257C.source_allpoint_joint_parameters_finite5
+#check Raw257C.source_allpoint_source_family5
+#print axioms Raw257C.source_allpoint_source_family5
+#check Raw257C.source_source_primitive_six_term_finite_cover5
+#print axioms Raw257C.source_source_primitive_six_term_finite_cover5
+#check Raw257C.source_allpoint_six_term_original_mem5
+#print axioms Raw257C.source_allpoint_six_term_original_mem5
+#check Raw257C.source_source_six_term_finite_cover5
+#print axioms Raw257C.source_source_six_term_finite_cover5

@@ -1,0 +1,45 @@
+import SubspaceBridge.SourceOriginalSelectedVanishing10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M206SourceContract
+open CompoundFeasibility CompoundFeasibility.SourceGlobalSelected10
+open CompoundFeasibility.SourceSampling10 CompoundFeasibility.OriginalDual10
+open CompoundFeasibility.SourceSelectedSet10 CompoundFeasibility.SourceSelectedUpper10
+
+theorem original_source_global_contract10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (ha : ∀ i j, IsAlgebraic ℚ (L i j))
+    : ∃ hLu : IsUnit L,
+    ∀ (c0 c2 c3 : Fin 10 → ℝ) (hc0 : ∀ i, |c0 i| ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) (delta : ℝ) (hd : 0 < delta)
+    (U : Set ℝ) (hU : ¬ BddAbove U) (hQU : ∀ q ∈ U, 1 < q)
+    (u : (q : U) → Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : U, LinearIndependent ℝ (fun i => integerReal (u q i : Fin 10 → ℤ)))
+    (hatt : ∀ (q : U) (i : Fin 10), coordinateGauge10
+      (originalCoordinates10 L hLu q.val (hQU q.val q.property) c0)
+      (integerReal (u q i : Fin 10 → ℤ)) = sourceMinima10 A2 A3 L
+        hLu q.val (hQU q.val q.property) c0 c2 c3 i)
+    (hgap : ∀ q : U, sourceMinima10 A2 A3 L hLu
+      q.val (hQU q.val q.property) c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hLu
+        q.val (hQU q.val q.property) c0 c2 c3 9*q.val^(-delta)),
+    ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+    ∃ epsilon : ℝ, 0 < epsilon ∧ epsilon < 1 ∧
+    ∃ c : Fin 3 → Fin 10 → ℝ, (∀ tau i, |c tau i| ≤ 1) ∧
+      (∑ tau, ∑ i, c tau i) = 0 ∧ (∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5) ∧
+    ∃ B : ℝ, ∀ q : V, B < q.val →
+      ∀ s ∈ roundedSelector10 (q.val^5) (epsilon/2) (fun i => (q.val^5)^(c 0 i)) (c 1) (c 2),
+        mixedProduct10 A2 A3 L
+          (integerLastDual10 (fun j => (u ⟨q.val,hVU q.property⟩ j : Fin 10 → ℤ))) s = 0 ∧
+        ∀ M a : Fin 10 → ℤ, M ≠ 0 → (∑ i, a i*M i) = 1 →
+          (∀ j : Fin 9, (∑ i, M i*(u ⟨q.val,hVU q.property⟩ j.castSucc : Fin 10 → ℤ) i) = 0) →
+          mixedProduct10 A2 A3 L M s = 0 := by
+  exact original_refined_selected_vanishing10 A2 A3 L h2 h3 hLd ha
+
+set_option pp.deepTerms true
+#check @original_source_global_contract10
+#print axioms original_source_global_contract10
+#check @source_fin10_original_auxiliary_family10
+end M206SourceContract

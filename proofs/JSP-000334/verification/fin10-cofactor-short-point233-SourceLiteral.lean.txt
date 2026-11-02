@@ -1,0 +1,217 @@
+import SubspaceBridge.SourceCofactorReal231
+import SubspaceBridge.SourceCofactorSigns231
+import SubspaceBridge.SourceDualBody222
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M233ScopedLiteral
+open OriginalDual10 SourceOriginalDual10 SourceSatz51Entry218 SourceLastDual231 SourceDualAnnihilation222
+
+theorem cofactor_cutoff233 (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ q : ℝ, T < q → 362880 * q^(-9*delta) ≤ 1 := by
+  obtain ⟨B, hB⟩ := Filter.eventually_atTop.mp
+    ((tendsto_rpow_neg_atTop (show 0 < 9*delta by positivity)).eventually
+      (gt_mem_nhds (show (0 : ℝ) < 1/362880 by norm_num)))
+  refine ⟨max B 2, lt_of_lt_of_le (by norm_num) (le_max_right _ _), ?_⟩
+  intro q hq
+  have hb := hB q ((le_max_left B 2).trans hq.le)
+  have he : -9*delta = -(9*delta) := by ring
+  rw [he]
+  linarith
+
+theorem cofactor_cast233 (u : Fin 10 → Fin 10 → ℤ) :
+    ratReal222 (fun i => (integerLastDual10 u i : ℚ)) = integerReal (integerLastDual10 u) := by
+  funext i
+  change (((integerLastDual10 u i : ℤ) : ℚ) : ℝ) = (integerLastDual10 u i : ℝ)
+  simp only [Rat.cast_intCast]
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem source_cofactor_body233 (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (hcut : 362880 * q^(-9*delta) ≤ 1) :
+    ratReal222 (fun i => (integerLastDual10 D.u i : ℚ)) ∈ dualBody222 L
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) A := by
+  rw [cofactor_cast233 D.u]
+  change ∀ i, |(L⁻¹.transpose *ᵥ integerReal (integerLastDual10 D.u)) i| ≤
+    ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) / A i
+  intro i
+  have hb := source_real_cofactor231 h2 h3 hLd D i
+  have hw : 0 ≤ ZLattice.covolume
+      (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) / A i :=
+    (div_pos (ZLattice.covolume_pos _ MeasureTheory.volume) (D.positive i)).le
+  exact hb.trans (by simpa only [one_mul] using mul_le_mul_of_nonneg_right hcut hw)
+
+end CompoundFeasibility.M233ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M233ScopedLiteral
+open OriginalDual10 SourceOriginalDual10 SourceSatz51Entry218 SourceLastDual231 SourceDualAnnihilation222
+  SourceDualGeometry219
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem source_cofactor_rat_nonzero233 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (fun i => (integerLastDual10 D.u i : ℚ)) ≠ 0 := by
+  intro h
+  apply source_cofactor_nonzero231 D
+  funext i
+  have hi : (integerLastDual10 D.u i : ℚ) = 0 := congrFun h i
+  change integerLastDual10 D.u i = 0
+  exact_mod_cast hi
+
+theorem source_cofactor_line233 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    Submodule.span ℚ {fun i => (integerLastDual10 D.u i : ℚ)} =
+      Submodule.span ℚ {lastDual10 (fun j i => (D.u j i : ℚ))
+        (integer_frame_rational_independent10 D.u D.independent)} := by
+  exact integerLastDual10_line D.u (integer_frame_rational_independent10 D.u D.independent)
+
+theorem source_uniform_cofactor233 (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+      (h2 : A2.det = 1) (h3 : A3.det = 1) (L : Matrix (Fin 10) (Fin 10) ℝ)
+      (hL : IsUnit L) (hLd : L.det = 1) (q : ℝ), T < q →
+      ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta),
+        let v : Fin 10 → ℚ := fun i => (integerLastDual10 D.u i : ℚ)
+        v ≠ 0 ∧ v ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3) ∧
+          ratReal222 v ∈ dualBody222 L
+            (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) A ∧
+          Submodule.span ℚ {v} = Submodule.span ℚ
+            {lastDual10 (fun j i => (D.u j i : ℚ))
+              (integer_frame_rational_independent10 D.u D.independent)} := by
+  obtain ⟨T, hT, hcut⟩ := cofactor_cutoff233 delta hd
+  refine ⟨T, hT, ?_⟩
+  intro A2 A3 h2 h3 L hL hLd q hqT hq c2 c3 A D
+  exact ⟨source_cofactor_rat_nonzero233 D, source_cofactor_dual231 D,
+    source_cofactor_body233 h2 h3 hLd D (hcut q hqT), source_cofactor_line233 D⟩
+
+theorem source_cofactor_real_nonzero233 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    ratReal222 (fun i => (integerLastDual10 D.u i : ℚ)) ≠ 0 := by
+  rw [cofactor_cast233 D.u]
+  intro h
+  apply source_cofactor_nonzero231 D
+  funext i
+  have hi : (integerLastDual10 D.u i : ℝ) = 0 := congrFun h i
+  change integerLastDual10 D.u i = 0
+  exact_mod_cast hi
+
+open SourceSecondMinimum228 SourceSecondMinimum230
+
+theorem source_uniform_geometry233 (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+      (h2 : A2.det = 1) (h3 : A3.det = 1) (L : Matrix (Fin 10) (Fin 10) ℝ)
+      (hL : IsUnit L) (hLd : L.det = 1) (q : ℝ), T < q →
+      ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta),
+        let v : Fin 10 → ℚ := fun i => (integerLastDual10 D.u i : ℚ)
+        1 < successiveRadius10 (originalDualRealBasis228 A2 A3 q c2 c3)
+          (dualCoordinates222 L hL
+            (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+            (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive) (1 : Fin 10) ∧
+        ratReal222 v ≠ 0 ∧
+        ratReal222 v ∈ dualBody222 L
+            (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) A ∩
+          (ratReal222 '' scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3)) ∧
+        Submodule.span ℚ {v} = Submodule.span ℚ
+          {lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent)} := by
+  obtain ⟨T1, hT1, hsecond⟩ := source_uniform_original_second230 delta hd
+  obtain ⟨T2, _, hpoint⟩ := source_uniform_cofactor233 delta hd
+  refine ⟨max T1 T2, lt_of_lt_of_le hT1 (le_max_left _ _), ?_⟩
+  intro A2 A3 h2 h3 L hL hLd q hqT hq c2 c3 A D
+  have hs := (hsecond A2 A3 L hL q ((le_max_left T1 T2).trans_lt hqT) hq c2 c3 A D).2
+  have hp := hpoint A2 A3 h2 h3 L hL hLd q
+    ((le_max_right T1 T2).trans_lt hqT) hq c2 c3 A D
+  exact ⟨hs, source_cofactor_real_nonzero233 D,
+    ⟨hp.2.2.1, ⟨(fun i => (integerLastDual10 D.u i : ℚ)), hp.2.1, rfl⟩⟩, hp.2.2.2⟩
+
+end CompoundFeasibility.M233ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.OriginalDual10
+  CompoundFeasibility.SourceOriginalDual10 CompoundFeasibility.SourceSatz51Entry218
+  CompoundFeasibility.SourceDualAnnihilation222 CompoundFeasibility.SourceDualGeometry219
+  CompoundFeasibility.SourceSecondMinimum228 CompoundFeasibility.M233ScopedLiteral
+namespace M233SourceLiteral
+
+theorem original_cofactor_point (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+      (h2 : A2.det = 1) (h3 : A3.det = 1) (L : Matrix (Fin 10) (Fin 10) ℝ)
+      (hL : IsUnit L) (hLd : L.det = 1) (q : ℝ), T < q →
+      ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta),
+        let v : Fin 10 → ℚ := fun i => (integerLastDual10 D.u i : ℚ)
+        v ≠ 0 ∧ v ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3) ∧
+          ratReal222 v ∈ dualBody222 L
+            (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) A ∧
+          Submodule.span ℚ {v} = Submodule.span ℚ
+            {lastDual10 (fun j i => (D.u j i : ℚ))
+              (integer_frame_rational_independent10 D.u D.independent)} := by
+  exact source_uniform_cofactor233 delta hd
+
+theorem expanded_cofactor_geometry (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+      (h2 : A2.det = 1) (h3 : A3.det = 1) (L : Matrix (Fin 10) (Fin 10) ℝ)
+      (hL : IsUnit L) (hLd : L.det = 1) (q : ℝ), T < q →
+      ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta),
+        1 < successiveRadius10 (originalDualRealBasis228 A2 A3 q c2 c3)
+          (dualCoordinates222 L hL
+            (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+            (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive) (1 : Fin 10) ∧
+        (fun i => (integerLastDual10 D.u i : ℝ)) ≠ 0 ∧
+        (∀ i, |(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i| ≤
+          ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) / A i) ∧
+        (fun i => (integerLastDual10 D.u i : ℝ)) ∈
+          ratReal222 '' ((fun z : Fin 10 → ℚ =>
+            ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) • z) ''
+              {z | ∀ x : originalSourceGroup10 A2 A3 q c2 c3, ∃ a : ℤ,
+                (∑ i, ((x : Fin 10 → ℤ) i : ℚ) * z i) = (a : ℚ)}) ∧
+        Submodule.span ℚ {fun i => (integerLastDual10 D.u i : ℚ)} =
+          Submodule.span ℚ {lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent)} := by
+  obtain ⟨T, hT, h⟩ := source_uniform_geometry233 delta hd
+  refine ⟨T, hT, ?_⟩
+  intro A2 A3 h2 h3 L hL hLd q hqT hq c2 c3 A D
+  have hg := h A2 A3 h2 h3 L hL hLd q hqT hq c2 c3 A D
+  have hn := hg.2.1
+  have hb := hg.2.2.1.1
+  have hm := hg.2.2.1.2
+  rw [cofactor_cast233 D.u] at hn hb hm
+  exact ⟨hg.1, hn, hb, hm, hg.2.2.2⟩
+
+end M233SourceLiteral
+#check M233SourceLiteral.original_cofactor_point
+#print M233SourceLiteral.original_cofactor_point
+#print axioms M233SourceLiteral.original_cofactor_point
+#check M233SourceLiteral.expanded_cofactor_geometry
+#print M233SourceLiteral.expanded_cofactor_geometry
+#print axioms M233SourceLiteral.expanded_cofactor_geometry
+#check CompoundFeasibility.M233ScopedLiteral.cofactor_cutoff233
+#print CompoundFeasibility.M233ScopedLiteral.cofactor_cutoff233
+#print axioms CompoundFeasibility.M233ScopedLiteral.cofactor_cutoff233
+#check CompoundFeasibility.M233ScopedLiteral.cofactor_cast233
+#print CompoundFeasibility.M233ScopedLiteral.cofactor_cast233
+#print axioms CompoundFeasibility.M233ScopedLiteral.cofactor_cast233
+#check CompoundFeasibility.M233ScopedLiteral.source_cofactor_body233
+#print CompoundFeasibility.M233ScopedLiteral.source_cofactor_body233
+#print axioms CompoundFeasibility.M233ScopedLiteral.source_cofactor_body233
+#check CompoundFeasibility.M233ScopedLiteral.source_cofactor_rat_nonzero233
+#print CompoundFeasibility.M233ScopedLiteral.source_cofactor_rat_nonzero233
+#print axioms CompoundFeasibility.M233ScopedLiteral.source_cofactor_rat_nonzero233
+#check CompoundFeasibility.M233ScopedLiteral.source_cofactor_line233
+#print CompoundFeasibility.M233ScopedLiteral.source_cofactor_line233
+#print axioms CompoundFeasibility.M233ScopedLiteral.source_cofactor_line233
+#check CompoundFeasibility.M233ScopedLiteral.source_uniform_cofactor233
+#print CompoundFeasibility.M233ScopedLiteral.source_uniform_cofactor233
+#print axioms CompoundFeasibility.M233ScopedLiteral.source_uniform_cofactor233
+#check CompoundFeasibility.M233ScopedLiteral.source_cofactor_real_nonzero233
+#print CompoundFeasibility.M233ScopedLiteral.source_cofactor_real_nonzero233
+#print axioms CompoundFeasibility.M233ScopedLiteral.source_cofactor_real_nonzero233
+#check CompoundFeasibility.M233ScopedLiteral.source_uniform_geometry233
+#print CompoundFeasibility.M233ScopedLiteral.source_uniform_geometry233
+#print axioms CompoundFeasibility.M233ScopedLiteral.source_uniform_geometry233

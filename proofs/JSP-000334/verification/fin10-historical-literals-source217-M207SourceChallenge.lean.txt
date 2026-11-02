@@ -1,0 +1,34 @@
+import SubspaceBridge.SourceFixedSelectorHeight10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M207SourceContract
+open CompoundFeasibility CompoundFeasibility.SourceFixedSelector10
+open CompoundFeasibility.SourceSelectedSet10 CompoundFeasibility.SourceSelectedUpper10
+open CompoundFeasibility.SourceHeightEnvelope10 CompoundFeasibility.SourceSampling10
+open CompoundFeasibility.OriginalDual10 CompoundFeasibility.SchmidtNormal10
+theorem source_fixed_set_height_contract10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ alpha C_upper T : ℝ, 0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      ∀ (c2 c3 : Fin 10 → ℝ), (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) →
+      ∀ (c : Fin 3 → Fin 10 → ℝ), (∀ i, |c 0 i| ≤ 1) →
+      (∑ tau, ∑ i, c tau i) = 0 → (∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5) →
+      ∀ S0 : Finset (Fin 3 → Fin 10), (∀ s ∈ S0, -3*epsilon/4 ≤ ∑ tau, c tau (s tau)) →
+      ∀ (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+        (eta D E B rho : ℝ) (m : ℕ) (hm : 0 < m)
+        (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+        (h : Fin m), T < (S.data.t h).val^5 →
+        ∀ s ∈ S0,
+          (L⁻¹.transpose *ᵥ integerReal (S.data.M h)) (s 0) ≠ 0 →
+          ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[2]))) (s 1) ≠ 0 →
+          ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[3]))) (s 2) ≠ 0 →
+          ((S.data.t h).val^5)^alpha ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+          (normalHeight10 (S.data.M h) : ℝ) ≤ C_upper*((S.data.t h).val^5)^9 := by
+  exact fixed_set_height_envelope10 A2 A3 L h2 h3 hL hAlg epsilon he
+set_option pp.deepTerms true
+#check @source_fixed_set_height_contract10
+#print axioms source_fixed_set_height_contract10
+end M207SourceContract

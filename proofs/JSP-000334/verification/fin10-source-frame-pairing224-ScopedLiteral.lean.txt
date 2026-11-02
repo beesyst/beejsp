@@ -1,0 +1,89 @@
+import SubspaceBridge.SourceNativeRealPairing223
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M224ScopedLiteral
+open SourceSatz51Entry218 SourceOriginalVariable10 SourceDualAnnihilation222 SourceDualGeometry219
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem source_frame_coordinates224
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (j i : Fin 10) :
+    |(L *ᵥ integerReal (D.u j)) i| ≤
+      sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 j * A i := by
+  have h := (originalCoordinates10_bounds L hL q hq
+    (fun k => normalizedWidth10 q (A k)) (integerReal (D.u j))
+    (sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 j)).mp
+      (le_of_eq (D.attaining j)) i
+  rw [normalized_width_exact10 q (A i) hq (D.positive i)] at h
+  exact h
+
+theorem source_first_nine_minima224
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (j : Fin 9) :
+    0 ≤ sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 j.castSucc ∧
+      sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 j.castSucc ≤ sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 := by
+  have hp := sourceMinima10_pos_mono A2 A3 L hL q hq
+    (fun k => normalizedWidth10 q (A k)) c2 c3
+  exact ⟨(hp.1 j.castSucc).le, hp.2 (by change j.val ≤ 8; omega)⟩
+
+theorem source_first_nine_coordinates224
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (j : Fin 9) (i : Fin 10) :
+    |(L *ᵥ integerReal (D.u j.castSucc)) i| ≤
+      sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 * A i := by
+  exact (source_frame_coordinates224 D j.castSucc i).trans
+    (mul_le_mul_of_nonneg_right (source_first_nine_minima224 D j).2 (D.positive i).le)
+
+theorem source_first_nine_pairing224
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (d : ℝ) (hd : 0 < d) (z : Fin 10 → ℝ) (r : ℝ)
+    (hz : dualGauge222 L hL d hd A D.positive z ≤ r) (j : Fin 9) :
+    |∑ i, integerReal (D.u j.castSucc) i * z i| ≤
+      10 * r * d * sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 := by
+  have hp := sourceMinima10_pos_mono A2 A3 L hL q hq
+    (fun k => normalizedWidth10 q (A k)) c2 c3
+  exact real_pairing_bound222 L hL d hd A D.positive
+    (integerReal (D.u j.castSucc)) z _ r (hp.1 8).le
+    (source_first_nine_coordinates224 D j) hz
+
+theorem source_covolume_pairing224
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℝ) (r : ℝ)
+    (hz : dualGauge222 L hL
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive z ≤ r) (j : Fin 9) :
+    |∑ i, integerReal (D.u j.castSucc) i * z i| ≤
+      10 * r * (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) *
+        sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 := by
+  exact source_first_nine_pairing224 D _ (ZLattice.covolume_pos _ MeasureTheory.volume) z r hz j
+
+theorem source_rational_pairing224
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℚ) (r : ℝ)
+    (hz : dualGauge222 L hL
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive (ratReal222 z) ≤ r)
+    (j : Fin 9) :
+    |(pairing219 z (D.u j.castSucc) : ℝ)| ≤
+      10 * r * (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) *
+        sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 := by
+  calc
+    _ = |∑ i, integerReal (D.u j.castSucc) i * ratReal222 z i| :=
+      congrArg abs (pairing_cast222 z (D.u j.castSucc)).symm
+    _ ≤ _ := source_covolume_pairing224 D (ratReal222 z) r hz j
+
+end CompoundFeasibility.M224ScopedLiteral
+#check CompoundFeasibility.M224ScopedLiteral.source_frame_coordinates224
+#print CompoundFeasibility.M224ScopedLiteral.source_frame_coordinates224
+#print axioms CompoundFeasibility.M224ScopedLiteral.source_frame_coordinates224
+#check CompoundFeasibility.M224ScopedLiteral.source_first_nine_minima224
+#print CompoundFeasibility.M224ScopedLiteral.source_first_nine_minima224
+#print axioms CompoundFeasibility.M224ScopedLiteral.source_first_nine_minima224
+#check CompoundFeasibility.M224ScopedLiteral.source_first_nine_coordinates224
+#print CompoundFeasibility.M224ScopedLiteral.source_first_nine_coordinates224
+#print axioms CompoundFeasibility.M224ScopedLiteral.source_first_nine_coordinates224
+#check CompoundFeasibility.M224ScopedLiteral.source_first_nine_pairing224
+#print CompoundFeasibility.M224ScopedLiteral.source_first_nine_pairing224
+#print axioms CompoundFeasibility.M224ScopedLiteral.source_first_nine_pairing224
+#check CompoundFeasibility.M224ScopedLiteral.source_covolume_pairing224
+#print CompoundFeasibility.M224ScopedLiteral.source_covolume_pairing224
+#print axioms CompoundFeasibility.M224ScopedLiteral.source_covolume_pairing224
+#check CompoundFeasibility.M224ScopedLiteral.source_rational_pairing224
+#print CompoundFeasibility.M224ScopedLiteral.source_rational_pairing224
+#print axioms CompoundFeasibility.M224ScopedLiteral.source_rational_pairing224

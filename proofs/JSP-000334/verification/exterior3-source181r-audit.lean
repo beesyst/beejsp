@@ -1,0 +1,151 @@
+import SubspaceBridge.OriginalExterior3Source4
+#check CompoundFeasibility.Exterior3.tripleIndex4
+#print CompoundFeasibility.Exterior3.tripleIndex4
+#print axioms CompoundFeasibility.Exterior3.tripleIndex4
+#check CompoundFeasibility.Exterior3.tripleWedge4
+#print CompoundFeasibility.Exterior3.tripleWedge4
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4
+#check CompoundFeasibility.Exterior3.compound3Matrix4
+#print CompoundFeasibility.Exterior3.compound3Matrix4
+#print axioms CompoundFeasibility.Exterior3.compound3Matrix4
+#check CompoundFeasibility.Exterior3.tripleWedge4_expansion
+#print CompoundFeasibility.Exterior3.tripleWedge4_expansion
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4_expansion
+#check CompoundFeasibility.Exterior3.tripleWedge4_map
+#print CompoundFeasibility.Exterior3.tripleWedge4_map
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4_map
+#check CompoundFeasibility.Exterior3.tripleWedge4_transform
+#print CompoundFeasibility.Exterior3.tripleWedge4_transform
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4_transform
+#check CompoundFeasibility.Exterior3.tripleLattice4
+#print CompoundFeasibility.Exterior3.tripleLattice4
+#print axioms CompoundFeasibility.Exterior3.tripleLattice4
+#check CompoundFeasibility.Exterior3.padic_tripleWedge4_bound
+#print CompoundFeasibility.Exterior3.padic_tripleWedge4_bound
+#print axioms CompoundFeasibility.Exterior3.padic_tripleWedge4_bound
+#check CompoundFeasibility.Exterior3.tripleWedge4_lattice
+#print CompoundFeasibility.Exterior3.tripleWedge4_lattice
+#print axioms CompoundFeasibility.Exterior3.tripleWedge4_lattice
+#check CompoundFeasibility.Exterior3.missing4
+#print CompoundFeasibility.Exterior3.missing4
+#print axioms CompoundFeasibility.Exterior3.missing4
+#check CompoundFeasibility.Exterior3.sign4
+#print CompoundFeasibility.Exterior3.sign4
+#print axioms CompoundFeasibility.Exterior3.sign4
+#check CompoundFeasibility.Exterior3.complementMatrix4
+#print CompoundFeasibility.Exterior3.complementMatrix4
+#print axioms CompoundFeasibility.Exterior3.complementMatrix4
+#check CompoundFeasibility.Exterior3.signedAdjugate4
+#print CompoundFeasibility.Exterior3.signedAdjugate4
+#print axioms CompoundFeasibility.Exterior3.signedAdjugate4
+#check CompoundFeasibility.Exterior3.compound3_adjugate_row0
+#print CompoundFeasibility.Exterior3.compound3_adjugate_row0
+#print axioms CompoundFeasibility.Exterior3.compound3_adjugate_row0
+#check CompoundFeasibility.Exterior3.compound3_adjugate_row1
+#print CompoundFeasibility.Exterior3.compound3_adjugate_row1
+#print axioms CompoundFeasibility.Exterior3.compound3_adjugate_row1
+#check CompoundFeasibility.Exterior3.compound3_adjugate_row2
+#print CompoundFeasibility.Exterior3.compound3_adjugate_row2
+#print axioms CompoundFeasibility.Exterior3.compound3_adjugate_row2
+#check CompoundFeasibility.Exterior3.compound3_adjugate_row3
+#print CompoundFeasibility.Exterior3.compound3_adjugate_row3
+#print axioms CompoundFeasibility.Exterior3.compound3_adjugate_row3
+#check CompoundFeasibility.Exterior3.compound3_adjugate
+#print CompoundFeasibility.Exterior3.compound3_adjugate
+#print axioms CompoundFeasibility.Exterior3.compound3_adjugate
+#check CompoundFeasibility.Exterior3.complementMatrix4_orthogonal
+#print CompoundFeasibility.Exterior3.complementMatrix4_orthogonal
+#print axioms CompoundFeasibility.Exterior3.complementMatrix4_orthogonal
+#check CompoundFeasibility.Exterior3.compound3_det
+#print CompoundFeasibility.Exterior3.compound3_det
+#print axioms CompoundFeasibility.Exterior3.compound3_det
+#check CompoundFeasibility.Exterior3.compound3_one
+#print CompoundFeasibility.Exterior3.compound3_one
+#print axioms CompoundFeasibility.Exterior3.compound3_one
+#check CompoundFeasibility.Exterior3.compound3_mul
+#print CompoundFeasibility.Exterior3.compound3_mul
+#print axioms CompoundFeasibility.Exterior3.compound3_mul
+#check CompoundFeasibility.Exterior3.compound3_transpose
+#print CompoundFeasibility.Exterior3.compound3_transpose
+#print axioms CompoundFeasibility.Exterior3.compound3_transpose
+#check CompoundFeasibility.Exterior3.compound3_unit
+#print CompoundFeasibility.Exterior3.compound3_unit
+#print axioms CompoundFeasibility.Exterior3.compound3_unit
+#check CompoundFeasibility.Exterior3.compound3_inverse
+#print CompoundFeasibility.Exterior3.compound3_inverse
+#print axioms CompoundFeasibility.Exterior3.compound3_inverse
+#check CompoundFeasibility.Exterior3.compound3_dual_pairing
+#print CompoundFeasibility.Exterior3.compound3_dual_pairing
+#print axioms CompoundFeasibility.Exterior3.compound3_dual_pairing
+#check CompoundFeasibility.Exterior3.compound3_algebraic
+#print CompoundFeasibility.Exterior3.compound3_algebraic
+#print axioms CompoundFeasibility.Exterior3.compound3_algebraic
+#check CompoundFeasibility.Exterior3.tripleWeights4
+#print CompoundFeasibility.Exterior3.tripleWeights4
+#print axioms CompoundFeasibility.Exterior3.tripleWeights4
+#check CompoundFeasibility.Exterior3.tripleWeights4_sum
+#print CompoundFeasibility.Exterior3.tripleWeights4_sum
+#print axioms CompoundFeasibility.Exterior3.tripleWeights4_sum
+#check CompoundFeasibility.Exterior3.tripleWeights4_balance
+#print CompoundFeasibility.Exterior3.tripleWeights4_balance
+#print axioms CompoundFeasibility.Exterior3.tripleWeights4_balance
+#check CompoundFeasibility.Exterior3.tripleWeights4_bounds
+#print CompoundFeasibility.Exterior3.tripleWeights4_bounds
+#print axioms CompoundFeasibility.Exterior3.tripleWeights4_bounds
+#check CompoundFeasibility.Exterior3.ceil_triple_bounds
+#print CompoundFeasibility.Exterior3.ceil_triple_bounds
+#print axioms CompoundFeasibility.Exterior3.ceil_triple_bounds
+#check CompoundFeasibility.Exterior3.arch_tripleWedge4_bound
+#print CompoundFeasibility.Exterior3.arch_tripleWedge4_bound
+#print axioms CompoundFeasibility.Exterior3.arch_tripleWedge4_bound
+#check CompoundFeasibility.Exterior3.arch_compound3_bound
+#print CompoundFeasibility.Exterior3.arch_compound3_bound
+#print axioms CompoundFeasibility.Exterior3.arch_compound3_bound
+#check CompoundFeasibility.Exterior3.originalExponents3_4
+#print CompoundFeasibility.Exterior3.originalExponents3_4
+#print axioms CompoundFeasibility.Exterior3.originalExponents3_4
+#check CompoundFeasibility.Exterior3.summedExponents3_4
+#print CompoundFeasibility.Exterior3.summedExponents3_4
+#print axioms CompoundFeasibility.Exterior3.summedExponents3_4
+#check CompoundFeasibility.Exterior3.originalCompoundGroup3_4
+#print CompoundFeasibility.Exterior3.originalCompoundGroup3_4
+#print axioms CompoundFeasibility.Exterior3.originalCompoundGroup3_4
+#check CompoundFeasibility.Exterior3.original_triple_mem4
+#print CompoundFeasibility.Exterior3.original_triple_mem4
+#print axioms CompoundFeasibility.Exterior3.original_triple_mem4
+#check CompoundFeasibility.Exterior3.summedExponents3_4_sum
+#print CompoundFeasibility.Exterior3.summedExponents3_4_sum
+#print axioms CompoundFeasibility.Exterior3.summedExponents3_4_sum
+#check CompoundFeasibility.Exterior3.source_triple_rounding4
+#print CompoundFeasibility.Exterior3.source_triple_rounding4
+#print axioms CompoundFeasibility.Exterior3.source_triple_rounding4
+#check CompoundFeasibility.Exterior3.triple_widths_rpow4
+#print CompoundFeasibility.Exterior3.triple_widths_rpow4
+#print axioms CompoundFeasibility.Exterior3.triple_widths_rpow4
+#check CompoundFeasibility.Exterior3.source_triple_gauge4
+#print CompoundFeasibility.Exterior3.source_triple_gauge4
+#print axioms CompoundFeasibility.Exterior3.source_triple_gauge4
+#check CompoundFeasibility.Exterior3.tripleFrame4
+#print CompoundFeasibility.Exterior3.tripleFrame4
+#print axioms CompoundFeasibility.Exterior3.tripleFrame4
+#check CompoundFeasibility.Exterior3.tripleFrame4_cast
+#print CompoundFeasibility.Exterior3.tripleFrame4_cast
+#print axioms CompoundFeasibility.Exterior3.tripleFrame4_cast
+#check CompoundFeasibility.Exterior3.tripleFrame4_independent
+#print CompoundFeasibility.Exterior3.tripleFrame4_independent
+#print axioms CompoundFeasibility.Exterior3.tripleFrame4_independent
+#check CompoundFeasibility.Exterior3.tripleFrame4_cofactor
+#print CompoundFeasibility.Exterior3.tripleFrame4_cofactor
+#print axioms CompoundFeasibility.Exterior3.tripleFrame4_cofactor
+#check CompoundFeasibility.Exterior3.tripleFrame4_pairing
+#print CompoundFeasibility.Exterior3.tripleFrame4_pairing
+#print axioms CompoundFeasibility.Exterior3.tripleFrame4_pairing
+#check CompoundFeasibility.Exterior3.tripleFrame4_real_cast
+#print CompoundFeasibility.Exterior3.tripleFrame4_real_cast
+#print axioms CompoundFeasibility.Exterior3.tripleFrame4_real_cast
+#check CompoundFeasibility.Exterior3.source_tripleFrame4_gauge
+#print CompoundFeasibility.Exterior3.source_tripleFrame4_gauge
+#print axioms CompoundFeasibility.Exterior3.source_tripleFrame4_gauge
+#check CompoundFeasibility.Exterior3.source_original_exterior3_bridge4
+#print CompoundFeasibility.Exterior3.source_original_exterior3_bridge4
+#print axioms CompoundFeasibility.Exterior3.source_original_exterior3_bridge4

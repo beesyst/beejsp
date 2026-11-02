@@ -1,0 +1,240 @@
+import SubspaceBridge.SourceOriginalNorms214
+import SubspaceBridge.SourceVolume10
+import SubspaceBridge.SourceOriginalRationalVanishing10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M215ScopedLiteral
+open SourceOriginalVariable10 SourceOriginalSatz212 OriginalDual10 SourceOriginalDual10 SourceOriginalNorm214
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+theorem original_width_covolume215 (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    (∏ i, D.A i) ≤ originalCovolume212 D := by
+  have hf : sourceLocalDetFactor10 A2 A3 = 1 := by
+    simp only [sourceLocalDetFactor10,h2,h3,padicNorm.one,Rat.cast_one,one_mul]
+  have h := sourceLattice10_covolume_width_lower A2 A3 Q hQ
+    (fun i => normalizedWidth10 Q (D.A i)) (fun i => normalizedFinite10 2 Q (D.f2 i))
+    (fun i => normalizedFinite10 3 Q (D.f3 i))
+    (normalized_balance10 Q D.A D.positive D.f2 D.f3 D.balance)
+  simp_rw [hf,one_mul,normalized_width_exact10 Q _ hQ (D.positive _),original_lattice_eq212 D] at h
+  exact h
+theorem original_first_nine_minima215
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    (∏ j : Fin 9, sourceMinima10 A2 A3 L hL Q hQ
+      (fun i => normalizedWidth10 Q (D.A i)) (fun i => normalizedFinite10 2 Q (D.f2 i))
+      (fun i => normalizedFinite10 3 Q (D.f3 i)) j.castSucc) ≤ Q^(-9*delta) := by
+  have hp := sourceMinima10_pos_mono A2 A3 L hL Q hQ
+    (fun i => normalizedWidth10 Q (D.A i)) (fun i => normalizedFinite10 2 Q (D.f2 i))
+    (fun i => normalizedFinite10 3 Q (D.f3 i))
+  calc
+    _ ≤ ∏ _j : Fin 9, Q^(-delta) := Finset.prod_le_prod
+      (fun j _ => (hp.1 _).le) (fun j _ => (hp.2 (by change j.val ≤ 8; omega)).trans D.small.le)
+    _ = _ := by
+      simp only [Finset.prod_const,Finset.card_univ,Fintype.card_fin]
+      rw [← Real.rpow_natCast,← Real.rpow_mul (zero_lt_one.trans hQ).le]
+      congr 1
+      ring
+
+theorem original_real_cofactor215 (hLd : L.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ ≤
+      362880 * (∏ j : Fin 9, sourceMinima10 A2 A3 L hL Q hQ
+        (fun i => normalizedWidth10 Q (D.A i)) (fun i => normalizedFinite10 2 Q (D.f2 i))
+        (fun i => normalizedFinite10 3 Q (D.f3 i)) j.castSucc) *
+        (∏ k : Fin 9, D.A (i.succAbove k)) := by
+  let u' : Fin 10 → originalSourceGroup10 A2 A3 Q
+      (fun i => normalizedFinite10 2 Q (D.f2 i)) (fun i => normalizedFinite10 3 Q (D.f3 i)) :=
+    fun j => ⟨D.u j,(normalized_source_group_exact10 A2 A3 Q hQ D.f2 D.f3 D.nonpos2 D.nonpos3
+      (D.u j)).mpr ⟨D.member2 j,D.member3 j⟩⟩
+  have hpoint := source_original_coordinate_bounds10 A2 A3 L hL Q hQ
+    (fun i => normalizedWidth10 Q (D.A i)) (fun i => normalizedFinite10 2 Q (D.f2 i))
+    (fun i => normalizedFinite10 3 Q (D.f3 i)) u' D.attaining
+  simp_rw [normalized_width_exact10 Q _ hQ (D.positive _)] at hpoint
+  exact real_cofactor_fin10 L hLd D.u _ D.A hpoint i
+
+theorem original_real_integer_bound215 (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ ≤
+      362880 * (D.A i)⁻¹ * originalCovolume212 D * Q^(-9*delta) := by
+  have hA := D.positive i
+  have hw := original_width_covolume215 h2 h3 D
+  have hn := original_first_nine_minima215 D
+  have ho : (∏ k : Fin 9, D.A (i.succAbove k)) = (D.A i)⁻¹ * (∏ k, D.A k) := by
+    rw [Fin.prod_univ_succAbove D.A i,← mul_assoc,inv_mul_cancel₀ hA.ne',one_mul]
+  have hp : 0 ≤ ∏ k : Fin 9, D.A (i.succAbove k) :=
+    (Finset.prod_pos (fun k _ => D.positive _)).le
+  calc
+    _ ≤ _ := original_real_cofactor215 hLd D i
+    _ ≤ 362880 * Q^(-9*delta) * (∏ k : Fin 9, D.A (i.succAbove k)) :=
+      mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hn (by norm_num)) hp
+    _ = 362880 * (D.A i)⁻¹ * (∏ k, D.A k) * Q^(-9*delta) := by rw [ho]; ring
+    _ ≤ _ := mul_le_mul_of_nonneg_right
+      (mul_le_mul_of_nonneg_left hw (mul_nonneg (by norm_num) (inv_nonneg.mpr hA.le)))
+      (Real.rpow_pos_of_pos (zero_lt_one.trans hQ) _).le
+
+theorem original_real_bound215 (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖∑ k, (((originalIndex212 D : ℝ)*originalCovolume212 D)*
+      (lastDual10 (fun j i => (D.u j i : ℚ))
+        (integer_frame_rational_independent10 D.u D.independent) k : ℝ))*L⁻¹.transpose i k‖ ≤
+      362880 * (D.A i)⁻¹ * originalCovolume212 D * Q^(-9*delta) := by
+  rw [← original_real_sum_norm214 D i]
+  exact original_real_integer_bound215 h2 h3 hLd D i
+
+theorem original_p2_bound215 (h2 : A2.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k =>
+      ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))) i‖ ≤
+      ∏ k : Fin 9, (2 : ℝ)^(D.f2 (i.succAbove k)) := by
+  rw [← original_p2_norm214 D i]
+  exact SourceOriginalBudget10.finite_integer_cofactor10 2 (by decide) A2 h2 Q hQ
+    D.f2 D.nonpos2 D.u D.member2 i
+
+theorem original_p2_sum_bound215 (h2 : A2.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+      (lastDual10 (fun j i => (D.u j i : ℚ))
+        (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))*
+      (A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose i k‖ ≤
+      ∏ k : Fin 9, (2 : ℝ)^(D.f2 (i.succAbove k)) := by
+  have he : (∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+      (lastDual10 (fun j i => (D.u j i : ℚ))
+        (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))*
+      (A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose i k) =
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))) i := by
+    simp only [Matrix.mulVec,dotProduct]
+    apply Finset.sum_congr rfl
+    intro k _
+    exact mul_comm _ _
+  rw [he]
+  exact original_p2_bound215 h2 D i
+
+theorem original_p3_bound215 (h3 : A3.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k =>
+      ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))) i‖ ≤
+      ∏ k : Fin 9, (3 : ℝ)^(D.f3 (i.succAbove k)) := by
+  rw [← original_p3_norm214 D i]
+  exact SourceOriginalBudget10.finite_integer_cofactor10 3 (by decide) A3 h3 Q hQ
+    D.f3 D.nonpos3 D.u D.member3 i
+
+theorem original_p3_sum_bound215 (h3 : A3.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+      (lastDual10 (fun j i => (D.u j i : ℚ))
+        (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))*
+      (A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose i k‖ ≤
+      ∏ k : Fin 9, (3 : ℝ)^(D.f3 (i.succAbove k)) := by
+  have he : (∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+      (lastDual10 (fun j i => (D.u j i : ℚ))
+        (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))*
+      (A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose i k) =
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))) i := by
+    simp only [Matrix.mulVec,dotProduct]
+    apply Finset.sum_congr rfl
+    intro k _
+    exact mul_comm _ _
+  rw [he]
+  exact original_p3_bound215 h3 D i
+
+theorem original_indexed_bounds215 (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    0 < originalIndex212 D ∧ 0 < originalCovolume212 D ∧
+      originalIndex212 D * (originalLattice212 D).index = ((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det).natAbs ∧
+      |((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det : ℝ)| = (originalIndex212 D : ℝ)*originalCovolume212 D ∧
+      originalCovolume212 D = ((originalLattice212 D).index : ℝ) ∧
+      ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℝ) =
+        (originalIndex212 D : ℝ)*originalCovolume212 D ∧
+      ∀ i : Fin 10,
+      ‖∑ k, (((originalIndex212 D : ℝ)*originalCovolume212 D)*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℝ))*L⁻¹.transpose i k‖ ≤
+        362880 * (D.A i)⁻¹ * originalCovolume212 D * Q^(-9*delta) ∧
+      ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))*
+        (A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose i k‖ ≤
+        ∏ k : Fin 9, (2 : ℝ)^(D.f2 (i.succAbove k)) ∧
+      ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))*
+        (A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose i k‖ ≤
+        ∏ k : Fin 9, (3 : ℝ)^(D.f3 (i.succAbove k)) := by
+  obtain ⟨hJ,hd,hN,hdet,hidx,hscale⟩ := original_index_normalization212 D
+  refine ⟨hJ,hd,hN,hdet,hidx,hscale,?_⟩
+  intro i
+  exact ⟨original_real_bound215 h2 h3 hLd D i,
+    original_p2_sum_bound215 h2 D i,original_p3_sum_bound215 h3 D i⟩
+
+theorem original_satz41_fin10_two_places215
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta)
+    (S0 : Finset SourceSelectedSet10.MixedIndex10) :
+    ∃ Q0 : ℝ, 0 < Q0 ∧ ∀ (Q : ℝ) (hQ : 1 < Q), Q0 < Q →
+      ∀ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+      originalSourceGroup10 A2 A3 Q (fun i => normalizedFinite10 2 Q (D.f2 i))
+        (fun i => normalizedFinite10 3 Q (D.f3 i)) = originalLattice212 D ∧
+      (0 < originalIndex212 D ∧ 0 < originalCovolume212 D ∧
+      originalIndex212 D * (originalLattice212 D).index = ((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det).natAbs ∧
+      |((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det : ℝ)| = (originalIndex212 D : ℝ)*originalCovolume212 D ∧
+      originalCovolume212 D = ((originalLattice212 D).index : ℝ) ∧
+      ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℝ) =
+        (originalIndex212 D : ℝ)*originalCovolume212 D ∧
+      ∀ i : Fin 10,
+      ‖∑ k, (((originalIndex212 D : ℝ)*originalCovolume212 D)*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℝ))*L⁻¹.transpose i k‖ ≤
+        362880 * (D.A i)⁻¹ * originalCovolume212 D * Q^(-9*delta) ∧
+      ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))*
+        (A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose i k‖ ≤
+        ∏ k : Fin 9, (2 : ℝ)^(D.f2 (i.succAbove k)) ∧
+      ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))*
+        (A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose i k‖ ≤
+        ∏ k : Fin 9, (3 : ℝ)^(D.f3 (i.succAbove k))) ∧
+      ∀ s : SourceSelectedSet10.MixedIndex10, s ∈ S0 → dataRationalDualProduct10 D s = 0 := by
+  obtain ⟨Q0,hzero⟩ := SourceOriginalVanishing10.original_rational_selected_eventually_zero10
+    A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  refine ⟨max 1 Q0,lt_of_lt_of_le zero_lt_one (le_max_left _ _),?_⟩
+  intro Q hQ hQ0 D
+  exact ⟨original_lattice_eq212 D,original_indexed_bounds215 h2 h3 hLd D,
+    hzero Q hQ ((le_max_right _ _).trans_lt hQ0) D⟩
+
+
+end CompoundFeasibility.M215ScopedLiteral
+#check CompoundFeasibility.M215ScopedLiteral.original_width_covolume215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_width_covolume215
+#check CompoundFeasibility.M215ScopedLiteral.original_first_nine_minima215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_first_nine_minima215
+#check CompoundFeasibility.M215ScopedLiteral.original_real_cofactor215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_real_cofactor215
+#check CompoundFeasibility.M215ScopedLiteral.original_real_integer_bound215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_real_integer_bound215
+#check CompoundFeasibility.M215ScopedLiteral.original_real_bound215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_real_bound215
+#check CompoundFeasibility.M215ScopedLiteral.original_p2_bound215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_p2_bound215
+#check CompoundFeasibility.M215ScopedLiteral.original_p2_sum_bound215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_p2_sum_bound215
+#check CompoundFeasibility.M215ScopedLiteral.original_p3_bound215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_p3_bound215
+#check CompoundFeasibility.M215ScopedLiteral.original_p3_sum_bound215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_p3_sum_bound215
+#check CompoundFeasibility.M215ScopedLiteral.original_indexed_bounds215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_indexed_bounds215
+#check CompoundFeasibility.M215ScopedLiteral.original_satz41_fin10_two_places215
+#print axioms CompoundFeasibility.M215ScopedLiteral.original_satz41_fin10_two_places215

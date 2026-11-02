@@ -1,0 +1,792 @@
+import SubspaceBridge.AllPointGeneralPosition3
+import SubspaceBridge.AllPointPrimitive4
+import SubspaceBridge.WeightedFourTermSource3
+open JSP000334
+namespace Literal255C
+
+open scoped BigOperators Matrix
+
+theorem weighted_diagonal_gcd_divides3 (t z : Fin 3 → ℤ) (hz : PrimitiveTriple z)
+    (g : ℤ) (hg : ∀ i,g∣t i*z i) : g∣t 0*t 1*t 2 := by
+  obtain ⟨c,hc⟩ := hz
+  have hd (i : Fin 3) : g∣(t 0*t 1*t 2)*z i := by
+    have h0 : g∣(t 0*t 1*t 2)*z 0 := by
+      have hh := dvd_mul_of_dvd_right (hg 0) (t 1*t 2)
+      convert hh using 1 <;> ring
+    have h1 : g∣(t 0*t 1*t 2)*z 1 := by
+      have hh := dvd_mul_of_dvd_right (hg 1) (t 0*t 2)
+      convert hh using 1 <;> ring
+    have h2 : g∣(t 0*t 1*t 2)*z 2 := by
+      have hh := dvd_mul_of_dvd_right (hg 2) (t 0*t 1)
+      convert hh using 1 <;> ring
+    fin_cases i <;> assumption
+  have hs : g∣∑ i,c i*((t 0*t 1*t 2)*z i) :=
+    Finset.dvd_sum (fun i _ => dvd_mul_of_dvd_right (hd i) (c i))
+  have he : (∑ i,c i*((t 0*t 1*t 2)*z i))=t 0*t 1*t 2 := by
+    calc
+      _=(t 0*t 1*t 2)*(∑ i,c i*z i) := by
+        rw [Finset.mul_sum]
+        apply Finset.sum_congr rfl
+        intro i _
+        ring
+      _=_ := by rw [hc,mul_one]
+  rwa [he] at hs
+
+theorem weighted_diagonal_gcd_values_finite3 (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0) :
+    {g : ℕ | 0<g ∧ (g : ℤ)∣t 0*t 1*t 2}.Finite := by
+  have hn : t 0*t 1*t 2≠0 := mul_ne_zero (mul_ne_zero (ht 0) (ht 1)) (ht 2)
+  apply (Set.finite_Iic (t 0*t 1*t 2).natAbs).subset
+  intro g hg
+  exact Nat.le_of_dvd (Int.natAbs_pos.mpr hn) (Int.natCast_dvd.mp hg.2)
+
+def weightedIntegerDiagonal3 (t : Fin 3 → ℤ) : Matrix (Fin 3) (Fin 3) ℚ :=
+  Matrix.diagonal (fun i => (t i : ℚ))
+
+theorem weighted_diagonal_invertible3 (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0) :
+    IsUnit (weightedIntegerDiagonal3 t) := by
+  apply (Matrix.isUnit_iff_isUnit_det _).mpr
+  change IsUnit (Matrix.diagonal (fun i => (t i : ℚ))).det
+  rw [Matrix.det_diagonal]
+  apply isUnit_iff_ne_zero.mpr
+  exact Finset.prod_ne_zero_iff.mpr (fun i _ => by exact_mod_cast ht i)
+
+theorem weighted_fixed_product_height3 (y : Fin 3 → ℤ) (hy : PrimitiveTriple y)
+    (k : Fin 3 → ℚ) (a : ℚ)
+    (hk : ∀ i,threePlaceProduct (y i : ℚ)=threePlaceProduct (k i))
+    (ha : threePlaceProduct ((y 0 : ℚ)+y 1+y 2)=threePlaceProduct a) :
+    ∃ choice : Fin 3 → Fin 3,
+      tripleChoiceFormsProduct choice (fun i => (y i : ℚ))*archTripleHeight y=
+        threePlaceProduct (k 0)*threePlaceProduct (k 1)*threePlaceProduct (k 2)*threePlaceProduct a := by
+  choose choice hc using fun v : Fin 3 => exists_maximal_triple_coordinate v (fun i => (y i : ℚ))
+  refine ⟨choice,?_⟩
+  have hh := triple_retained_product_height choice (fun i => (y i : ℚ)) hc
+  rw [primitive_triple_height y hy] at hh
+  rw [hk 0,hk 1,hk 2,ha] at hh
+  exact hh
+
+
+open scoped BigOperators Matrix
+noncomputable section
+
+def weightedBalancedValues3 (H K : ℝ) (a : Fin 3 → Fin 3 → ℝ) (tau i : Fin 3) : ℝ :=
+  if tau=0 then a tau i*(H/K)^((1 : ℝ)/3) else a tau i
+
+theorem weighted_balanced_weights3 (H K C : ℝ) (hH : 3≤H) (hK : 0<K)
+    (hC : C≤H) (hKi : K⁻¹≤H) (hK4 : K^4≤H)
+    (a : Fin 3 → Fin 3 → ℝ) (ha : ∀ tau i,0<a tau i)
+    (hreal : ∀ i,a 0 i≤C*H)
+    (hfinite : ∀ tau,tau≠0 → ∀ i,a tau i≤1)
+    (hinv : ∀ tau i,(a tau i)⁻¹≤C*H)
+    (hprod : (∏ tau,∏ i,a tau i)*H=K) :
+    let Q := H^4
+    let W := weightedBalancedValues3 H K a
+    1<Q ∧ sourceWeightConditions3 (sourceLogWeights3 Q W) ∧
+      (∀ tau i,Q^(sourceLogWeights3 Q W tau i)=W tau i) ∧
+      (∀ i,a 0 i≤Q^(sourceLogWeights3 Q W 0 i-(1 : ℝ)/16)) ∧
+      (∀ tau,tau≠0 → ∀ i,a tau i=Q^(sourceLogWeights3 Q W tau i)) := by
+  intro Q W
+  have hH0 : 0<H := by linarith
+  have hH1 : 1≤H := by linarith
+  have hQ : 1<Q := by dsimp [Q]; nlinarith [sq_nonneg (H^2-1)]
+  have hQ0 := zero_lt_one.trans hQ
+  let r := (H/K)^((1 : ℝ)/3)
+  let q := H^((1 : ℝ)/4)
+  have hr : 0<r := Real.rpow_pos_of_pos (div_pos hH0 hK) _
+  have hq : 0<q := Real.rpow_pos_of_pos hH0 _
+  have hrpow : r^3=H/K := by
+    dsimp [r]
+    rw [← Real.rpow_mul_natCast (div_pos hH0 hK).le]
+    norm_num
+  have hqpow : q^4=H := by
+    dsimp [q]
+    rw [← Real.rpow_mul_natCast hH0.le]
+    norm_num
+  have hq1 : 1≤q := Real.one_le_rpow hH1 (by norm_num)
+  have hKq : K≤q := le_of_pow_le_pow_left (by decide : (4 : ℕ)≠0) hq.le (by rw [hqpow];exact hK4)
+  have hqr : q≤r := by
+    apply le_of_pow_le_pow_left (by decide : (3 : ℕ)≠0) hr.le
+    rw [hrpow]
+    apply (le_div_iff₀ hK).mpr
+    have hh := mul_le_mul_of_nonneg_left hKq (pow_nonneg hq.le 3)
+    nlinarith [hqpow]
+  have hr1 : 1≤r := hq1.trans hqr
+  have hrH : r≤H := by
+    apply le_of_pow_le_pow_left (by decide : (3 : ℕ)≠0) hH0.le
+    rw [hrpow]
+    have hh : H/K≤H^2 := by
+      rw [div_eq_mul_inv]
+      nlinarith [mul_le_mul_of_nonneg_left hKi hH0.le]
+    exact hh.trans (by nlinarith [mul_le_mul_of_nonneg_left hH1 (sq_nonneg H)])
+  have hQq : Q^((1 : ℝ)/16)=q := by
+    dsimp [Q,q]
+    rw [← Real.rpow_natCast,← Real.rpow_mul hH0.le]
+    congr 1
+    norm_num
+  have hW : ∀ tau i,0<W tau i := by
+    intro tau i
+    dsimp [W,weightedBalancedValues3]
+    split_ifs
+    · exact mul_pos (ha tau i) hr
+    · exact ha tau i
+  have hcut : ∀ tau i,(W tau i)⁻¹<Q := by
+    intro tau i
+    have hb : (a tau i)⁻¹≤H^2 := (hinv tau i).trans (by nlinarith [mul_le_mul_of_nonneg_right hC hH0.le])
+    have hpow : H^2<Q := pow_lt_pow_right₀ (by linarith : 1<H) (by decide : (2 : ℕ)<4)
+    by_cases ht : tau=0
+    · subst tau
+      change (a 0 i*r)⁻¹<Q
+      rw [mul_inv_rev]
+      have hri : r⁻¹≤1 := (inv_le_one₀ hr).mpr hr1
+      exact (by nlinarith [mul_le_mul_of_nonneg_right hri (inv_pos.mpr (ha 0 i)).le] : r⁻¹*(a 0 i)⁻¹≤H^2).trans_lt hpow
+    · simpa only [W,weightedBalancedValues3,if_neg ht] using hb.trans_lt hpow
+  have hcut0 : ∀ i,W 0 i<Q := by
+    intro i
+    change a 0 i*r<Q
+    have hb : a 0 i≤H^2 := (hreal i).trans (by nlinarith [mul_le_mul_of_nonneg_right hC hH0.le])
+    have hh := mul_le_mul hb hrH hr.le (sq_nonneg H)
+    exact (by nlinarith : a 0 i*r≤H^3).trans_lt (pow_lt_pow_right₀ (by linarith : 1<H) (by decide : (3 : ℕ)<4))
+  have hWfin : ∀ tau,tau≠0 → ∀ i,W tau i≤1 := by
+    intro tau ht i
+    simpa only [W,weightedBalancedValues3,if_neg ht] using hfinite tau ht i
+  have hWprod : (∏ tau,∏ i,W tau i)=1 := by
+    simp only [W,weightedBalancedValues3,Fin.prod_univ_three,Fin.isValue,Fin.reduceEq,ite_true,ite_false]
+    have hp := hprod
+    simp only [Fin.prod_univ_three] at hp
+    change (a 0 0*r*(a 0 1*r)*(a 0 2*r))*(a 1 0*a 1 1*a 1 2)*(a 2 0*a 2 1*a 2 2)=1
+    calc
+      _=(a 0 0*a 0 1*a 0 2)*(a 1 0*a 1 1*a 1 2)*(a 2 0*a 2 1*a 2 2)*r^3 := by ring
+      _=1 := by rw [hrpow,← mul_div_assoc,hp,div_self hK.ne']
+  have heq := sourceLogWeights3_rpow Q hQ W hW
+  refine ⟨hQ,sourceLogWeights3_conditions Q hQ W hW hcut hcut0 hWfin hWprod,heq,?_,?_⟩
+  · intro i
+    rw [Real.rpow_sub hQ0,heq,hQq]
+    change a 0 i≤(a 0 i*r)/q
+    exact (le_div_iff₀ hq).mpr (mul_le_mul_of_nonneg_left hqr (ha 0 i).le)
+  · intro tau ht i
+    rw [heq]
+    simp only [W,weightedBalancedValues3,if_neg ht]
+
+end
+
+open scoped BigOperators Matrix
+
+theorem weighted_scaled_product3 (q : ℚ) (s u : fixedSUnitGroup) :
+    threePlaceProduct (q*((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))=threePlaceProduct q := by
+  rw [threePlaceProduct_mul,threePlaceProduct_mul,fixed_sunit_product_formula,fixed_sunit_product_formula,mul_one,mul_one]
+
+theorem weighted_three_place_pos3 {q : ℚ} (hq : q≠0) : 0<threePlaceProduct q := by
+  rw [← rationalPlaceNorm_product]
+  exact Finset.prod_pos (fun v _ => rationalPlaceNorm_pos v hq)
+
+def weightedDiagonalK3 (t : Fin 3 → ℤ) (L A : ℚ) (g : ℕ) : ℚ :=
+  threePlaceProduct ((t 0 : ℚ)/g)*threePlaceProduct ((t 1 : ℚ)/g)*
+    threePlaceProduct ((t 2 : ℚ)/g)*threePlaceProduct (L*A/g)
+
+theorem weighted_diagonal_K_pos3 (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0)
+    (L A : ℚ) (hL : L≠0) (hA : A≠0) (g : ℕ) (hg : 0<g) :
+    0<weightedDiagonalK3 t L A g := by
+  have hgn : (g : ℚ)≠0 := by exact_mod_cast ne_of_gt hg
+  have hp (i : Fin 3) : 0<threePlaceProduct ((t i : ℚ)/g) :=
+    weighted_three_place_pos3 (div_ne_zero (by exact_mod_cast ht i) hgn)
+  exact mul_pos (mul_pos (mul_pos (hp 0) (hp 1)) (hp 2))
+    (weighted_three_place_pos3 (div_ne_zero (mul_ne_zero hL hA) hgn))
+
+theorem weighted_diagonal_products3 (t : Fin 3 → ℤ) (L A : ℚ) (g : ℕ)
+    (u : Fin 3 → fixedSUnitGroup) (s : fixedSUnitGroup) (y : Fin 3 → ℤ)
+    (hy : PrimitiveTriple y)
+    (hcoord : ∀ i,(y i : ℚ)=((t i : ℚ)/g)*((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ))
+    (hsum : (y 0 : ℚ)+y 1+y 2=-(L*A/g)*((s : ℚˣ) : ℚ)) :
+    (∀ i,threePlaceProduct (y i : ℚ)=threePlaceProduct ((t i : ℚ)/g)) ∧
+    threePlaceProduct ((y 0 : ℚ)+y 1+y 2)=threePlaceProduct (L*A/g) ∧
+    ∃ choice : Fin 3 → Fin 3,
+      tripleChoiceFormsProduct choice (fun i => (y i : ℚ))*archTripleHeight y=weightedDiagonalK3 t L A g := by
+  have hc (i : Fin 3) : threePlaceProduct (y i : ℚ)=threePlaceProduct ((t i : ℚ)/g) := by
+    rw [hcoord]
+    exact weighted_scaled_product3 _ _ _
+  have hs : threePlaceProduct ((y 0 : ℚ)+y 1+y 2)=threePlaceProduct (L*A/g) := by
+    rw [hsum,threePlaceProduct_mul,fixed_sunit_product_formula,mul_one]
+    simp [threePlaceProduct]
+  exact ⟨hc,hs,weighted_fixed_product_height3 y hy (fun i => (t i : ℚ)/g) (L*A/g) hc hs⟩
+
+theorem weighted_integer_local_inverse3 (m : ℤ) {p : ℚ} (hp : 0<p)
+    (hprod : threePlaceProduct (m : ℚ)=p) (tau : Fin 3) :
+    0<rationalPlaceNorm tau (m : ℚ) ∧
+    (rationalPlaceNorm tau (m : ℚ))⁻¹≤max 1 p⁻¹*|(m : ℚ)| ∧
+    (tau≠0 → rationalPlaceNorm tau (m : ℚ)≤1) := by
+  have hm : m≠0 := by intro h;subst m;simp [threePlaceProduct] at hprod;linarith
+  have hmq : (m : ℚ)≠0 := by exact_mod_cast hm
+  have hpos := rationalPlaceNorm_pos tau hmq
+  have h2 := padicNorm.of_int (p:=2) m
+  have h3 := padicNorm.of_int (p:=3) m
+  have hp2 : 0<padicNorm 2 (m : ℚ) := by simpa [rationalPlaceNorm] using rationalPlaceNorm_pos 1 hmq
+  have hp3 : 0<padicNorm 3 (m : ℚ) := by simpa [rationalPlaceNorm] using rationalPlaceNorm_pos 2 hmq
+  have ha1 : (1 : ℚ)≤|(m : ℚ)| := by exact_mod_cast (Int.one_le_abs hm)
+  have ha : 0 < |(m : ℚ)| := abs_pos.mpr hmq
+  have hmax : p⁻¹*|(m : ℚ)|≤max 1 p⁻¹*|(m : ℚ)| := mul_le_mul_of_nonneg_right (le_max_right _ _) ha.le
+  have harch : |(m : ℚ)|≤max 1 p⁻¹*|(m : ℚ)| := by nlinarith [mul_le_mul_of_nonneg_right (le_max_left (1 : ℚ) p⁻¹) ha.le]
+  change |(m : ℚ)| *padicNorm 2 (m : ℚ)*padicNorm 3 (m : ℚ)=p at hprod
+  refine ⟨hpos,?_,?_⟩
+  · fin_cases tau
+    · change |(m : ℚ)|⁻¹≤_
+      exact (by apply (inv_le_iff_one_le_mul₀ ha).mpr;nlinarith : |(m : ℚ)|⁻¹≤|(m : ℚ)|).trans harch
+    · change (padicNorm 2 (m : ℚ))⁻¹≤_
+      apply le_trans _ hmax
+      apply (inv_le_iff_one_le_mul₀ hp2).mpr
+      have hb : p≤|(m : ℚ)| *padicNorm 2 (m : ℚ) := by nlinarith [mul_le_mul_of_nonneg_left h3 (mul_pos ha hp2).le]
+      have hh := mul_le_mul_of_nonneg_left hb (inv_pos.mpr hp).le
+      rw [inv_mul_cancel₀ hp.ne'] at hh
+      nlinarith
+    · change (padicNorm 3 (m : ℚ))⁻¹≤_
+      apply le_trans _ hmax
+      apply (inv_le_iff_one_le_mul₀ hp3).mpr
+      have hb : p≤|(m : ℚ)| *padicNorm 3 (m : ℚ) := by nlinarith [mul_le_mul_of_nonneg_left h2 (mul_pos ha hp3).le]
+      have hh := mul_le_mul_of_nonneg_left hb (inv_pos.mpr hp).le
+      rw [inv_mul_cancel₀ hp.ne'] at hh
+      nlinarith
+  · intro ht
+    fin_cases tau
+    · exact (ht rfl).elim
+    · exact h2
+    · exact h3
+
+
+open scoped BigOperators Matrix
+
+theorem weighted_integer_source_point3 (y : IntegerTriple) (choice : Fin 3 → Fin 3)
+    (C K : ℝ) (hC3 : 3≤C) (hK : 0<K)
+    (hH : 3≤(archTripleHeight y : ℝ)) (hC : C≤(archTripleHeight y : ℝ))
+    (hKi : K⁻¹≤(archTripleHeight y : ℝ)) (hK4 : K^4≤(archTripleHeight y : ℝ))
+    (ha : ∀ tau i,0<(rationalPlaceNorm tau (threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ))) : ℝ))
+    (hinv : ∀ tau i,((rationalPlaceNorm tau (threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ))) : ℝ))⁻¹≤C*(archTripleHeight y : ℝ))
+    (hprod : (tripleChoiceFormsProduct choice (fun j => (y j : ℚ)) : ℝ)*(archTripleHeight y : ℝ)=K) :
+    let Q := (archTripleHeight y : ℝ)^4
+    ∃ d∈finiteWeightCandidates3 336,∃ hQ : 1<Q,sourceWeightConditions3 d ∧
+      y∈qSourceLattice3 (choice 1) (choice 2) Q (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) Q (d 0) hQ) (integerTripleReal3 y)≤Q^(-(1 : ℝ)/24) := by
+  intro Q
+  let a (tau i : Fin 3) : ℝ := rationalPlaceNorm tau (threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ)))
+  have hf : ∀ tau,tau≠0 → ∀ i,a tau i≤1 := by
+    intro tau ht i
+    have hm := retainedIntegerMatrix3_apply (choice tau) i y
+    change (rationalPlaceNorm tau (threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ))) : ℝ)≤1
+    rw [← hm]
+    fin_cases tau
+    · exact (ht rfl).elim
+    · exact_mod_cast padicNorm.of_int (p:=2) ((retainedIntegerMatrix3 (choice 1) *ᵥ y) i)
+    · exact_mod_cast padicNorm.of_int (p:=3) ((retainedIntegerMatrix3 (choice 2) *ᵥ y) i)
+  have hp : (∏ tau,∏ i,a tau i)*(archTripleHeight y : ℝ)=K := by
+    dsimp [a]
+    unfold tripleChoiceFormsProduct at hprod
+    exact_mod_cast hprod
+  have hrb : ∀ i,a 0 i≤C*(archTripleHeight y : ℝ) := by
+    intro i
+    have hh := allpoint_form_arch_bound3 y (choice 0) i
+    have hcast : a 0 i≤3*(archTripleHeight y : ℝ) := by
+      change ((|threeCoordinateSumForms (choice 0) i (fun j => (y j : ℚ))| : ℚ) : ℝ)≤3*(archTripleHeight y : ℝ)
+      exact_mod_cast hh
+    have hheight : 0≤(archTripleHeight y : ℝ) := by linarith
+    exact hcast.trans (mul_le_mul_of_nonneg_right hC3 hheight)
+  obtain ⟨hQ,hc,heq,hr,hfinite⟩ := weighted_balanced_weights3
+    (archTripleHeight y : ℝ) K C hH hK hC hKi hK4 a ha hrb hf hinv hp
+  let c := sourceLogWeights3 Q (weightedBalancedValues3 (archTripleHeight y : ℝ) K a)
+  let d := finiteWeightApprox3 336 c
+  obtain ⟨hd,hdreal,hdfin⟩ := finiteWeightApprox3_bounds 336 (by norm_num) c hc
+  have hQ0 := zero_lt_one.trans hQ
+  refine ⟨d,finiteWeightApprox3_mem 336 (by norm_num) c hc,hQ,hd,?_,?_⟩
+  · apply ((qSourceLattice3_spec (choice 1) (choice 2) Q (d 1) (d 2) hQ
+      (fun i => (hd.2.1 1 (by decide) i).2) (fun i => (hd.2.1 2 (by decide) i).2)).1 y).mpr
+    constructor
+    · intro i
+      change a 1 i≤Q^(d 1 i)
+      rw [hfinite 1 (by decide) i]
+      exact Real.rpow_le_rpow_of_exponent_le hQ.le (hdfin 1 (by decide) i)
+    · intro i
+      change a 2 i≤Q^(d 2 i)
+      rw [hfinite 2 (by decide) i]
+      exact Real.rpow_le_rpow_of_exponent_le hQ.le (hdfin 2 (by decide) i)
+  · apply (pi_norm_le_iff_of_nonempty _).mpr
+    intro i
+    change |retainedRealCoordinates3 (choice 0) (integerTripleReal3 y) i / Q^(d 0 i)|≤_
+    rw [abs_div,abs_of_pos (Real.rpow_pos_of_pos hQ0 _),div_le_iff₀ (Real.rpow_pos_of_pos hQ0 _),← finiteWeight_real_local_value3,finiteWeight_rational_local_value3]
+    have hnorm : rothLocalAbs 0 (threeCoordinateSumForms (choice 0) i (fun j => (y j : ℚ)))=a 0 i := by
+      simp [a,rothLocalAbs,rationalPlaceNorm]
+    rw [hnorm]
+    have hexp : c 0 i-(1 : ℝ)/16≤d 0 i-(1 : ℝ)/24 := by
+      have hh := hdreal i
+      norm_num at hh
+      linarith
+    have hh := (hr i).trans (Real.rpow_le_rpow_of_exponent_le hQ.le hexp)
+    have he : Q^(d 0 i-(1 : ℝ)/24)=Q^(-(1 : ℝ)/24)*Q^(d 0 i) := by
+      rw [← Real.rpow_add hQ0]
+      congr 1
+      ring
+    rwa [he] at hh
+
+
+open scoped BigOperators Matrix
+
+theorem weighted_integer_source_family3 (Omega : Set ℝ) (hOmega : ¬BddAbove Omega)
+    (z : Omega → IntegerTriple) (hy : ∀ q,PrimitiveTriple (z q))
+    (hp : ∀ q,∃ choice : Fin 3 → Fin 3,∃ d∈finiteWeightCandidates3 336,
+      ∃ hQ : 1<q.val,sourceWeightConditions3 d ∧
+      z q∈qSourceLattice3 (choice 1) (choice 2) q.val (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) q.val (d 0) hQ) (integerTripleReal3 (z q))≤q.val^(-(1 : ℝ)/24)) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ),P≠⊤ ∧ ∃ W : Set ℝ,W⊆Omega ∧ ¬BddAbove W ∧
+      ∀ q : Omega,q.val∈W → (fun i => (z q i : ℚ))∈P := by
+  classical
+  choose choice d hd hQ hc hzL hg using hp
+  let F : Set ((Fin 3 → Fin 3) × (Fin 3 → Fin 3 → ℝ)) := Set.univ ×ˢ finiteWeightCandidates3 336
+  have hF : F.Finite := Set.finite_univ.prod (finiteWeightCandidates3_finite 336)
+  let a (Q : ℝ) := if h : Q ∈ Omega then (choice ⟨Q,h⟩,d ⟨Q,h⟩) else (fun _ => 0,fun _ _ => 0)
+  have ha : ∀ Q ∈ Omega, a Q ∈ F := by
+    intro Q h
+    simp only [a,dif_pos h,F,Set.mem_prod,Set.mem_univ,true_and]
+    exact hd ⟨Q,h⟩
+  obtain ⟨⟨k,c⟩,hkc,hT⟩ := allpoint_finite_parameter_fiber3 F hF Omega hOmega a ha
+  let T : Set ℝ := {Q | Q ∈ Omega ∧ a Q = (k,c)}
+  let embed (t : T) : Omega := ⟨t.val,t.property.1⟩
+  have hcfix : sourceWeightConditions3 c := hkc.2.2
+  have he (t : T) : choice (embed t) = k ∧ d (embed t) = c := by
+    have hh := t.property.2
+    simp only [a,dif_pos t.property.1] at hh
+    exact Prod.mk.inj hh
+  have htq : ∀ Q ∈ T, 1 < Q := fun Q h => hQ ⟨Q,h.1⟩
+  have hmem (t : T) : z (embed t) ∈ qSourceLattice3 (k 1) (k 2) t.val (c 1) (c 2) := by
+    have hh := hzL (embed t)
+    simpa only [(he t).1,(he t).2] using hh
+  have hshort (t : T) : coordinateGauge3 (qSourceCoordinates3 (k 0) t.val (c 0) (htq _ t.property))
+      (integerTripleReal3 (z (embed t))) ≤ t.val^(-(1 : ℝ)/24) := by
+    have hh := hg (embed t)
+    simpa only [(he t).1,(he t).2] using hh
+  have hbal : ∑ i, (c 0 i+c 1 i+c 2 i) = 0 := by
+    have hh := hcfix.2.2
+    simp only [Fin.sum_univ_three] at hh ⊢
+    linarith
+  have hframe (t : T) : ∃ (B : Basis (Fin 3) ℝ RealTriple)
+      (u : Fin 3 → qSourceLattice3 (k 1) (k 2) t.val (c 1) (c 2)),
+      lattice3 B = (qSourceLattice3 (k 1) (k 2) t.val (c 1) (c 2)).toIntSubmodule.map integerTripleReal3 ∧
+      LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+      ∀ j, coordinateGauge3 (qSourceCoordinates3 (k 0) t.val (c 0) (htq _ t.property))
+        (integerTripleReal3 (u j : IntegerTriple)) =
+        successiveRadius3 B (qSourceCoordinates3 (k 0) t.val (c 0) (htq _ t.property)) j := by
+    obtain ⟨B,u,hB,hu,ha,_⟩ := exists_qSource_integer_attaining_frame (k 0) (k 1) (k 2) t.val
+      (c 0) (c 1) (c 2) (htq _ t.property) (fun i => (hcfix.2.1 1 (by decide) i).2)
+      (fun i => (hcfix.2.1 2 (by decide) i).2) hbal
+    exact ⟨B,u,hB,hu,ha⟩
+  choose B u hB hu hatt using hframe
+  have hn (t : T) : z (embed t) ≠ 0 := by
+    intro heq
+    obtain ⟨b,hb⟩ := hy (embed t)
+    simp [heq] at hb
+  obtain ⟨P,hP,W,hWT,hW,hm⟩ := allpoint_fixed_short_family3 (k 0) (k 1) (k 2) (c 0) (c 1) (c 2)
+    (fun i => abs_le.mp (hcfix.1 i)) (hcfix.2.1 1 (by decide)) (hcfix.2.1 2 (by decide)) hbal
+    T hT htq B u hB hu hatt (fun t => z (embed t)) hn hmem hshort
+  refine ⟨P,hP,W,fun Q hQW => (hWT hQW).1,hW,?_⟩
+  intro q hqW
+  exact hm ⟨q.val,hWT hqW⟩ hqW
+
+
+open scoped BigOperators Matrix
+
+theorem weighted_primitive_triple_reduction3 (z : Fin 3 → ℤ) (hz0 : z 0 ≠ 0) :
+    ∃ g : ℕ, 0 < g ∧ (g : ℤ) ∣ z 0 ∧ ∃ y : Fin 3 → ℤ,
+      PrimitiveTriple y ∧ ∀ i, z i = (g : ℤ) * y i := by
+  let k := Int.gcd (z 1) (z 2)
+  let g := Int.gcd (z 0) (k : ℤ)
+  have hg : 0 < g := Int.gcd_pos_of_ne_zero_left _ hz0
+  have hg0 : (g : ℤ) ∣ z 0 := Int.gcd_dvd_left
+  have hgk : (g : ℤ) ∣ (k : ℤ) := Int.gcd_dvd_right
+  have hg1 : (g : ℤ) ∣ z 1 := hgk.trans (Int.gcd_dvd_left)
+  have hg2 : (g : ℤ) ∣ z 2 := hgk.trans (Int.gcd_dvd_right)
+  obtain ⟨y0, hy0⟩ := hg0
+  obtain ⟨y1, hy1⟩ := hg1
+  obtain ⟨y2, hy2⟩ := hg2
+  let y : Fin 3 → ℤ := ![y0, y1, y2]
+  have hscale (i : Fin 3) : z i = (g : ℤ) * y i := by
+    fin_cases i <;> assumption
+  let a := Int.gcdA (z 0) (k : ℤ)
+  let b := Int.gcdB (z 0) (k : ℤ)
+  let c := Int.gcdA (z 1) (z 2)
+  let d := Int.gcdB (z 1) (z 2)
+  have hgbez : (g : ℤ) = z 0 * a + (k : ℤ) * b := Int.gcd_eq_gcd_ab _ _
+  have hkbez : (k : ℤ) = z 1 * c + z 2 * d := Int.gcd_eq_gcd_ab _ _
+  have hcoeff : (g : ℤ) * (a * y0 + (b * c) * y1 + (b * d) * y2) = (g : ℤ) * 1 := by
+    calc
+      _ = z 0 * a + (k : ℤ) * b := by rw [hkbez, hy0, hy1, hy2]; ring
+      _ = _ := by rw [← hgbez]; ring
+  have hgneq : (g : ℤ) ≠ 0 := by exact_mod_cast (ne_of_gt hg)
+  have hprimitive : PrimitiveTriple y := by
+    refine ⟨![a, b * c, b * d], ?_⟩
+    simpa [y, Fin.sum_univ_succ, Matrix.cons_val, Matrix.head_cons, Matrix.tail_cons,
+      add_assoc] using mul_left_cancel₀ hgneq hcoeff
+  exact ⟨g, hg, Int.gcd_dvd_left, y, hprimitive, hscale⟩
+
+
+theorem weighted_primitive_sunit_normalized3 (x : Fin 3 → ℚ) (h0 : x 0=1)
+    (u1 u2 : fixedSUnitGroup) (hu1 : ((u1 : ℚˣ) : ℚ)=x 1) (hu2 : ((u2 : ℚˣ) : ℚ)=x 2) :
+    ∃ z : Fin 3 → ℤ,∃ s : fixedSUnitGroup,PrimitiveTriple z ∧ z≠0 ∧
+      ∀ i : Fin 3,(z i : ℚ)=((s : ℚˣ) : ℚ)*x i := by
+  obtain ⟨s1, hs1⟩ := sunit_denominator u1
+  obtain ⟨s2, hs2⟩ := sunit_denominator u2
+  have hd1 : ((s1 : ℚˣ) : ℚ) = ((x 1).den : ℚ) := by simpa [hu1] using hs1
+  have hd2 : ((s2 : ℚˣ) : ℚ) = ((x 2).den : ℚ) := by simpa [hu2] using hs2
+  let D : ℕ := (x 1).den * (x 2).den
+  let s0 : fixedSUnitGroup := s1 * s2
+  let w : Fin 3 → ℤ := ![(D : ℤ), (x 1).num * (x 2).den, (x 2).num * (x 1).den]
+  have hs0 : ((s0 : ℚˣ) : ℚ) = (D : ℚ) := by simp [s0, D, hd1, hd2]
+  have hnum1 : ((x 1).num : ℚ) = ((x 1).den : ℚ) * x 1 := by
+    have h := integralPair_scale (x 1) (1 : Fin 2)
+    exact h
+  have hnum2 : ((x 2).num : ℚ) = ((x 2).den : ℚ) * x 2 := by
+    have h := integralPair_scale (x 2) (1 : Fin 2)
+    exact h
+  have hw (i : Fin 3) : (w i : ℚ) = ((s0 : ℚˣ) : ℚ) * x i := by
+    rw [hs0]
+    fin_cases i
+    · simp [w, h0]
+    · change (((x 1).num * ((x 2).den : ℤ) : ℤ) : ℚ) = (D : ℚ) * x 1
+      push_cast
+      rw [hnum1]
+      dsimp [D]
+      push_cast
+      ring
+    · change (((x 2).num * ((x 1).den : ℤ) : ℤ) : ℚ) = (D : ℚ) * x 2
+      push_cast
+      rw [hnum2]
+      dsimp [D]
+      push_cast
+      ring
+  have hD : D ≠ 0 := mul_ne_zero (Rat.den_ne_zero _) (Rat.den_ne_zero _)
+  have hw0 : w 0 ≠ 0 := by
+    change (D : ℤ) ≠ 0
+    exact_mod_cast hD
+  obtain ⟨g, hg, hgdvd, z, hz, hscale⟩ := weighted_primitive_triple_reduction3 w hw0
+  have hgD : g ∣ D := Int.natCast_dvd_natCast.mp hgdvd
+  have hgsmooth : Smooth23 g := by
+    intro p hp hpg
+    rcases hp.dvd_mul.mp (hpg.trans hgD) with hp1 | hp2
+    · apply sunit_den_prime_support u1 p hp
+      simpa [hu1] using hp1
+    · apply sunit_den_prime_support u2 p hp
+      simpa [hu2] using hp2
+  obtain ⟨ug, hug⟩ := positive_smooth23_sunit4 (ne_of_gt hg) hgsmooth
+  let s := s0 / ug
+  have hzscale (i : Fin 3) : (z i : ℚ) = ((s : ℚˣ) : ℚ) * x i := by
+    have hc := congrArg ((↑) : ℤ → ℚ) (hscale i)
+    push_cast at hc
+    have hsval : ((s : ℚˣ) : ℚ) = ((s0 : ℚˣ) : ℚ) / (g : ℚ) := by simp [s, hug]
+    rw [hsval]
+    have hg0 : (g : ℚ) ≠ 0 := by exact_mod_cast (ne_of_gt hg)
+    rw [div_mul_eq_mul_div]
+    apply (eq_div_iff hg0).mpr
+    have hwi := hw i
+    rw [hc] at hwi
+    nlinarith [hwi]
+  have hnz : z ≠ 0 := by
+    intro heq
+    have hh := hzscale 0
+    simp only [heq,Pi.zero_apply,Int.cast_zero,h0,mul_one] at hh
+    exact Units.ne_zero (s : ℚˣ) hh.symm
+  exact ⟨z, s, hz, hnz, hzscale⟩
+
+theorem weighted_primitive_sunit_coordinates3 (u : Fin 3 → fixedSUnitGroup) :
+    ∃ z : Fin 3 → ℤ,∃ s : fixedSUnitGroup,PrimitiveTriple z ∧ (∀ i,z i≠0) ∧
+      ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ) := by
+  let x (i : Fin 3) : ℚ := (((u i/u 0 : fixedSUnitGroup) : ℚˣ) : ℚ)
+  have h0 : x 0=1 := by simp [x]
+  obtain ⟨z,s,hz,_,he⟩ := weighted_primitive_sunit_normalized3 x h0 (u 1/u 0) (u 2/u 0) rfl rfl
+  let s' := s/u 0
+  have hh (i : Fin 3) : (z i : ℚ)=((s' : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ) := by
+    simpa [x,s',div_eq_mul_inv,mul_assoc,mul_left_comm,mul_comm] using he i
+  refine ⟨z,s',hz,?_,hh⟩
+  intro i hi
+  have h := hh i
+  rw [hi,Int.cast_zero] at h
+  exact (mul_ne_zero (Units.ne_zero _) (Units.ne_zero _)) h.symm
+
+theorem weighted_diagonal_primitive3 (t z : Fin 3 → ℤ) (ht : ∀ i,t i≠0)
+    (hz : PrimitiveTriple z) (hzn : ∀ i,z i≠0) :
+    ∃ g : ℕ,0<g ∧ (g : ℤ)∣t 0*t 1*t 2 ∧ ∃ y : Fin 3 → ℤ,
+      PrimitiveTriple y ∧ (∀ i,y i≠0) ∧ ∀ i,t i*z i=(g : ℤ)*y i := by
+  obtain ⟨g,hg,_,y,hy,he⟩ := weighted_primitive_triple_reduction3 (fun i => t i*z i) (mul_ne_zero (ht 0) (hzn 0))
+  refine ⟨g,hg,weighted_diagonal_gcd_divides3 t z hz (g : ℤ) (fun i => ⟨y i,he i⟩),y,hy,?_,he⟩
+  intro i hi
+  have hh := he i
+  rw [hi,mul_zero] at hh
+  exact (mul_ne_zero (ht i) (hzn i)) hh
+
+
+open scoped BigOperators Matrix
+
+def weightedProductConstant3 (k : Fin 3 → ℚ) (a : ℚ) : ℚ :=
+  threePlaceProduct (k 0)*threePlaceProduct (k 1)*threePlaceProduct (k 2)*threePlaceProduct a
+
+def weightedProductBound3 (k : Fin 3 → ℚ) (a : ℚ) : ℚ :=
+  max 1 (max (threePlaceProduct (k 0))⁻¹
+    (max (threePlaceProduct (k 1))⁻¹ (max (threePlaceProduct (k 2))⁻¹ (threePlaceProduct a)⁻¹)))
+
+noncomputable def weightedProductCutoff3 (k : Fin 3 → ℚ) (a : ℚ) : ℝ :=
+  max 3 (max (3*(weightedProductBound3 k a : ℝ))
+    (max ((weightedProductConstant3 k a : ℝ)⁻¹) ((weightedProductConstant3 k a : ℝ)^4)))
+
+theorem weighted_fixed_product_point3 (k : Fin 3 → ℚ) (a : ℚ)
+    (hk : ∀ i,k i≠0) (ha : a≠0) (y : IntegerTriple) (hy : PrimitiveTriple y)
+    (hc : ∀ i,threePlaceProduct (y i : ℚ)=threePlaceProduct (k i))
+    (hs : threePlaceProduct ((y 0 : ℚ)+y 1+y 2)=threePlaceProduct a)
+    (hH : weightedProductCutoff3 k a≤(archTripleHeight y : ℝ)) :
+    let Q := (archTripleHeight y : ℝ)^4
+    ∃ choice : Fin 3 → Fin 3,∃ d∈finiteWeightCandidates3 336,
+      ∃ hQ : 1<Q,sourceWeightConditions3 d ∧
+      y∈qSourceLattice3 (choice 1) (choice 2) Q (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) Q (d 0) hQ) (integerTripleReal3 y)≤Q^(-(1 : ℝ)/24) := by
+  intro Q
+  let B := weightedProductBound3 k a
+  have hB1 : (1 : ℚ)≤B := le_max_left _ _
+  have hB0 : 0≤B := le_trans (by norm_num) hB1
+  have hb (i : Fin 3) : (threePlaceProduct (k i))⁻¹≤B := by
+    fin_cases i
+    · exact (le_max_left _ _).trans (le_max_right _ _)
+    · exact ((le_max_left _ _).trans (le_max_right _ _)).trans (le_max_right _ _)
+    · exact (((le_max_left _ _).trans (le_max_right _ _)).trans (le_max_right _ _)).trans (le_max_right _ _)
+  have hba : (threePlaceProduct a)⁻¹≤B :=
+    (((le_max_right _ _).trans (le_max_right _ _)).trans (le_max_right _ _)).trans (le_max_right _ _)
+  have hco (i : Fin 3) : 0<threePlaceProduct (y i : ℚ) ∧ max 1 (threePlaceProduct (y i : ℚ))⁻¹≤B := by
+    rw [hc]
+    exact ⟨weighted_three_place_pos3 (hk i),max_le hB1 (hb i)⟩
+  have hso : 0<threePlaceProduct ((y 0 : ℚ)+y 1+y 2) ∧ max 1 (threePlaceProduct ((y 0 : ℚ)+y 1+y 2))⁻¹≤B := by
+    rw [hs]
+    exact ⟨weighted_three_place_pos3 ha,max_le hB1 hba⟩
+  have hform (l i : Fin 3) :
+      0<threePlaceProduct (threeCoordinateSumForms l i (fun j => (y j : ℚ))) ∧
+      max 1 (threePlaceProduct (threeCoordinateSumForms l i (fun j => (y j : ℚ))))⁻¹≤B := by
+    fin_cases i
+    · simpa [threeCoordinateSumForms] using hco (l.succAbove 0)
+    · simpa [threeCoordinateSumForms] using hco (l.succAbove 1)
+    · simpa [threeCoordinateSumForms] using hso
+  obtain ⟨choice,hprod⟩ := weighted_fixed_product_height3 y hy k a hc hs
+  have hlocal (tau i : Fin 3) :
+      0<(rationalPlaceNorm tau (threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ))) : ℝ) ∧
+      ((rationalPlaceNorm tau (threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ))) : ℝ))⁻¹≤
+        (3*B : ℚ)*(archTripleHeight y : ℝ) := by
+    let m := (retainedIntegerMatrix3 (choice tau) *ᵥ y) i
+    have hm : (m : ℚ)=threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ)) := retainedIntegerMatrix3_apply _ _ _
+    have hp : 0<threePlaceProduct (m : ℚ) := by rw [hm];exact (hform _ _).1
+    have hh := weighted_integer_local_inverse3 m hp rfl tau
+    rw [hm] at hh
+    refine ⟨by exact_mod_cast hh.1,?_⟩
+    have hbnd : (rationalPlaceNorm tau (threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ))))⁻¹≤3*B*archTripleHeight y := by
+      calc
+        _≤max 1 (threePlaceProduct (threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ))))⁻¹*
+            |threeCoordinateSumForms (choice tau) i (fun j => (y j : ℚ))| := hh.2.1
+        _≤B*(3*archTripleHeight y) := mul_le_mul (hform _ _).2 (allpoint_form_arch_bound3 y _ _) (abs_nonneg _) hB0
+        _=_ := by ring
+    exact_mod_cast hbnd
+  have hK : 0<(weightedProductConstant3 k a : ℝ) := by
+    have hpos := mul_pos (mul_pos (mul_pos (weighted_three_place_pos3 (hk 0)) (weighted_three_place_pos3 (hk 1)))
+      (weighted_three_place_pos3 (hk 2))) (weighted_three_place_pos3 ha)
+    exact_mod_cast hpos
+  have hC3 : (3 : ℝ)≤3*(B : ℝ) := by exact_mod_cast (show (3 : ℚ)≤3*B by linarith)
+  have hH3 : (3 : ℝ)≤(archTripleHeight y : ℝ) := (le_max_left _ _).trans hH
+  have hC : 3*(B : ℝ)≤(archTripleHeight y : ℝ) := ((le_max_left _ _).trans (le_max_right _ _)).trans hH
+  have hKi : (weightedProductConstant3 k a : ℝ)⁻¹≤(archTripleHeight y : ℝ) :=
+    (((le_max_left _ _).trans (le_max_right _ _)).trans (le_max_right _ _)).trans hH
+  have hK4 : (weightedProductConstant3 k a : ℝ)^4≤(archTripleHeight y : ℝ) :=
+    (((le_max_right _ _).trans (le_max_right _ _)).trans (le_max_right _ _)).trans hH
+  obtain ⟨d,hd,hQ,hcond,hmem,hshort⟩ := weighted_integer_source_point3 y choice
+    (3*(B : ℝ)) (weightedProductConstant3 k a : ℝ) hC3 hK hH3 hC hKi hK4
+    (fun tau i => (hlocal tau i).1) (fun tau i => by simpa using (hlocal tau i).2)
+    (by exact_mod_cast hprod)
+  exact ⟨choice,d,hd,hQ,hcond,hmem,hshort⟩
+
+
+open scoped BigOperators Matrix
+
+def weightedFixedProductTriples3 (k : Fin 3 → ℚ) (a : ℚ) (y : IntegerTriple) : Prop :=
+  PrimitiveTriple y ∧ (∀ i,threePlaceProduct (y i : ℚ)=threePlaceProduct (k i)) ∧
+    threePlaceProduct ((y 0 : ℚ)+y 1+y 2)=threePlaceProduct a
+
+theorem weighted_fixed_product_cover3 (k : Fin 3 → ℚ) (a : ℚ) (hk : ∀ i,k i≠0) (ha : a≠0) :
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)),F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ y : IntegerTriple,weightedFixedProductTriples3 k a y → ∃ P∈F,(fun i => (y i : ℚ))∈P := by
+  classical
+  by_contra hno
+  change allpoint_no_finite_cover3 (weightedFixedProductTriples3 k a) at hno
+  obtain ⟨z,hE,hheight,hmono,havoid⟩ := allpoint_general_position_sequence3 (weightedFixedProductTriples3 k a) hno
+  obtain ⟨N,hN⟩ := exists_nat_gt (weightedProductCutoff3 k a)
+  let q (n : ℕ) : ℝ := (archTripleHeight (z (n+N)) : ℝ)^4
+  let Omega : Set ℝ := Set.range q
+  have hOmega : ¬BddAbove Omega := by
+    rintro ⟨M,hM⟩
+    obtain ⟨n,hn⟩ := exists_nat_gt M
+    have hb := hM (show q n∈Omega from Set.mem_range_self n)
+    have hH := (hheight (n+N)).1
+    have hHn := (hheight (n+N)).2
+    have hnN : (n : ℝ)≤(n+N : ℕ) := by exact_mod_cast Nat.le_add_right n N
+    have hsq : (archTripleHeight (z (n+N)) : ℝ)≤(archTripleHeight (z (n+N)) : ℝ)^2 := by nlinarith
+    have hfour : (archTripleHeight (z (n+N)) : ℝ)^2≤(archTripleHeight (z (n+N)) : ℝ)^4 := by
+      nlinarith [sq_nonneg ((archTripleHeight (z (n+N)) : ℝ)^2-1)]
+    change (archTripleHeight (z (n+N)) : ℝ)^4≤M at hb
+    linarith
+  have hex (t : Omega) : ∃ n : ℕ,q n=t.val := t.property
+  choose original hparam using hex
+  let y (t : Omega) := z (original t+N)
+  have hlarge (t : Omega) : weightedProductCutoff3 k a≤(archTripleHeight (y t) : ℝ) := by
+    have hh := (hheight (original t+N)).2
+    have hnN : (N : ℝ)≤(original t+N : ℕ) := by exact_mod_cast Nat.le_add_left N (original t)
+    dsimp [y]
+    linarith
+  have hp (t : Omega) : ∃ choice : Fin 3 → Fin 3,∃ d∈finiteWeightCandidates3 336,
+      ∃ hQ : 1<t.val,sourceWeightConditions3 d ∧
+      y t∈qSourceLattice3 (choice 1) (choice 2) t.val (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) t.val (d 0) hQ) (integerTripleReal3 (y t))≤t.val^(-(1 : ℝ)/24) := by
+    have he := hE (original t+N)
+    have hp := weighted_fixed_product_point3 k a hk ha (y t) he.1 he.2.1 he.2.2 (hlarge t)
+    simpa only [y,← hparam t] using hp
+  obtain ⟨P,hP,W,hWO,hW,hm⟩ := weighted_integer_source_family3 Omega hOmega y
+    (fun t => (hE (original t+N)).1) hp
+  have hS := (allpoint_general_position_intersection3 z (fun n => (hheight n).1) havoid P hP).1
+  have hsub : W⊆(fun n => (archTripleHeight (z n) : ℝ)^4) '' {n | (fun i => (z n i : ℚ))∈P} := by
+    intro Q hQW
+    let t : Omega := ⟨Q,hWO hQW⟩
+    exact ⟨original t+N,hm t hQW,hparam t⟩
+  exact hW ((hS.image (fun n => (archTripleHeight (z n) : ℝ)^4)).bddAbove.mono hsub)
+
+
+open scoped BigOperators Matrix
+
+theorem weighted_coefficient_denominator3 (B C D : ℚ) (hB : B≠0) (hC : C≠0) (hD : D≠0) :
+    ∃ L : ℕ,0<L ∧ ∃ t : Fin 3 → ℤ,(∀ i,t i≠0) ∧
+      ∀ i,(t i : ℚ)=(L : ℚ)*(![B,C,D] i) := by
+  let L := B.den*C.den*D.den
+  let t : Fin 3 → ℤ := ![B.num*C.den*D.den,C.num*B.den*D.den,D.num*B.den*C.den]
+  have hL : 0<L := mul_pos (mul_pos B.den_pos C.den_pos) D.den_pos
+  have hn (x : ℚ) : (x.num : ℚ)=(x.den : ℚ)*x := integralPair_scale x 1
+  have he (i : Fin 3) : (t i : ℚ)=(L : ℚ)*(![B,C,D] i) := by
+    fin_cases i
+    · change (((B.num*C.den*D.den : ℤ)) : ℚ)=(L : ℚ)*B
+      push_cast
+      rw [hn]
+      dsimp [L]
+      push_cast
+      ring
+    · change (((C.num*B.den*D.den : ℤ)) : ℚ)=(L : ℚ)*C
+      push_cast
+      rw [hn]
+      dsimp [L]
+      push_cast
+      ring
+    · change (((D.num*B.den*C.den : ℤ)) : ℚ)=(L : ℚ)*D
+      push_cast
+      rw [hn]
+      dsimp [L]
+      push_cast
+      ring
+  have hcn (i : Fin 3) : (![B,C,D] i)≠0 := by fin_cases i <;> assumption
+  refine ⟨L,hL,t,?_,he⟩
+  intro i hi
+  have hh := he i
+  rw [hi,Int.cast_zero] at hh
+  exact (mul_ne_zero (by exact_mod_cast ne_of_gt hL : (L : ℚ)≠0) (hcn i)) hh.symm
+
+
+open scoped BigOperators Matrix
+
+def weightedDiagonalMap3 (t : Fin 3 → ℤ) : (Fin 3 → ℚ) →ₗ[ℚ] (Fin 3 → ℚ) :=
+  Matrix.toLin' (weightedIntegerDiagonal3 t)
+
+theorem weighted_diagonal_comap_proper3 (t : Fin 3 → ℤ) (ht : ∀ i,t i≠0)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤) :
+    P.comap (weightedDiagonalMap3 t)≠⊤ := by
+  have hsurj : Function.Surjective (weightedDiagonalMap3 t) :=
+    Matrix.mulVec_surjective_iff_isUnit.mpr (weighted_diagonal_invertible3 t ht)
+  intro he
+  apply hP
+  apply top_unique
+  intro x _
+  obtain ⟨v,rfl⟩ := hsurj x
+  have hv : v∈P.comap (weightedDiagonalMap3 t) := by rw [he];trivial
+  exact hv
+
+theorem weighted_diagonal_original_mem3 (t z y : Fin 3 → ℤ)
+    (g : ℕ) (u : Fin 3 → fixedSUnitGroup) (s : fixedSUnitGroup)
+    (hz : ∀ i,(z i : ℚ)=((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ))
+    (he : ∀ i,t i*z i=(g : ℤ)*y i)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hyP : (fun i => (y i : ℚ))∈P) :
+    (fun i => ((u i : ℚˣ) : ℚ))∈P.comap (weightedDiagonalMap3 t) := by
+  have hs : ((s : ℚˣ) : ℚ)≠0 := Units.ne_zero _
+  have hm := P.smul_mem ((g : ℚ)/((s : ℚˣ) : ℚ)) hyP
+  have heq : weightedDiagonalMap3 t (fun i => ((u i : ℚˣ) : ℚ))=
+      ((g : ℚ)/((s : ℚˣ) : ℚ)) • (fun i => (y i : ℚ)) := by
+    ext i
+    change (weightedIntegerDiagonal3 t *ᵥ (fun i => ((u i : ℚˣ) : ℚ))) i=_
+    simp only [weightedIntegerDiagonal3,Matrix.mulVec_diagonal,Pi.smul_apply,smul_eq_mul]
+    have hc := congrArg ((↑) : ℤ → ℚ) (he i)
+    push_cast at hc
+    rw [hz i] at hc
+    apply (mul_left_cancel₀ hs)
+    calc
+      _=(t i : ℚ)*(((s : ℚˣ) : ℚ)*((u i : ℚˣ) : ℚ)) := by ring
+      _=(g : ℚ)*(y i : ℚ) := hc
+      _=_ := by field_simp
+  change weightedDiagonalMap3 t (fun i => ((u i : ℚˣ) : ℚ))∈P
+  rwa [heq]
+
+end Literal255C
+#check Literal255C.weighted_diagonal_gcd_divides3
+#print axioms Literal255C.weighted_diagonal_gcd_divides3
+#check Literal255C.weighted_diagonal_gcd_values_finite3
+#print axioms Literal255C.weighted_diagonal_gcd_values_finite3
+#check Literal255C.weightedIntegerDiagonal3
+#print axioms Literal255C.weightedIntegerDiagonal3
+#check Literal255C.weighted_diagonal_invertible3
+#print axioms Literal255C.weighted_diagonal_invertible3
+#check Literal255C.weighted_fixed_product_height3
+#print axioms Literal255C.weighted_fixed_product_height3
+#check Literal255C.weightedBalancedValues3
+#print axioms Literal255C.weightedBalancedValues3
+#check Literal255C.weighted_balanced_weights3
+#print axioms Literal255C.weighted_balanced_weights3
+#check Literal255C.weighted_scaled_product3
+#print axioms Literal255C.weighted_scaled_product3
+#check Literal255C.weighted_three_place_pos3
+#print axioms Literal255C.weighted_three_place_pos3
+#check Literal255C.weightedDiagonalK3
+#print axioms Literal255C.weightedDiagonalK3
+#check Literal255C.weighted_diagonal_K_pos3
+#print axioms Literal255C.weighted_diagonal_K_pos3
+#check Literal255C.weighted_diagonal_products3
+#print axioms Literal255C.weighted_diagonal_products3
+#check Literal255C.weighted_integer_local_inverse3
+#print axioms Literal255C.weighted_integer_local_inverse3
+#check Literal255C.weighted_integer_source_point3
+#print axioms Literal255C.weighted_integer_source_point3
+#check Literal255C.weighted_integer_source_family3
+#print axioms Literal255C.weighted_integer_source_family3
+#check Literal255C.weighted_primitive_triple_reduction3
+#print axioms Literal255C.weighted_primitive_triple_reduction3
+#check Literal255C.weighted_primitive_sunit_normalized3
+#print axioms Literal255C.weighted_primitive_sunit_normalized3
+#check Literal255C.weighted_primitive_sunit_coordinates3
+#print axioms Literal255C.weighted_primitive_sunit_coordinates3
+#check Literal255C.weighted_diagonal_primitive3
+#print axioms Literal255C.weighted_diagonal_primitive3
+#check Literal255C.weightedProductConstant3
+#print axioms Literal255C.weightedProductConstant3
+#check Literal255C.weightedProductBound3
+#print axioms Literal255C.weightedProductBound3
+#check Literal255C.weightedProductCutoff3
+#print axioms Literal255C.weightedProductCutoff3
+#check Literal255C.weighted_fixed_product_point3
+#print axioms Literal255C.weighted_fixed_product_point3
+#check Literal255C.weightedFixedProductTriples3
+#print axioms Literal255C.weightedFixedProductTriples3
+#check Literal255C.weighted_fixed_product_cover3
+#print axioms Literal255C.weighted_fixed_product_cover3
+#check Literal255C.weighted_coefficient_denominator3
+#print axioms Literal255C.weighted_coefficient_denominator3
+#check Literal255C.weightedDiagonalMap3
+#print axioms Literal255C.weightedDiagonalMap3
+#check Literal255C.weighted_diagonal_comap_proper3
+#print axioms Literal255C.weighted_diagonal_comap_proper3
+#check Literal255C.weighted_diagonal_original_mem3
+#print axioms Literal255C.weighted_diagonal_original_mem3

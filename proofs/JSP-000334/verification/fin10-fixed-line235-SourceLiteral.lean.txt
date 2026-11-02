@@ -1,0 +1,545 @@
+import SubspaceBridge.SourceFixedReference234
+import SubspaceBridge.SourceShortLine226
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M235ScopedLiteral
+open SourceFixedArithmetic234
+
+theorem positive_scale235 (C : ℤ) (hC : 0 < C) (n m : ℕ) : 0 < C*2^n*3^m := by
+  positivity
+
+theorem real_coordinate_scale235 (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (v : Fin 10 → ℤ) (t : ℤ) (i : Fin 10) :
+    (L⁻¹.transpose *ᵥ integerReal (t • v)) i =
+      (t : ℝ)*(L⁻¹.transpose *ᵥ integerReal v) i := by
+  have he : integerReal (t • v) = (t : ℝ) • integerReal v := by
+    funext j
+    change (((t • v) j : ℤ) : ℝ) = (t : ℝ)*(v j : ℝ)
+    simp only [Pi.smul_apply,smul_eq_mul,Int.cast_mul]
+  rw [he,Matrix.mulVec_smul]
+  rfl
+
+theorem floor_real_bound235 (p : ℕ) (hp : 1 < p) (Q : ℝ) (hQ : 1 < Q)
+    (b : ℝ) (hb : b ≤ 0) :
+    (p : ℝ)^((9-Int.floor ((Real.log Q/Real.log p)*b)).toNat) ≤ (p : ℝ)^10*Q^(-b) := by
+  have hp' : (1 : ℝ) < p := by exact_mod_cast hp
+  have hpp : (0 : ℝ) < p := by linarith
+  have hqp : 0 < Q := by linarith
+  have hlp : Real.log (p : ℝ) ≠ 0 := (Real.log_pos hp').ne'
+  have hL : 0 ≤ Real.log Q/Real.log p := (div_pos (Real.log_pos hQ) (Real.log_pos hp')).le
+  have hg : Int.floor ((Real.log Q/Real.log p)*b) ≤ 0 :=
+    Int.floor_nonpos (mul_nonpos_of_nonneg_of_nonpos hL hb)
+  have hn : 0 ≤ 9-Int.floor ((Real.log Q/Real.log p)*b) := by omega
+  have he : (((9-Int.floor ((Real.log Q/Real.log p)*b)).toNat : ℕ) : ℝ) =
+      9-(Int.floor ((Real.log Q/Real.log p)*b) : ℝ) := by
+    rw [← Int.cast_natCast,Int.toNat_of_nonneg hn]
+    push_cast
+    rfl
+  have hpow : (p : ℝ)^(-(Real.log Q/Real.log p)*b) = Q^(-b) := by
+    rw [Real.rpow_def_of_pos hpp,Real.rpow_def_of_pos hqp]
+    congr 1
+    field_simp
+    ring
+  calc
+    _ = (p : ℝ)^((((9-Int.floor ((Real.log Q/Real.log p)*b)).toNat : ℕ) : ℝ)) :=
+      (Real.rpow_natCast _ _).symm
+    _ ≤ (p : ℝ)^(10+(-(Real.log Q/Real.log p)*b)) := by
+      apply Real.rpow_le_rpow_of_exponent_le hp'.le
+      rw [he]
+      linarith [Int.sub_one_lt_floor ((Real.log Q/Real.log p)*b)]
+    _ = (p : ℝ)^10*Q^(-b) := by
+      rw [Real.rpow_add hpp,hpow]
+      congr 1
+      exact Real.rpow_natCast _ 10
+
+
+theorem supported_floor_upper235 (p : ℕ) (hp : 1 < p)
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A) (q : ℝ) (hq : 1 < q)
+    (c : Fin 10 → ℝ) (hc : ∀ i, c i ≤ 0) (v : Fin 10 → ℤ) (hv : v ≠ 0) :
+    ∃ j ∈ dualSupport234 A v,
+      (p : ℝ)^((9-floorMin234 p A hA q c v hv).toNat) ≤
+        (p : ℝ)^10*q^(-(∑ k : Fin 9, c (j.succAbove k))) := by
+  obtain ⟨j,hj,hg⟩ := Finset.mem_image.mp
+    (Finset.min'_mem ((dualSupport234 A v).image (complementaryFloor234 p q c))
+      ((dualSupport_nonempty234 A hA v hv).image _))
+  refine ⟨j,hj,?_⟩
+  have hh := floor_real_bound235 p hp q hq (∑ k : Fin 9, c (j.succAbove k))
+    (Finset.sum_nonpos (fun k _ => hc (j.succAbove k)))
+  change complementaryFloor234 p q c j = floorMin234 p A hA q c v hv at hg
+  change (p : ℝ)^((9-complementaryFloor234 p q c j).toNat) ≤ _ at hh
+  rwa [hg] at hh
+
+theorem complement_exponent235 (c2 c3 : Fin 10 → ℝ) (j2 j3 : Fin 10) :
+    -(∑ k : Fin 9, c2 (j2.succAbove k))-(∑ k : Fin 9, c3 (j3.succAbove k)) =
+      -(∑ k, c2 k)-(∑ k, c3 k)+c2 j2+c3 j3 := by
+  have h2 := Fin.sum_univ_succAbove c2 j2
+  have h3 := Fin.sum_univ_succAbove c3 j3
+  linarith
+
+theorem rescale_real_bound235
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (h2 : IsUnit A2) (h3 : IsUnit A3)
+    (q : ℝ) (hq : 1 < q) (c2 c3 : Fin 10 → ℝ)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (v : Fin 10 → ℤ) (hv : v ≠ 0) (C : ℤ) (hC : 0 < C)
+    (t : ℤ) (ht : t = C*2^((9-floorMin234 2 A2 h2 q c2 v hv).toNat)*
+      3^((9-floorMin234 3 A3 h3 q c3 v hv).toNat)) :
+    ∃ j2 ∈ dualSupport234 A2 v, ∃ j3 ∈ dualSupport234 A3 v,
+      (t : ℝ) ≤ (C : ℝ)*2^10*3^10*
+        q^(-(∑ k, c2 k)-(∑ k, c3 k)+c2 j2+c3 j3) := by
+  obtain ⟨j2,hj2,hb2⟩ := supported_floor_upper235 2 (by decide) A2 h2 q hq c2 hc2 v hv
+  obtain ⟨j3,hj3,hb3⟩ := supported_floor_upper235 3 (by decide) A3 h3 q hq c3 hc3 v hv
+  refine ⟨j2,hj2,j3,hj3,?_⟩
+  have h := mul_le_mul_of_nonneg_left
+    (mul_le_mul hb2 hb3 (by positivity) (by positivity)) (show (0 : ℝ) ≤ C by exact_mod_cast hC.le)
+  have he : q^(-(∑ k, c2 k)-(∑ k, c3 k)+c2 j2+c3 j3) =
+      q^(-(∑ k : Fin 9, c2 (j2.succAbove k)))*
+        q^(-(∑ k : Fin 9, c3 (j3.succAbove k))) := by
+    rw [← complement_exponent235 c2 c3 j2 j3,sub_eq_add_neg,
+      Real.rpow_add (zero_lt_one.trans hq)]
+  rw [ht,he]
+  push_cast
+  norm_num only [Nat.cast_ofNat] at h
+  convert h using 1 <;> ring
+
+
+end CompoundFeasibility.M235ScopedLiteral
+namespace CompoundFeasibility.M235ScopedLiteral
+open SourceFixedArithmetic234 SourceSelectedUpper10 SourceGlobalSelected10 SourceSatz51Entry218
+
+theorem supported_padic_nonzero235 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : IsUnit A) (v : Fin 10 → ℤ)
+    (j : Fin 10) (hj : j ∈ dualSupport234 A v) :
+    ((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ (fun k => (v k : ℚ_[p]))) j ≠ 0 := by
+  rw [rational_padic_coordinates234 p A hA v j]
+  exact (map_ne_zero_iff _ (algebraMap ℚ ℚ_[p]).injective).mpr (Finset.mem_filter.mp hj).2
+
+theorem selected_coordinate_zero235
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (h2 : IsUnit A2) (h3 : IsUnit A3)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (v : Fin 10 → ℤ)
+    (S : Finset (Fin 3 → Fin 10)) (hz : ∀ s ∈ S, mixedProduct10 A2 A3 L v s = 0)
+    (i : Fin 10) (hs : ∃ j2 ∈ dualSupport234 A2 v, ∃ j3 ∈ dualSupport234 A3 v,
+      ![i,j2,j3] ∈ S) : (L⁻¹.transpose *ᵥ integerReal v) i = 0 := by
+  obtain ⟨j2,hj2,j3,hj3,hs⟩ := hs
+  have h2p := supported_padic_nonzero235 2 A2 h2 v j2 hj2
+  have h3p := supported_padic_nonzero235 3 A3 h3 v j3 hj3
+  by_contra hn
+  have hh := (mixedProduct10_ne_zero_iff A2 A3 L v ![i,j2,j3]).mpr
+    (by simpa using And.intro hn (And.intro h2p h3p))
+  exact hh (hz _ hs)
+
+theorem source_complement235 (q delta : ℝ) (hq : 1 < q) (A c2 c3 : Fin 10 → ℝ)
+    (hA : ∀ i, 0 < A i) (S : Finset (Fin 3 → Fin 10))
+    (hS : sourceSet218 q delta A c2 c3 = S) (i j2 j3 : Fin 10)
+    (hs : ![i,j2,j3] ∉ S) :
+    A i*q^(c2 j2+c3 j3)*q^(delta/4) < 1 ∧
+      q^(c2 j2+c3 j3) < 1/(A i*q^(delta/4)) := by
+  have hh : A i*q^(c2 j2)*q^(c3 j3)*q^(delta/4) < 1 := by
+    apply lt_of_not_ge
+    intro he
+    apply hs
+    rw [← hS]
+    exact Finset.mem_filter.mpr ⟨Finset.mem_univ _,by simpa using he⟩
+  have he : A i*q^(c2 j2+c3 j3)*q^(delta/4) < 1 := by
+    rwa [Real.rpow_add (zero_lt_one.trans hq),← mul_assoc]
+  refine ⟨he,?_⟩
+  apply (lt_div_iff₀ (mul_pos (hA i) (Real.rpow_pos_of_pos (zero_lt_one.trans hq) _))).mpr
+  nlinarith only [he]
+
+theorem width_product235 (q : ℝ) (hq : 1 < q) (A c2 c3 : Fin 10 → ℝ)
+    (hb : (∏ i, A i*q^(c2 i)*q^(c3 i)) = 1) :
+    (∏ i, A i) = q^(-(∑ i, c2 i)-(∑ i, c3 i)) := by
+  have hp := zero_lt_one.trans hq
+  have he : (∏ i, q^(c2 i)*q^(c3 i)) = q^((∑ i, c2 i)+(∑ i, c3 i)) := by
+    simp_rw [← Real.rpow_add hp]
+    rw [← Real.rpow_sum_of_pos hp,Finset.sum_add_distrib]
+  have hm : (∏ i, A i)*q^((∑ i, c2 i)+(∑ i, c3 i)) = 1 := by
+    rw [← he]
+    simpa only [Finset.prod_mul_distrib,mul_assoc] using hb
+  apply mul_right_cancel₀ (Real.rpow_pos_of_pos hp ((∑ i, c2 i)+(∑ i, c3 i))).ne'
+  rw [hm,← Real.rpow_add hp]
+  convert (Real.rpow_zero q).symm using 1 <;> congr 1 <;> ring
+
+theorem complement_coordinate_bound235 (q : ℝ) (hq : 1 < q) (delta : ℝ)
+    (A c2 c3 : Fin 10 → ℝ) (hA : ∀ i, 0 < A i)
+    (hb : (∏ i, A i*q^(c2 i)*q^(c3 i)) = 1) (d : ℝ)
+    (hcov : (∏ i, A i) ≤ d) (K a t : ℝ) (hK : 0 ≤ K) (i j2 j3 : Fin 10)
+    (ht : t ≤ K*q^(-(∑ k, c2 k)-(∑ k, c3 k)+c2 j2+c3 j3))
+    (hs : A i*q^(c2 j2+c3 j3)*q^(delta/4) < 1) :
+    t* |a| ≤ K* |a| *q^(-delta/4)*d/A i := by
+  have hp := zero_lt_one.trans hq
+  have hd : 0 ≤ d := (Finset.prod_pos (fun j _ => hA j)).le.trans hcov
+  have he : q^(-(∑ k, c2 k)-(∑ k, c3 k)+c2 j2+c3 j3) =
+      (∏ k, A k)*q^(c2 j2+c3 j3) := by
+    rw [width_product235 q hq A c2 c3 hb,← Real.rpow_add hp]
+    congr 1
+    ring
+  rw [he] at ht
+  have hr : q^(delta/4)*q^(-delta/4) = 1 := by
+    rw [← Real.rpow_add hp]
+    convert Real.rpow_zero q using 1 <;> congr 1 <;> ring
+  have hAu : A i*q^(c2 j2+c3 j3) ≤ q^(-delta/4) := by
+    calc
+      _ = (A i*q^(c2 j2+c3 j3)*q^(delta/4))*q^(-delta/4) := by
+        rw [mul_assoc,hr,mul_one]
+      _ ≤ 1*q^(-delta/4) := mul_le_mul_of_nonneg_right hs.le (Real.rpow_pos_of_pos hp _).le
+      _ = _ := one_mul _
+  have hu : q^(c2 j2+c3 j3) ≤ q^(-delta/4)/A i :=
+    (le_div_iff₀ (hA i)).mpr (by nlinarith only [hAu])
+  have hh := mul_le_mul_of_nonneg_right
+    (mul_le_mul_of_nonneg_left
+      (mul_le_mul hcov hu (Real.rpow_pos_of_pos hp _).le hd) hK) (abs_nonneg a)
+  calc
+    _ ≤ (K*((∏ k, A k)*q^(c2 j2+c3 j3)))* |a| := mul_le_mul_of_nonneg_right ht (abs_nonneg a)
+    _ ≤ (K*(d*(q^(-delta/4)/A i)))* |a| := hh
+    _ = _ := by ring
+
+theorem coefficient_bound235 (a : Fin 10 → ℝ) :
+    0 < 1+∑ i, |a i| ∧ ∀ i, |a i| ≤ 1+∑ j, |a j| := by
+  have hs : 0 ≤ ∑ i, |a i| := Finset.sum_nonneg (fun _ _ => abs_nonneg _)
+  refine ⟨by linarith,?_⟩
+  intro i
+  have hi : |a i| ≤ ∑ j, |a j| := Finset.single_le_sum (f := fun j => |a j|) (fun _ _ => abs_nonneg _) (Finset.mem_univ i)
+  linarith
+
+theorem fixed_cutoff235 (delta : ℝ) (hd : 0 < delta) (K : ℝ) (hK : 0 < K) :
+    ∃ T : ℝ, 1 < T ∧ ∀ q : ℝ, T < q → K*q^(-delta/4) ≤ 1 := by
+  obtain ⟨B,hB⟩ := Filter.eventually_atTop.mp
+    ((tendsto_rpow_neg_atTop (show 0 < delta/4 by linarith)).eventually
+      (gt_mem_nhds (one_div_pos.mpr hK)))
+  refine ⟨max B 2,lt_of_lt_of_le (by norm_num) (le_max_right _ _),?_⟩
+  intro q hq
+  have hh := (lt_div_iff₀ hK).mp (hB q ((le_max_left B 2).trans hq.le))
+  rw [show -delta/4 = -(delta/4) by ring]
+  nlinarith
+
+
+end CompoundFeasibility.M235ScopedLiteral
+namespace CompoundFeasibility.M235ScopedLiteral
+open SourceFixedArithmetic234 SourceSelectedUpper10 SourceGlobalSelected10
+open SourceOriginalDual10 SourceSatz51Entry218 SourceLastDual231 SourceDualAnnihilation222
+
+theorem integer_cast_real235 (v : Fin 10 → ℤ) :
+    ratReal222 (fun i => (v i : ℚ)) = integerReal v := by
+  funext i
+  change ((v i : ℚ) : ℝ) = (v i : ℝ)
+  simp only [Rat.cast_intCast]
+
+theorem fixed_body235
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (h2 : IsUnit A2) (h3 : IsUnit A3)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (S : Finset (Fin 3 → Fin 10)) (hS : sourceSet218 q delta A c2 c3 = S)
+    (v : Fin 10 → ℤ) (hv : v ≠ 0) (hz : ∀ s ∈ S, mixedProduct10 A2 A3 L v s = 0)
+    (C : ℤ) (hC : 0 < C) (t : ℤ)
+    (ht : t = C*2^((9-floorMin234 2 A2 h2 q c2 v hv).toNat)*
+      3^((9-floorMin234 3 A3 h3 q c3 v hv).toNat))
+    (hcut : ((C : ℝ)*2^10*3^10*(1+∑ j, |(L⁻¹.transpose *ᵥ integerReal v) j|))*
+      q^(-delta/4) ≤ 1) :
+    ratReal222 (fun i => ((t • v) i : ℚ)) ∈ dualBody222 L
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) A := by
+  rw [integer_cast_real235]
+  intro i
+  rw [real_coordinate_scale235,abs_mul,
+    abs_of_pos (show (0 : ℝ) < t by exact_mod_cast (ht ▸ positive_scale235 C hC _ _))]
+  by_cases hs : ∃ j2 ∈ dualSupport234 A2 v, ∃ j3 ∈ dualSupport234 A3 v, ![i,j2,j3] ∈ S
+  · rw [selected_coordinate_zero235 A2 A3 h2 h3 L v S hz i hs,abs_zero,mul_zero]
+    exact (div_pos (ZLattice.covolume_pos _ MeasureTheory.volume) (D.positive i)).le
+  · obtain ⟨j2,hj2,j3,hj3,hbound⟩ := rescale_real_bound235 A2 A3 h2 h3 q hq c2 c3 hc2 hc3 v hv C hC t ht
+    have hnot : ![i,j2,j3] ∉ S := fun he => hs ⟨j2,hj2,j3,hj3,he⟩
+    have hsmall := (source_complement235 q delta hq A c2 c3 D.positive S hS i j2 j3 hnot).1
+    have hb := complement_coordinate_bound235 q hq delta A c2 c3 D.positive D.balance
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (source_width_covolume231 h2d h3d D) ((C : ℝ)*2^10*3^10)
+      ((L⁻¹.transpose *ᵥ integerReal v) i) (t : ℝ) (by positivity) i j2 j3 hbound hsmall
+    have hcoeff := (coefficient_bound235 (fun j => (L⁻¹.transpose *ᵥ integerReal v) j)).2 i
+    have hh := mul_le_mul_of_nonneg_right
+      (mul_le_mul_of_nonneg_left hcoeff (show (0 : ℝ) ≤ (C : ℝ)*2^10*3^10 by positivity))
+      (Real.rpow_pos_of_pos (zero_lt_one.trans hq) (-delta/4)).le
+    have hfactor : (C : ℝ)*2^10*3^10*|(L⁻¹.transpose *ᵥ integerReal v) i| * q^(-delta/4) ≤ 1 :=
+      hh.trans hcut
+    have hw : 0 ≤ ZLattice.covolume
+        (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))/A i :=
+      (div_pos (ZLattice.covolume_pos _ MeasureTheory.volume) (D.positive i)).le
+    calc
+      _ ≤ _ := hb
+      _ = ((C : ℝ)*2^10*3^10*|(L⁻¹.transpose *ᵥ integerReal v) i| * q^(-delta/4))*
+          (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))/A i) := by ring
+      _ ≤ _ := by simpa only [one_mul] using mul_le_mul_of_nonneg_right hfactor hw
+
+end CompoundFeasibility.M235ScopedLiteral
+namespace CompoundFeasibility.M235ScopedLiteral
+open SourceFixedArithmetic234 SourceOriginalDual10 OriginalDual10 SourceSatz51Entry218
+  SourceDualGeometry219 SourceDualAnnihilation222 SourceSecondMinimum226 SourceCofactorGeometry233
+
+theorem rescaled_rational_line235 (v : Fin 10 → ℤ) (hv : v ≠ 0) (t : ℤ) (ht : t ≠ 0) :
+    let z : Fin 10 → ℚ := fun i => ((t • v) i : ℚ)
+    z ≠ 0 ∧ Submodule.span ℚ {fun i => (v i : ℚ)} = Submodule.span ℚ {z} := by
+  intro z
+  have he : z = (t : ℚ) • (fun i => (v i : ℚ)) := by
+    funext i
+    simp only [z,Pi.smul_apply,smul_eq_mul,Int.cast_mul]
+  have hvQ : (fun i => (v i : ℚ)) ≠ 0 := by
+    intro h
+    apply hv
+    funext i
+    have hi := congrFun h i
+    simp only [Pi.zero_apply] at hi
+    change v i = 0
+    exact_mod_cast hi
+  have htQ : (t : ℚ) ≠ 0 := by exact_mod_cast ht
+  rw [he]
+  exact ⟨smul_ne_zero htQ hvQ,
+    (Submodule.span_singleton_smul_eq (isUnit_iff_ne_zero.mpr htQ) _).symm⟩
+
+theorem short_body_line235 (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+      (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L) (q : ℝ), T < q →
+      ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℚ),
+        z ≠ 0 → z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3) →
+        ratReal222 z ∈ dualBody222 L
+          (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) A →
+        Submodule.span ℚ {z} = Submodule.span ℚ
+          {lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent)} := by
+  obtain ⟨T,hT,hline⟩ := source_short_line226 delta hd
+  refine ⟨T,hT,?_⟩
+  intro A2 A3 L hL q hqT hq c2 c3 A D z hz hm hb
+  have hg := (dualBody_gauge222 L hL _ (ZLattice.covolume_pos _ MeasureTheory.volume)
+    A D.positive (ratReal222 z)).mp hb
+  have hl := hline A2 A3 L hL q hqT hq c2 c3 A D z hm (hg.trans (by norm_num))
+  obtain ⟨a,ha⟩ := Submodule.mem_span_singleton.mp hl
+  have hn : a ≠ 0 := by
+    intro he
+    apply hz
+    rw [← ha,he,zero_smul]
+  calc
+    _ = Submodule.span ℚ {fun i => (integerLastDual10 D.u i : ℚ)} := by
+      rw [← ha,Submodule.span_singleton_smul_eq (isUnit_iff_ne_zero.mpr hn)]
+    _ = _ := source_cofactor_line233 D
+
+open SourceFixedArithmetic234 SourceOriginalDual10 OriginalDual10 SourceSatz51Entry218
+  SourceSelectedUpper10 SourceDualGeometry219 SourceDualAnnihilation222
+
+theorem source_fixed_line235
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∃ T : ℝ, 1 < T ∧ B ≤ T ∧ ∃ V : Set ℝ,
+                V = {q | q ∈ U ∧ T < q} ∧ V ⊆ Omega ∧ ¬ BddAbove V ∧
+                  ∀ q : Omega, q.val ∈ V → sourceSet218 q.val delta (A q.val) c2 c3 = S0 ∧
+                    let z : Fin 10 → ℚ := fun i => (((t q.val) • v0) i : ℚ)
+                    z ≠ 0 ∧ 0 < t q.val ∧
+                      z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q.val c2 c3) ∧
+                      ratReal222 z ∈ dualBody222 L
+                        (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q.val c2 c3))) (A q.val) ∧
+                      Submodule.span ℚ {fun i => (v0 i : ℚ)} = Submodule.span ℚ
+                        {lastDual10 (fun j i => ((D q).u j i : ℚ))
+                          (integer_frame_rational_independent10 (D q).u (D q).independent)} := by
+  intro hA2 hA3
+  obtain ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,hpattern,C,hC,t,ht,hm⟩ :=
+    source_fixed_membership234 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3
+      delta hd Omega hO hq A D
+  let a : Fin 10 → ℝ := fun i => (L⁻¹.transpose *ᵥ integerReal v0) i
+  let H : ℝ := 1+∑ i, |a i|
+  let K0 : ℝ := (C : ℝ)*2^10*3^10*H
+  have hK0 : 0 < K0 := mul_pos (by positivity) (coefficient_bound235 a).1
+  obtain ⟨Tb,hTb,hbodycut⟩ := fixed_cutoff235 delta hd K0 hK0
+  obtain ⟨Tl,_,hline⟩ := short_body_line235 delta hd
+  let T := max B (max Tb Tl)
+  let V : Set ℝ := {q | q ∈ U ∧ T < q}
+  have hBT : B ≤ T := le_max_left _ _
+  have hTbT : Tb ≤ T := (le_max_left Tb Tl).trans (le_max_right B _)
+  have hTlT : Tl ≤ T := (le_max_right Tb Tl).trans (le_max_right B _)
+  have hV : ¬ BddAbove V := by
+    rintro ⟨b,hb⟩
+    obtain ⟨q,hqU,hqgt⟩ := not_bddAbove_iff.mp hU (max T b)
+    exact (not_le_of_gt ((le_max_right T b).trans_lt hqgt))
+      (hb ⟨hqU,(le_max_left T b).trans_lt hqgt⟩)
+  refine ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,C,hC,t,ht,
+    T,hTb.trans_le hTbT,hBT,V,rfl,fun _ h => hUO h.1,hV,?_⟩
+  intro q hqV
+  have hqB : B < q.val := hBT.trans_lt hqV.2
+  have hpat := hpattern q hqV.1
+  have hmem := hm q.val hqV.1 hqB
+  have hpos : 0 < t q.val := by rw [ht]; exact positive_scale235 C hC _ _
+  have hn := rescaled_rational_line235 v0 hv0 (t q.val) hmem.1
+  have hb := fixed_body235 h2d h3d hA2 hA3 (fun i => (h2 i).2) (fun i => (h3 i).2)
+    (D q) S0 hpat v0 hv0 hzero C hC (t q.val) (ht q.val)
+    (hbodycut q.val (hTbT.trans_lt hqV.2))
+  have hl := hline A2 A3 L hL q.val (hTlT.trans_lt hqV.2) (hq q.val q.property)
+    c2 c3 (A q.val) (D q) _ hn.1 hmem.2 hb
+  exact ⟨hpat,hn.1,hpos,hmem.2,hb,hn.2.trans hl⟩
+
+end CompoundFeasibility.M235ScopedLiteral
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.M235ScopedLiteral
+  CompoundFeasibility.SourceFixedArithmetic234 CompoundFeasibility.OriginalDual10
+  CompoundFeasibility.SourceOriginalDual10 CompoundFeasibility.SourceSatz51Entry218
+  CompoundFeasibility.SourceSelectedUpper10 CompoundFeasibility.SourceDualGeometry219
+  CompoundFeasibility.SourceDualAnnihilation222
+namespace M235SourceLiteral
+theorem original_fixed_line
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∃ T : ℝ, 1 < T ∧ B ≤ T ∧ ∃ V : Set ℝ,
+                V = {q | q ∈ U ∧ T < q} ∧ V ⊆ Omega ∧ ¬ BddAbove V ∧
+                  ∀ q : Omega, q.val ∈ V → sourceSet218 q.val delta (A q.val) c2 c3 = S0 ∧
+                    let z : Fin 10 → ℚ := fun i => (((t q.val) • v0) i : ℚ)
+                    z ≠ 0 ∧ 0 < t q.val ∧
+                      z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q.val c2 c3) ∧
+                      ratReal222 z ∈ dualBody222 L
+                        (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q.val c2 c3))) (A q.val) ∧
+                      Submodule.span ℚ {fun i => (v0 i : ℚ)} = Submodule.span ℚ
+                        {lastDual10 (fun j i => ((D q).u j i : ℚ))
+                          (integer_frame_rational_independent10 (D q).u (D q).independent)} := by
+  exact source_fixed_line235 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+
+theorem expanded_original_geometry
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta) :
+    let hA2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+    let hA3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∃ q1 : Omega, q1.val ∈ U ∧ B < q1.val ∧
+          ∃ (v0 : Fin 10 → ℤ) (hv0 : v0 ≠ 0), v0 = integerLastDual10 (D q1).u ∧
+            (∀ s ∈ S0, mixedProduct10 A2 A3 L v0 s = 0) ∧
+            ∃ C : ℤ, 0 < C ∧ ∃ t : ℝ → ℤ,
+              (∀ q, t q = C*2^((9-floorMin234 2 A2 hA2 q c2 v0 hv0).toNat)*
+                3^((9-floorMin234 3 A3 hA3 q c3 v0 hv0).toNat)) ∧
+              ∃ T : ℝ, 1 < T ∧ B ≤ T ∧ ∃ V : Set ℝ,
+                V = {q | q ∈ U ∧ T < q} ∧ V ⊆ Omega ∧ ¬ BddAbove V ∧
+                  ∀ q : Omega, q.val ∈ V → Finset.univ.filter (fun s : Fin 3 → Fin 10 =>
+                    1 ≤ (A q.val (s 0))*q.val^(c2 (s 1))*q.val^(c3 (s 2))*q.val^(delta/4)) = S0 ∧
+                    let z : Fin 10 → ℚ := fun i => (((t q.val) • v0) i : ℚ)
+                    z ≠ 0 ∧ 0 < t q.val ∧
+                      (∃ w : Fin 10 → ℚ,
+                        (∀ x : originalSourceGroup10 A2 A3 q.val c2 c3, ∃ a : ℤ,
+                          (∑ i, ((x : Fin 10 → ℤ) i : ℚ)*w i) = (a : ℚ)) ∧
+                        (fun i => ((originalSourceGroup10 A2 A3 q.val c2 c3).index : ℚ)*w i) = z) ∧
+                      (∀ i, |(L⁻¹.transpose *ᵥ integerReal ((t q.val) • v0)) i| ≤
+                        ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q.val c2 c3))/(A q.val i)) ∧
+                      Submodule.span ℚ {fun i => (v0 i : ℚ)} = Submodule.span ℚ
+                        {lastDual10 (fun j i => ((D q).u j i : ℚ))
+                          (integer_frame_rational_independent10 (D q).u (D q).independent)} := by
+  intro hA2 hA3
+  obtain ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,C,hC,t,ht,T,hT,hBT,V,hVe,hVO,hV,h⟩ :=
+    source_fixed_line235 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3 delta hd Omega hO hq A D
+  refine ⟨S0,hS0,B,hB,U,hUO,hU,q1,hq1U,hq1B,v0,hv0,hveq,hzero,C,hC,t,ht,T,hT,hBT,V,hVe,hVO,hV,?_⟩
+  intro q hqV
+  have hg := h q hqV
+  have hb := hg.2.2.2.2.1
+  rw [integer_cast_real235] at hb
+  exact ⟨hg.1,hg.2.1,hg.2.2.1,hg.2.2.2.1,hb,hg.2.2.2.2.2⟩
+
+theorem original_selected_rescaled_zero
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (h2 : IsUnit A2) (h3 : IsUnit A3)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (v : Fin 10 → ℤ)
+    (S : Finset (Fin 3 → Fin 10)) (hz : ∀ s ∈ S, mixedProduct10 A2 A3 L v s = 0)
+    (i : Fin 10) (hs : ∃ j2 ∈ dualSupport234 A2 v, ∃ j3 ∈ dualSupport234 A3 v,
+      ![i,j2,j3] ∈ S) (t : ℤ) :
+    (L⁻¹.transpose *ᵥ integerReal (t • v)) i = 0 := by
+  rw [real_coordinate_scale235,selected_coordinate_zero235 A2 A3 h2 h3 L v S hz i hs,mul_zero]
+
+end M235SourceLiteral
+#check M235SourceLiteral.original_fixed_line
+#print M235SourceLiteral.original_fixed_line
+#print axioms M235SourceLiteral.original_fixed_line
+#check M235SourceLiteral.expanded_original_geometry
+#print M235SourceLiteral.expanded_original_geometry
+#print axioms M235SourceLiteral.expanded_original_geometry
+#check M235SourceLiteral.original_selected_rescaled_zero
+#print M235SourceLiteral.original_selected_rescaled_zero
+#print axioms M235SourceLiteral.original_selected_rescaled_zero
+#check CompoundFeasibility.M235ScopedLiteral.positive_scale235
+#print CompoundFeasibility.M235ScopedLiteral.positive_scale235
+#print axioms CompoundFeasibility.M235ScopedLiteral.positive_scale235
+#check CompoundFeasibility.M235ScopedLiteral.real_coordinate_scale235
+#print CompoundFeasibility.M235ScopedLiteral.real_coordinate_scale235
+#print axioms CompoundFeasibility.M235ScopedLiteral.real_coordinate_scale235
+#check CompoundFeasibility.M235ScopedLiteral.floor_real_bound235
+#print CompoundFeasibility.M235ScopedLiteral.floor_real_bound235
+#print axioms CompoundFeasibility.M235ScopedLiteral.floor_real_bound235
+#check CompoundFeasibility.M235ScopedLiteral.supported_floor_upper235
+#print CompoundFeasibility.M235ScopedLiteral.supported_floor_upper235
+#print axioms CompoundFeasibility.M235ScopedLiteral.supported_floor_upper235
+#check CompoundFeasibility.M235ScopedLiteral.complement_exponent235
+#print CompoundFeasibility.M235ScopedLiteral.complement_exponent235
+#print axioms CompoundFeasibility.M235ScopedLiteral.complement_exponent235
+#check CompoundFeasibility.M235ScopedLiteral.rescale_real_bound235
+#print CompoundFeasibility.M235ScopedLiteral.rescale_real_bound235
+#print axioms CompoundFeasibility.M235ScopedLiteral.rescale_real_bound235
+#check CompoundFeasibility.M235ScopedLiteral.supported_padic_nonzero235
+#print CompoundFeasibility.M235ScopedLiteral.supported_padic_nonzero235
+#print axioms CompoundFeasibility.M235ScopedLiteral.supported_padic_nonzero235
+#check CompoundFeasibility.M235ScopedLiteral.selected_coordinate_zero235
+#print CompoundFeasibility.M235ScopedLiteral.selected_coordinate_zero235
+#print axioms CompoundFeasibility.M235ScopedLiteral.selected_coordinate_zero235
+#check CompoundFeasibility.M235ScopedLiteral.source_complement235
+#print CompoundFeasibility.M235ScopedLiteral.source_complement235
+#print axioms CompoundFeasibility.M235ScopedLiteral.source_complement235
+#check CompoundFeasibility.M235ScopedLiteral.width_product235
+#print CompoundFeasibility.M235ScopedLiteral.width_product235
+#print axioms CompoundFeasibility.M235ScopedLiteral.width_product235
+#check CompoundFeasibility.M235ScopedLiteral.complement_coordinate_bound235
+#print CompoundFeasibility.M235ScopedLiteral.complement_coordinate_bound235
+#print axioms CompoundFeasibility.M235ScopedLiteral.complement_coordinate_bound235
+#check CompoundFeasibility.M235ScopedLiteral.coefficient_bound235
+#print CompoundFeasibility.M235ScopedLiteral.coefficient_bound235
+#print axioms CompoundFeasibility.M235ScopedLiteral.coefficient_bound235
+#check CompoundFeasibility.M235ScopedLiteral.fixed_cutoff235
+#print CompoundFeasibility.M235ScopedLiteral.fixed_cutoff235
+#print axioms CompoundFeasibility.M235ScopedLiteral.fixed_cutoff235
+#check CompoundFeasibility.M235ScopedLiteral.integer_cast_real235
+#print CompoundFeasibility.M235ScopedLiteral.integer_cast_real235
+#print axioms CompoundFeasibility.M235ScopedLiteral.integer_cast_real235
+#check CompoundFeasibility.M235ScopedLiteral.fixed_body235
+#print CompoundFeasibility.M235ScopedLiteral.fixed_body235
+#print axioms CompoundFeasibility.M235ScopedLiteral.fixed_body235
+#check CompoundFeasibility.M235ScopedLiteral.rescaled_rational_line235
+#print CompoundFeasibility.M235ScopedLiteral.rescaled_rational_line235
+#print axioms CompoundFeasibility.M235ScopedLiteral.rescaled_rational_line235
+#check CompoundFeasibility.M235ScopedLiteral.short_body_line235
+#print CompoundFeasibility.M235ScopedLiteral.short_body_line235
+#print axioms CompoundFeasibility.M235ScopedLiteral.short_body_line235
+#check CompoundFeasibility.M235ScopedLiteral.source_fixed_line235
+#print CompoundFeasibility.M235ScopedLiteral.source_fixed_line235
+#print axioms CompoundFeasibility.M235ScopedLiteral.source_fixed_line235

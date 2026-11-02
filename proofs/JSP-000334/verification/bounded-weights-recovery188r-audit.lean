@@ -1,0 +1,42 @@
+import SubspaceBridge.BoundedWeightsTransport4
+set_option pp.all true
+
+#check CompoundFeasibility.BoundedWeights4.castGroupMember4
+#print CompoundFeasibility.BoundedWeights4.castGroupMember4
+#print axioms CompoundFeasibility.BoundedWeights4.castGroupMember4
+
+#check CompoundFeasibility.BoundedWeights4.castGroupMember4_values
+#print CompoundFeasibility.BoundedWeights4.castGroupMember4_values
+#print axioms CompoundFeasibility.BoundedWeights4.castGroupMember4_values
+
+#check CompoundFeasibility.BoundedWeights4.transportedElement4
+#print CompoundFeasibility.BoundedWeights4.transportedElement4
+#print axioms CompoundFeasibility.BoundedWeights4.transportedElement4
+
+#check CompoundFeasibility.BoundedWeights4.transportedFrame4
+#print CompoundFeasibility.BoundedWeights4.transportedFrame4
+#print axioms CompoundFeasibility.BoundedWeights4.transportedFrame4
+
+#check CompoundFeasibility.BoundedWeights4.transportedElement4_values
+#print CompoundFeasibility.BoundedWeights4.transportedElement4_values
+#print axioms CompoundFeasibility.BoundedWeights4.transportedElement4_values
+
+#check CompoundFeasibility.BoundedWeights4.transportedFrame4_values
+#print CompoundFeasibility.BoundedWeights4.transportedFrame4_values
+#print axioms CompoundFeasibility.BoundedWeights4.transportedFrame4_values
+
+#check CompoundFeasibility.BoundedWeights4.transportedFrame4_flag
+#print CompoundFeasibility.BoundedWeights4.transportedFrame4_flag
+#print axioms CompoundFeasibility.BoundedWeights4.transportedFrame4_flag
+
+#check CompoundFeasibility.BoundedWeights4.exactNormalization4
+#print CompoundFeasibility.BoundedWeights4.exactNormalization4
+#print axioms CompoundFeasibility.BoundedWeights4.exactNormalization4
+
+#check CompoundFeasibility.BoundedWeights4.exactNormalization4_proved
+#print CompoundFeasibility.BoundedWeights4.exactNormalization4_proved
+#print axioms CompoundFeasibility.BoundedWeights4.exactNormalization4_proved
+
+#check CompoundFeasibility.BoundedWeights4.source_bounded_weights_fixed_flag4
+#print CompoundFeasibility.BoundedWeights4.source_bounded_weights_fixed_flag4
+#print axioms CompoundFeasibility.BoundedWeights4.source_bounded_weights_fixed_flag4

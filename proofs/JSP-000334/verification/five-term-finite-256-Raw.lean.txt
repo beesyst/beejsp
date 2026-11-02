@@ -1,0 +1,315 @@
+import SubspaceBridge.FiveTermDegeneracy4
+import SubspaceBridge.FiveTermSource4
+import SubspaceBridge.FiveTermProjection4
+import SubspaceBridge.FiveTermMerge4
+import SubspaceBridge.FiveTermSmallFibers4
+import SubspaceBridge.FiveTermUnits4
+import SubspaceBridge.FiveTermThreeFibers4
+import SubspaceBridge.FiveTermFourFibers4
+import SubspaceBridge.FiveTermCoefficientFiber4
+import SubspaceBridge.FiveTermFiniteness4
+namespace Raw256
+noncomputable section
+open scoped Matrix BigOperators
+open JSP000334
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {n : ℕ} (x : Fin n → ℚ) : Prop := ∀ I : Finset (Fin n),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Relations (G : Subgroup ℚˣ) (m : ℕ) : Set (Fin (m+1) → ℚ) :=
+  {x | x 0=1 ∧ (∀ i,∃ u : G,((u : ℚˣ) : ℚ)=x i) ∧ (∑ i,x i=0) ∧ Nondeg x}
+def Weighted (A B C D : ℚ) : Set (Group × Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2.1 : ℚˣ) : ℚ)+D*((p.2.2 : ℚˣ) : ℚ)=0 ∧
+    Nondeg ![A,B*((p.1 : ℚˣ) : ℚ),C*((p.2.1 : ℚˣ) : ℚ),D*((p.2.2 : ℚˣ) : ℚ)]}
+def Pairs (A B C : ℚ) : Set (Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+def Raw_fiveTermCoefficientFiber4 (b0 b1 b2 b3 : ℚ) : Set (Fin 5 → ℚ) :=
+  {x | x∈Relations Group 4 ∧ b0*x 0+b1*x 1+b2*x 2+b3*x 3=0}
+
+def Raw_fiveTermProperFiber4 (P : Submodule ℚ (Fin 4 → ℚ)) : Set (Fin 5 → ℚ) :=
+  {x | x∈Relations Group 4 ∧ (fun i : Fin 4 => x i.castSucc)∈P}
+
+theorem source_five_term_weighted_degenerate_pair4 : ∀ (a b c d : ℚ)
+    (ha : a≠0) (hb : b≠0) (hc : c≠0) (hd : d≠0)
+    (hs : a+b+c+d=0) (hn : ¬Nondeg (![a,b,c,d] : Fin 4 → ℚ)),
+
+    a+b=0 ∨ a+c=0 ∨ a+d=0 :=
+  @JSP000334.five_term_weighted_degenerate_pair4
+
+theorem source_five_term_nondegenerate_coarsen4 : ∀ (x : Fin 5 → ℚ) (hx : Nondeg x)
+    (f : Fin 5 → Fin 4) (hf : Function.Surjective f),
+
+    Nondeg (fun j => ∑ i : Fin 5,if f i=j then x i else 0) :=
+  @JSP000334.five_term_nondegenerate_coarsen4
+
+theorem source_five_term_proper_annihilator4 : ∀ (P : Submodule ℚ (Fin 4 → ℚ)) (hP : P≠⊤),
+
+    ∃ a0 a1 a2 a3 : ℚ,(a0≠0 ∨ a1≠0 ∨ a2≠0 ∨ a3≠0) ∧
+      ∀ y∈P,a0*y 0+a1*y 1+a2*y 2+a3*y 3=0 :=
+  @JSP000334.five_term_proper_annihilator4
+
+theorem source_five_term_relation_facts4 : ∀ {x : Fin 5 → ℚ}
+    (hx : x∈Relations Group 4),
+
+    x 0=1 ∧ x 0+x 1+x 2+x 3+x 4=0 ∧ (∀ i,x i≠0) ∧
+      x 4=-(x 0+x 1+x 2+x 3) :=
+  @JSP000334.five_term_relation_facts4
+
+theorem source_five_term_weighted_triple_projection4 : ∀ (S : Set (Fin 5 → ℚ))
+    (hs : S⊆Relations Group 4)
+    (A B C D : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0)
+    (i j k : Fin 5) (recover : ℚ → ℚ → ℚ → Fin 5 → ℚ)
+    (he : ∀ x∈S,A+B*x i+C*x j+D*x k=0)
+    (hn : ∀ x∈S,Nondeg (![A,B*x i,C*x j,D*x k] : Fin 4 → ℚ))
+    (hr : ∀ x∈S,recover (x i) (x j) (x k)=x),
+ S.Finite :=
+  @JSP000334.five_term_weighted_triple_projection4
+
+theorem source_five_term_weighted_pair_projection4 : ∀ (S : Set (Fin 5 → ℚ))
+    (hs : S⊆Relations Group 4)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (i j : Fin 5) (recover : ℚ → ℚ → Fin 5 → ℚ)
+    (he : ∀ x∈S,A+B*x i+C*x j=0)
+    (hr : ∀ x∈S,recover (x i) (x j)=x),
+ S.Finite :=
+  @JSP000334.five_term_weighted_pair_projection4
+
+theorem source_five_term_finite_over_pairs4 : ∀ (S : Set (Fin 5 → ℚ))
+    (f : (Fin 5 → ℚ) → Group × Group)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (he : ∀ x∈S,A+B*(((f x).1 : ℚˣ) : ℚ)+C*(((f x).2 : ℚˣ) : ℚ)=0)
+    (hf : ∀ p∈Pairs A B C,{x∈S | f x=p}.Finite),
+ S.Finite :=
+  @JSP000334.five_term_finite_over_pairs4
+
+theorem source_five_term_merge_first14 : ∀ (x : Fin 5 → ℚ) (hx : Nondeg x),
+
+    Nondeg (![x 0+x 1,x 2,x 3,x 4] : Fin 4 → ℚ) :=
+  @JSP000334.five_term_merge_first14
+
+theorem source_five_term_merge_first24 : ∀ (x : Fin 5 → ℚ) (hx : Nondeg x),
+
+    Nondeg (![x 0+x 2,x 1,x 3,x 4] : Fin 4 → ℚ) :=
+  @JSP000334.five_term_merge_first24
+
+theorem source_five_term_merge_first34 : ∀ (x : Fin 5 → ℚ) (hx : Nondeg x),
+
+    Nondeg (![x 0+x 3,x 1,x 2,x 4] : Fin 4 → ℚ) :=
+  @JSP000334.five_term_merge_first34
+
+theorem source_five_term_merge_pair124 : ∀ (x : Fin 5 → ℚ) (hx : Nondeg x),
+
+    Nondeg (![x 0,x 1+x 2,x 3,x 4] : Fin 4 → ℚ) :=
+  @JSP000334.five_term_merge_pair124
+
+theorem source_five_term_merge_pair134 : ∀ (x : Fin 5 → ℚ) (hx : Nondeg x),
+
+    Nondeg (![x 0,x 1+x 3,x 2,x 4] : Fin 4 → ℚ) :=
+  @JSP000334.five_term_merge_pair134
+
+theorem source_five_term_merge_pair234 : ∀ (x : Fin 5 → ℚ) (hx : Nondeg x),
+
+    Nondeg (![x 0,x 2+x 3,x 1,x 4] : Fin 4 → ℚ) :=
+  @JSP000334.five_term_merge_pair234
+
+theorem source_five_term_fixed_coordinate_14 : ∀ (k : ℚ),
+
+    {x∈Relations Group 4 | x 1=k}.Finite :=
+  @JSP000334.five_term_fixed_coordinate_14
+
+theorem source_five_term_fixed_coordinate_24 : ∀ (k : ℚ),
+
+    {x∈Relations Group 4 | x 2=k}.Finite :=
+  @JSP000334.five_term_fixed_coordinate_24
+
+theorem source_five_term_fixed_coordinate_34 : ∀ (k : ℚ),
+
+    {x∈Relations Group 4 | x 3=k}.Finite :=
+  @JSP000334.five_term_fixed_coordinate_34
+
+theorem source_five_term_ratio_coordinate_124 : ∀ (k : ℚ),
+
+    {x∈Relations Group 4 | x 2=k*x 1}.Finite :=
+  @JSP000334.five_term_ratio_coordinate_124
+
+theorem source_five_term_ratio_coordinate_134 : ∀ (k : ℚ),
+
+    {x∈Relations Group 4 | x 3=k*x 1}.Finite :=
+  @JSP000334.five_term_ratio_coordinate_134
+
+theorem source_five_term_ratio_coordinate_234 : ∀ (k : ℚ),
+
+    {x∈Relations Group 4 | x 3=k*x 2}.Finite :=
+  @JSP000334.five_term_ratio_coordinate_234
+
+theorem source_five_term_unit_value4 : ∀ {x : Fin 5 → ℚ} (hx : x∈Relations Group 4) (i : Fin 5),
+
+    ((JSP000334.fiveTermUnit4 x i : ℚˣ) : ℚ)=x i :=
+  @JSP000334.five_term_unit_value4
+
+theorem source_five_term_pair_fiber_values4 : ∀ (S : Set (Fin 5 → ℚ))
+    (hs : S⊆Relations Group 4) (i j : Fin 5)
+    (p : Group × Group) (x : Fin 5 → ℚ)
+    (hx : x∈{x∈S | (JSP000334.fiveTermUnit4 x i,JSP000334.fiveTermUnit4 x j)=p}),
+
+    x i=((p.1 : ℚˣ) : ℚ) ∧ x j=((p.2 : ℚˣ) : ℚ) :=
+  @JSP000334.five_term_pair_fiber_values4
+
+theorem source_five_term_fixed_pair_124 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 4 | x 1=a ∧ x 2=b}.Finite :=
+  @JSP000334.five_term_fixed_pair_124
+
+theorem source_five_term_fiber_three_constant_124 : ∀ (b0 b c : ℚ)
+    (h0 : b0≠0) (hb : b≠0) (hc : c≠0),
+ (Raw_fiveTermCoefficientFiber4 b0 b c 0).Finite :=
+  @JSP000334.five_term_fiber_three_constant_124
+
+theorem source_five_term_fixed_pair_134 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 4 | x 1=a ∧ x 3=b}.Finite :=
+  @JSP000334.five_term_fixed_pair_134
+
+theorem source_five_term_fiber_three_constant_134 : ∀ (b0 b c : ℚ)
+    (h0 : b0≠0) (hb : b≠0) (hc : c≠0),
+ (Raw_fiveTermCoefficientFiber4 b0 b 0 c).Finite :=
+  @JSP000334.five_term_fiber_three_constant_134
+
+theorem source_five_term_fixed_pair_234 : ∀ (a b : ℚ),
+
+    {x∈Relations Group 4 | x 2=a ∧ x 3=b}.Finite :=
+  @JSP000334.five_term_fixed_pair_234
+
+theorem source_five_term_fiber_three_constant_234 : ∀ (b0 b c : ℚ)
+    (h0 : b0≠0) (hb : b≠0) (hc : c≠0),
+ (Raw_fiveTermCoefficientFiber4 b0 0 b c).Finite :=
+  @JSP000334.five_term_fiber_three_constant_234
+
+theorem source_five_term_fixed_ratios4 : ∀ (r s : ℚ),
+
+    {x∈Relations Group 4 | x 2=r*x 1 ∧ x 3=s*x 1}.Finite :=
+  @JSP000334.five_term_fixed_ratios4
+
+theorem source_five_term_fiber_three_ratios4 : ∀ (b1 b2 b3 : ℚ)
+    (h1 : b1≠0) (h2 : b2≠0) (h3 : b3≠0),
+
+    (Raw_fiveTermCoefficientFiber4 0 b1 b2 b3).Finite :=
+  @JSP000334.five_term_fiber_three_ratios4
+
+theorem source_five_term_fiber_four_nonzero4 : ∀ (b0 b1 b2 b3 : ℚ)
+    (h0 : b0≠0) (h1 : b1≠0) (h2 : b2≠0) (h3 : b3≠0),
+
+    (Raw_fiveTermCoefficientFiber4 b0 b1 b2 b3).Finite :=
+  @JSP000334.five_term_fiber_four_nonzero4
+
+theorem source_five_term_coefficient_fiber_finite4 : ∀ (b0 b1 b2 b3 : ℚ)
+    (hb : b0≠0 ∨ b1≠0 ∨ b2≠0 ∨ b3≠0),
+
+    (Raw_fiveTermCoefficientFiber4 b0 b1 b2 b3).Finite :=
+  @JSP000334.five_term_coefficient_fiber_finite4
+
+theorem source_five_term_proper_fiber_finite4 : ∀ (P : Submodule ℚ (Fin 4 → ℚ)) (hP : P≠⊤),
+
+    (Raw_fiveTermProperFiber4 P).Finite :=
+  @JSP000334.five_term_proper_fiber_finite4
+
+theorem source_fixed_five_term_finite :
+ (Relations Group 4).Finite :=
+  @JSP000334.fixed_five_term_finite
+
+theorem source_source_five_term_finite_cover4 :
+
+    ∃ F : Set (Submodule ℚ (Fin 4 → ℚ)),
+      F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ x∈Relations Group 4,
+        ∃ P∈F,(fun i : Fin 4 => x i.castSucc)∈P :=
+  @JSP000334.source_five_term_finite_cover4
+
+theorem source_weighted_four_term_finite : ∀ (A B C D : ℚ)
+    (hA : A≠0) (hB : B≠0) (hC : C≠0) (hD : D≠0),
+
+    (Weighted A B C D).Finite :=
+  @JSP000334.weighted_four_term_finite
+
+theorem source_weighted_fixed_sunit_pair_finite : ∀ (A B C : ℚ)
+    (hA : A ≠ 0)
+    (hB : B ≠ 0)
+    (hC : C ≠ 0),
+
+    (Pairs A B C).Finite :=
+  @JSP000334.weighted_fixed_sunit_pair_finite
+
+end
+end Raw256
+#check Raw256.source_five_term_weighted_degenerate_pair4
+#print axioms Raw256.source_five_term_weighted_degenerate_pair4
+#check Raw256.source_five_term_nondegenerate_coarsen4
+#print axioms Raw256.source_five_term_nondegenerate_coarsen4
+#check Raw256.source_five_term_proper_annihilator4
+#print axioms Raw256.source_five_term_proper_annihilator4
+#check Raw256.source_five_term_relation_facts4
+#print axioms Raw256.source_five_term_relation_facts4
+#check Raw256.source_five_term_weighted_triple_projection4
+#print axioms Raw256.source_five_term_weighted_triple_projection4
+#check Raw256.source_five_term_weighted_pair_projection4
+#print axioms Raw256.source_five_term_weighted_pair_projection4
+#check Raw256.source_five_term_finite_over_pairs4
+#print axioms Raw256.source_five_term_finite_over_pairs4
+#check Raw256.source_five_term_merge_first14
+#print axioms Raw256.source_five_term_merge_first14
+#check Raw256.source_five_term_merge_first24
+#print axioms Raw256.source_five_term_merge_first24
+#check Raw256.source_five_term_merge_first34
+#print axioms Raw256.source_five_term_merge_first34
+#check Raw256.source_five_term_merge_pair124
+#print axioms Raw256.source_five_term_merge_pair124
+#check Raw256.source_five_term_merge_pair134
+#print axioms Raw256.source_five_term_merge_pair134
+#check Raw256.source_five_term_merge_pair234
+#print axioms Raw256.source_five_term_merge_pair234
+#check Raw256.source_five_term_fixed_coordinate_14
+#print axioms Raw256.source_five_term_fixed_coordinate_14
+#check Raw256.source_five_term_fixed_coordinate_24
+#print axioms Raw256.source_five_term_fixed_coordinate_24
+#check Raw256.source_five_term_fixed_coordinate_34
+#print axioms Raw256.source_five_term_fixed_coordinate_34
+#check Raw256.source_five_term_ratio_coordinate_124
+#print axioms Raw256.source_five_term_ratio_coordinate_124
+#check Raw256.source_five_term_ratio_coordinate_134
+#print axioms Raw256.source_five_term_ratio_coordinate_134
+#check Raw256.source_five_term_ratio_coordinate_234
+#print axioms Raw256.source_five_term_ratio_coordinate_234
+#check Raw256.source_five_term_unit_value4
+#print axioms Raw256.source_five_term_unit_value4
+#check Raw256.source_five_term_pair_fiber_values4
+#print axioms Raw256.source_five_term_pair_fiber_values4
+#check Raw256.source_five_term_fixed_pair_124
+#print axioms Raw256.source_five_term_fixed_pair_124
+#check Raw256.source_five_term_fiber_three_constant_124
+#print axioms Raw256.source_five_term_fiber_three_constant_124
+#check Raw256.source_five_term_fixed_pair_134
+#print axioms Raw256.source_five_term_fixed_pair_134
+#check Raw256.source_five_term_fiber_three_constant_134
+#print axioms Raw256.source_five_term_fiber_three_constant_134
+#check Raw256.source_five_term_fixed_pair_234
+#print axioms Raw256.source_five_term_fixed_pair_234
+#check Raw256.source_five_term_fiber_three_constant_234
+#print axioms Raw256.source_five_term_fiber_three_constant_234
+#check Raw256.source_five_term_fixed_ratios4
+#print axioms Raw256.source_five_term_fixed_ratios4
+#check Raw256.source_five_term_fiber_three_ratios4
+#print axioms Raw256.source_five_term_fiber_three_ratios4
+#check Raw256.source_five_term_fiber_four_nonzero4
+#print axioms Raw256.source_five_term_fiber_four_nonzero4
+#check Raw256.source_five_term_coefficient_fiber_finite4
+#print axioms Raw256.source_five_term_coefficient_fiber_finite4
+#check Raw256.source_five_term_proper_fiber_finite4
+#print axioms Raw256.source_five_term_proper_fiber_finite4
+#check Raw256.source_fixed_five_term_finite
+#print axioms Raw256.source_fixed_five_term_finite
+#check Raw256.source_source_five_term_finite_cover4
+#print axioms Raw256.source_source_five_term_finite_cover4
+#check Raw256.source_weighted_four_term_finite
+#print axioms Raw256.source_weighted_four_term_finite
+#check Raw256.source_weighted_fixed_sunit_pair_finite
+#print axioms Raw256.source_weighted_fixed_sunit_pair_finite

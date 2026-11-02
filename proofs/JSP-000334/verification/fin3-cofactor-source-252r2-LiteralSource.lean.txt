@@ -1,0 +1,1441 @@
+import SubspaceBridge.SelectedProductVanishing3
+open JSP000334
+namespace Literal252R2
+open scoped BigOperators Matrix
+open MeasureTheory
+namespace JSP000334
+noncomputable section
+
+def cofactorIntegerMatrix3 (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ :=
+  (retainedIntegerMatrix3 k).adjugate.transpose
+
+theorem cofactorIntegerMatrix3_det (k : Fin 3) : (cofactorIntegerMatrix3 k).det = 1 := by
+  rw [cofactorIntegerMatrix3,Matrix.det_transpose,Matrix.det_adjugate,retainedIntegerMatrix3_det]
+  split_ifs <;> norm_num
+
+theorem cofactorIntegerMatrix3_isUnit (k : Fin 3) : IsUnit (cofactorIntegerMatrix3 k) := by
+  apply (Matrix.isUnit_iff_isUnit_det _).mpr
+  rw [cofactorIntegerMatrix3_det]
+  exact isUnit_one
+
+def cofactorForms3 (k i : Fin 3) (x : Fin 3 → ℚ) : ℚ :=
+  ∑ j : Fin 3, (cofactorIntegerMatrix3 k i j : ℚ) * x j
+
+theorem cofactorIntegerMatrix3_apply (k i : Fin 3) (x : IntegerTriple) :
+    (((cofactorIntegerMatrix3 k *ᵥ x) i : ℤ) : ℚ) =
+      cofactorForms3 k i (fun j => (x j : ℚ)) := by
+  simp [Matrix.mulVec,dotProduct,cofactorForms3]
+
+theorem exists_cofactor_mixedCongruence3_Q_lattice
+    (k₂ k₃ : Fin 3) (c₂ c₃ : Fin 3 → ℝ) (Q : ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0) :
+    let a := fun i => Nat.ceil (-c₂ i * Real.log Q / Real.log 2)
+    let b := fun i => Nat.ceil (-c₃ i * Real.log Q / Real.log 3)
+    ∃ G : AddSubgroup IntegerTriple,
+      (∀ x, x ∈ G ↔
+        (∀ i, (padicNorm 2 (cofactorForms3 k₂ i (fun j => (x j : ℚ))) : ℝ) ≤
+          Real.rpow Q (c₂ i)) ∧
+        (∀ i, (padicNorm 3 (cofactorForms3 k₃ i (fun j => (x j : ℚ))) : ℝ) ≤
+          Real.rpow Q (c₃ i))) ∧
+      G = mixedCongruence3 (cofactorIntegerMatrix3 k₂) (cofactorIntegerMatrix3 k₃) a b ∧
+      Finite (IntegerTriple ⧸ G) ∧
+      G.index = 2 ^ (∑ i, a i) * 3 ^ (∑ i, b i) ∧
+      ZLattice.covolume (G.toIntSubmodule.map integerTripleReal3) =
+        (2 : ℝ) ^ (∑ i, a i) * 3 ^ (∑ i, b i) := by
+  obtain ⟨G, hmem, heq, hf, hi, hv⟩ := exists_mixedCongruence3_Q_lattice
+    (cofactorIntegerMatrix3 k₂) (cofactorIntegerMatrix3 k₃)
+    (cofactorIntegerMatrix3_isUnit k₂) (cofactorIntegerMatrix3_isUnit k₃)
+    c₂ c₃ Q hQ hc₂ hc₃
+  refine ⟨G, ?_, heq, hf, hi, hv⟩
+  intro x
+  simpa only [cofactorIntegerMatrix3_apply] using hmem x
+
+
+def cofactorRealMatrix3 (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℝ :=
+  (cofactorIntegerMatrix3 k).map (Int.castRingHom ℝ)
+
+theorem cofactorRealMatrix3_det (k : Fin 3) : (cofactorRealMatrix3 k).det = 1 := by
+  have hc : (cofactorRealMatrix3 k).det = ((cofactorIntegerMatrix3 k).det : ℝ) :=
+    ((Int.castRingHom ℝ).map_det _).symm
+  rw [hc,cofactorIntegerMatrix3_det]
+  norm_num
+
+def cofactorRealCoordinates3 (k : Fin 3) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  LinearEquiv.ofBijective (Matrix.toLin' (cofactorRealMatrix3 k)) (by
+    have hu : IsUnit (cofactorRealMatrix3 k) := by
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [cofactorRealMatrix3_det]
+      norm_num
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr hu, Matrix.mulVec_surjective_iff_isUnit.mpr hu⟩)
+
+theorem cofactorRealCoordinates3_abs_det (k : Fin 3) :
+    |LinearMap.det (cofactorRealCoordinates3 k).toLinearMap| = 1 := by
+  change |LinearMap.det (Matrix.toLin' (cofactorRealMatrix3 k))| = 1
+  rw [LinearMap.det_toLin', cofactorRealMatrix3_det]
+  norm_num
+
+theorem cofactorRealBody3_volume (k : Fin 3) (w : Fin 3 → ℝ) (hw : ∀ i, 0 < w i) :
+    volume.real (archBody3 (cofactorRealCoordinates3 k) w) = 8 * ∏ i, w i := by
+  rw [archBody3_volume _ _ hw, cofactorRealCoordinates3_abs_det, div_one]
+
+def cofactorSourceBody3 (k : Fin 3) (Q : ℝ) (c₀ : Fin 3 → ℝ) : Set RealTriple :=
+  {x | ∀ i, |(cofactorRealMatrix3 k *ᵥ x) i| ≤ Q ^ c₀ i}
+
+def cofactorSourceCoordinates3 (k : Fin 3) (Q : ℝ) (c₀ : Fin 3 → ℝ) (hQ : 1 < Q) :
+    RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3 (cofactorRealCoordinates3 k) (fun i => Q ^ c₀ i)
+    (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) (c₀ i))
+
+def cofactorSourceLattice3 (k₂ k₃ : Fin 3) (Q : ℝ) (c₂ c₃ : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (cofactorIntegerMatrix3 k₂) (cofactorIntegerMatrix3 k₃)
+    (fun i => Nat.ceil (qThreshold 2 Q (c₂ i)))
+    (fun i => Nat.ceil (qThreshold 3 Q (c₃ i)))
+
+theorem cofactorSourceBody3_eq_parallelepiped (k : Fin 3) (Q : ℝ) (c₀ : Fin 3 → ℝ) (hQ : 1 < Q) :
+    cofactorSourceBody3 k Q c₀ = parallelepipedBody3 (cofactorSourceCoordinates3 k Q c₀ hQ) := by
+  change archBody3 (cofactorRealCoordinates3 k) (fun i => Q ^ c₀ i) = _
+  exact archBody3_eq_parallelepiped _ _ _
+
+theorem cofactorSourceBody3_volume (k : Fin 3) (Q : ℝ) (c₀ : Fin 3 → ℝ) (hQ : 1 < Q) :
+    volume.real (cofactorSourceBody3 k Q c₀) = 8 * ∏ i, Q ^ c₀ i := by
+  change volume.real (archBody3 (cofactorRealCoordinates3 k) (fun i => Q ^ c₀ i)) = _
+  exact cofactorRealBody3_volume _ _ (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) (c₀ i))
+
+theorem cofactorSourceLattice3_spec (k₂ k₃ : Fin 3) (Q : ℝ) (c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0) :
+    (∀ x, x ∈ cofactorSourceLattice3 k₂ k₃ Q c₂ c₃ ↔
+      (∀ i, (padicNorm 2 (cofactorForms3 k₂ i (fun j => (x j : ℚ))) : ℝ) ≤ Q ^ c₂ i) ∧
+      (∀ i, (padicNorm 3 (cofactorForms3 k₃ i (fun j => (x j : ℚ))) : ℝ) ≤ Q ^ c₃ i)) ∧
+    Finite (IntegerTriple ⧸ cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) ∧
+    (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index = qCongruenceIndex3 Q c₂ c₃ ∧
+    ZLattice.covolume ((cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3) =
+      (qCongruenceIndex3 Q c₂ c₃ : ℝ) := by
+  obtain ⟨G, hm, heq, hf, hi, hv⟩ :=
+    exists_cofactor_mixedCongruence3_Q_lattice k₂ k₃ c₂ c₃ Q hQ hc₂ hc₃
+  have heq' : G = cofactorSourceLattice3 k₂ k₃ Q c₂ c₃ := heq
+  subst G
+  refine ⟨hm, hf, hi, ?_⟩
+  simpa only [qCongruenceIndex3, qThreshold, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat] using hv
+
+theorem exists_cofactorSource_minima_upper
+    (k₀ k₂ k₃ : Fin 3) (Q : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0) :
+    ∃ B : Basis (Fin 3) ℝ RealTriple,
+      lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 ∧
+      (∏ i, successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) i) ≤ qRoundingFactor3 Q c₂ c₃ ∧
+      qRoundingFactor3 Q c₂ c₃ < 216 := by
+  let a := fun i => Nat.ceil (qThreshold 2 Q (c₂ i))
+  let b := fun i => Nat.ceil (qThreshold 3 Q (c₃ i))
+  obtain ⟨c⟩ := mixedCongruence3_has_basis (cofactorIntegerMatrix3 k₂) (cofactorIntegerMatrix3 k₃) a b
+  let B := mixedCongruence3_realBasis _ _ (cofactorIntegerMatrix3_isUnit k₂)
+    (cofactorIntegerMatrix3_isUnit k₃) a b c
+  have hL : lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 :=
+    (mixedCongruence3_realImage_eq_lattice3 _ _ (cofactorIntegerMatrix3_isUnit k₂)
+      (cofactorIntegerMatrix3_isUnit k₃) a b c).symm
+  refine ⟨B, hL, ?_, (qRoundingFactor3_bounds Q c₂ c₃ hQ hc₂ hc₃).2⟩
+  have h := successive_minima3_parallelepiped_volume_upper B (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+  have hvol : volume.real (parallelepipedBody3 (cofactorSourceCoordinates3 k₀ Q c₀ hQ)) =
+      8 * ∏ i, Q ^ c₀ i := by
+    rw [← cofactorSourceBody3_eq_parallelepiped k₀ Q c₀ hQ]
+    exact cofactorSourceBody3_volume k₀ Q c₀ hQ
+  have hcov : ZLattice.covolume (lattice3 B) = (qCongruenceIndex3 Q c₂ c₃ : ℝ) := by
+    rw [hL]
+    exact (cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.2
+  rw [hvol, hcov, qCongruenceIndex3_balanced Q c₀ c₂ c₃ hQ hb] at h
+  have hW : 0 < ∏ i, Q ^ c₀ i :=
+    Finset.prod_pos (fun i _ => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+  apply (mul_le_mul_right (mul_pos (by norm_num : (0 : ℝ) < 8) hW)).mp
+  nlinarith
+theorem cofactorSource_arch_bound (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ)
+    (hQ : 1 < Q) (x : RealTriple) (i : Fin 3) :
+    |cofactorRealCoordinates3 k x i| ≤
+      coordinateGauge3 (cofactorSourceCoordinates3 k Q c hQ) x * Q ^ c i := by
+  have h : |cofactorSourceCoordinates3 k Q c hQ x i| ≤
+      coordinateGauge3 (cofactorSourceCoordinates3 k Q c hQ) x := by
+    simpa only [coordinateGauge3,Real.norm_eq_abs] using
+      norm_le_pi_norm (cofactorSourceCoordinates3 k Q c hQ x) i
+  change |cofactorRealCoordinates3 k x i / Q ^ c i| ≤ _ at h
+  rw [abs_div,abs_of_pos (Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)] at h
+  exact (div_le_iff₀ (Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)).mp h
+
+theorem exists_cofactorSource_integer_attaining_frame
+    (k₀ k₂ k₃ : Fin 3) (Q : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0) :
+    ∃ (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃),
+      lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 ∧
+      LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+      (∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+        (integerTripleReal3 (u j : IntegerTriple)) =
+          successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j) ∧
+      Finite ((cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) ⧸ Submodule.span ℤ (Set.range u)) ∧
+      (Submodule.span ℤ (Set.range u)).toAddSubgroup.index ≤ 6 ∧
+      (∀ i j, |cofactorRealCoordinates3 k₀ (integerTripleReal3 (u j : IntegerTriple)) i| ≤
+        successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j * Q ^ c₀ i) ∧
+      (∀ i j, (padicNorm 2 (cofactorForms3 k₂ i
+        (fun l => ((u j : IntegerTriple) l : ℚ))) : ℝ) ≤ Q ^ c₂ i) ∧
+      (∀ i j, (padicNorm 3 (cofactorForms3 k₃ i
+        (fun l => ((u j : IntegerTriple) l : ℚ))) : ℝ) ≤ Q ^ c₃ i) ∧
+      (∏ j, successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j) ≤
+        qRoundingFactor3 Q c₂ c₃ ∧ qRoundingFactor3 Q c₂ c₃ < 216 ∧
+      (∏ j, successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j) < 216 := by
+  obtain ⟨B, hL, hp, hR⟩ := exists_cofactorSource_minima_upper k₀ k₂ k₃ Q c₀ c₂ c₃ hQ hc₂ hc₃ hb
+  have hv := exists_successive_minima3_bounded_index B (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+  rw [hL] at hv
+  obtain ⟨v, hvLI, hvAtt, hvFin, hvIndex, _⟩ := hv
+  let G := cofactorSourceLattice3 k₂ k₃ Q c₂ c₃
+  let u : Fin 3 → G := fun j => (integerTripleRealEquiv3 G).symm (v j)
+  have huv : (fun j => integerTripleRealEquiv3 G (u j)) = v :=
+    funext (fun j => (integerTripleRealEquiv3 G).apply_symm_apply (v j))
+  have hcast (j : Fin 3) : integerTripleReal3 (u j : IntegerTriple) = (v j : RealTriple) :=
+    integerTripleRealEquiv3_symm_apply G (v j)
+  have huLI : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) := by
+    simpa only [hcast] using hvLI
+  have huAtt : ∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+        successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j := by
+    simpa only [hcast] using hvAtt
+  have huFin : Finite (G ⧸ Submodule.span ℤ (Set.range u)) := by
+    apply (integerTripleRealEquiv3_finite_iff G u).mpr
+    rw [huv]
+    exact hvFin
+  have huIndex : (Submodule.span ℤ (Set.range u)).toAddSubgroup.index ≤ 6 := by
+    rw [integerTripleRealEquiv3_index G u, huv]
+    exact hvIndex
+  refine ⟨B, u, hL, huLI, huAtt, huFin, huIndex, ?_, ?_, ?_, hp, hR, hp.trans_lt hR⟩
+  · intro i j
+    have h := cofactorSource_arch_bound k₀ Q c₀ hQ (integerTripleReal3 (u j : IntegerTriple)) i
+    rwa [huAtt j] at h
+  · intro i j
+    exact ((cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).1
+      (u j : IntegerTriple) |>.mp (u j).property).1 i
+  · intro i j
+    exact ((cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).1
+      (u j : IntegerTriple) |>.mp (u j).property).2 i
+
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+theorem cofactorOriginalMatrix3_table (k : Fin 3) :
+    retainedIntegerMatrix3 k =
+      ![![![0,1,0],![0,0,1],![1,1,1]],
+        ![![1,0,0],![0,0,1],![1,1,1]],
+        ![![1,0,0],![0,1,0],![1,1,1]]] k := by
+  fin_cases k <;> decide
+
+theorem cofactorIntegerMatrix3_table (k : Fin 3) :
+    cofactorIntegerMatrix3 k =
+      ![![![-1,1,0],![-1,0,1],![1,0,0]],
+        ![![-1,1,0],![0,1,-1],![0,-1,0]],
+        ![![1,0,-1],![0,1,-1],![0,0,1]]] k := by
+  ext i j
+  fin_cases k <;> fin_cases i <;> fin_cases j <;>
+    norm_num [cofactorIntegerMatrix3,cofactorOriginalMatrix3_table,
+      Matrix.adjugate_fin_three,Matrix.transpose_apply,
+      Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons]
+
+noncomputable def cofactorRationalMatrix3 (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℚ :=
+  (cofactorIntegerMatrix3 k).map (Int.castRingHom ℚ)
+
+noncomputable def cofactorDualValue3 (k : Fin 3) (x : Fin 3 → ℚ) (i : Fin 3) : ℚ :=
+  ∑ l : Fin 3, (cofactorRationalMatrix3 k)⁻¹ l i * x l
+
+theorem cofactorRationalMatrix3_det (k : Fin 3) :
+    (cofactorRationalMatrix3 k).det = 1 := by
+  have hd : (cofactorRationalMatrix3 k).det = ((cofactorIntegerMatrix3 k).det : ℚ) :=
+    ((Int.castRingHom ℚ).map_det _).symm
+  rw [hd, cofactorIntegerMatrix3_det]
+  norm_num
+
+theorem cofactorDualValue3_inverse (k : Fin 3) (w : Fin 3 → IntegerTriple) (i j : Fin 3) :
+    cofactorDualValue3 k (dualFrameVector3 w j) i =
+      (dualFrameRationalMatrix3 w * (cofactorRationalMatrix3 k).transpose)⁻¹ i j := by
+  rw [Matrix.mul_inv_rev, ← Matrix.transpose_nonsing_inv]
+  rfl
+
+theorem cofactor_scaled_dual_padic_bound3 (p : ℕ) [Fact p.Prime]
+    (G : AddSubgroup IntegerTriple) (c : Basis (Fin 3) ℤ G) (u : Fin 3 → G)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (k : Fin 3) (s : Fin 3 → ℝ) (hs : ∀ i, 0 ≤ s i)
+    (hpoint : ∀ j i, (padicNorm p (∑ l : Fin 3,
+      (cofactorRationalMatrix3 k) i l * ((u j : IntegerTriple) l : ℚ)) : ℝ) ≤ s i)
+    (i : Fin 3) :
+    (padicNorm p (cofactorDualValue3 k (fun l =>
+      ((dualFrameRelativeIndex3 G u * G.index : ℕ) : ℚ) *
+        dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 l) i) : ℝ) ≤
+      s (i.succAbove 0) * s (i.succAbove 1) := by
+  let w := fun j => (u j : IntegerTriple)
+  let U := dualFrameRationalMatrix3 w * (cofactorRationalMatrix3 k).transpose
+  have huQ := dualFrameMatrix3_rational_independent w hu
+  have hUnz : U.det ≠ 0 := by
+    dsimp [U]
+    rw [Matrix.det_mul, Matrix.det_transpose]
+    apply mul_ne_zero (dualFrameMatrix3_det_ne_zero w huQ)
+    rw [cofactorRationalMatrix3_det]
+    norm_num
+  have hcof : U.det * U⁻¹ i 2 = U.adjugate i 2 := by
+    rw [Matrix.inv_def, Ring.inverse_eq_inv]
+    change _ * (_⁻¹ * _) = _
+    rw [← mul_assoc, mul_inv_cancel₀ hUnz, one_mul]
+  have hJD : padicNorm p U.det =
+      padicNorm p (((dualFrameRelativeIndex3 G u * G.index : ℕ) : ℚ)) := by
+    dsimp [U]
+    rw [Matrix.det_mul, Matrix.det_transpose, padicNorm.mul, cofactorRationalMatrix3_det]
+    simp only [padicNorm.one, mul_one]
+    all_goals
+      rw [dualFrameRelativeIndex3_mul_index G c u hu]
+      have hd : (dualFrameRationalMatrix3 w).det = ((dualFrameIntegerMatrix3 w).det : ℚ) :=
+        ((Int.castRingHom ℚ).map_det _).symm
+      rw [hd, ← Int.cast_natCast, Int.natCast_natAbs, Int.cast_abs]
+      by_cases h : (0 : ℚ) ≤ ((dualFrameIntegerMatrix3 w).det : ℚ)
+      · rw [abs_of_nonneg h]
+      · rw [abs_of_neg (lt_of_not_ge h), padicNorm.neg]
+  have he : cofactorDualValue3 k (fun l =>
+      ((dualFrameRelativeIndex3 G u * G.index : ℕ) : ℚ) * dualFrameVector3 w 2 l) i =
+      ((dualFrameRelativeIndex3 G u * G.index : ℕ) : ℚ) * U⁻¹ i 2 := by
+    rw [← cofactorDualValue3_inverse k w i 2]
+    simp only [cofactorDualValue3, Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro l _
+    ring
+  have hnorm : padicNorm p (cofactorDualValue3 k (fun l =>
+      ((dualFrameRelativeIndex3 G u * G.index : ℕ) : ℚ) * dualFrameVector3 w 2 l) i) =
+      padicNorm p (U.adjugate i 2) := by
+    rw [he, ← hcof, padicNorm.mul, padicNorm.mul, hJD]
+  rw [hnorm]
+  apply conditional_last_cofactor_bound3 p U s hs
+  intro j l
+  have h := hpoint j l
+  simpa [U, dualFrameRationalMatrix3, dualFrameIntegerMatrix3,
+    Matrix.mul_apply, Matrix.transpose_apply, w, mul_comm] using h
+
+theorem cofactor_source_value3 (k i : Fin 3) (x : IntegerTriple) :
+    (∑ l : Fin 3, cofactorRationalMatrix3 k i l * (x l : ℚ)) =
+      cofactorForms3 k i (fun l => (x l : ℚ)) := by
+  rw [← cofactorIntegerMatrix3_apply k i x]
+  simp [cofactorRationalMatrix3, Matrix.mulVec, dotProduct]
+
+theorem cofactor_actual_finite_bounds3
+    (k₂ k₃ : Fin 3) (Q : ℝ) (c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (c : Basis (Fin 3) ℤ (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃))
+    (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple))) :
+    let z := fun l => ((dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u *
+      (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+        dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 l
+    (∀ i, (padicNorm 2 (cofactorDualValue3 k₂ z i) : ℝ) ≤
+      Q ^ (c₂ (i.succAbove 0) + c₂ (i.succAbove 1))) ∧
+    (∀ i, (padicNorm 3 (cofactorDualValue3 k₃ z i) : ℝ) ≤
+      Q ^ (c₃ (i.succAbove 0) + c₃ (i.succAbove 1))) := by
+  letI : Fact (Nat.Prime 2) := ⟨by decide⟩
+  letI : Fact (Nat.Prime 3) := ⟨by decide⟩
+  have hb j := (cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).1 (u j)
+  have hp := lt_trans zero_lt_one hQ
+  constructor
+  · intro i
+    rw [Real.rpow_add hp]
+    apply cofactor_scaled_dual_padic_bound3 2 _ c u hu k₂ (fun i => Q ^ c₂ i)
+      (fun i => (Real.rpow_pos_of_pos hp _).le)
+    intro j l
+    rw [cofactor_source_value3]
+    exact ((hb j).mp (u j).property).1 l
+  · intro i
+    rw [Real.rpow_add hp]
+    apply cofactor_scaled_dual_padic_bound3 3 _ c u hu k₃ (fun i => Q ^ c₃ i)
+      (fun i => (Real.rpow_pos_of_pos hp _).le)
+    intro j l
+    rw [cofactor_source_value3]
+    exact ((hb j).mp (u j).property).2 l
+
+def cofactorDualInt3 (k : Fin 3) (m : IntegerTriple) : IntegerTriple :=
+  if k = 1 then -(retainedIntegerMatrix3 k *ᵥ m) else retainedIntegerMatrix3 k *ᵥ m
+
+theorem cofactorDualInt3_value (k : Fin 3) (m : IntegerTriple) (i : Fin 3) :
+    cofactorDualValue3 k (fun l => (m l : ℚ)) i = (cofactorDualInt3 k m i : ℚ) := by
+  let A := cofactorRationalMatrix3 k
+  let v : Fin 3 → ℚ := fun l => (cofactorDualInt3 k m l : ℚ)
+  have hAv : A.transpose *ᵥ v = fun l => (m l : ℚ) := by
+    ext l
+    fin_cases k <;> fin_cases l <;>
+      norm_num [A,v,cofactorRationalMatrix3,cofactorRealMatrix3,cofactorIntegerMatrix3_table,
+        cofactorDualInt3,cofactorOriginalMatrix3_table,
+        integerTripleReal3,Matrix.mulVec,dotProduct,Matrix.transpose_apply,
+        Fin.sum_univ_succ,Pi.single_apply,Fin.succAbove,Fin.ext_iff,Fin.lt_def,
+        Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons] <;> ring <;> try rfl
+  have hunit : IsUnit A.det := by
+    dsimp [A]
+    rw [cofactorRationalMatrix3_det]
+    norm_num
+  change (A⁻¹.transpose *ᵥ (fun l => (m l : ℚ))) i = v i
+  rw [← hAv, Matrix.mulVec_mulVec, ← Matrix.transpose_mul,
+    Matrix.mul_nonsing_inv A hunit, Matrix.transpose_one, Matrix.one_mulVec]
+
+theorem cofactorDualInt3_height_bound (k : Fin 3) (m : IntegerTriple) (i : Fin 3) :
+    |(cofactorDualInt3 k m i : ℝ)| ≤ 3 * (rothKernelRowHeight m : ℝ) := by
+  have hi := conditional_height_coord3 m
+  have hn : (0 : ℝ) ≤ rothKernelRowHeight m := Nat.cast_nonneg _
+  have hneg : |-(m 2 : ℝ) + -(m 1 : ℝ) + -(m 0 : ℝ)| ≤
+      3 * (rothKernelRowHeight m : ℝ) := by
+    rw [show -(m 2 : ℝ) + -(m 1 : ℝ) + -(m 0 : ℝ) =
+      -((m 0 : ℝ) + ((m 1 : ℝ) + (m 2 : ℝ))) by ring,abs_neg]
+    calc
+      _ ≤ |(m 0 : ℝ)| + (|(m 1 : ℝ)| + |(m 2 : ℝ)|) :=
+        (abs_add _ _).trans (add_le_add_left (abs_add _ _) _)
+      _ ≤ _ := by linarith [hi 0,hi 1,hi 2]
+  fin_cases k <;> fin_cases i <;>
+    simp [cofactorDualInt3,cofactorOriginalMatrix3_table,Matrix.mulVec,dotProduct,
+      Fin.sum_univ_succ,Pi.single_apply,Fin.succAbove,Fin.ext_iff,Fin.lt_def] <;>
+    nlinarith [hi 0,hi 1,hi 2,hneg,abs_add (m 0 : ℝ) (m 1 : ℝ),
+      abs_add ((m 0 : ℝ)+(m 1 : ℝ)) (m 2 : ℝ),
+      abs_add (m 1 : ℝ) (m 2 : ℝ),abs_add (m 0 : ℝ) ((m 1 : ℝ)+(m 2 : ℝ))]
+
+noncomputable def cofactorSelectedProduct3 (k₀ k₂ k₃ : Fin 3)
+    (s : Fin 3 → Fin 3) (x : Fin 3 → ℚ) : ℝ :=
+  |(cofactorDualValue3 k₀ x (s 0) : ℝ)| *
+    (padicNorm 2 (cofactorDualValue3 k₂ x (s 1)) : ℝ) *
+    (padicNorm 3 (cofactorDualValue3 k₃ x (s 2)) : ℝ)
+
+theorem cofactor_selected_product_lower3 (k₀ k₂ k₃ : Fin 3)
+    (s : Fin 3 → Fin 3) (m : IntegerTriple) (hm : m ≠ 0)
+    (hn : cofactorSelectedProduct3 k₀ k₂ k₃ s (fun l => (m l : ℚ)) ≠ 0) :
+    1 / (9 * (rothKernelRowHeight m : ℝ) ^ 2) ≤
+      cofactorSelectedProduct3 k₀ k₂ k₃ s (fun l => (m l : ℚ)) := by
+  let z₀ := cofactorDualInt3 k₀ m (s 0)
+  let z₂ := cofactorDualInt3 k₂ m (s 1)
+  let z₃ := cofactorDualInt3 k₃ m (s 2)
+  have hp : cofactorSelectedProduct3 k₀ k₂ k₃ s (fun l => (m l : ℚ)) =
+      |(z₀ : ℝ)| * (padicNorm 2 (z₂ : ℚ) : ℝ) * (padicNorm 3 (z₃ : ℚ) : ℝ) := by
+    simp only [cofactorSelectedProduct3, cofactorDualInt3_value, Rat.cast_intCast]
+    rfl
+  rw [hp] at hn ⊢
+  have hz₀ : z₀ ≠ 0 := by intro h; simp [h] at hn
+  have hz₂ : z₂ ≠ 0 := by intro h; simp [h] at hn
+  have hz₃ : z₃ ≠ 0 := by intro h; simp [h] at hn
+  have hH := conditional_height_pos3 m hm
+  have h0 : 1 ≤ |(z₀ : ℝ)| := by
+    have hh : 1 ≤ z₀.natAbs := Int.natAbs_pos.mpr hz₀
+    have hab : (z₀.natAbs : ℝ) = |(z₀ : ℝ)| := by
+      rw [← Int.cast_natCast, Int.natCast_natAbs, Int.cast_abs]
+    rw [← hab]
+    exact_mod_cast hh
+  have h2 := (conditional_integer_local_lower3 z₂ hz₂).1
+  have h3 := (conditional_integer_local_lower3 z₃ hz₃).2
+  have h2n : (0 : ℝ) ≤ padicNorm 2 (z₂ : ℚ) := by exact_mod_cast padicNorm.nonneg _
+  have h3n : (0 : ℝ) ≤ padicNorm 3 (z₃ : ℚ) := by exact_mod_cast padicNorm.nonneg _
+  have hu2 := cofactorDualInt3_height_bound k₂ m (s 1)
+  have hu3 := cofactorDualInt3_height_bound k₃ m (s 2)
+  have hl2 : 1 / (3 * (rothKernelRowHeight m : ℝ)) ≤ (padicNorm 2 (z₂ : ℚ) : ℝ) := by
+    apply (div_le_iff₀ (by positivity)).mpr
+    nlinarith [mul_le_mul_of_nonneg_right hu2 h2n]
+  have hl3 : 1 / (3 * (rothKernelRowHeight m : ℝ)) ≤ (padicNorm 3 (z₃ : ℚ) : ℝ) := by
+    apply (div_le_iff₀ (by positivity)).mpr
+    nlinarith [mul_le_mul_of_nonneg_right hu3 h3n]
+  have hmul := mul_le_mul hl2 hl3 (by positivity) h2n
+  have hfull := mul_le_mul h0 hmul (by positivity) (abs_nonneg (z₀ : ℝ))
+  calc
+    _ = (1 : ℝ) * (1 / (3 * (rothKernelRowHeight m : ℝ)) *
+        (1 / (3 * (rothKernelRowHeight m : ℝ)))) := by ring
+    _ ≤ _ := by simpa [mul_assoc] using hfull
+
+
+theorem cofactor_actual_real_bound3
+    (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hreal : ∀ i, |((dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u *
+      (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℕ) : ℝ) *
+        dualFrameRealLocalValue3 (cofactorRealMatrix3 k₀)
+          (fun j => (u j : IntegerTriple)) 2 i| ≤
+      6 * ((cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℝ) * (Q ^ c₀ i)⁻¹ *
+        (successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) 2)⁻¹)
+    (hsmall : successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) 1 < Q ^ (-delta))
+    (i : Fin 3) :
+    |((dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u *
+      (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℕ) : ℝ) *
+        dualFrameRealLocalValue3 (cofactorRealMatrix3 k₀)
+          (fun j => (u j : IntegerTriple)) 2 i| ≤
+      36 * (∏ l : Fin 3, Q ^ c₀ l) * (Q ^ c₀ i)⁻¹ * Q ^ (-2 * delta) := by
+  let G := cofactorSourceLattice3 k₂ k₃ Q c₂ c₃
+  let P := ∏ l : Fin 3, Q ^ c₀ l
+  have ha (i : Fin 3) : 0 < Q ^ c₀ i := Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _
+  have hP : 0 < P := Finset.prod_pos (fun l _ => ha l)
+  have hD : (0 : ℝ) < G.index := by
+    rw [(cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.1]
+    unfold qCongruenceIndex3
+    positivity
+  have hcov : ZLattice.covolume (lattice3 B) = (G.index : ℝ) := by
+    rw [hB, (cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.1]
+    exact (cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.2
+  have hvol : MeasureTheory.volume.real (parallelepipedBody3 (cofactorSourceCoordinates3 k₀ Q c₀ hQ)) =
+      8 * P := by
+    rw [← cofactorSourceBody3_eq_parallelepiped k₀ Q c₀ hQ]
+    exact cofactorSourceBody3_volume k₀ Q c₀ hQ
+  have hl := source_minima_product_lower3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) G.index P hP hvol hcov
+  obtain ⟨_, _, _, hs, horder, _⟩ := exists_successive_minima3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+  have hrec := conditional_reciprocal_last3 _ hs horder.1 G.index P (Q ^ (-delta)) hD hP
+    (Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _) hl hsmall.le
+  have he : (Q ^ (-delta)) ^ 2 = Q ^ (-2 * delta) := by
+    rw [pow_two, ← Real.rpow_add (lt_trans zero_lt_one hQ)]
+    congr 1
+    ring
+  rw [he] at hrec
+  have hh := mul_le_mul_of_nonneg_left hrec
+    (by positivity : 0 ≤ 6 * (G.index : ℝ) * (Q ^ c₀ i)⁻¹)
+  apply (hreal i).trans
+  calc
+    _ ≤ _ := hh
+    _ = _ := by field_simp; ring
+
+
+noncomputable def cofactorDualRealCoordinates3 (k : Fin 3) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  LinearEquiv.ofBijective (Matrix.toLin' (cofactorRealMatrix3 k)⁻¹.transpose) (by
+    have h : IsUnit (cofactorRealMatrix3 k) := by
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [cofactorRealMatrix3_det]
+      norm_num
+    have ht : IsUnit (cofactorRealMatrix3 k)⁻¹.transpose := by
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [Matrix.det_transpose, Matrix.det_nonsing_inv, Ring.inverse_eq_inv]
+      exact IsUnit.inv ((Matrix.isUnit_iff_isUnit_det _).mp h)
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr ht,
+      Matrix.mulVec_surjective_iff_isUnit.mpr ht⟩)
+
+theorem cofactorDualRealCoordinates3_apply (k : Fin 3) (x : RealTriple) (i : Fin 3) :
+    cofactorDualRealCoordinates3 k x i =
+      ∑ j : Fin 3, (cofactorRealMatrix3 k)⁻¹ j i * x j := rfl
+
+theorem cofactorDualInt3_real_value (k : Fin 3) (z : IntegerTriple) (i : Fin 3) :
+    cofactorDualRealCoordinates3 k (integerTripleReal3 z) i = (cofactorDualInt3 k z i : ℝ) := by
+  let A := cofactorRealMatrix3 k
+  let v : RealTriple := fun l => (cofactorDualInt3 k z l : ℝ)
+  have hAv : A.transpose *ᵥ v = integerTripleReal3 z := by
+    ext l
+    fin_cases k <;> fin_cases l <;>
+      norm_num [A,v,cofactorRationalMatrix3,cofactorRealMatrix3,cofactorIntegerMatrix3_table,
+        cofactorDualInt3,cofactorOriginalMatrix3_table,
+        integerTripleReal3,Matrix.mulVec,dotProduct,Matrix.transpose_apply,
+        Fin.sum_univ_succ,Pi.single_apply,Fin.succAbove,Fin.ext_iff,Fin.lt_def,
+        Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons] <;> ring <;> try rfl
+  have hunit : IsUnit A.det := by
+    dsimp [A]
+    rw [cofactorRealMatrix3_det]
+    norm_num
+  change (A⁻¹.transpose *ᵥ integerTripleReal3 z) i = v i
+  rw [← hAv, Matrix.mulVec_mulVec, ← Matrix.transpose_mul,
+    Matrix.mul_nonsing_inv A hunit, Matrix.transpose_one, Matrix.one_mulVec]
+
+theorem cofactor_scaled_real_value3 (k : Fin 3) (w : Fin 3 → IntegerTriple)
+    (t : ℕ) (z : IntegerTriple)
+    (hz : ∀ i, (t : ℚ) * dualFrameVector3 w 2 i = (z i : ℚ)) (i : Fin 3) :
+    |(cofactorDualValue3 k (fun l => (z l : ℚ)) i : ℝ)| =
+      |(t : ℝ) * dualFrameRealLocalValue3 (cofactorRealMatrix3 k) w 2 i| := by
+  rw [cofactorDualInt3_value, Rat.cast_intCast, ← cofactorDualInt3_real_value,
+    cofactorDualRealCoordinates3_apply]
+  congr 1
+  have hr (l : Fin 3) : (z l : ℝ) = (t : ℝ) * (dualFrameVector3 w 2 l : ℝ) := by
+    exact_mod_cast (hz l).symm
+  simp only [integerTripleReal3, LinearMap.coe_mk, AddHom.coe_mk, hr,
+    dualFrameRealLocalValue3, Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro l _
+  ring
+
+theorem cofactorDualValue3_scale (k : Fin 3) (q : ℚ) (x : Fin 3 → ℚ) (i : Fin 3) :
+    cofactorDualValue3 k (fun l => q * x l) i = q * cofactorDualValue3 k x i := by
+  simp only [cofactorDualValue3, Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro l _
+  ring
+
+theorem cofactorSelectedProduct3_nonneg (k₀ k₂ k₃ : Fin 3)
+    (s : Fin 3 → Fin 3) (x : Fin 3 → ℚ) : 0 ≤ cofactorSelectedProduct3 k₀ k₂ k₃ s x := by
+  unfold cofactorSelectedProduct3
+  exact mul_nonneg (mul_nonneg (abs_nonneg _) (by exact_mod_cast padicNorm.nonneg _))
+    (by exact_mod_cast padicNorm.nonneg _)
+
+theorem cofactorSelectedProduct3_scale (k₀ k₂ k₃ : Fin 3)
+    (s : Fin 3 → Fin 3) (q : ℚ) (x : Fin 3 → ℚ) :
+    cofactorSelectedProduct3 k₀ k₂ k₃ s (fun l => q * x l) =
+      (|((q : ℚ) : ℝ)| * (padicNorm 2 q : ℝ) * (padicNorm 3 q : ℝ)) *
+        cofactorSelectedProduct3 k₀ k₂ k₃ s x := by
+  letI : Fact (Nat.Prime 2) := ⟨by decide⟩
+  letI : Fact (Nat.Prime 3) := ⟨by decide⟩
+  simp only [cofactorSelectedProduct3, cofactorDualValue3_scale, Rat.cast_mul,
+    abs_mul, padicNorm.mul]
+  ring
+
+theorem cofactor_primitive_product_le3 (k₀ k₂ k₃ : Fin 3)
+    (s : Fin 3 → Fin 3) (g : ℤ) (hg : g ≠ 0) (z m : IntegerTriple)
+    (hz : ∀ i, z i = g * m i) :
+    cofactorSelectedProduct3 k₀ k₂ k₃ s (fun l => (m l : ℚ)) ≤
+      cofactorSelectedProduct3 k₀ k₂ k₃ s (fun l => (z l : ℚ)) := by
+  have he : (fun l => (z l : ℚ)) = fun l => (g : ℚ) * (m l : ℚ) := by
+    ext l
+    rw [hz l, Int.cast_mul]
+  rw [he, cofactorSelectedProduct3_scale]
+  have hl := rothInteger_three_place_lower g hg
+  change (1 : ℝ) ≤ |(g : ℝ)| * (padicNorm 2 (g : ℚ) : ℝ) * (padicNorm 3 (g : ℚ) : ℝ) at hl
+  have hh := mul_le_mul_of_nonneg_right hl
+    (cofactorSelectedProduct3_nonneg k₀ k₂ k₃ s (fun l => (m l : ℚ)))
+  simpa using hh
+
+theorem cofactor_selected_product_upper3
+    (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hd : 0 < delta)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0)
+    (s : Fin 3 → Fin 3) (hweight : -(3 * delta) / 4 ≤ c₀ (s 0) + c₂ (s 1) + c₃ (s 2))
+    (z : IntegerTriple)
+    (hreal : ∀ i, |(cofactorDualValue3 k₀ (fun l => (z l : ℚ)) i : ℝ)| ≤
+      36 * (∏ l : Fin 3, Q ^ c₀ l) * (Q ^ c₀ i)⁻¹ * Q ^ (-2 * delta))
+    (h2 : ∀ i, (padicNorm 2 (cofactorDualValue3 k₂ (fun l => (z l : ℚ)) i) : ℝ) ≤
+      Q ^ (c₂ (i.succAbove 0) + c₂ (i.succAbove 1)))
+    (h3 : ∀ i, (padicNorm 3 (cofactorDualValue3 k₃ (fun l => (z l : ℚ)) i) : ℝ) ≤
+      Q ^ (c₃ (i.succAbove 0) + c₃ (i.succAbove 1))) :
+    cofactorSelectedProduct3 k₀ k₂ k₃ s (fun l => (z l : ℚ)) ≤ 36 * Q ^ (-delta / 4) := by
+  have hp := lt_trans zero_lt_one hQ
+  have he : (∏ l : Fin 3, Q ^ c₀ l) * (Q ^ c₀ (s 0))⁻¹ * Q ^ (-2 * delta) *
+      Q ^ (c₂ ((s 1).succAbove 0) + c₂ ((s 1).succAbove 1)) *
+      Q ^ (c₃ ((s 2).succAbove 0) + c₃ ((s 2).succAbove 1)) =
+        Q ^ (-2 * delta - (c₀ (s 0) + c₂ (s 1) + c₃ (s 2))) := by
+    rw [← Real.rpow_sum_of_pos hp, ← Real.rpow_neg hp.le,
+      conditional_sum_others3, conditional_sum_others3]
+    rw [← Real.rpow_add hp, ← Real.rpow_add hp, ← Real.rpow_add hp, ← Real.rpow_add hp]
+    congr 1
+    simp only [Finset.sum_add_distrib] at hb
+    linarith
+  have hn2 : (0 : ℝ) ≤ padicNorm 2 (cofactorDualValue3 k₂ (fun l => (z l : ℚ)) (s 1)) := by
+    exact_mod_cast padicNorm.nonneg _
+  have hn3 : (0 : ℝ) ≤ padicNorm 3 (cofactorDualValue3 k₃ (fun l => (z l : ℚ)) (s 2)) := by
+    exact_mod_cast padicNorm.nonneg _
+  have hr0 : 0 ≤ 36 * (∏ l : Fin 3, Q ^ c₀ l) * (Q ^ c₀ (s 0))⁻¹ * Q ^ (-2 * delta) := by
+    positivity
+  have hr2 : 0 ≤ Q ^ (c₂ ((s 1).succAbove 0) + c₂ ((s 1).succAbove 1)) :=
+    (Real.rpow_pos_of_pos hp _).le
+  have hmul := mul_le_mul (mul_le_mul (hreal (s 0)) (h2 (s 1)) hn2 hr0)
+    (h3 (s 2)) hn3 (mul_nonneg hr0 hr2)
+  have hbound := Real.rpow_le_rpow_of_exponent_le hQ.le
+    (show -2 * delta - (c₀ (s 0) + c₂ (s 1) + c₃ (s 2)) ≤ -delta / 4 by linarith)
+  calc
+    _ ≤ _ := hmul
+    _ = 36 * Q ^ (-2 * delta - (c₀ (s 0) + c₂ (s 1) + c₃ (s 2))) := by
+      rw [← he]
+      ring
+    _ ≤ _ := mul_le_mul_of_nonneg_left hbound (by norm_num)
+
+theorem cofactorDualInt3_reconstruct (k : Fin 3) (z : IntegerTriple) (l : Fin 3) :
+    (z l : ℝ) = ∑ i : Fin 3, cofactorRealMatrix3 k i l * (cofactorDualInt3 k z i : ℝ) := by
+  fin_cases k <;> fin_cases l <;>
+    norm_num [cofactorRealMatrix3,cofactorIntegerMatrix3_table,cofactorDualInt3,
+      cofactorOriginalMatrix3_table,Matrix.mulVec,dotProduct,
+      Fin.sum_univ_succ,Pi.single_apply,Fin.succAbove,Fin.ext_iff,Fin.lt_def,
+      Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons] <;> ring <;> try rfl
+
+theorem cofactor_primitive_height_bound3 (k : Fin 3) (g : ℤ) (hg : g ≠ 0)
+    (z m : IntegerTriple) (hz : ∀ i, z i = g * m i) (M : ℝ) (hM : 0 ≤ M)
+    (hb : ∀ i, |(cofactorDualValue3 k (fun l => (z l : ℚ)) i : ℝ)| ≤ M) :
+    (rothKernelRowHeight m : ℝ) ≤ 3 * M := by
+  have hgabs : (1 : ℝ) ≤ |(g : ℝ)| := by
+    have h : 1 ≤ g.natAbs := Int.natAbs_pos.mpr hg
+    have he : (g.natAbs : ℝ) = |(g : ℝ)| := by
+      rw [← Int.cast_natCast, Int.natCast_natAbs, Int.cast_abs]
+    rw [← he]
+    exact_mod_cast h
+  have hcoeff (i l : Fin 3) : |cofactorRealMatrix3 k i l| ≤ 1 := by
+    fin_cases k <;> fin_cases i <;> fin_cases l <;>
+      norm_num [cofactorRealMatrix3,cofactorIntegerMatrix3_table,cofactorOriginalMatrix3_table,Pi.single_apply,Fin.succAbove,Fin.ext_iff,Fin.lt_def,
+        Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons]
+  have hm (l : Fin 3) : |(m l : ℝ)| ≤ 3 * M := by
+    have hzbound : |(z l : ℝ)| ≤ 3 * M := by
+      rw [cofactorDualInt3_reconstruct k z l]
+      calc
+        _ ≤ ∑ i : Fin 3, |cofactorRealMatrix3 k i l * (cofactorDualInt3 k z i : ℝ)| :=
+          Finset.abs_sum_le_sum_abs _ _
+        _ ≤ ∑ _i : Fin 3, M := by
+          apply Finset.sum_le_sum
+          intro i _
+          have hb' := hb i
+          rw [cofactorDualInt3_value, Rat.cast_intCast] at hb'
+          rw [abs_mul]
+          exact (mul_le_mul (hcoeff i l) hb' (abs_nonneg _) (by norm_num)).trans_eq (one_mul M)
+        _ = 3 * M := by simp
+    rw [hz l, Int.cast_mul, abs_mul] at hzbound
+    nlinarith [abs_nonneg (m l : ℝ)]
+  obtain ⟨i, hi, hmax⟩ := Finset.exists_max_image Finset.univ (fun i => (m i).natAbs)
+    (Finset.univ_nonempty : (Finset.univ : Finset (Fin 3)).Nonempty)
+  have he : rothKernelRowHeight m = (m i).natAbs := by
+    apply le_antisymm
+    · exact Finset.sup_le (fun j hj => hmax j hj)
+    · exact Finset.le_sup (f := fun j : Fin 3 => (m j).natAbs) hi
+  rw [he]
+  have hab : ((m i).natAbs : ℝ) = |(m i : ℝ)| := by
+    rw [← Int.cast_natCast, Int.natCast_natAbs, Int.cast_abs]
+  rw [hab]
+  exact hm i
+
+theorem cofactor_upper_height_power3 (k : Fin 3) (Q delta : ℝ) (c₀ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hd : 0 < delta) (hc₀ : ∀ i, |c₀ i| ≤ 1) (hcut : 108 ≤ Q)
+    (g : ℤ) (hg : g ≠ 0) (z m : IntegerTriple) (hz : ∀ i, z i = g * m i)
+    (hb : ∀ i, |(cofactorDualValue3 k (fun l => (z l : ℚ)) i : ℝ)| ≤
+      36 * (∏ l : Fin 3, Q ^ c₀ l) * (Q ^ c₀ i)⁻¹ * Q ^ (-2 * delta)) :
+    (rothKernelRowHeight m : ℝ) ≤ Q ^ (9 : ℝ) := by
+  have hp := lt_trans zero_lt_one hQ
+  have hP : (∏ i : Fin 3, Q ^ c₀ i) ≤ Q ^ (3 : ℕ) := by
+    calc
+      _ ≤ ∏ _i : Fin 3, Q := Finset.prod_le_prod
+        (fun i _ => (Real.rpow_pos_of_pos hp _).le)
+        (fun i _ => (Real.rpow_le_rpow_of_exponent_le hQ.le (abs_le.mp (hc₀ i)).2).trans_eq
+          (Real.rpow_one Q))
+      _ = _ := by simp
+  have hi (i : Fin 3) : (Q ^ c₀ i)⁻¹ ≤ Q := by
+    rw [← Real.rpow_neg hp.le]
+    exact (Real.rpow_le_rpow_of_exponent_le hQ.le (by linarith [(abs_le.mp (hc₀ i)).1])).trans_eq
+      (Real.rpow_one Q)
+  have hdQ : Q ^ (-2 * delta) ≤ 1 :=
+    Real.rpow_le_one_of_one_le_of_nonpos hQ.le (by linarith)
+  have hheight : (rothKernelRowHeight m : ℝ) ≤ 3 * (36 * Q ^ (4 : ℕ)) := by
+    apply cofactor_primitive_height_bound3 k g hg z m hz (36 * Q ^ (4 : ℕ)) (by positivity)
+    intro i
+    apply (hb i).trans
+    have hbase := mul_le_mul (mul_le_mul_of_nonneg_left hP (by norm_num : (0 : ℝ) ≤ 36))
+      (hi i) (inv_nonneg.mpr (Real.rpow_pos_of_pos hp _).le) (by positivity : 0 ≤ 36 * Q ^ (3 : ℕ))
+    have hfull := mul_le_mul hbase hdQ (Real.rpow_pos_of_pos hp _).le
+      (by positivity : 0 ≤ 36 * Q ^ (3 : ℕ) * Q)
+    nlinarith
+  change (rothKernelRowHeight m : ℝ) ≤ Q ^ ((9 : ℕ) : ℝ)
+  rw [Real.rpow_natCast]
+  calc
+    _ ≤ 108 * Q ^ (4 : ℕ) := by nlinarith
+    _ ≤ Q * Q ^ (4 : ℕ) := mul_le_mul_of_nonneg_right hcut (pow_nonneg hp.le _)
+    _ = Q ^ (5 : ℕ) := by ring
+    _ ≤ Q ^ (9 : ℕ) := pow_le_pow_right₀ hQ.le (by decide)
+
+
+theorem cofactorDualValue3_real_cast (k : Fin 3) (x : Fin 3 → ℚ) (i : Fin 3) :
+    (cofactorDualValue3 k x i : ℝ) =
+      ∑ l : Fin 3, (cofactorRealMatrix3 k)⁻¹ l i * (x l : ℝ) := by
+  have hmap : (cofactorRationalMatrix3 k).map (Rat.castHom ℝ) = cofactorRealMatrix3 k := by
+    ext l j
+    simp [cofactorRationalMatrix3, cofactorRealMatrix3]
+  have hdet : ((cofactorRationalMatrix3 k).det : ℝ) = (cofactorRealMatrix3 k).det := by
+    rw [← hmap]
+    exact (Rat.castHom ℝ).map_det _
+  have hentry (l j : Fin 3) : (((cofactorRationalMatrix3 k)⁻¹ l j : ℚ) : ℝ) =
+      (cofactorRealMatrix3 k)⁻¹ l j := by
+    rw [Matrix.inv_def, Matrix.inv_def]
+    change ((Ring.inverse (cofactorRationalMatrix3 k).det *
+      (cofactorRationalMatrix3 k).adjugate l j : ℚ) : ℝ) =
+        Ring.inverse (cofactorRealMatrix3 k).det * (cofactorRealMatrix3 k).adjugate l j
+    rw [Ring.inverse_eq_inv, Ring.inverse_eq_inv, Rat.cast_mul, Rat.cast_inv, hdet]
+    congr 1
+    have h := congrArg (fun M : Matrix (Fin 3) (Fin 3) ℝ => M l j)
+      ((Rat.castHom ℝ).map_adjugate (cofactorRationalMatrix3 k))
+    simpa only [hmap, Matrix.map_apply] using h
+  simp only [cofactorDualValue3, Rat.cast_sum, Rat.cast_mul, hentry]
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+theorem cofactor_original_normal_height3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (S : Set (Fin 3 → Fin 3)) (_hS : S.Nonempty) :
+    ∀ (Q : ℝ) (hQ : 1 < Q), max 108 ((18 : ℝ)^(16/delta)) < Q →
+      ∀ c₀ c₂ c₃ : Fin 3 → ℝ,
+        (∀ i, |c₀ i| ≤ 1) → (∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) →
+        (∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0) →
+        (∑ i, (c₀ i + c₂ i + c₃ i) = 0) →
+        (∀ s ∈ S, -(3 * delta) / 4 ≤ c₀ (s 0) + c₂ (s 1) + c₃ (s 2)) →
+        ∀ (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃),
+          lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 →
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) →
+          (∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j) →
+          dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u ≤ 6 →
+          successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) 1 < Q ^ (-delta) →
+          (∃ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0) →
+          ∃ (z m : IntegerTriple) (g : ℤ),
+            g ≠ 0 ∧ m ≠ 0 ∧
+            (∀ i, ((dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u *
+              (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+                dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i = (z i : ℚ)) ∧
+            (∀ i, z i = g * m i) ∧ Ideal.span (Set.range m) = ⊤ ∧
+            Finset.univ.gcd (fun i => (m i).natAbs) = 1 ∧
+            (∃ r : ℚ, r ≠ 0 ∧ (fun i => (m i : ℚ)) =
+              r • dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ∧
+            Submodule.span ℚ ({fun i => (m i : ℚ)} : Set (Fin 3 → ℚ)) =
+              Submodule.span ℚ {dualFrameVector3 (fun j => (u j : IntegerTriple)) 2} ∧
+            (∀ j : Fin 2, (∑ i : Fin 3, m i * ((u j.castSucc : IntegerTriple) i)) = 0) ∧
+            dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u ≤ 6 ∧
+            Q ^ (delta/16) ≤ (rothKernelRowHeight m : ℝ) ∧ (rothKernelRowHeight m : ℝ) ≤ Q ^ (9 : ℝ) := by
+  intro Q hQ hcut c₀ c₂ c₃ hc₀ hc₂' hc₃' hbalance hweights B u hB hu hatt hJ hsmall hnonzero
+  have hc₂ := fun i => (hc₂' i).2
+  have hc₃ := fun i => (hc₃' i).2
+  have hp := lt_trans zero_lt_one hQ
+  let G := cofactorSourceLattice3 k₂ k₃ Q c₂ c₃
+  obtain ⟨c⟩ : Nonempty (Basis (Fin 3) ℤ G) := mixedCongruence3_has_basis _ _ _ _
+  have hD : (0 : ℝ) < G.index := by
+    rw [(cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.1]
+    unfold qCongruenceIndex3
+    positivity
+  have hDnat : G.index ≠ 0 := by exact_mod_cast hD.ne'
+  have ha (i : Fin 3) : 0 < Q ^ c₀ i := Real.rpow_pos_of_pos hp _
+  have hP : 0 < ∏ i : Fin 3, Q ^ c₀ i := Finset.prod_pos (fun i _ => ha i)
+  have hcov : ZLattice.covolume (lattice3 B) = (G.index : ℝ) := by
+    rw [hB, (cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.1]
+    exact (cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃).2.2.2
+  have hvol : MeasureTheory.volume.real (parallelepipedBody3 (cofactorSourceCoordinates3 k₀ Q c₀ hQ)) =
+      8 * ∏ i : Fin 3, Q ^ c₀ i := by
+    rw [← cofactorSourceBody3_eq_parallelepiped k₀ Q c₀ hQ]
+    exact cofactorSourceBody3_volume k₀ Q c₀ hQ
+  have hprod : (∏ j, successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j) *
+      (∏ i : Fin 3, Q ^ c₀ i) ≤ (G.index : ℝ) := by
+    have h := successive_minima3_parallelepiped_volume_upper B (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+    rw [hvol, hcov] at h
+    nlinarith
+  obtain ⟨_, _, _, hs, _, _⟩ := exists_successive_minima3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+  have hpoint : ∀ j i, |∑ l : Fin 3, cofactorRealMatrix3 k₀ i l *
+      ((u j : IntegerTriple) l : ℝ)| ≤
+      successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j * Q ^ c₀ i := by
+    intro j i
+    have h := cofactorSource_arch_bound k₀ Q c₀ hQ (integerTripleReal3 (u j : IntegerTriple)) i
+    rw [hatt] at h
+    exact h
+  have hreal (i : Fin 3) := dualFrame3_source_real_bound G c u hu (cofactorRealMatrix3 k₀)
+    (by rw [cofactorRealMatrix3_det]; norm_num) _ _ hs ha hpoint hprod i 2
+  obtain ⟨z, m, g, hz, hg, hm, hgm, hprim, hgcd, hmq, horth⟩ :=
+    conditional_actual_primitive_normal3 G c u hu
+  have hrealz (i : Fin 3) : |(cofactorDualValue3 k₀ (fun l => (z l : ℚ)) i : ℝ)| ≤
+      36 * (∏ l : Fin 3, Q ^ c₀ l) * (Q ^ c₀ i)⁻¹ * Q ^ (-2 * delta) := by
+    rw [cofactor_scaled_real_value3 k₀ (fun j => (u j : IntegerTriple)) _ z hz]
+    exact cofactor_actual_real_bound3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ hc₂ hc₃ B u hB hreal hsmall i
+  have hfinite := cofactor_actual_finite_bounds3 k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃ c u hu
+  dsimp only at hfinite
+  have hez : (fun l => ((dualFrameRelativeIndex3 G u * G.index : ℕ) : ℚ) *
+      dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 l) = fun l => (z l : ℚ) := funext hz
+  rw [hez] at hfinite
+  obtain ⟨s, hsS, hsnonzero⟩ := hnonzero
+  have hzproduct := cofactor_selected_product_upper3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ hd
+    hbalance s (hweights s hsS) z hrealz hfinite.1 hfinite.2
+  let q : ℚ := ((dualFrameRelativeIndex3 G u * G.index : ℕ) : ℚ) / g
+  have hq : q ≠ 0 := div_ne_zero
+    (by exact_mod_cast mul_ne_zero (Nat.ne_of_gt (dualFrameRelativeIndex3_pos G c u hu)) hDnat)
+    (by exact_mod_cast hg)
+  have hmcast : (fun i => (m i : ℚ)) = q • dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 :=
+    funext hmq
+  have hline : Submodule.span ℚ ({fun i => (m i : ℚ)} : Set (Fin 3 → ℚ)) =
+      Submodule.span ℚ {dualFrameVector3 (fun j => (u j : IntegerTriple)) 2} := by
+    rw [hmcast]
+    exact Submodule.span_singleton_smul_eq (isUnit_iff_ne_zero.mpr hq) _
+  have hqreal : (q : ℝ) ≠ 0 := by exact_mod_cast hq
+  have hq2 : (padicNorm 2 q : ℝ) ≠ 0 := by exact_mod_cast padicNorm.nonzero hq
+  have hq3 : (padicNorm 3 q : ℝ) ≠ 0 := by exact_mod_cast padicNorm.nonzero hq
+  have hmproduct : cofactorSelectedProduct3 k₀ k₂ k₃ s (fun l => (m l : ℚ)) ≠ 0 := by
+    rw [hmcast]
+    change cofactorSelectedProduct3 k₀ k₂ k₃ s
+      (fun l => q * dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 l) ≠ 0
+    rw [cofactorSelectedProduct3_scale]
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (abs_ne_zero.mpr hqreal) hq2) hq3) hsnonzero
+  have hlower := cofactor_selected_product_lower3 k₀ k₂ k₃ s m hm hmproduct
+  have hupper := cofactor_primitive_product_le3 k₀ k₂ k₃ s g hg z m hgm
+  have hl := conditional_height_lower_power3 Q delta (rothKernelRowHeight m) hQ
+    (conditional_height_pos3 m hm) (hlower.trans (hupper.trans hzproduct))
+  have hfinalLower := conditional_height_lower_absorb3 Q delta (rothKernelRowHeight m) hQ hd
+    ((le_max_right _ _).trans hcut.le) hl
+  have hfinalUpper := cofactor_upper_height_power3 k₀ Q delta c₀ hQ hd hc₀
+    ((le_max_left _ _).trans hcut.le) g hg z m hgm hrealz
+  exact ⟨z, m, g, hg, hm, hz, hgm, hprim, hgcd, ⟨q, hq, hmcast⟩, hline, horth, hJ,
+    hfinalLower, hfinalUpper⟩
+
+theorem cofactor_source_normal_height3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (S : Set (Fin 3 → Fin 3)) (_hS : S.Nonempty) :
+    ∃ C1 C2 C3 : ℝ, 0 < C1 ∧ 0 < C2 ∧ 0 < C3 ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q), C3 < Q →
+      ∀ c₀ c₂ c₃ : Fin 3 → ℝ,
+        (∀ i, |c₀ i| ≤ 1) → (∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) →
+        (∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0) →
+        (∑ i, (c₀ i + c₂ i + c₃ i) = 0) →
+        (∀ s ∈ S, -(3 * delta) / 4 ≤ c₀ (s 0) + c₂ (s 1) + c₃ (s 2)) →
+        ∀ (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q c₂ c₃),
+          lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 →
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) →
+          (∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q c₀ hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) j) →
+          successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q c₀ hQ) 1 < Q ^ (-delta) →
+          (∃ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0) →
+          ∃ (z m : IntegerTriple) (g : ℤ),
+            g ≠ 0 ∧ m ≠ 0 ∧
+            (∀ i, ((dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u *
+              (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+                dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i = (z i : ℚ)) ∧
+            (∀ i, z i = g * m i) ∧ Ideal.span (Set.range m) = ⊤ ∧
+            Finset.univ.gcd (fun i => (m i).natAbs) = 1 ∧
+            (∃ r : ℚ, r ≠ 0 ∧ (fun i => (m i : ℚ)) =
+              r • dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ∧
+            Submodule.span ℚ ({fun i => (m i : ℚ)} : Set (Fin 3 → ℚ)) =
+              Submodule.span ℚ {dualFrameVector3 (fun j => (u j : IntegerTriple)) 2} ∧
+            (∀ j : Fin 2, (∑ i : Fin 3, m i * ((u j.castSucc : IntegerTriple) i)) = 0) ∧
+            dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q c₂ c₃) u ≤ 6 ∧
+            Q ^ C1 ≤ (rothKernelRowHeight m : ℝ) ∧ (rothKernelRowHeight m : ℝ) ≤ Q ^ C2 := by
+  refine ⟨delta / 16,9,max 108 ((18 : ℝ) ^ (16 / delta)),by positivity,
+    by norm_num,lt_of_lt_of_le (by norm_num : (0 : ℝ) < 108) (le_max_left _ _),?_⟩
+  intro Q hQ hcut c₀ c₂ c₃ hc₀ hc₂ hc₃ hb ht B u hB hu hatt hsmall hnz
+  exact cofactor_original_normal_height3 k₀ k₂ k₃ delta hd S _hS Q hQ hcut
+    c₀ c₂ c₃ hc₀ hc₂ hc₃ hb ht B u hB hu hatt
+    (source_attaining_frame_index_le_six3 _ B _ u hB hu hatt) hsmall hnz
+
+theorem cofactor_finiteWeight_real_local_value3 (k : Fin 3) (w : IntegerTriple) (i : Fin 3) :
+    rothLocalAbs 0 (rothNormalLocalValue (cofactorIntegerMatrix3 k) w i) =
+      |cofactorRealCoordinates3 k (integerTripleReal3 w) i| := by
+  change |((rothNormalLocalValue (cofactorIntegerMatrix3 k) w i : ℚ) : ℝ)| =
+    |∑ l : Fin 3, (cofactorRealMatrix3 k) i l * (w l : ℝ)|
+  simp [rothNormalLocalValue, cofactorRealMatrix3]
+
+theorem cofactor_finiteWeight_rational_local_value3 (k : Fin 3) (w : IntegerTriple) (i : Fin 3) :
+    rothNormalLocalValue (cofactorIntegerMatrix3 k) w i =
+      cofactorForms3 k i (fun l => (w l : ℚ)) := by
+  rw [← cofactorIntegerMatrix3_apply]
+  simp [rothNormalLocalValue,Matrix.mulVec,dotProduct]
+
+theorem cofactor_finiteWeight_same_frame3 (n : ℕ) (hn : 16 ≤ n)
+    (deltaSource deltaAux Q : ℝ) (hQ : 1 < Q) (he : 7/(n : ℝ) ≤ deltaSource-deltaAux)
+    (c : Fin 3 → Fin 3 → ℝ) (hc : sourceWeightConditions3 c) (k₀ k₂ k₃ : Fin 3)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2))
+    (hatt : ∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q (c 0) hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+        successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) j)
+    (hsmall : successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) 1 < Q^(-deltaSource)) :
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 0
+      (rothNormalLocalValue (cofactorIntegerMatrix3 k₀) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 0 i-deltaAux)) ∧
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 1
+      (rothNormalLocalValue (cofactorIntegerMatrix3 k₂) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 1 i)) ∧
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 2
+      (rothNormalLocalValue (cofactorIntegerMatrix3 k₃) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 2 i)) := by
+  obtain ⟨_,h0,hf⟩ := finiteWeightApprox3_bounds n hn c hc
+  have hp := lt_trans zero_lt_one hQ
+  obtain ⟨_,_,_,_,horder,_⟩ := exists_successive_minima3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ)
+  have hrad (j : Fin 2) : successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) j.castSucc ≤
+      Q^(-deltaSource) := by
+    fin_cases j
+    · exact horder.1.trans hsmall.le
+    · exact hsmall.le
+  have hpoint (j : Fin 2) := (cofactorSourceLattice3_spec k₂ k₃ Q (c 1) (c 2) hQ
+    (fun i => (hc.2.1 1 (by decide) i).2) (fun i => (hc.2.1 2 (by decide) i).2)).1
+      (u j.castSucc) |>.mp (u j.castSucc).property
+  refine ⟨?_,?_,?_⟩
+  · intro j i
+    rw [cofactor_finiteWeight_real_local_value3]
+    have hb := cofactorSource_arch_bound k₀ Q (c 0) hQ (integerTripleReal3 (u j.castSucc : IntegerTriple)) i
+    rw [hatt] at hb
+    calc
+      _ ≤ Q^(-deltaSource)*Q^(c 0 i) := hb.trans
+        (mul_le_mul_of_nonneg_right (hrad j) (Real.rpow_nonneg hp.le _))
+      _ = Q^(c 0 i-deltaSource) := by rw [← Real.rpow_add hp]; congr 1; ring
+      _ ≤ _ := Real.rpow_le_rpow_of_exponent_le hQ.le (by linarith [h0 i])
+  · intro j i
+    simp only [rothLocalAbs,Fin.reduceEq,ite_false,ite_true,cofactor_finiteWeight_rational_local_value3]
+    exact ((hpoint j).1 i).trans (Real.rpow_le_rpow_of_exponent_le hQ.le (hf 1 (by decide) i))
+  · intro j i
+    simp only [rothLocalAbs,Fin.reduceEq,ite_false,ite_true,cofactor_finiteWeight_rational_local_value3]
+    exact ((hpoint j).2 i).trans (Real.rpow_le_rpow_of_exponent_le hQ.le (hf 2 (by decide) i))
+
+theorem cofactor_source_family_contradiction3
+    (k₀ k₂ k₃ : Fin 3) (S : Set (Fin 3 → Fin 3)) (hS : S.Nonempty) :
+    ∀ (deltaSource : ℝ), 0 < deltaSource →
+    ∀ (U : Set ℝ), ¬ BddAbove U →
+    ∀ (c : ℝ → Fin 3 → Fin 3 → ℝ),
+      (∀ Q ∈ U, sourceWeightConditions3 (c Q)) →
+      (∀ Q ∈ U, ∀ s ∈ S,
+        -deltaSource/2 ≤ c Q 0 (s 0)+c Q 1 (s 1)+c Q 2 (s 2)) →
+      (∀ Q ∈ U, ∀ hQ : 1 < Q,
+        ∃ (B : Basis (Fin 3) ℝ RealTriple)
+          (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q (c Q 1) (c Q 2)),
+          lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q (c Q 1) (c Q 2)).toIntSubmodule.map integerTripleReal3 ∧
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+          (∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q (c Q 0) hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c Q 0) hQ) j) ∧
+          dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q (c Q 1) (c Q 2)) u ≤ 6 ∧
+          successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c Q 0) hQ) 1 < Q^(-deltaSource) ∧
+          (∃ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0)) → False := by
+  classical
+  let L : Fin 3 → Matrix (Fin 3) (Fin 3) ℤ :=
+    ![cofactorIntegerMatrix3 k₀, cofactorIntegerMatrix3 k₂, cofactorIntegerMatrix3 k₃]
+  have hL : ∀ tau, (rothLocalRationalMatrix (L tau)).det ≠ 0 := by
+    intro tau
+    fin_cases tau <;>
+      change (cofactorRationalMatrix3 _).det ≠ 0 <;>
+      rw [cofactorRationalMatrix3_det] <;> norm_num
+  obtain ⟨D,E,hD,hE,haux⟩ := roth_auxiliary_integer_satz34 L hL
+  intro deltaSource hd U hU c hc htuple hframes
+  obtain ⟨n,deltaAux,etaCandidate,hn,he,haeq,_,ha,ha',_,_,hfinite,hreduce⟩ :=
+    finiteWeightReduction3 deltaSource hd
+  obtain ⟨d,hdmem,U',hsub,hU',hdconditions,htransport⟩ := hreduce U hU c hc
+  obtain ⟨eta,theta,m,hm,Gamma,heta,htheta,htheta',hetad,hgap,hcount,
+    hGamma,hGamma',hGammaAux,hrho,hselect⟩ :=
+    source_compatible_parameter_selection3 D E deltaAux hD hE ha ha'
+  obtain ⟨Q,r,hQ,hmono,hlogsep,hthreshold,hr,hsep,hbalance,hsum,hbudgets⟩ := hselect U' hU'
+  have hQone (h : Fin m) : 1 < Q h := (hQ h).2.2
+  have hQU (h : Fin m) : Q h ∈ U := hsub (hQ h).1
+  choose B u hB hu hatt hJ hsmall hnonzero using
+    (fun h : Fin m => hframes (Q h) (hQU h) (hQone h))
+  have hcut (h : Fin m) : max 108 ((18 : ℝ)^(16/deltaSource)) < Q h := by
+    have hcut' := sameIndex_cutoff_transport3 deltaSource hd
+    rw [← haeq] at hcut'
+    exact hcut'.trans_lt (hQ h).2.1
+  have hweights (h : Fin m) (s : Fin 3 → Fin 3) (hs : s ∈ S) :
+      -(3*deltaSource)/4 ≤ c (Q h) 0 (s 0)+c (Q h) 1 (s 1)+c (Q h) 2 (s 2) := by
+    linarith [htuple (Q h) (hQU h) s hs]
+  have hzero (h : Fin m) :
+      ∑ i, (c (Q h) 0 i+c (Q h) 1 i+c (Q h) 2 i) = 0 := by
+    have hh := (hc (Q h) (hQU h)).2.2
+    rw [Fin.sum_univ_three] at hh
+    simpa only [Finset.sum_add_distrib] using hh
+  have hnormal (h : Fin m) := cofactor_original_normal_height3 k₀ k₂ k₃ deltaSource hd S hS
+    (Q h) (hQone h) (hcut h) (c (Q h) 0) (c (Q h) 1) (c (Q h) 2)
+    (hc (Q h) (hQU h)).1
+    ((hc (Q h) (hQU h)).2.1 1 (by decide))
+    ((hc (Q h) (hQU h)).2.1 2 (by decide)) (hzero h) (hweights h)
+    (B h) (u h) (hB h) (hu h) (hatt h) (hJ h) (hsmall h) (hnonzero h)
+  choose z V g hg hV hz hgm hprim hgcd hscale hline horth hJ' hheightLower hheightUpper using hnormal
+  have hrow (h : Fin m) : (∃ i, V h i ≠ 0) ∧ Ideal.span (Set.range (V h)) = ⊤ := by
+    refine ⟨?_,hprim h⟩
+    by_contra hh
+    push_neg at hh
+    exact hV h (funext hh)
+  have henvelope (h : Fin m) :
+      (Q h)^(deltaAux/16) ≤ (rothKernelRowHeight (V h) : ℝ) ∧
+      (rothKernelRowHeight (V h) : ℝ) ≤ (Q h)^(9 : ℝ) := by
+    refine ⟨?_,hheightUpper h⟩
+    have hl := sameIndex_height_transport3 deltaSource (Q h) hd (hQone h)
+    rw [← haeq] at hl
+    exact hl.trans (hheightLower h)
+  obtain ⟨hgrowth,hden,hheight⟩ := hbudgets
+    (fun h => (rothKernelRowHeight (V h) : ℝ)) henvelope
+  let w : Fin m → Fin 2 → IntegerTriple := fun h j => (u h j.castSucc : IntegerTriple)
+  have hli (h : Fin m) : LinearIndependent ℚ (fun j : Fin 2 => fun i : Fin 3 => (w h j i : ℚ)) :=
+    (dualFrameMatrix3_rational_independent (fun j => (u h j : IntegerTriple)) (hu h)).comp
+      Fin.castSucc (Fin.castSucc_injective 2)
+  have hexponent : 7/(n : ℝ) ≤ deltaSource-deltaAux := by
+    have ha2 := (finiteWeight_delta3 deltaSource hd).2.2.1
+    rw [← haeq] at ha2
+    linarith
+  have hpoints (h : Fin m) := cofactor_finiteWeight_same_frame3 n hn deltaSource deltaAux (Q h) (hQone h)
+    hexponent (c (Q h)) (hc (Q h) (hQU h)) k₀ k₂ k₃ (B h) (u h) (hatt h) (hsmall h)
+  have hfixed (h : Fin m) : finiteWeightApprox3 n (c (Q h)) = d :=
+    (htransport (Q h) (hQ h).1).1
+  have hw0 (h : Fin m) (j : Fin 2) (i : Fin 3) :
+      rothLocalAbs 0 (rothNormalLocalValue (L 0) (w h j) i) ≤ (Q h)^(d 0 i-deltaAux) := by
+    have hh := (hpoints h).1 j i
+    rw [hfixed h] at hh
+    simpa only [L,w,Matrix.cons_val_zero] using hh
+  have hw1 (h : Fin m) (j : Fin 2) (i : Fin 3) :
+      rothLocalAbs 1 (rothNormalLocalValue (L 1) (w h j) i) ≤ (Q h)^(d 1 i) := by
+    have hh := (hpoints h).2.1 j i
+    rw [hfixed h] at hh
+    simpa only [L,w,Matrix.cons_val_one,Matrix.cons_val_zero] using hh
+  have hw2 (h : Fin m) (j : Fin 2) (i : Fin 3) :
+      rothLocalAbs 2 (rothNormalLocalValue (L 2) (w h j) i) ≤ (Q h)^(d 2 i) := by
+    have hh := (hpoints h).2.2 j i
+    rw [hfixed h] at hh
+    simpa only [L,w,Matrix.cons_val_two,Matrix.cons_val_one,Matrix.cons_val_zero] using hh
+  have habs (tau i : Fin 3) : |d tau i| ≤ 1 := by
+    by_cases ht : tau = 0
+    · simpa only [ht] using hdconditions.1 i
+    · exact abs_le.mpr ⟨(hdconditions.2.1 tau ht i).1,by linarith [(hdconditions.2.1 tau ht i).2]⟩
+  obtain ⟨P,hP,hhom,hPH,hsourceIndex,hhigh⟩ := haux eta heta m hcount r hr
+  have hhighIndex : rothSourceHighIndex r V ((m : ℝ)*eta) P :=
+    hhigh deltaAux d Q ⟨0,hm⟩ hdconditions.2.2 habs hetad ha' hQone
+      (fun h => (hthreshold h).1) (fun h => (hthreshold h).2) hbalance w hw0 hw1 hw2 V hrow hli horth
+  obtain ⟨J,k,hweight,hpivot,hnonzeroRestriction⟩ := roth_full_kernel_omega65_nonvanishing
+    m hm theta Gamma htheta htheta' hGamma hGamma' r V P hr hsep hrow
+    (fun h _ => hgrowth h) hden hP hhom (hheight P hPH)
+  have hweight' : rothSourceDerivativeWeight r J < (m : ℝ)*eta := hweight.trans_lt hgap
+  exact hnonzeroRestriction (hhighIndex J hweight' k hpivot)
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+def cofactorSelectedBadQ3 (k₀ k₂ k₃ : Fin 3) (S : Set (Fin 3 → Fin 3)) (deltaSource : ℝ) : Set ℝ :=
+  {Q | ∃ hQ : 1 < Q, ∃ c : Fin 3 → Fin 3 → ℝ,
+    sourceWeightConditions3 c ∧
+    (∀ s ∈ S, -deltaSource/2 ≤ c 0 (s 0)+c 1 (s 1)+c 2 (s 2)) ∧
+      ∃ (B : Basis (Fin 3) ℝ RealTriple)
+          (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2)),
+          lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2)).toIntSubmodule.map integerTripleReal3 ∧
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+          (∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q (c 0) hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) j) ∧
+          dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2)) u ≤ 6 ∧
+          successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) 1 < Q^(-deltaSource) ∧
+          (∃ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0)}
+
+theorem cofactorSelectedBadQ3_bddAbove (k₀ k₂ k₃ : Fin 3) (S : Set (Fin 3 → Fin 3))
+    (hS : S.Nonempty) (deltaSource : ℝ) (hd : 0 < deltaSource) :
+    BddAbove (cofactorSelectedBadQ3 k₀ k₂ k₃ S deltaSource) := by
+  classical
+  by_contra hU
+  have hw (Q : ℝ) : ∃ c : Fin 3 → Fin 3 → ℝ,
+      Q ∈ cofactorSelectedBadQ3 k₀ k₂ k₃ S deltaSource →
+      sourceWeightConditions3 c ∧
+      (∀ s ∈ S, -deltaSource/2 ≤ c 0 (s 0)+c 1 (s 1)+c 2 (s 2)) ∧
+      ∀ hQ : 1 < Q,
+      ∃ (B : Basis (Fin 3) ℝ RealTriple)
+          (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2)),
+          lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2)).toIntSubmodule.map integerTripleReal3 ∧
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+          (∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q (c 0) hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) j) ∧
+          dualFrameRelativeIndex3 (cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2)) u ≤ 6 ∧
+          successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) 1 < Q^(-deltaSource) ∧
+          (∃ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0) := by
+    by_cases h : Q ∈ cofactorSelectedBadQ3 k₀ k₂ k₃ S deltaSource
+    · obtain ⟨hQ,c,hc,ht,hf⟩ := h
+      exact ⟨c,fun _ => ⟨hc,ht,fun _ => hf⟩⟩
+    · exact ⟨0,fun hh => (h hh).elim⟩
+  choose c hc using hw
+  exact cofactor_source_family_contradiction3 k₀ k₂ k₃ S hS deltaSource hd
+    (cofactorSelectedBadQ3 k₀ k₂ k₃ S deltaSource) hU c
+    (fun Q h => (hc Q h).1) (fun Q h => (hc Q h).2.1)
+    (fun Q h => (hc Q h).2.2)
+
+theorem cofactor_uniform_selected_vanishing3 (k₀ k₂ k₃ : Fin 3)
+    (S : Set (Fin 3 → Fin 3)) (hS : S.Nonempty) (deltaSource : ℝ) (hd : 0 < deltaSource) :
+    ∃ Q0 : ℝ, 1 ≤ Q0 ∧
+      ∀ Q : ℝ, Q0 < Q → ∀ hQ : 1 < Q,
+      ∀ c : Fin 3 → Fin 3 → ℝ, sourceWeightConditions3 c →
+        (∀ s ∈ S, -deltaSource/2 ≤ c 0 (s 0)+c 1 (s 1)+c 2 (s 2)) →
+      ∀ (B : Basis (Fin 3) ℝ RealTriple)
+        (u : Fin 3 → cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2)),
+          lattice3 B = (cofactorSourceLattice3 k₂ k₃ Q (c 1) (c 2)).toIntSubmodule.map integerTripleReal3 →
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) →
+          (∀ j, coordinateGauge3 (cofactorSourceCoordinates3 k₀ Q (c 0) hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) j) →
+          successiveRadius3 B (cofactorSourceCoordinates3 k₀ Q (c 0) hQ) 1 < Q^(-deltaSource) →
+      ∀ s ∈ S, cofactorSelectedProduct3 k₀ k₂ k₃ s
+        (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) = 0 := by
+  obtain ⟨B0,hB0⟩ := cofactorSelectedBadQ3_bddAbove k₀ k₂ k₃ S hS deltaSource hd
+  refine ⟨max 1 B0,le_max_left _ _,?_⟩
+  intro Q hcut hQ c hc ht B u hB hu hatt hsmall s hs
+  have hJ := source_attaining_frame_index_le_six3 _ B _ u hB hu hatt
+  by_contra hnz
+  have hbad : Q ∈ cofactorSelectedBadQ3 k₀ k₂ k₃ S deltaSource :=
+    ⟨hQ,c,hc,ht,B,u,hB,hu,hatt,hJ,hsmall,s,hs,hnz⟩
+  exact (not_lt_of_ge (hB0 hbad)) (lt_of_le_of_lt (le_max_right _ _) hcut)
+
+
+end
+end JSP000334
+
+end Literal252R2
+open Literal252R2.JSP000334
+open scoped BigOperators Matrix
+open MeasureTheory
+open JSP000334
+namespace LiteralCofactorRaw252R2
+noncomputable section
+
+def rawC (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ :=
+  (retainedIntegerMatrix3 k).adjugate.transpose
+
+def rawR (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℝ :=
+  (rawC k).map (Int.castRingHom ℝ)
+
+def rawG (k2 k3 : Fin 3) (Q : ℝ) (c2 c3 : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (rawC k2) (rawC k3)
+    (fun i => Nat.ceil (-c2 i * Real.log Q / Real.log 2))
+    (fun i => Nat.ceil (-c3 i * Real.log Q / Real.log 3))
+
+def rawE (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) (hQ : 1 < Q) :
+    RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3
+    (LinearEquiv.ofBijective (Matrix.toLin' (rawR k)) (by
+      have hu : IsUnit (rawR k) := (Matrix.isUnit_iff_isUnit_det _).mpr
+        (by change IsUnit (cofactorRealMatrix3 k).det; rw [cofactorRealMatrix3_det]; exact isUnit_one)
+      exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr hu,Matrix.mulVec_surjective_iff_isUnit.mpr hu⟩))
+    (fun i => Q ^ c i) (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+
+def rawBody (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) : Set RealTriple :=
+  {x | ∀ i, |(rawR k *ᵥ x) i| ≤ Q ^ c i}
+
+def rawForms (k i : Fin 3) (x : Fin 3 → ℚ) : ℚ :=
+  ∑ j : Fin 3, (rawC k i j : ℚ) * x j
+
+def rawDual (k : Fin 3) (x : Fin 3 → ℚ) (i : Fin 3) : ℚ :=
+  ∑ l : Fin 3, ((rawC k).map (Int.castRingHom ℚ))⁻¹ l i * x l
+
+def rawMin (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (j.val + 1) → RealTriple,
+    LinearIndependent ℝ u ∧ (∀ i, u i ∈ lattice3 B) ∧
+      ∀ i, coordinateGauge3 e (u i) ≤ r}
+
+def rawProduct (k0 k2 k3 : Fin 3) (s : Fin 3 → Fin 3) (x : Fin 3 → ℚ) : ℝ :=
+  |((∑ l : Fin 3, (((rawC k0).map (Int.castRingHom ℚ))⁻¹ l (s 0)) * x l : ℚ) : ℝ)| *
+    (padicNorm 2 (∑ l : Fin 3, (((rawC k2).map (Int.castRingHom ℚ))⁻¹ l (s 1)) * x l) : ℝ) *
+    (padicNorm 3 (∑ l : Fin 3, (((rawC k3).map (Int.castRingHom ℚ))⁻¹ l (s 2)) * x l) : ℝ)
+
+theorem rawMin_eq (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) :
+    rawMin B e j = successiveRadius3 B e j := rfl
+
+theorem raw_cofactorIntegerMatrix3_det (k : Fin 3) : (rawC k).det = 1 := by
+  exact Literal252R2.JSP000334.cofactorIntegerMatrix3_det k
+
+theorem raw_cofactorSourceLattice3_spec (k₂ k₃ : Fin 3) (Q : ℝ) (c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0) :
+    (∀ x, x ∈ rawG k₂ k₃ Q c₂ c₃ ↔
+      (∀ i, (padicNorm 2 (rawForms k₂ i (fun j => (x j : ℚ))) : ℝ) ≤ Q ^ c₂ i) ∧
+      (∀ i, (padicNorm 3 (rawForms k₃ i (fun j => (x j : ℚ))) : ℝ) ≤ Q ^ c₃ i)) ∧
+    Finite (IntegerTriple ⧸ rawG k₂ k₃ Q c₂ c₃) ∧
+    (rawG k₂ k₃ Q c₂ c₃).index = qCongruenceIndex3 Q c₂ c₃ ∧
+    ZLattice.covolume ((rawG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3) =
+      (qCongruenceIndex3 Q c₂ c₃ : ℝ) := by
+  exact Literal252R2.JSP000334.cofactorSourceLattice3_spec k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃
+
+theorem raw_cofactorSourceBody3_volume (k : Fin 3) (Q : ℝ) (c₀ : Fin 3 → ℝ) (hQ : 1 < Q) :
+    volume.real (rawBody k Q c₀) = 8 * ∏ i, Q ^ c₀ i := by
+  exact Literal252R2.JSP000334.cofactorSourceBody3_volume k Q c₀ hQ
+
+theorem raw_exists_cofactorSource_integer_attaining_frame
+    (k₀ k₂ k₃ : Fin 3) (Q : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (hb : ∑ i, (c₀ i + c₂ i + c₃ i) = 0) :
+    ∃ (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawG k₂ k₃ Q c₂ c₃),
+      lattice3 B = (rawG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 ∧
+      LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+      (∀ j, coordinateGauge3 (rawE k₀ Q c₀ hQ)
+        (integerTripleReal3 (u j : IntegerTriple)) =
+          rawMin B (rawE k₀ Q c₀ hQ) j) ∧
+      Finite ((rawG k₂ k₃ Q c₂ c₃) ⧸ Submodule.span ℤ (Set.range u)) ∧
+      (Submodule.span ℤ (Set.range u)).toAddSubgroup.index ≤ 6 ∧
+      (∀ i j, |cofactorRealCoordinates3 k₀ (integerTripleReal3 (u j : IntegerTriple)) i| ≤
+        rawMin B (rawE k₀ Q c₀ hQ) j * Q ^ c₀ i) ∧
+      (∀ i j, (padicNorm 2 (rawForms k₂ i
+        (fun l => ((u j : IntegerTriple) l : ℚ))) : ℝ) ≤ Q ^ c₂ i) ∧
+      (∀ i j, (padicNorm 3 (rawForms k₃ i
+        (fun l => ((u j : IntegerTriple) l : ℚ))) : ℝ) ≤ Q ^ c₃ i) ∧
+      (∏ j, rawMin B (rawE k₀ Q c₀ hQ) j) ≤
+        qRoundingFactor3 Q c₂ c₃ ∧ qRoundingFactor3 Q c₂ c₃ < 216 ∧
+      (∏ j, rawMin B (rawE k₀ Q c₀ hQ) j) < 216 := by
+  exact Literal252R2.JSP000334.exists_cofactorSource_integer_attaining_frame k₀ k₂ k₃ Q c₀ c₂ c₃ hQ hc₂ hc₃ hb
+
+theorem raw_cofactor_actual_finite_bounds3
+    (k₂ k₃ : Fin 3) (Q : ℝ) (c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (c : Basis (Fin 3) ℤ (rawG k₂ k₃ Q c₂ c₃))
+    (u : Fin 3 → rawG k₂ k₃ Q c₂ c₃)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple))) :
+    let z := fun l => ((dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u *
+      (rawG k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+        dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 l
+    (∀ i, (padicNorm 2 (rawDual k₂ z i) : ℝ) ≤
+      Q ^ (c₂ (i.succAbove 0) + c₂ (i.succAbove 1))) ∧
+    (∀ i, (padicNorm 3 (rawDual k₃ z i) : ℝ) ≤
+      Q ^ (c₃ (i.succAbove 0) + c₃ (i.succAbove 1))) := by
+  exact Literal252R2.JSP000334.cofactor_actual_finite_bounds3 k₂ k₃ Q c₂ c₃ hQ hc₂ hc₃ c u hu
+
+theorem raw_cofactorDualInt3_value (k : Fin 3) (m : IntegerTriple) (i : Fin 3) :
+    rawDual k (fun l => (m l : ℚ)) i = (cofactorDualInt3 k m i : ℚ) := by
+  exact Literal252R2.JSP000334.cofactorDualInt3_value k m i
+
+theorem raw_cofactorDualValue3_real_cast (k : Fin 3) (x : Fin 3 → ℚ) (i : Fin 3) :
+    (rawDual k x i : ℝ) =
+      ∑ l : Fin 3, (rawR k)⁻¹ l i * (x l : ℝ) := by
+  exact Literal252R2.JSP000334.cofactorDualValue3_real_cast k x i
+
+theorem raw_cofactor_selected_product_lower3 (k₀ k₂ k₃ : Fin 3)
+    (s : Fin 3 → Fin 3) (m : IntegerTriple) (hm : m ≠ 0)
+    (hn : rawProduct k₀ k₂ k₃ s (fun l => (m l : ℚ)) ≠ 0) :
+    1 / (9 * (rothKernelRowHeight m : ℝ) ^ 2) ≤
+      rawProduct k₀ k₂ k₃ s (fun l => (m l : ℚ)) := by
+  exact Literal252R2.JSP000334.cofactor_selected_product_lower3 k₀ k₂ k₃ s m hm hn
+
+theorem raw_cofactor_actual_real_bound3
+    (k₀ k₂ k₃ : Fin 3) (Q delta : ℝ) (c₀ c₂ c₃ : Fin 3 → ℝ)
+    (hQ : 1 < Q) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (u : Fin 3 → rawG k₂ k₃ Q c₂ c₃)
+    (hB : lattice3 B = (rawG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3)
+    (hreal : ∀ i, |((dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u *
+      (rawG k₂ k₃ Q c₂ c₃).index : ℕ) : ℝ) *
+        dualFrameRealLocalValue3 (rawR k₀)
+          (fun j => (u j : IntegerTriple)) 2 i| ≤
+      6 * ((rawG k₂ k₃ Q c₂ c₃).index : ℝ) * (Q ^ c₀ i)⁻¹ *
+        (rawMin B (rawE k₀ Q c₀ hQ) 2)⁻¹)
+    (hsmall : rawMin B (rawE k₀ Q c₀ hQ) 1 < Q ^ (-delta))
+    (i : Fin 3) :
+    |((dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u *
+      (rawG k₂ k₃ Q c₂ c₃).index : ℕ) : ℝ) *
+        dualFrameRealLocalValue3 (rawR k₀)
+          (fun j => (u j : IntegerTriple)) 2 i| ≤
+      36 * (∏ l : Fin 3, Q ^ c₀ l) * (Q ^ c₀ i)⁻¹ * Q ^ (-2 * delta) := by
+  exact Literal252R2.JSP000334.cofactor_actual_real_bound3 k₀ k₂ k₃ Q delta c₀ c₂ c₃ hQ hc₂ hc₃ B u hB hreal hsmall i
+
+theorem raw_cofactor_source_normal_height3 (k₀ k₂ k₃ : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (S : Set (Fin 3 → Fin 3)) (_hS : S.Nonempty) :
+    ∃ C1 C2 C3 : ℝ, 0 < C1 ∧ 0 < C2 ∧ 0 < C3 ∧
+      ∀ (Q : ℝ) (hQ : 1 < Q), C3 < Q →
+      ∀ c₀ c₂ c₃ : Fin 3 → ℝ,
+        (∀ i, |c₀ i| ≤ 1) → (∀ i, -1 ≤ c₂ i ∧ c₂ i ≤ 0) →
+        (∀ i, -1 ≤ c₃ i ∧ c₃ i ≤ 0) →
+        (∑ i, (c₀ i + c₂ i + c₃ i) = 0) →
+        (∀ s ∈ S, -(3 * delta) / 4 ≤ c₀ (s 0) + c₂ (s 1) + c₃ (s 2)) →
+        ∀ (B : Basis (Fin 3) ℝ RealTriple) (u : Fin 3 → rawG k₂ k₃ Q c₂ c₃),
+          lattice3 B = (rawG k₂ k₃ Q c₂ c₃).toIntSubmodule.map integerTripleReal3 →
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) →
+          (∀ j, coordinateGauge3 (rawE k₀ Q c₀ hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              rawMin B (rawE k₀ Q c₀ hQ) j) →
+          rawMin B (rawE k₀ Q c₀ hQ) 1 < Q ^ (-delta) →
+          (∃ s ∈ S, rawProduct k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0) →
+          ∃ (z m : IntegerTriple) (g : ℤ),
+            g ≠ 0 ∧ m ≠ 0 ∧
+            (∀ i, ((dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u *
+              (rawG k₂ k₃ Q c₂ c₃).index : ℕ) : ℚ) *
+                dualFrameVector3 (fun j => (u j : IntegerTriple)) 2 i = (z i : ℚ)) ∧
+            (∀ i, z i = g * m i) ∧ Ideal.span (Set.range m) = ⊤ ∧
+            Finset.univ.gcd (fun i => (m i).natAbs) = 1 ∧
+            (∃ r : ℚ, r ≠ 0 ∧ (fun i => (m i : ℚ)) =
+              r • dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ∧
+            Submodule.span ℚ ({fun i => (m i : ℚ)} : Set (Fin 3 → ℚ)) =
+              Submodule.span ℚ {dualFrameVector3 (fun j => (u j : IntegerTriple)) 2} ∧
+            (∀ j : Fin 2, (∑ i : Fin 3, m i * ((u j.castSucc : IntegerTriple) i)) = 0) ∧
+            dualFrameRelativeIndex3 (rawG k₂ k₃ Q c₂ c₃) u ≤ 6 ∧
+            Q ^ C1 ≤ (rothKernelRowHeight m : ℝ) ∧ (rothKernelRowHeight m : ℝ) ≤ Q ^ C2 := by
+  exact Literal252R2.JSP000334.cofactor_source_normal_height3 k₀ k₂ k₃ delta hd S _hS
+
+theorem raw_cofactor_finiteWeight_same_frame3 (n : ℕ) (hn : 16 ≤ n)
+    (deltaSource deltaAux Q : ℝ) (hQ : 1 < Q) (he : 7/(n : ℝ) ≤ deltaSource-deltaAux)
+    (c : Fin 3 → Fin 3 → ℝ) (hc : sourceWeightConditions3 c) (k₀ k₂ k₃ : Fin 3)
+    (B : Basis (Fin 3) ℝ RealTriple)
+    (u : Fin 3 → rawG k₂ k₃ Q (c 1) (c 2))
+    (hatt : ∀ j, coordinateGauge3 (rawE k₀ Q (c 0) hQ)
+      (integerTripleReal3 (u j : IntegerTriple)) =
+        rawMin B (rawE k₀ Q (c 0) hQ) j)
+    (hsmall : rawMin B (rawE k₀ Q (c 0) hQ) 1 < Q^(-deltaSource)) :
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 0
+      (rothNormalLocalValue (rawC k₀) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 0 i-deltaAux)) ∧
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 1
+      (rothNormalLocalValue (rawC k₂) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 1 i)) ∧
+    (∀ j : Fin 2, ∀ i, rothLocalAbs 2
+      (rothNormalLocalValue (rawC k₃) (u j.castSucc : IntegerTriple) i) ≤
+        Q^(finiteWeightApprox3 n c 2 i)) := by
+  exact Literal252R2.JSP000334.cofactor_finiteWeight_same_frame3 n hn deltaSource deltaAux Q hQ he c hc k₀ k₂ k₃ B u hatt hsmall
+
+theorem raw_cofactor_source_family_contradiction3
+    (k₀ k₂ k₃ : Fin 3) (S : Set (Fin 3 → Fin 3)) (hS : S.Nonempty) :
+    ∀ (deltaSource : ℝ), 0 < deltaSource →
+    ∀ (U : Set ℝ), ¬ BddAbove U →
+    ∀ (c : ℝ → Fin 3 → Fin 3 → ℝ),
+      (∀ Q ∈ U, sourceWeightConditions3 (c Q)) →
+      (∀ Q ∈ U, ∀ s ∈ S,
+        -deltaSource/2 ≤ c Q 0 (s 0)+c Q 1 (s 1)+c Q 2 (s 2)) →
+      (∀ Q ∈ U, ∀ hQ : 1 < Q,
+        ∃ (B : Basis (Fin 3) ℝ RealTriple)
+          (u : Fin 3 → rawG k₂ k₃ Q (c Q 1) (c Q 2)),
+          lattice3 B = (rawG k₂ k₃ Q (c Q 1) (c Q 2)).toIntSubmodule.map integerTripleReal3 ∧
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+          (∀ j, coordinateGauge3 (rawE k₀ Q (c Q 0) hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              rawMin B (rawE k₀ Q (c Q 0) hQ) j) ∧
+          dualFrameRelativeIndex3 (rawG k₂ k₃ Q (c Q 1) (c Q 2)) u ≤ 6 ∧
+          rawMin B (rawE k₀ Q (c Q 0) hQ) 1 < Q^(-deltaSource) ∧
+          (∃ s ∈ S, rawProduct k₀ k₂ k₃ s
+            (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) ≠ 0)) → False := by
+  exact Literal252R2.JSP000334.cofactor_source_family_contradiction3 k₀ k₂ k₃ S hS
+
+theorem raw_cofactor_uniform_selected_vanishing3 (k₀ k₂ k₃ : Fin 3)
+    (S : Set (Fin 3 → Fin 3)) (hS : S.Nonempty) (deltaSource : ℝ) (hd : 0 < deltaSource) :
+    ∃ Q0 : ℝ, 1 ≤ Q0 ∧
+      ∀ Q : ℝ, Q0 < Q → ∀ hQ : 1 < Q,
+      ∀ c : Fin 3 → Fin 3 → ℝ, sourceWeightConditions3 c →
+        (∀ s ∈ S, -deltaSource/2 ≤ c 0 (s 0)+c 1 (s 1)+c 2 (s 2)) →
+      ∀ (B : Basis (Fin 3) ℝ RealTriple)
+        (u : Fin 3 → rawG k₂ k₃ Q (c 1) (c 2)),
+          lattice3 B = (rawG k₂ k₃ Q (c 1) (c 2)).toIntSubmodule.map integerTripleReal3 →
+          LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) →
+          (∀ j, coordinateGauge3 (rawE k₀ Q (c 0) hQ)
+            (integerTripleReal3 (u j : IntegerTriple)) =
+              rawMin B (rawE k₀ Q (c 0) hQ) j) →
+          rawMin B (rawE k₀ Q (c 0) hQ) 1 < Q^(-deltaSource) →
+      ∀ s ∈ S, rawProduct k₀ k₂ k₃ s
+        (dualFrameVector3 (fun j => (u j : IntegerTriple)) 2) = 0 := by
+  exact Literal252R2.JSP000334.cofactor_uniform_selected_vanishing3 k₀ k₂ k₃ S hS deltaSource hd
+
+end
+end LiteralCofactorRaw252R2
+#check LiteralCofactorRaw252R2.rawC
+#print axioms LiteralCofactorRaw252R2.rawC
+#check LiteralCofactorRaw252R2.rawR
+#print axioms LiteralCofactorRaw252R2.rawR
+#check LiteralCofactorRaw252R2.rawG
+#print axioms LiteralCofactorRaw252R2.rawG
+#check LiteralCofactorRaw252R2.rawE
+#print axioms LiteralCofactorRaw252R2.rawE
+#check LiteralCofactorRaw252R2.rawBody
+#print axioms LiteralCofactorRaw252R2.rawBody
+#check LiteralCofactorRaw252R2.rawForms
+#print axioms LiteralCofactorRaw252R2.rawForms
+#check LiteralCofactorRaw252R2.rawDual
+#print axioms LiteralCofactorRaw252R2.rawDual
+#check LiteralCofactorRaw252R2.rawMin
+#print axioms LiteralCofactorRaw252R2.rawMin
+#check LiteralCofactorRaw252R2.rawProduct
+#print axioms LiteralCofactorRaw252R2.rawProduct
+#check LiteralCofactorRaw252R2.rawMin_eq
+#print axioms LiteralCofactorRaw252R2.rawMin_eq
+#check LiteralCofactorRaw252R2.raw_cofactorIntegerMatrix3_det
+#print axioms LiteralCofactorRaw252R2.raw_cofactorIntegerMatrix3_det
+#check LiteralCofactorRaw252R2.raw_cofactorSourceLattice3_spec
+#print axioms LiteralCofactorRaw252R2.raw_cofactorSourceLattice3_spec
+#check LiteralCofactorRaw252R2.raw_cofactorSourceBody3_volume
+#print axioms LiteralCofactorRaw252R2.raw_cofactorSourceBody3_volume
+#check LiteralCofactorRaw252R2.raw_exists_cofactorSource_integer_attaining_frame
+#print axioms LiteralCofactorRaw252R2.raw_exists_cofactorSource_integer_attaining_frame
+#check LiteralCofactorRaw252R2.raw_cofactor_actual_finite_bounds3
+#print axioms LiteralCofactorRaw252R2.raw_cofactor_actual_finite_bounds3
+#check LiteralCofactorRaw252R2.raw_cofactorDualInt3_value
+#print axioms LiteralCofactorRaw252R2.raw_cofactorDualInt3_value
+#check LiteralCofactorRaw252R2.raw_cofactorDualValue3_real_cast
+#print axioms LiteralCofactorRaw252R2.raw_cofactorDualValue3_real_cast
+#check LiteralCofactorRaw252R2.raw_cofactor_selected_product_lower3
+#print axioms LiteralCofactorRaw252R2.raw_cofactor_selected_product_lower3
+#check LiteralCofactorRaw252R2.raw_cofactor_actual_real_bound3
+#print axioms LiteralCofactorRaw252R2.raw_cofactor_actual_real_bound3
+#check LiteralCofactorRaw252R2.raw_cofactor_source_normal_height3
+#print axioms LiteralCofactorRaw252R2.raw_cofactor_source_normal_height3
+#check LiteralCofactorRaw252R2.raw_cofactor_finiteWeight_same_frame3
+#print axioms LiteralCofactorRaw252R2.raw_cofactor_finiteWeight_same_frame3
+#check LiteralCofactorRaw252R2.raw_cofactor_source_family_contradiction3
+#print axioms LiteralCofactorRaw252R2.raw_cofactor_source_family_contradiction3
+#check LiteralCofactorRaw252R2.raw_cofactor_uniform_selected_vanishing3
+#print axioms LiteralCofactorRaw252R2.raw_cofactor_uniform_selected_vanishing3

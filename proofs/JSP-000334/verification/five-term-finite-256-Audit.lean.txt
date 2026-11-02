@@ -1,0 +1,127 @@
+import SubspaceBridge.FiveTermDegeneracy4
+import SubspaceBridge.FiveTermSource4
+import SubspaceBridge.FiveTermProjection4
+import SubspaceBridge.FiveTermMerge4
+import SubspaceBridge.FiveTermSmallFibers4
+import SubspaceBridge.FiveTermUnits4
+import SubspaceBridge.FiveTermThreeFibers4
+import SubspaceBridge.FiveTermFourFibers4
+import SubspaceBridge.FiveTermCoefficientFiber4
+import SubspaceBridge.FiveTermFiniteness4
+#check JSP000334.five_term_weighted_degenerate_pair4
+#print JSP000334.five_term_weighted_degenerate_pair4
+#print axioms JSP000334.five_term_weighted_degenerate_pair4
+#check JSP000334.five_term_nondegenerate_coarsen4
+#print JSP000334.five_term_nondegenerate_coarsen4
+#print axioms JSP000334.five_term_nondegenerate_coarsen4
+#check JSP000334.five_term_proper_annihilator4
+#print JSP000334.five_term_proper_annihilator4
+#print axioms JSP000334.five_term_proper_annihilator4
+#check JSP000334.five_term_relation_facts4
+#print JSP000334.five_term_relation_facts4
+#print axioms JSP000334.five_term_relation_facts4
+#check JSP000334.fiveTermCoefficientFiber4
+#print JSP000334.fiveTermCoefficientFiber4
+#print axioms JSP000334.fiveTermCoefficientFiber4
+#check JSP000334.five_term_weighted_triple_projection4
+#print JSP000334.five_term_weighted_triple_projection4
+#print axioms JSP000334.five_term_weighted_triple_projection4
+#check JSP000334.five_term_weighted_pair_projection4
+#print JSP000334.five_term_weighted_pair_projection4
+#print axioms JSP000334.five_term_weighted_pair_projection4
+#check JSP000334.five_term_finite_over_pairs4
+#print JSP000334.five_term_finite_over_pairs4
+#print axioms JSP000334.five_term_finite_over_pairs4
+#check JSP000334.five_term_merge_first14
+#print JSP000334.five_term_merge_first14
+#print axioms JSP000334.five_term_merge_first14
+#check JSP000334.five_term_merge_first24
+#print JSP000334.five_term_merge_first24
+#print axioms JSP000334.five_term_merge_first24
+#check JSP000334.five_term_merge_first34
+#print JSP000334.five_term_merge_first34
+#print axioms JSP000334.five_term_merge_first34
+#check JSP000334.five_term_merge_pair124
+#print JSP000334.five_term_merge_pair124
+#print axioms JSP000334.five_term_merge_pair124
+#check JSP000334.five_term_merge_pair134
+#print JSP000334.five_term_merge_pair134
+#print axioms JSP000334.five_term_merge_pair134
+#check JSP000334.five_term_merge_pair234
+#print JSP000334.five_term_merge_pair234
+#print axioms JSP000334.five_term_merge_pair234
+#check JSP000334.five_term_fixed_coordinate_14
+#print JSP000334.five_term_fixed_coordinate_14
+#print axioms JSP000334.five_term_fixed_coordinate_14
+#check JSP000334.five_term_fixed_coordinate_24
+#print JSP000334.five_term_fixed_coordinate_24
+#print axioms JSP000334.five_term_fixed_coordinate_24
+#check JSP000334.five_term_fixed_coordinate_34
+#print JSP000334.five_term_fixed_coordinate_34
+#print axioms JSP000334.five_term_fixed_coordinate_34
+#check JSP000334.five_term_ratio_coordinate_124
+#print JSP000334.five_term_ratio_coordinate_124
+#print axioms JSP000334.five_term_ratio_coordinate_124
+#check JSP000334.five_term_ratio_coordinate_134
+#print JSP000334.five_term_ratio_coordinate_134
+#print axioms JSP000334.five_term_ratio_coordinate_134
+#check JSP000334.five_term_ratio_coordinate_234
+#print JSP000334.five_term_ratio_coordinate_234
+#print axioms JSP000334.five_term_ratio_coordinate_234
+#check JSP000334.fiveTermUnit4
+#print JSP000334.fiveTermUnit4
+#print axioms JSP000334.fiveTermUnit4
+#check JSP000334.five_term_unit_value4
+#print JSP000334.five_term_unit_value4
+#print axioms JSP000334.five_term_unit_value4
+#check JSP000334.five_term_pair_fiber_values4
+#print JSP000334.five_term_pair_fiber_values4
+#print axioms JSP000334.five_term_pair_fiber_values4
+#check JSP000334.five_term_fixed_pair_124
+#print JSP000334.five_term_fixed_pair_124
+#print axioms JSP000334.five_term_fixed_pair_124
+#check JSP000334.five_term_fiber_three_constant_124
+#print JSP000334.five_term_fiber_three_constant_124
+#print axioms JSP000334.five_term_fiber_three_constant_124
+#check JSP000334.five_term_fixed_pair_134
+#print JSP000334.five_term_fixed_pair_134
+#print axioms JSP000334.five_term_fixed_pair_134
+#check JSP000334.five_term_fiber_three_constant_134
+#print JSP000334.five_term_fiber_three_constant_134
+#print axioms JSP000334.five_term_fiber_three_constant_134
+#check JSP000334.five_term_fixed_pair_234
+#print JSP000334.five_term_fixed_pair_234
+#print axioms JSP000334.five_term_fixed_pair_234
+#check JSP000334.five_term_fiber_three_constant_234
+#print JSP000334.five_term_fiber_three_constant_234
+#print axioms JSP000334.five_term_fiber_three_constant_234
+#check JSP000334.five_term_fixed_ratios4
+#print JSP000334.five_term_fixed_ratios4
+#print axioms JSP000334.five_term_fixed_ratios4
+#check JSP000334.five_term_fiber_three_ratios4
+#print JSP000334.five_term_fiber_three_ratios4
+#print axioms JSP000334.five_term_fiber_three_ratios4
+#check JSP000334.five_term_fiber_four_nonzero4
+#print JSP000334.five_term_fiber_four_nonzero4
+#print axioms JSP000334.five_term_fiber_four_nonzero4
+#check JSP000334.five_term_coefficient_fiber_finite4
+#print JSP000334.five_term_coefficient_fiber_finite4
+#print axioms JSP000334.five_term_coefficient_fiber_finite4
+#check JSP000334.fiveTermProperFiber4
+#print JSP000334.fiveTermProperFiber4
+#print axioms JSP000334.fiveTermProperFiber4
+#check JSP000334.five_term_proper_fiber_finite4
+#print JSP000334.five_term_proper_fiber_finite4
+#print axioms JSP000334.five_term_proper_fiber_finite4
+#check JSP000334.fixed_five_term_finite
+#print JSP000334.fixed_five_term_finite
+#print axioms JSP000334.fixed_five_term_finite
+#check JSP000334.source_five_term_finite_cover4
+#print JSP000334.source_five_term_finite_cover4
+#print axioms JSP000334.source_five_term_finite_cover4
+#check JSP000334.weighted_four_term_finite
+#print JSP000334.weighted_four_term_finite
+#print axioms JSP000334.weighted_four_term_finite
+#check JSP000334.weighted_fixed_sunit_pair_finite
+#print JSP000334.weighted_fixed_sunit_pair_finite
+#print axioms JSP000334.weighted_fixed_sunit_pair_finite

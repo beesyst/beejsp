@@ -1,0 +1,142 @@
+import SubspaceBridge.SourceBalance6
+import SubspaceBridge.SourceRationalFiniteLower10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10
+
+theorem inverse_map_generic10 {ι F E : Type*} [Fintype ι] [DecidableEq ι]
+    [Field F] [Field E] (f : F →+* E) (A : Matrix ι ι F) (hA : A.det ≠ 0) :
+    (A.map f)⁻¹ = A⁻¹.map f := by
+  have hleft : A⁻¹.map f * A.map f = 1 :=
+    (CompoundFeasibility.Auxiliary6.SourceBalance.mapped_inverse f A hA).1
+  exact Matrix.inv_eq_left_inv hleft
+
+theorem inverse_adjugate_generic10 {ι F : Type*} [Fintype ι] [DecidableEq ι]
+    [Field F] (A : Matrix ι ι F) (hA : A.det = 1) : A⁻¹ = A.adjugate := by
+  rw [Matrix.inv_def,hA,Ring.inverse_one,one_smul]
+
+theorem adjugate_dual_map_generic10 {ι F E : Type*} [Fintype ι] [DecidableEq ι]
+    [Field F] [Field E] (f : F →+* E) (A : Matrix ι ι F) (hA : A.det = 1) :
+    (A.map f)⁻¹.transpose = A.adjugate.transpose.map f := by
+  have hn : A.det ≠ 0 := by rw [hA]; exact one_ne_zero
+  rw [inverse_map_generic10 f A hn,inverse_adjugate_generic10 A hA]
+  rfl
+
+end CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10
+namespace CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10
+open CompoundFeasibility.SchmidtNormal10 CompoundFeasibility.SourceHeightEnvelope10
+
+theorem finite_adjugate_dimension10 {N : ℕ} (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin N) (Fin N) ℚ) (hA : A.det = 1) :
+    (A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose =
+      A.adjugate.transpose.map (algebraMap ℚ ℚ_[p]) := by
+  exact adjugate_dual_map_generic10 (algebraMap ℚ ℚ_[p]) A hA
+
+theorem finite_adjugate_dual10 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1) :
+    (A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose =
+      A.adjugate.transpose.map (algebraMap ℚ ℚ_[p]) := by
+  exact finite_adjugate_dimension10 p A hA
+
+theorem original_p2_dual_matrix10 (A2 : Matrix (Fin 10) (Fin 10) ℚ) (h2 : A2.det = 1) :
+    (A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose =
+      A2.adjugate.transpose.map (algebraMap ℚ ℚ_[2]) := by
+  exact finite_adjugate_dual10 2 A2 h2
+
+theorem original_p3_dual_matrix10 (A3 : Matrix (Fin 10) (Fin 10) ℚ) (h3 : A3.det = 1) :
+    (A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose =
+      A3.adjugate.transpose.map (algebraMap ℚ ℚ_[3]) := by
+  exact finite_adjugate_dual10 3 A3 h3
+
+theorem finite_dual_from_adjugate10 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1)
+    (M : Fin 10 → ℤ) (s : Fin 10) :
+    ((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[p]))) s =
+      finiteValue10 p A.adjugate.transpose M s := by
+  rw [finite_adjugate_dual10 p A hA]
+  rfl
+
+theorem actual_finite_dual_lower10 (p : ℕ) [Fact p.Prime] (hp : p = 2 ∨ p = 3)
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1) :
+    ∃ C : ℝ, 0 < C ∧ ∀ (M : Fin 10 → ℤ) i,
+      ((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[p]))) i ≠ 0 →
+      C ≤ ‖((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[p]))) i‖ *
+        max 1 (normalHeight10 M : ℝ) := by
+  obtain ⟨C,hC,h⟩ := finite_form_lower10 p hp A.adjugate.transpose
+  refine ⟨C,hC,?_⟩
+  intro M i hn
+  rw [finite_dual_from_adjugate10 p A hA M i] at hn ⊢
+  exact (h M i hn).1
+
+theorem actual_p2_dual_lower10 (A2 : Matrix (Fin 10) (Fin 10) ℚ)
+    (h2 : A2.det = 1) :
+    ∃ C : ℝ, 0 < C ∧ ∀ (M : Fin 10 → ℤ) i,
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) i ≠ 0 →
+      C ≤ ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) i‖ *
+        max 1 (normalHeight10 M : ℝ) := by
+  exact actual_finite_dual_lower10 2 (Or.inl rfl) A2 h2
+
+theorem actual_p3_dual_lower10 (A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (h3 : A3.det = 1) :
+    ∃ C : ℝ, 0 < C ∧ ∀ (M : Fin 10 → ℤ) i,
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) i ≠ 0 →
+      C ≤ ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) i‖ *
+        max 1 (normalHeight10 M : ℝ) := by
+  exact actual_finite_dual_lower10 3 (Or.inr rfl) A3 h3
+
+end CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10
+namespace CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10
+open CompoundFeasibility.SchmidtNormal10 CompoundFeasibility.SourceHeightEnvelope10
+
+theorem actual_same_normal_mixed_lower10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∃ C : ℝ, 0 < C ∧ ∃ D : ℕ, ∀ (M : Fin 10 → ℤ) (i0 i2 i3 : Fin 10),
+      (L⁻¹.transpose *ᵥ integerReal M) i0 ≠ 0 →
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) i2 ≠ 0 →
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) i3 ≠ 0 →
+      C ≤ |(L⁻¹.transpose *ᵥ integerReal M) i0| *
+        ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) i2‖ *
+        ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) i3‖ *
+        (max 1 (normalHeight10 M : ℝ))^(D+2) := by
+  obtain ⟨C0,hC0,D,h0⟩ := actual_real_dual_liouville10 L hL hAlg
+  obtain ⟨C2,hC2,hp2⟩ := actual_p2_dual_lower10 A2 h2
+  obtain ⟨C3,hC3,hp3⟩ := actual_p3_dual_lower10 A3 h3
+  refine ⟨C0*C2*C3,mul_pos (mul_pos hC0 hC2) hC3,D,?_⟩
+  intro M i0 i2 i3 hn0 hn2 hn3
+  have hh : 0 ≤ max 1 (normalHeight10 M : ℝ) := zero_le_one.trans (le_max_left _ _)
+  have h02 := mul_le_mul (h0 M i0 hn0) (hp2 M i2 hn2)
+    hC2.le (mul_nonneg (abs_nonneg _) (pow_nonneg hh D))
+  have h023 := mul_le_mul h02 (hp3 M i3 hn3)
+    hC3.le (mul_nonneg (mul_nonneg (abs_nonneg _) (pow_nonneg hh D))
+      (mul_nonneg (norm_nonneg _) hh))
+  calc
+    C0*C2*C3 ≤ _ := h023
+    _ = _ := by rw [pow_add,pow_two]; ring
+
+end CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.inverse_map_generic10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.inverse_map_generic10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.inverse_adjugate_generic10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.inverse_adjugate_generic10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.adjugate_dual_map_generic10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.adjugate_dual_map_generic10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.finite_adjugate_dimension10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.finite_adjugate_dimension10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.finite_adjugate_dual10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.finite_adjugate_dual10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.original_p2_dual_matrix10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.original_p2_dual_matrix10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.original_p3_dual_matrix10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.original_p3_dual_matrix10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.finite_dual_from_adjugate10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.finite_dual_from_adjugate10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.actual_finite_dual_lower10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.actual_finite_dual_lower10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.actual_p2_dual_lower10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.actual_p2_dual_lower10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.actual_p3_dual_lower10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.actual_p3_dual_lower10
+#check CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.actual_same_normal_mixed_lower10
+#print axioms CompoundFeasibility.M200R4Literal.SourceHeightEnvelope10.actual_same_normal_mixed_lower10

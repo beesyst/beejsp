@@ -1,0 +1,247 @@
+import SubspaceBridge.BinaryAllPointFiniteCover2
+import SubspaceBridge.WeightedTernaryProduct2
+open scoped BigOperators Classical Matrix
+open JSP000334
+namespace LiteralR6
+
+
+def weightedFixedSUnitPairs (A B C : ℚ) : Set (fixedSUnitGroup × fixedSUnitGroup) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+
+theorem weighted_pair_primitive_transport (u v : fixedSUnitGroup) :
+    ∃ z : Fin 2 → ℤ, ∃ s : fixedSUnitGroup,
+      z = integralPair ((((v/u : fixedSUnitGroup) : ℚˣ) : ℚ)) ∧
+      PrimitivePair z ∧ z 0 ≠ 0 ∧ z 1 ≠ 0 ∧
+      (z 0 : ℚ) = ((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ) ∧
+      (z 1 : ℚ) = ((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ) ∧
+      pairHeight ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ) = archPairHeight z := by
+  let q : fixedSUnitGroup := v/u
+  let a : ℚ := ((u : ℚˣ) : ℚ)
+  let b : ℚ := ((v : ℚˣ) : ℚ)
+  have ha : a ≠ 0 := Units.ne_zero _
+  have hq : ((q : ℚˣ) : ℚ) = b/a := by simp [q, a, b]
+  obtain ⟨d, hd⟩ := sunit_denominator q
+  let s : fixedSUnitGroup := d/u
+  let z := integralPair ((q : ℚˣ) : ℚ)
+  have hs : ((s : ℚˣ) : ℚ) = ((d : ℚˣ) : ℚ)/a := by simp [s, a]
+  have h0 : (z 0 : ℚ) = ((s : ℚˣ) : ℚ)*a := by
+    rw [hs, div_mul_cancel₀ _ ha, hd]
+    simpa only [Matrix.cons_val_zero, mul_one] using integralPair_scale ((q : ℚˣ) : ℚ) 0
+  have h1 : (z 1 : ℚ) = ((s : ℚˣ) : ℚ)*b := by
+    have hh := integralPair_scale ((q : ℚˣ) : ℚ) 1
+    change (z 1 : ℚ) = _ at hh
+    change (z 1 : ℚ) = (((q : ℚˣ) : ℚ).den : ℚ)*((q : ℚˣ) : ℚ) at hh
+    rw [← hd, hq] at hh
+    rw [hs, hh]
+    ring
+  have hz : PrimitivePair z := integralPair_primitive _
+  have hz0 : z 0 ≠ 0 := by
+    intro he
+    have heq := h0
+    rw [he, Int.cast_zero] at heq
+    exact (mul_ne_zero (Units.ne_zero _) ha) heq.symm
+  have hz1 : z 1 ≠ 0 := by
+    intro he
+    have heq := h1
+    rw [he, Int.cast_zero] at heq
+    exact (mul_ne_zero (Units.ne_zero _) (Units.ne_zero _)) heq.symm
+  refine ⟨z,s,rfl,hz,hz0,hz1,h0,h1,?_⟩
+  have hh := primitive_pair_height z hz
+  rw [h0,h1,pairHeight_sunit_scale] at hh
+  exact hh
+
+theorem weighted_normalized_sunit_scale2 (B C : ℚ) (s : fixedSUnitGroup) (u v : ℚ) :
+    weightedNormalizedProduct2 B C (((s : ℚˣ) : ℚ)*u) (((s : ℚˣ) : ℚ)*v) =
+      weightedNormalizedProduct2 B C u v := by
+  let a : ℚ := ((s : ℚˣ) : ℚ)
+  have hmul (tau : Fin 3) (q : ℚ) :
+      rationalPlaceNorm tau (a*q) = rationalPlaceNorm tau a*rationalPlaceNorm tau q := by
+    fin_cases tau <;> simp [rationalPlaceNorm, abs_mul]
+  have hpos (tau : Fin 3) : 0 < rationalPlaceNorm tau a :=
+    rationalPlaceNorm_pos tau (Units.ne_zero _)
+  have hform : B*(a*u)+C*(a*v)=a*(B*u+C*v) := by ring
+  unfold weightedNormalizedProduct2
+  apply Finset.prod_congr rfl
+  intro tau _
+  change (min (rationalPlaceNorm tau (a*u)) (rationalPlaceNorm tau (a*v)) /
+    localPairHeight tau (a*u) (a*v)) *
+    (rationalPlaceNorm tau (B*(a*u)+C*(a*v)) / localPairHeight tau (a*u) (a*v)) = _
+  rw [hform]
+  simp only [localPairHeight, hmul]
+  rw [← mul_min_of_nonneg _ _ (hpos tau).le, ← mul_max_of_nonneg _ _ (hpos tau).le]
+  rw [mul_div_mul_left _ _ (hpos tau).ne', mul_div_mul_left _ _ (hpos tau).ne']
+
+
+
+theorem weighted_pair_descale_mem (P : Submodule ℚ (Fin 2 → ℚ))
+    (u v s : fixedSUnitGroup) (z : Fin 2 → ℤ)
+    (h0 : (z 0 : ℚ)=((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))
+    (h1 : (z 1 : ℚ)=((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ))
+    (hz : (fun i => (z i : ℚ)) ∈ P) :
+    ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] ∈ P := by
+  have hm := P.smul_mem (((s : ℚˣ) : ℚ)⁻¹) hz
+  have he : (((s : ℚˣ) : ℚ)⁻¹) • (fun i => (z i : ℚ)) =
+      ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] := by
+    ext i
+    fin_cases i <;> simp [h0,h1,Units.ne_zero]
+  rw [he] at hm
+  exact hm
+
+theorem weighted_pair_high_product (A B C : ℚ) (hA : A≠0) (u v s : fixedSUnitGroup)
+    (z : Fin 2 → ℤ)
+    (he : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)=0)
+    (h0 : (z 0 : ℚ)=((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))
+    (h1 : (z 1 : ℚ)=((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ))
+    (hheight : pairHeight ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ)=archPairHeight z)
+    (hH : max 1 ((threePlaceProduct A : ℝ)^2)<(archPairHeight z : ℝ)) :
+    (weightedNormalizedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (archPairHeight z : ℝ) (-(5 : ℝ)/2) := by
+  have hp := weighted_strict_product2 A B C hA u v he (by simpa only [hheight] using hH)
+  rw [hheight] at hp
+  rw [h0,h1,weighted_normalized_sunit_scale2]
+  exact hp
+
+theorem weighted_pair_finite_proper_cover (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0) :
+    ∃ F : Set (Submodule ℚ (Fin 2 → ℚ)), F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ p ∈ weightedFixedSUnitPairs A B C,
+        ∃ P∈F, ![((p.1 : ℚˣ) : ℚ),((p.2 : ℚˣ) : ℚ)] ∈ P := by
+  obtain ⟨F,hF,hproper,hcover⟩ := binary_weighted_allpoint_finite_cover B C hB hC
+  let M : ℝ := max 1 ((threePlaceProduct A : ℝ)^2)
+  let T : Set (Fin 2 → ℤ) := {z | z 1≠0 ∧ (archPairHeight z : ℝ)≤M}
+  have hT : T.Finite := binary_integer_height_ball_finite T M (fun _ hz => hz.2)
+  refine ⟨F ∪ (binaryRationalSpan '' T),hF.union (hT.image _),?_,?_⟩
+  · intro P hP
+    rcases hP with hP | ⟨z,hz,rfl⟩
+    · exact hproper P hP
+    · exact binary_rational_span_proper z hz.1
+  · intro p hp
+    obtain ⟨z,s,_,hz,_,hz1,h0,h1,hh⟩ := weighted_pair_primitive_transport p.1 p.2
+    by_cases hH : M<(archPairHeight z : ℝ)
+    · have hprod := weighted_pair_high_product A B C hA p.1 p.2 s z hp h0 h1 hh hH
+      obtain ⟨P,hPF,hzP⟩ := hcover z hz hprod
+      exact ⟨P,Or.inl hPF,weighted_pair_descale_mem P p.1 p.2 s z h0 h1 hzP⟩
+    · have hzT : z ∈ T := ⟨hz1,le_of_not_gt hH⟩
+      exact ⟨binaryRationalSpan z,Or.inr ⟨z,hzT,rfl⟩,
+        weighted_pair_descale_mem _ p.1 p.2 s z h0 h1 (binary_rational_span_mem z)⟩
+
+
+
+theorem binary_proper_annihilator (P : Submodule ℚ (Fin 2 → ℚ)) (hP : P ≠ ⊤) :
+    ∃ b0 b1 : ℚ, (b0 ≠ 0 ∨ b1 ≠ 0) ∧ ∀ x ∈ P, b0*x 0+b1*x 1=0 := by
+  obtain ⟨f,hf,hker⟩ := P.exists_le_ker_of_lt_top (lt_top_iff_ne_top.mpr hP)
+  have heval (x : Fin 2 → ℚ) : f x = f ![1,0]*x 0+f ![0,1]*x 1 := by
+    have hx : x = x 0 • ![(1 : ℚ),0]+x 1 • ![0,(1 : ℚ)] := by
+      ext i
+      fin_cases i <;> simp
+    conv_lhs => rw [hx]
+    simp only [map_add, map_smul, smul_eq_mul]
+    ring
+  refine ⟨f ![1,0],f ![0,1],?_,?_⟩
+  · by_contra hn
+    push_neg at hn
+    apply hf
+    apply LinearMap.ext
+    intro x
+    simpa [hn.1,hn.2] using heval x
+  · intro x hx
+    have hk : f x=0 := hker hx
+    rw [heval] at hk
+    exact hk
+
+theorem weighted_pair_exact_values (A B C b0 b1 u v : ℚ)
+    (hd : B*b1-C*b0 ≠ 0) (he : A+B*u+C*v=0) (hl : b0*u+b1*v=0) :
+    u = -A*b1/(B*b1-C*b0) ∧ v = A*b0/(B*b1-C*b0) := by
+  constructor
+  · apply (eq_div_iff hd).mpr
+    nlinarith [congrArg (fun t : ℚ => t*b1) he, congrArg (fun t : ℚ => t*C) hl]
+  · apply (eq_div_iff hd).mpr
+    nlinarith [congrArg (fun t : ℚ => t*b0) he, congrArg (fun t : ℚ => t*B) hl]
+
+
+end LiteralR6
+open scoped BigOperators Classical Matrix
+namespace RawR6
+open JSP000334
+
+def Primitive (z : Fin 2 → ℤ) : Prop := ∃ c : Fin 2 → ℤ,∑ i,c i*z i=1
+def Height (z : Fin 2 → ℤ) : ℚ := max |(z 0 : ℚ)| |(z 1 : ℚ)|
+def Place (tau : Fin 3) (q : ℚ) : ℚ := ![|q|,padicNorm 2 q,padicNorm 3 q] tau
+def PairHeight (u v : ℚ) : ℚ := ∏ tau : Fin 3,max (Place tau u) (Place tau v)
+def Integral (q : ℚ) : Fin 2 → ℤ := ![(q.den : ℤ),q.num]
+def Solutions (A B C : ℚ) : Set (fixedSUnitGroup × fixedSUnitGroup) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+def Product (B C u v : ℚ) : ℚ :=
+  ∏ tau : Fin 3,(min (Place tau u) (Place tau v)/max (Place tau u) (Place tau v))*
+    (Place tau (B*u+C*v)/max (Place tau u) (Place tau v))
+def RequiredEndpoint : Prop := ∀ A B C : ℚ,A≠0 → B≠0 → C≠0 → (Solutions A B C).Finite
+#check RequiredEndpoint
+theorem source_weighted_pair_primitive_transport : ∀ (u v : fixedSUnitGroup),
+
+    ∃ z : Fin 2 → ℤ, ∃ s : fixedSUnitGroup,
+      z = Integral ((((v/u : fixedSUnitGroup) : ℚˣ) : ℚ)) ∧
+      Primitive z ∧ z 0 ≠ 0 ∧ z 1 ≠ 0 ∧
+      (z 0 : ℚ) = ((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ) ∧
+      (z 1 : ℚ) = ((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ) ∧
+      PairHeight ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ) = Height z :=
+  @LiteralR6.weighted_pair_primitive_transport
+
+theorem source_weighted_normalized_sunit_scale2 : ∀ (B C : ℚ) (s : fixedSUnitGroup) (u v : ℚ),
+
+    Product B C (((s : ℚˣ) : ℚ)*u) (((s : ℚˣ) : ℚ)*v) =
+      Product B C u v :=
+  @LiteralR6.weighted_normalized_sunit_scale2
+
+theorem source_weighted_pair_descale_mem : ∀ (P : Submodule ℚ (Fin 2 → ℚ))
+    (u v s : fixedSUnitGroup) (z : Fin 2 → ℤ)
+    (h0 : (z 0 : ℚ)=((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))
+    (h1 : (z 1 : ℚ)=((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ))
+    (hz : (fun i => (z i : ℚ)) ∈ P),
+
+    ![((u : ℚˣ) : ℚ),((v : ℚˣ) : ℚ)] ∈ P :=
+  @LiteralR6.weighted_pair_descale_mem
+
+theorem source_weighted_pair_high_product : ∀ (A B C : ℚ) (hA : A≠0) (u v s : fixedSUnitGroup)
+    (z : Fin 2 → ℤ)
+    (he : A+B*((u : ℚˣ) : ℚ)+C*((v : ℚˣ) : ℚ)=0)
+    (h0 : (z 0 : ℚ)=((s : ℚˣ) : ℚ)*((u : ℚˣ) : ℚ))
+    (h1 : (z 1 : ℚ)=((s : ℚˣ) : ℚ)*((v : ℚˣ) : ℚ))
+    (hheight : PairHeight ((u : ℚˣ) : ℚ) ((v : ℚˣ) : ℚ)=Height z)
+    (hH : max 1 ((threePlaceProduct A : ℝ)^2)<(Height z : ℝ)),
+
+    (Product B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (Height z : ℝ) (-(5 : ℝ)/2) :=
+  @LiteralR6.weighted_pair_high_product
+
+theorem source_weighted_pair_finite_proper_cover : ∀ (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0),
+
+    ∃ F : Set (Submodule ℚ (Fin 2 → ℚ)), F.Finite ∧ (∀ P∈F,P≠⊤) ∧
+      ∀ p ∈ Solutions A B C,
+        ∃ P∈F, ![((p.1 : ℚˣ) : ℚ),((p.2 : ℚˣ) : ℚ)] ∈ P :=
+  @LiteralR6.weighted_pair_finite_proper_cover
+
+theorem source_binary_proper_annihilator : ∀ (P : Submodule ℚ (Fin 2 → ℚ)) (hP : P ≠ ⊤),
+
+    ∃ b0 b1 : ℚ, (b0 ≠ 0 ∨ b1 ≠ 0) ∧ ∀ x ∈ P, b0*x 0+b1*x 1=0 :=
+  @LiteralR6.binary_proper_annihilator
+
+theorem source_weighted_pair_exact_values : ∀ (A B C b0 b1 u v : ℚ)
+    (hd : B*b1-C*b0 ≠ 0) (he : A+B*u+C*v=0) (hl : b0*u+b1*v=0),
+
+    u = -A*b1/(B*b1-C*b0) ∧ v = A*b0/(B*b1-C*b0) :=
+  @LiteralR6.weighted_pair_exact_values
+
+end RawR6
+#check RawR6.source_weighted_pair_primitive_transport
+#print axioms RawR6.source_weighted_pair_primitive_transport
+#check RawR6.source_weighted_normalized_sunit_scale2
+#print axioms RawR6.source_weighted_normalized_sunit_scale2
+#check RawR6.source_weighted_pair_descale_mem
+#print axioms RawR6.source_weighted_pair_descale_mem
+#check RawR6.source_weighted_pair_high_product
+#print axioms RawR6.source_weighted_pair_high_product
+#check RawR6.source_weighted_pair_finite_proper_cover
+#print axioms RawR6.source_weighted_pair_finite_proper_cover
+#check RawR6.source_binary_proper_annihilator
+#print axioms RawR6.source_binary_proper_annihilator
+#check RawR6.source_weighted_pair_exact_values
+#print axioms RawR6.source_weighted_pair_exact_values

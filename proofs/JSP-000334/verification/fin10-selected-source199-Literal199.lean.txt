@@ -1,0 +1,320 @@
+import Mathlib.Topology.MetricSpace.Pseudo.Pi
+import SubspaceBridge.OriginalDual10
+import SubspaceBridge.OriginalSpanTransport10
+import SubspaceBridge.ParameterSelection3
+import SubspaceBridge.SourceDeformation10
+import SubspaceBridge.SourceForms10
+import Lean.Util.FoldConsts
+namespace M199Literal
+open _root_.CompoundFeasibility
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+
+theorem original_tail_parameters10 (U : Set ℝ) (hU : ¬ BddAbove U)
+    (eta E rho B : ℝ) (he : 0 < eta) (hE : 1 ≤ E) (hp : 0 < rho)
+    (m : ℕ) (hm : 0 < m) :
+    ∃ (t : Fin m → U) (r : Fin m → ℕ),
+      StrictMono (fun h => (t h).val) ∧
+      (∀ h, B < (t h).val ∧ 1 < (t h).val ∧
+        1060*E < (t h).val^eta ∧ 10*(eta⁻¹+1) < (t h).val^eta) ∧
+      (∀ h, 0 < r h) ∧
+      (∀ (h : Fin m) (hh : h.val+1 < m),
+        (r ⟨h.val+1,hh⟩ : ℝ) ≤ rho*(r h : ℝ)) ∧
+      ∀ h, (r ⟨0,hm⟩ : ℝ)*Real.log (t ⟨0,hm⟩).val ≤
+        (r h : ℝ)*Real.log (t h).val ∧
+        (r h : ℝ)*Real.log (t h).val ≤
+          (1+eta)*((r ⟨0,hm⟩ : ℝ)*Real.log (t ⟨0,hm⟩).val) := by
+  let X := max (Real.log (1060*E)/eta) (Real.log (10*(eta⁻¹+1))/eta)
+  obtain ⟨Q,hQ,hmono,hsep⟩ := JSP000334.parameter_sparse_Q U hU
+    (max B (Real.exp X)) ((1+eta)/rho) m
+  have hlog (h) : X < Real.log (Q h) := by
+    simpa only [Real.log_exp] using Real.log_lt_log (Real.exp_pos X)
+      ((le_max_right _ _).trans_lt (hQ h).2.1)
+  have hsep' (h : Fin m) (hh : h.val+1 < m) :
+      (1+eta)*Real.log (Q h) ≤ rho*Real.log (Q ⟨h.val+1,hh⟩) := by
+    have hs := hsep h hh
+    rw [div_mul_eq_mul_div] at hs
+    simpa only [mul_comm] using ((div_lt_iff₀ hp).mp hs).le
+  obtain ⟨r,hr,hrho,hbal⟩ := JSP000334.parameter_integer_degrees m hm eta rho he hp Q
+    (fun h => (hQ h).2.2) hsep'
+  refine ⟨fun h => ⟨Q h,(hQ h).1⟩,r,hmono,?_,hr,hrho,?_⟩
+  · intro h
+    refine ⟨(le_max_left _ _).trans_lt (hQ h).2.1,(hQ h).2.2,?_,?_⟩
+    · exact JSP000334.parameter_rpow_threshold _ eta _ (hQ h).2.2 he (by linarith)
+        ((le_max_left _ _).trans_lt (hlog h))
+    · exact JSP000334.parameter_rpow_threshold _ eta _ (hQ h).2.2 he (by positivity)
+        ((le_max_right _ _).trans_lt (hlog h))
+  · intro h
+    simpa only [mul_assoc] using hbal h
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+open OriginalDeformation10
+
+theorem deformed_gauge_bounds10
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (c0 d : Fin 10 → ℝ) (sigma : Equiv.Perm (Fin 10)) (hd : ∀ i, 0 < d i)
+    (x : Fin 10 → ℝ) (r : ℝ) :
+    coordinateGauge10 (originalDeformedCoordinates10 L hL Q hQ c0 d sigma hd) x ≤ r ↔
+      ∀ i, |(L *ᵥ x) i| ≤ r*deformedWidths10 Q c0 d sigma i := by
+  rw [coordinateGauge10,pi_norm_le_iff_of_nonempty]
+  apply forall_congr'
+  intro i
+  rw [originalDeformedCoordinates10_apply,Real.norm_eq_abs,abs_div,abs_mul,
+    abs_of_pos (hd _),abs_of_pos (Real.rpow_pos_of_pos (zero_lt_one.trans hQ) _),
+    div_le_iff₀ (Real.rpow_pos_of_pos (zero_lt_one.trans hQ) _)]
+  dsimp [deformedWidths10]
+  rw [← mul_div_assoc,le_div_iff₀ (hd _)]
+  constructor <;> intro h <;> nlinarith
+
+theorem exists_deformed_frame10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 d : Fin 10 → ℝ)
+    (sigma : Equiv.Perm (Fin 10)) (hd : ∀ i, 0 < d i) :
+    ∃ w : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ)) ∧
+      Monotone (originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3 d sigma hd) ∧
+      (∀ j, coordinateGauge10 (originalDeformedCoordinates10 L hL Q hQ c0 d sigma hd)
+        (integerReal (w j : Fin 10 → ℤ)) =
+        originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3 d sigma hd j) := by
+  let b := sourceRealBasis10 A2 A3
+    (fun i => Nat.ceil (JSP000334.qThreshold 2 Q (c2 i)))
+    (fun i => Nat.ceil (JSP000334.qThreshold 3 Q (c3 i)))
+  let e := originalDeformedCoordinates10 L hL Q hQ c0 d sigma hd
+  obtain ⟨v,hv,hmem,hpos,hmono,hatt,hbound⟩ := exists_successive_minima10 b e
+  have hlift (j : Fin 10) : ∃ z : originalSourceGroup10 A2 A3 Q c2 c3,
+      integerReal (z : Fin 10 → ℤ) = v j := by
+    have hj := hmem j
+    rw [sourceRealBasis10_span] at hj
+    obtain ⟨z,hz,he⟩ := hj
+    exact ⟨⟨z,hz⟩,he⟩
+  choose w hw using hlift
+  refine ⟨w,?_,hmono,?_⟩
+  · simpa only [hw] using hv
+  · intro j
+    change coordinateGauge10 e (integerReal (w j : Fin 10 → ℤ)) = successiveRadius10 b e j
+    rw [hw j]
+    exact hatt j
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+open OriginalDeformation10 OriginalSpanTransport10
+
+theorem source_original_deformed_frame10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L)
+    (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ),
+    (∀ i, |c0 i| ≤ 1) → (∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) →
+    (∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) → (∑ i, (c0 i+c2 i+c3 i)) = 0 → T < Q →
+    ∀ u : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3,
+    LinearIndependent ℝ (fun i => integerReal (u i : Fin 10 → ℤ)) →
+    (∀ i, coordinateGauge10 (originalCoordinates10 L hL Q hQ c0)
+      (integerReal (u i : Fin 10 → ℤ)) = sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 i) →
+    sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9*Q^(-delta) →
+    let lam := sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3
+    let d := gapDeformation10 lam
+    ∃ (hdp : ∀ i, 0 < d i) (sigma : Equiv.Perm (Fin 10))
+      (w : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3),
+      LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ)) ∧
+      (∀ j, coordinateGauge10 (originalDeformedCoordinates10 L hL Q hQ c0 d sigma hdp)
+        (integerReal (w j : Fin 10 → ℤ)) =
+        originalDeformedMinima10 A2 A3 L hL Q hQ c0 c2 c3 d sigma hdp j) ∧
+      minimaFlag10 (fun i => integerReal (u i : Fin 10 → ℤ)) 9 =
+        minimaFlag10 (fun i => integerReal (w i : Fin 10 → ℤ)) 9 ∧
+      (∀ i, 0 < deformedWidths10 Q c0 d sigma i) ∧
+      (∏ i, deformedWidths10 Q c0 d sigma i)*(∏ i, Q^(c2 i+c3 i)) = 1 ∧
+      (∀ i, deformedWidths10 Q c0 d sigma i < Q^(5 : ℕ) ∧
+        (deformedWidths10 Q c0 d sigma i)⁻¹ < Q^(5 : ℕ)) ∧
+      ∀ (j : Fin 9) i, |(L *ᵥ integerReal (w j.castSucc : Fin 10 → ℤ)) i| ≤
+        (Q^(5 : ℕ))^(-(delta/60))*deformedWidths10 Q c0 d sigma i := by
+  obtain ⟨T,hT,hready⟩ := source_uniform_deformation10 A2 A3 L h2 h3 hL delta hd
+  obtain ⟨T',hT',hcut⟩ := compound_gap_cutoff42 1048576 (2*delta) (by positivity)
+  refine ⟨max T T',hT.trans_le (le_max_left _ _),?_⟩
+  intro Q hQ c0 c2 c3 hc0 hc2 hc3 hb hlarge u hu hatt hgap
+  have hr := hready Q hQ c0 c2 c3 hc0 hc2 hc3 hb
+    ((le_max_left _ _).trans_lt hlarge) u hu hatt hgap
+  rcases hr with ⟨_,_,hdp,_,_,_,sigma,hpos,hbal,hcmp,_,hsep,hshort,_,hsmall,hsizes,_⟩
+  obtain ⟨w,hw,hmono,hwatt⟩ := exists_deformed_frame10 A2 A3 L hL Q hQ c0 c2 c3 _ sigma hdp
+  have hcutQ : 1048576 < Q^delta := by
+    convert hcut Q ((le_max_right _ _).trans_lt hlarge) using 1 <;> congr 1 <;> ring
+  have hp := (sourceMinima10_pos_mono A2 A3 L hL Q hQ c0 c2 c3).1
+  have hstrict := span_gap_bound10 _ hp Q delta hQ hcutQ hgap
+  have hinc : minimaFlag10 (fun i => integerReal (w i : Fin 10 → ℤ)) 9 ≤
+      minimaFlag10 (fun i => integerReal (u i : Fin 10 → ℤ)) 9 := by
+    apply Submodule.span_le.mpr
+    rintro _ ⟨j,rfl⟩
+    let i : Fin 10 := Fin.castLE (by omega) j
+    by_contra hout
+    have hlo := hsep 9 (w i) hout
+    have hhi := (hmono (show i ≤ (8 : Fin 10) by change j.val ≤ 8; omega)).trans hshort
+    rw [hwatt] at hlo
+    exact (not_lt_of_ge hlo) (hhi.trans_lt hstrict)
+  have heq := Submodule.eq_of_le_of_finrank_eq hinc
+    (by rw [minimaFlag10_finrank _ hw,minimaFlag10_finrank _ hu])
+  refine ⟨hdp,sigma,w,hw,hwatt,heq.symm,hpos,hbal,fun i => ⟨(hsizes i).1,(hsizes i).2.1⟩,?_⟩
+  intro j i
+  have hg := (deformed_gauge_bounds10 L hL Q hQ c0 _ sigma hdp
+    (integerReal (w j.castSucc : Fin 10 → ℤ)) _).mp (hwatt j.castSucc).le i
+  have hs := (hmono (show j.castSucc ≤ (8 : Fin 10) by change j.val ≤ 8; omega)).trans_lt hsmall
+  exact hg.trans (mul_le_mul_of_nonneg_right hs.le (hpos i).le)
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+
+theorem select_unbounded_weights10 (U : Set ℝ) (hU : ¬ BddAbove U)
+    (alpha : ℝ → Fin 10 → ℝ) (hb : ∀ q ∈ U, ∀ i, |alpha q i| ≤ 1)
+    (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ V : Set ℝ, V ⊆ U ∧ ¬ BddAbove V ∧ ∃ q0 ∈ V,
+      ∀ q ∈ V, ∀ i, |alpha q i-alpha q0 i| < epsilon := by
+  let B : Set (Fin 10 → ℝ) := Set.pi Set.univ (fun _ => Set.Icc (-1 : ℝ) 1)
+  have hB : IsCompact B := isCompact_univ_pi (fun _ => isCompact_Icc)
+  obtain ⟨S,hSB,hS,hcover⟩ := hB.finite_cover_balls (show 0 < epsilon/2 by positivity)
+  let F : (Fin 10 → ℝ) → Set ℝ := fun x => {q | q ∈ U ∧ alpha q ∈ Metric.ball x (epsilon/2)}
+  have hUF : U ⊆ ⋃ x ∈ S, F x := by
+    intro q hq
+    have ha : alpha q ∈ B := by
+      intro i hi
+      exact abs_le.mp (hb q hq i)
+    obtain ⟨x,hx,hqx⟩ := Set.mem_iUnion₂.mp (hcover ha)
+    exact Set.mem_iUnion₂.mpr ⟨x,hx,hq,hqx⟩
+  have hex : ∃ x ∈ S, ¬ BddAbove (F x) := by
+    by_contra hn
+    push_neg at hn
+    exact hU (((hS.bddAbove_biUnion).mpr hn).mono hUF)
+  obtain ⟨x,hx,hF⟩ := hex
+  obtain ⟨q0,h0,_⟩ := not_bddAbove_iff.mp hF 0
+  refine ⟨F x,fun q hq => hq.1,hF,q0,h0,?_⟩
+  intro q hq i
+  have hqi := (dist_pi_lt_iff (show 0 < epsilon/2 by positivity)).mp hq.2 i
+  have h0i := (dist_pi_lt_iff (show 0 < epsilon/2 by positivity)).mp h0.2 i
+  rw [Real.dist_eq] at hqi h0i
+  calc
+    |alpha q i-alpha q0 i| ≤ |alpha q i-x i|+|x i-alpha q0 i| := abs_sub_le _ _ _
+    _ < epsilon/2+epsilon/2 := add_lt_add hqi (by simpa only [abs_sub_comm] using h0i)
+    _ = epsilon := by ring
+
+
+def logWeight10 (Q a : ℝ) : ℝ := Real.log a / Real.log Q
+
+theorem logWeight10_bounds (Q a : ℝ) (hQ : 1 < Q) (ha : 0 < a)
+    (hau : a < Q) (hai : a⁻¹ < Q) : -1 < logWeight10 Q a ∧ logWeight10 Q a < 1 := by
+  have hlog : 0 < Real.log Q := Real.log_pos hQ
+  have h1 := Real.log_lt_log ha hau
+  have h2 := Real.log_lt_log (inv_pos.mpr ha) hai
+  rw [Real.log_inv] at h2
+  constructor
+  · apply (lt_div_iff₀ hlog).mpr
+    linarith
+  · apply (div_lt_iff₀ hlog).mpr
+    linarith
+
+theorem logWeight10_power (Q a : ℝ) (hQ : 1 < Q) (ha : 0 < a) : Q^(logWeight10 Q a)=a := by
+  rw [logWeight10,Real.rpow_def_of_pos (lt_trans zero_lt_one hQ)]
+  have he : Real.log Q*(Real.log a/Real.log Q)=Real.log a := by
+    field_simp [(Real.log_pos hQ).ne']
+  rw [he,Real.exp_log ha]
+
+theorem logWeight10_balance (Q : ℝ) (hQ : 1 < Q) (a b2 b3 : Fin 10 → ℝ)
+    (ha : ∀ i,0<a i) (hp : (∏ i,a i*Q^(b2 i)*Q^(b3 i))=1) :
+    (∑ i,logWeight10 Q (a i))+(∑ i,b2 i)+(∑ i,b3 i)=0 := by
+  have hq := lt_trans zero_lt_one hQ
+  have hpow : Q^(∑ i : Fin 10,(logWeight10 Q (a i)+b2 i+b3 i))=1 := by
+    rw [Real.rpow_sum_of_pos hq]
+    calc
+      _ = ∏ i : Fin 10,a i*Q^(b2 i)*Q^(b3 i) := by
+        apply Finset.prod_congr rfl
+        intro i hi
+        rw [Real.rpow_add hq,Real.rpow_add hq,logWeight10_power Q (a i) hQ (ha i)]
+      _ = 1 := hp
+  have hs := (Real.rpow_right_inj hq (ne_of_gt hQ)).mp (hpow.trans (Real.rpow_zero Q).symm)
+  simpa only [Finset.sum_add_distrib] using hs
+
+
+end CompoundFeasibility.SourceSampling10
+
+end
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSampling10
+
+theorem source_finite_short_bound10 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (Q : ℝ) (hQ : 1 < Q)
+    (c : Fin 10 → ℝ) (hc : ∀ i, c i ≤ 0) (z : Fin 10 → ℤ)
+    (hz : z ∈ lattice10 p A (fun i => Nat.ceil (JSP000334.qThreshold p Q (c i)))) :
+    ∀ i, ‖(SourceForms10.finiteMatrix10 p A *ᵥ (fun k => (z k : ℚ_[p]))) i‖ ≤ Q^(c i) := by
+  intro i
+  rw [SourceForms10.finiteMatrix10,OriginalDual10.finite_form_norm10]
+  apply (padic_rpow_ceil42 p Q (c i) hQ (hc i) _).mpr
+  have hi := (lattice10_spec p A _ z).mp hz i
+  simpa only [zpow_neg,zpow_natCast] using hi
+
+end CompoundFeasibility.SourceSampling10
+
+end
+end M199Literal
+open Lean Elab Command
+run_cmd do
+  let env ← getEnv
+  let names : Array Name := #[
+``M199Literal.CompoundFeasibility.SourceSampling10.original_tail_parameters10,
+``M199Literal.CompoundFeasibility.SourceSampling10.deformed_gauge_bounds10,
+``M199Literal.CompoundFeasibility.SourceSampling10.exists_deformed_frame10,
+``M199Literal.CompoundFeasibility.SourceSampling10.source_original_deformed_frame10,
+``M199Literal.CompoundFeasibility.SourceSampling10.select_unbounded_weights10,
+``M199Literal.CompoundFeasibility.SourceSampling10.logWeight10,
+``M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_bounds,
+``M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_power,
+``M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_balance,
+``M199Literal.CompoundFeasibility.SourceSampling10.source_finite_short_bound10]
+  let forbidden : Array Name := #[
+"CompoundFeasibility.SourceSampling10.original_tail_parameters10".toName,
+"CompoundFeasibility.SourceSampling10.deformed_gauge_bounds10".toName,
+"CompoundFeasibility.SourceSampling10.exists_deformed_frame10".toName,
+"CompoundFeasibility.SourceSampling10.source_original_deformed_frame10".toName,
+"CompoundFeasibility.SourceSampling10.select_unbounded_weights10".toName,
+"CompoundFeasibility.SourceSampling10.logWeight10".toName,
+"CompoundFeasibility.SourceSampling10.logWeight10_bounds".toName,
+"CompoundFeasibility.SourceSampling10.logWeight10_power".toName,
+"CompoundFeasibility.SourceSampling10.logWeight10_balance".toName,
+"CompoundFeasibility.SourceSampling10.source_finite_short_bound10".toName]
+  for n in names do
+    let some info := env.find? n | throwError "missing literal {n}"
+    for used in info.getUsedConstantsAsSet.toArray do
+      if forbidden.any (fun bad => bad.isPrefixOf used) then
+        throwError "literal {n} depends on production {used}"
+  logInfo m!"checked {names.size} isolated literal dependency gates"
+#check M199Literal.CompoundFeasibility.SourceSampling10.original_tail_parameters10
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.original_tail_parameters10
+#check M199Literal.CompoundFeasibility.SourceSampling10.deformed_gauge_bounds10
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.deformed_gauge_bounds10
+#check M199Literal.CompoundFeasibility.SourceSampling10.exists_deformed_frame10
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.exists_deformed_frame10
+#check M199Literal.CompoundFeasibility.SourceSampling10.source_original_deformed_frame10
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.source_original_deformed_frame10
+#check M199Literal.CompoundFeasibility.SourceSampling10.select_unbounded_weights10
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.select_unbounded_weights10
+#check M199Literal.CompoundFeasibility.SourceSampling10.logWeight10
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.logWeight10
+#check M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_bounds
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_bounds
+#check M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_power
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_power
+#check M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_balance
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.logWeight10_balance
+#check M199Literal.CompoundFeasibility.SourceSampling10.source_finite_short_bound10
+#print axioms M199Literal.CompoundFeasibility.SourceSampling10.source_finite_short_bound10

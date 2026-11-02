@@ -1,0 +1,15 @@
+import SubspaceBridge.SourceExteriorCoordinates240E
+#check CompoundFeasibility.CompoundExterior240E.pairVector240E
+#print axioms CompoundFeasibility.CompoundExterior240E.pairVector240E
+#check CompoundFeasibility.CompoundExterior240E.coordinate240E
+#print axioms CompoundFeasibility.CompoundExterior240E.coordinate240E
+#check CompoundFeasibility.CompoundExterior240E.exterior_minor240E
+#print axioms CompoundFeasibility.CompoundExterior240E.exterior_minor240E
+#check CompoundFeasibility.CompoundExterior240E.coordinate_pair240E
+#print axioms CompoundFeasibility.CompoundExterior240E.coordinate_pair240E
+#check CompoundFeasibility.CompoundExterior240E.coordinates240E
+#print axioms CompoundFeasibility.CompoundExterior240E.coordinates240E
+#check CompoundFeasibility.CompoundExterior240E.fromCoordinates240E
+#print axioms CompoundFeasibility.CompoundExterior240E.fromCoordinates240E
+#check CompoundFeasibility.CompoundExterior240E.coordinates_from240E
+#print axioms CompoundFeasibility.CompoundExterior240E.coordinates_from240E

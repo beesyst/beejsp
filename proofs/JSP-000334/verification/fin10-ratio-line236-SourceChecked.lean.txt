@@ -1,0 +1,112 @@
+import SubspaceBridge.SourceRatioLine236
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.OriginalDeformation10 CompoundFeasibility.SourceOriginalVariable10 CompoundFeasibility.SourceSatz51Entry218 CompoundFeasibility.OriginalDual10 CompoundFeasibility.SourceOriginalDual10
+open CompoundFeasibility.SourceRatioLine236
+namespace M236SourceChallenge
+theorem original_ratio_endpoint
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 10 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q)
+    (u : ∀ q : Omega, Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : Omega, LinearIndependent ℝ (fun j => integerReal (u q j : Fin 10 → ℤ)))
+    (hatt : ∀ (q : Omega) j, coordinateGauge10
+      (originalCoordinates10 L hL q.val (hq q.val q.property) c0)
+      (integerReal (u q j : Fin 10 → ℤ)) =
+        sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 j)
+    (hgap : ∀ q : Omega, sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 8 <
+      sourceMinima10 A2 A3 L hL q.val (hq q.val q.property) c0 c2 c3 9*q.val^(-delta)) :
+    ∃ b : Fin 10 → ℤ, b ≠ 0 ∧ ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+      ∀ q : Omega, q.val ∈ V →
+        Submodule.span ℚ {lastDual10 (fun j i => ((u q j : Fin 10 → ℤ) i : ℚ))
+          (integer_frame_rational_independent10 _ (hu q))} =
+        Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  exact source_ratio_fixed_line236 A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq u hu hatt hgap
+
+theorem expanded_original_ratio_endpoint
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 10 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q)
+    (u : ∀ q : Omega, Fin 10 → originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : Omega, LinearIndependent ℝ (fun j => integerReal (u q j : Fin 10 → ℤ)))
+    (hatt : ∀ (q : Omega) (j : Fin 10), coordinateGauge10
+      (originalCoordinates10 L hL q.val (hq q.val q.property) c0)
+      (integerReal (u q j : Fin 10 → ℤ)) =
+        (sInf {r : ℝ | ∃ v : Fin ((j : Fin 10).val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+      (∀ i, v i ∈ integerRealImage (sourceLattice10 A2 A3
+        (fun k => Nat.ceil (JSP000334.qThreshold 2 q.val (c2 k)))
+        (fun k => Nat.ceil (JSP000334.qThreshold 3 q.val (c3 k))))) ∧
+      ∀ i, ‖originalCoordinates10 L hL q.val (hq q.val q.property) c0 (v i)‖ ≤ r}))
+    (hgap : ∀ q : Omega, (sInf {r : ℝ | ∃ v : Fin ((8 : Fin 10).val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+      (∀ i, v i ∈ integerRealImage (sourceLattice10 A2 A3
+        (fun k => Nat.ceil (JSP000334.qThreshold 2 q.val (c2 k)))
+        (fun k => Nat.ceil (JSP000334.qThreshold 3 q.val (c3 k))))) ∧
+      ∀ i, ‖originalCoordinates10 L hL q.val (hq q.val q.property) c0 (v i)‖ ≤ r}) <
+      (sInf {r : ℝ | ∃ v : Fin ((9 : Fin 10).val+1) → (Fin 10 → ℝ), LinearIndependent ℝ v ∧
+      (∀ i, v i ∈ integerRealImage (sourceLattice10 A2 A3
+        (fun k => Nat.ceil (JSP000334.qThreshold 2 q.val (c2 k)))
+        (fun k => Nat.ceil (JSP000334.qThreshold 3 q.val (c3 k))))) ∧
+      ∀ i, ‖originalCoordinates10 L hL q.val (hq q.val q.property) c0 (v i)‖ ≤ r})*q.val^(-delta)) :
+    ∃ b : Fin 10 → ℤ, b ≠ 0 ∧ ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+      ∀ q : Omega, q.val ∈ V →
+        Submodule.span ℚ {lastDual10 (fun j i => ((u q j : Fin 10 → ℤ) i : ℚ))
+          (integer_frame_rational_independent10 _ (hu q))} =
+        Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  exact source_ratio_fixed_line236 A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq u hu hatt hgap
+
+theorem expanded_deformed_contract
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ) (delta : ℝ)
+    (u : Fin 10 → originalSourceGroup10 A2 A3 Q c2 c3)
+    (F : DeformedAttaining236 A2 A3 L hL Q hQ c0 c2 c3 delta u) :
+    let A := deformedWidths10 Q c0
+      (gapDeformation10 (sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3)) F.sigma
+    ∃ D : SourceData218 A2 A3 L hL (Q^5) (powered_gt_one236 Q hQ)
+      (fun i => c2 i/5) (fun i => c3 i/5) A (delta/60),
+      D.u = (fun j => (F.w j : Fin 10 → ℤ)) ∧
+      (∀ j, D.u j ∈ originalSourceGroup10 A2 A3 Q c2 c3) ∧
+      (∀ i, 0 < A i ∧ A i < Q^5 ∧ (A i)⁻¹ < Q^5) ∧
+      (∏ i, A i*(Q^5)^(c2 i/5)*(Q^5)^(c3 i/5)) = 1 ∧
+      (∀ x, x ∈ parallelepipedBody10 (originalCoordinates10 L hL (Q^5)
+        (powered_gt_one236 Q hQ) (fun i => normalizedWidth10 (Q^5) (A i))) ↔
+        ∀ i, |(L *ᵥ x) i| ≤ A i) ∧
+      sourceMinima10 A2 A3 L hL (Q^5) (powered_gt_one236 Q hQ)
+        (fun i => normalizedWidth10 (Q^5) (A i)) (fun i => c2 i/5) (fun i => c3 i/5) 8 <
+        (Q^5)^(-(delta/60)) := by
+  intro A
+  refine ⟨toSourceData236 F,rfl,fun j => (F.w j).property,?_,(toSourceData236 F).balance,?_,(toSourceData236 F).small⟩
+  · exact fun i => ⟨F.widths_pos i,(F.sizes i).1,(F.sizes i).2.1⟩
+  · intro x
+    rw [normalized_body236 L hL Q hQ c0 _ F.sigma F.deformation_pos]
+    exact F.body x
+
+theorem expanded_original_flag_transfer
+    (u w : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j)))
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j)))
+    (hflag : ∀ j : Fin 9, integerReal (w j.castSucc) ∈
+      Submodule.span ℝ (Set.range (fun k : Fin 9 => integerReal (u k.castSucc)))) :
+    integerLastDual10 u ≠ 0 ∧
+    (∀ j : Fin 9, ∑ i, (w j.castSucc i : ℚ)*(integerLastDual10 u i : ℚ) = 0) ∧
+    Submodule.span ℚ {lastDual10 (fun j i => (u j i : ℚ))
+      (integer_frame_rational_independent10 u hu)} =
+    Submodule.span ℚ {lastDual10 (fun j i => (w j i : ℚ))
+      (integer_frame_rational_independent10 w hw)} := by
+  exact ⟨integerLastDual10_nonzero u (integer_frame_rational_independent10 u hu),
+    flag_pairing_zero236 u w hflag,rational_line_transfer236 u w hu hw hflag⟩
+
+end M236SourceChallenge
+#print axioms M236SourceChallenge.original_ratio_endpoint
+#print axioms M236SourceChallenge.expanded_original_ratio_endpoint
+#print axioms M236SourceChallenge.expanded_deformed_contract
+#print axioms M236SourceChallenge.expanded_original_flag_transfer

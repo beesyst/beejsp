@@ -1,0 +1,21 @@
+import SubspaceBridge.SourceSecondMinimum230
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.SourceSecondMinimum228
+  CompoundFeasibility.SourceSecondMinimum230 CompoundFeasibility.SourceDualGeometry219
+  CompoundFeasibility.SourceDualAnnihilation222 CompoundFeasibility.SourceSatz51Entry218
+namespace M230SourceChallenge
+
+theorem raw_dual_family230 (G : AddSubgroup (Fin 10 → ℤ)) (c : Basis (Fin 10) ℤ G) :
+    let W : Matrix (Fin 10) (Fin 10) ℚ := fun j i => ((c j : Fin 10 → ℤ) i : ℚ)
+    (fun j i => ((((G.index : ℚ) * W⁻¹ i j) : ℚ) : ℝ)) = dualRealGenerators228 G c := by
+  rfl
+
+theorem raw_dual_independent230 (G : AddSubgroup (Fin 10 → ℤ)) (c : Basis (Fin 10) ℤ G)
+    (h : LinearIndependent ℝ (dualRealGenerators228 G c)) :
+    let W : Matrix (Fin 10) (Fin 10) ℚ := fun j i => ((c j : Fin 10 → ℤ) i : ℚ)
+    LinearIndependent ℝ (fun j i => ((((G.index : ℚ) * W⁻¹ i j) : ℚ) : ℝ)) := by
+  have he := raw_dual_family230 G c
+  exact Eq.mpr (congrArg (fun v : Fin 10 → Fin 10 → ℝ => LinearIndependent ℝ v) he) h
+
+end M230SourceChallenge

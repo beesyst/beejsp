@@ -1,0 +1,30 @@
+import SubspaceBridge.NewmanCompletion
+open JSP000334
+#check normalized_two_term_finite
+#print axioms normalized_two_term_finite
+#check fixed_three_term_finite
+#print axioms fixed_three_term_finite
+#check source_four_term_finite_cover3
+#print axioms source_four_term_finite_cover3
+#check weighted_fixed_sunit_pair_finite
+#print axioms weighted_fixed_sunit_pair_finite
+#check fixed_four_term_finite
+#print axioms fixed_four_term_finite
+#check source_five_term_finite_cover4
+#print axioms source_five_term_finite_cover4
+#check weighted_four_term_finite
+#print axioms weighted_four_term_finite
+#check fixed_five_term_finite
+#print axioms fixed_five_term_finite
+#check source_six_term_finite_cover5
+#print axioms source_six_term_finite_cover5
+#check weighted_five_term_finite
+#print axioms weighted_five_term_finite
+#check newman_of_fixed_sunit_finiteness
+#print axioms newman_of_fixed_sunit_finiteness
+#check fixed_six_term_finite
+#print axioms fixed_six_term_finite
+#check fixed_sunit_finiteness_complete
+#print axioms fixed_sunit_finiteness_complete
+#check newman_conjecture_complete
+#print axioms newman_conjecture_complete

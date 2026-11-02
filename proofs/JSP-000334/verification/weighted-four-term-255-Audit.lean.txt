@@ -1,0 +1,47 @@
+import SubspaceBridge.WeightedFourTermSource3
+#check JSP000334.WeightedFourTermSolutions
+#print axioms JSP000334.WeightedFourTermSolutions
+#check JSP000334.weightedRetainedMatrix3
+#print axioms JSP000334.weightedRetainedMatrix3
+#check JSP000334.weightedNormalizedMatrix3
+#print axioms JSP000334.weightedNormalizedMatrix3
+#check JSP000334.weighted_retained_det3
+#print axioms JSP000334.weighted_retained_det3
+#check JSP000334.weighted_normalized_det3
+#print axioms JSP000334.weighted_normalized_det3
+#check JSP000334.weighted_normalized_apply3
+#print axioms JSP000334.weighted_normalized_apply3
+#check JSP000334.weighted_scaled_relation3
+#print axioms JSP000334.weighted_scaled_relation3
+#check JSP000334.weighted_three_place_product3
+#print axioms JSP000334.weighted_three_place_product3
+#check JSP000334.weighted_coordinate_product3
+#print axioms JSP000334.weighted_coordinate_product3
+#check JSP000334.weighted_example_two_nondegenerate
+#print axioms JSP000334.weighted_example_two_nondegenerate
+#check JSP000334.weighted_example_three_nondegenerate
+#print axioms JSP000334.weighted_example_three_nondegenerate
+#check JSP000334.weighted_example_two_solution
+#print axioms JSP000334.weighted_example_two_solution
+#check JSP000334.weighted_example_three_solution
+#print axioms JSP000334.weighted_example_three_solution
+#check JSP000334.weighted_normalized_two_value
+#print axioms JSP000334.weighted_normalized_two_value
+#check JSP000334.weighted_normalized_three_value
+#print axioms JSP000334.weighted_normalized_three_value
+#check JSP000334.weighted_normalized_two_norm
+#print axioms JSP000334.weighted_normalized_two_norm
+#check JSP000334.weighted_normalized_three_norm
+#print axioms JSP000334.weighted_normalized_three_norm
+#check JSP000334.weighted_nonunit_product_constant
+#print axioms JSP000334.weighted_nonunit_product_constant
+#check JSP000334.weighted_finite_place_bound3
+#print axioms JSP000334.weighted_finite_place_bound3
+#check JSP000334.weighted_two_nonpositive_source_impossible
+#print axioms JSP000334.weighted_two_nonpositive_source_impossible
+#check JSP000334.weighted_three_nonpositive_source_impossible
+#print axioms JSP000334.weighted_three_nonpositive_source_impossible
+#check JSP000334.weighted_opposite_pairs_degenerate
+#print axioms JSP000334.weighted_opposite_pairs_degenerate
+#check JSP000334.weighted_normalized_finite_of_max3
+#print axioms JSP000334.weighted_normalized_finite_of_max3

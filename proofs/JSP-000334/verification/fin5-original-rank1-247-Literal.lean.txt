@@ -1,0 +1,500 @@
+import SubspaceBridge.SourceCompoundGap54_246F
+import SubspaceBridge.SourceOriginalRank4Flag245U
+import SubspaceBridge.SourceFin5Dual245
+import Mathlib.LinearAlgebra.Dual.Lemmas
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralRank1_247
+open Exterior54_246
+
+def dotDual247 : (Fin 5 → ℚ) ≃ₗ[ℚ] Module.Dual ℚ (Fin 5 → ℚ) :=
+  (Pi.basisFun ℚ (Fin 5)).toDualEquiv
+
+theorem dotDual_apply247 (x y : Fin 5 → ℚ) :
+    dotDual247 x y = ∑ i, x i * y i := by
+  rw [OriginalDual10.functional_coordinates_dual10]
+  apply Finset.sum_congr rfl
+  intro i _
+  have hi : dotDual247 x (Pi.single i 1) = x i := by
+    simpa only [dotDual247, Basis.toDualEquiv_apply, Pi.basisFun_apply, Pi.basisFun_repr] using
+      (Pi.basisFun ℚ (Fin 5)).toDual_apply_left x i
+  rw [hi,mul_comm]
+
+def annihilator247 (H : Submodule ℚ (Fin 5 → ℚ)) : Submodule ℚ (Fin 5 → ℚ) :=
+  H.dualAnnihilator.comap dotDual247.toLinearMap
+
+theorem annihilator_rank247 (H : Submodule ℚ (Fin 5 → ℚ))
+    (hH : Module.finrank ℚ H = 4) : Module.finrank ℚ (annihilator247 H) = 1 := by
+  have he := Submodule.comap_equiv_self_of_inj_of_le (f := dotDual247.toLinearMap)
+    (p := H.dualAnnihilator) dotDual247.injective (by
+      intro f _
+      obtain ⟨x,hx⟩ := dotDual247.surjective f
+      exact ⟨x,hx⟩)
+  change Module.finrank ℚ (H.dualAnnihilator.comap dotDual247.toLinearMap) = 1
+  rw [he.finrank_eq]
+  have hd := Subspace.finrank_add_finrank_dualAnnihilator_eq H
+  rw [hH] at hd
+  have hn : Module.finrank ℚ (Fin 5 → ℚ) = 5 := by simp
+  rw [hn] at hd
+  omega
+
+theorem signedQuad_pairing247 (u : Matrix (Fin 5) (Fin 5) ℚ) (r k : Fin 5) :
+    (∑ i, u r i * signedQuad246 u k i) = if r = k then u.det else 0 := by
+  simp_rw [signedQuad_adjugate246]
+  have h := congrArg (fun M : Matrix (Fin 5) (Fin 5) ℚ => M r k) (Matrix.mul_adjugate u)
+  simpa [Matrix.mul_apply, Matrix.smul_apply, Matrix.one_apply] using h
+
+theorem first_four_pairing247 (u : Matrix (Fin 5) (Fin 5) ℚ) (j : Fin 4) :
+    dotDual247 (u 0) (signedQuad246 u j.castSucc.rev) = 0 := by
+  rw [dotDual_apply247,signedQuad_pairing247]
+  have hj : ∀ j : Fin 4, (0 : Fin 5) ≠ j.castSucc.rev := by decide
+  exact if_neg (hj j)
+
+theorem signedQuad_rat_independent247 (u : Matrix (Fin 5) (Fin 5) ℚ)
+    (hu : LinearIndependent ℚ u) : LinearIndependent ℚ (signedQuad246 u) := by
+  have he : signedQuad246 u = (compound4246 u : Matrix (Fin 5) (Fin 5) ℚ) := by
+    funext j i
+    exact signedQuad_adjugate246 u j i
+  rw [he]
+  exact Matrix.linearIndependent_rows_iff_isUnit.mpr
+    (compound_unit4246 u (Matrix.linearIndependent_rows_iff_isUnit.mp hu))
+
+theorem four_wedge_annihilator247 (u : Matrix (Fin 5) (Fin 5) ℚ)
+    (hu : LinearIndependent ℚ u) :
+    let H := Submodule.span ℚ (Set.range (fun j : Fin 4 => signedQuad246 u j.castSucc.rev))
+    annihilator247 H = Submodule.span ℚ {u 0} ∧ Module.finrank ℚ (annihilator247 H) = 1 := by
+  let H := Submodule.span ℚ (Set.range (fun j : Fin 4 => signedQuad246 u j.castSucc.rev))
+  have hi : LinearIndependent ℚ (fun j : Fin 4 => signedQuad246 u j.castSucc.rev) :=
+    (signedQuad_rat_independent247 u hu).comp (fun j : Fin 4 => j.castSucc.rev)
+      (Fin.rev_injective.comp (Fin.castSucc_injective 4))
+  have hH : Module.finrank ℚ H = 4 := by
+    simpa only [Fintype.card_fin] using finrank_span_eq_card hi
+  have hr := annihilator_rank247 H hH
+  have hm : u 0 ∈ annihilator247 H := by
+    change dotDual247 (u 0) ∈ H.dualAnnihilator
+    apply (Submodule.mem_dualAnnihilator (dotDual247 (u 0))).mpr
+    have hh : H ≤ LinearMap.ker (dotDual247 (u 0)) := by
+      apply Submodule.span_le.mpr
+      rintro _ ⟨j,rfl⟩
+      exact first_four_pairing247 u j
+    intro x hx
+    exact hh hx
+  have hle : Submodule.span ℚ {u 0} ≤ annihilator247 H :=
+    (Submodule.span_singleton_le_iff_mem _ _).mpr hm
+  have hs : Module.finrank ℚ (Submodule.span ℚ {u 0}) = 1 := finrank_span_singleton (hu.ne_zero 0)
+  exact ⟨(Submodule.eq_of_le_of_finrank_eq hle (hs.trans hr.symm)).symm,hr⟩
+
+theorem signedQuad_rat_cast247 (u : Fin 5 → Fin 5 → ℤ) (j : Fin 5) :
+    (fun i => ((signedQuad246 u j i : ℤ) : ℚ)) = signedQuad246 (fun k i => (u k i : ℚ)) j := by
+  funext i
+  rw [signedQuad_adjugate246, signedQuad_adjugate246]
+  have h := (Int.castRingHom ℚ).map_adjugate (u : Matrix (Fin 5) (Fin 5) ℤ)
+  exact congrArg (fun M : Matrix (Fin 5) (Fin 5) ℚ => M i j) h
+
+
+open OriginalDual10 SourceFlag241
+
+theorem sourceMinima5_short_span247
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (v : Fin 4 → Fin 5 → ℝ) (hv : LinearIndependent ℝ v)
+    (hvL : ∀ j, v j ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3))
+    (hvg : ∀ j, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) (v j) <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4)
+    (z : Fin 5 → ℝ) (hz : z ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3))
+    (hzg : coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) z <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4) :
+    z ∈ Submodule.span ℝ (Set.range v) := by
+  classical
+  by_contra hout
+  let w : Fin 5 → Fin 5 → ℝ := Fin.snoc v z
+  have hi : LinearIndependent ℝ w := linearIndependent_fin_snoc.mpr ⟨hv,hout⟩
+  have hwL : ∀ i, w i ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3) := by
+    intro i
+    refine Fin.lastCases ?_ (fun j => ?_) i
+    · simpa only [w,Fin.snoc_last] using hz
+    · simpa only [w,Fin.snoc_castSucc] using hvL j
+  have hwg : ∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) (w i) <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4 := by
+    intro i
+    refine Fin.lastCases ?_ (fun j => ?_) i
+    · simpa only [w,Fin.snoc_last] using hzg
+    · simpa only [w,Fin.snoc_castSucc] using hvg j
+  obtain ⟨i,_,hmax⟩ := Finset.exists_max_image Finset.univ
+    (fun i => coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) (w i)) Finset.univ_nonempty
+  have hle := (sourceMinima5_radius_set_properties A2 A3 L hL Q hQ c0 c2 c3 4).2.2.2
+    ⟨w,hi,hwL,fun j => hmax j (Finset.mem_univ j)⟩
+  exact (not_lt_of_ge hle) (hwg i)
+
+theorem attaining_short_span247
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (w : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3)
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j : Fin 5 → ℤ)))
+    (ha : ∀ j, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+      (integerReal (w j : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j)
+    (hgap : sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 3 <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4)
+    (z : Fin 5 → ℤ) (hz : z ∈ originalSourceGroup5 A2 A3 Q c2 c3)
+    (hzg : coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) (integerReal z) <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 4) :
+    integerReal z ∈ Submodule.span ℝ (Set.range
+      (fun j : Fin 4 => integerReal (w j.castSucc : Fin 5 → ℤ))) := by
+  apply sourceMinima5_short_span247 A2 A3 L hL Q hQ c0 c2 c3 _
+    (hw.comp (fun j : Fin 4 => j.castSucc) (Fin.castSucc_injective _))
+  · intro j
+    exact ⟨(w j.castSucc : Fin 5 → ℤ),(w j.castSucc).property,rfl⟩
+  · intro j
+    change coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+      (integerReal (w j.castSucc : Fin 5 → ℤ)) < _
+    rw [ha]
+    exact ((sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3).2
+      (show j.castSucc ≤ (3 : Fin 5) by change j.val ≤ 3; omega)).trans_lt hgap
+  · exact ⟨z,hz,rfl⟩
+  · exact hzg
+
+theorem rational_span_of_real247 (w : Fin 5 → Fin 5 → ℤ)
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j))) (z : Fin 5 → ℤ)
+    (hz : integerReal z ∈ Submodule.span ℝ (Set.range
+      (fun j : Fin 4 => integerReal (w j.castSucc)))) :
+    (fun i => (z i : ℚ)) ∈ Submodule.span ℚ (Set.range
+      (fun j : Fin 4 => fun i => (w j.castSucc i : ℚ))) := by
+  let v : Fin 5 → Fin 5 → ℚ := fun j i => (w j i : ℚ)
+  have hv := original_rational_independent241 w hw
+  let f : Module.Dual ℚ (Fin 5 → ℚ) := rationalFrameDual42 v hv 4
+  let g : Module.Dual ℝ (Fin 5 → ℝ) := ∑ i, (f (Pi.single i 1) : ℝ) • LinearMap.proj i
+  have hc (x : Fin 5 → ℤ) : g (integerReal x) = (f (fun i => (x i : ℚ)) : ℝ) := by
+    rw [functional_coordinates_dual10 f]
+    simp [g,integerReal,mul_comm]
+  have hk : Submodule.span ℝ (Set.range (fun j : Fin 4 => integerReal (w j.castSucc))) ≤
+      LinearMap.ker g := by
+    apply Submodule.span_le.mpr
+    rintro _ ⟨j,rfl⟩
+    change g (integerReal (w j.castSucc)) = 0
+    rw [hc]
+    have hh : f (fun i => (w j.castSucc i : ℚ)) = 0 := by
+      change rationalFrameDual42 v hv 4 (v j.castSucc) = 0
+      rw [rationalFrameDual42_pairing,if_neg]
+      intro h
+      have := congrArg Fin.val h
+      simp at this
+      omega
+    rw [hh,Rat.cast_zero]
+  have hcast : (f (fun i => (z i : ℚ)) : ℝ) = 0 := (hc z).symm.trans (hk hz)
+  have hf : f (fun i => (z i : ℚ)) = 0 := by exact_mod_cast hcast
+  rw [← SourceRank4_245.last_dual_kernel245 v hv]
+  exact hf
+
+
+
+def fourthDomain247 (U : Set ℝ) : Set ℝ := (fun Q : ℝ => Q^4) '' U
+
+theorem fourthDomain_unbounded247 (U : Set ℝ) (hU : ¬ BddAbove U)
+    (hq : ∀ Q ∈ U, 1 < Q) : ¬ BddAbove (fourthDomain247 U) := by
+  rintro ⟨b,hb⟩
+  obtain ⟨Q,hQU,hbQ⟩ := not_bddAbove_iff.mp hU b
+  have hpow : Q ≤ Q^4 := le_self_pow₀ (hq Q hQU).le (by decide)
+  exact (not_le_of_gt (hbQ.trans_le hpow)) (hb ⟨Q,hQU,rfl⟩)
+
+theorem fourthDomain_positive247 (U : Set ℝ) (hq : ∀ Q ∈ U, 1 < Q) :
+    ∀ p ∈ fourthDomain247 U, 1 < p := by
+  rintro p ⟨Q,hQU,rfl⟩
+  exact Exterior54_246.powered_gt_one4246 Q (hq Q hQU)
+
+theorem exists_fourth_section247 (U : Set ℝ) :
+    ∃ lift : fourthDomain247 U → U, ∀ p, (lift p).val^4 = p.val := by
+  have hh (p : fourthDomain247 U) : ∃ q : U, q.val^4 = p.val := by
+    obtain ⟨Q,hQU,he⟩ := p.property
+    exact ⟨⟨Q,hQU⟩,he⟩
+  choose lift hlift using hh
+  exact ⟨lift,hlift⟩
+
+theorem fourth_pullback_unbounded247 (U : Set ℝ) (hq : ∀ Q ∈ U, 1 < Q)
+    (lift : fourthDomain247 U → U) (hlift : ∀ p, (lift p).val^4 = p.val)
+    (V : Set ℝ) (hVP : V ⊆ fourthDomain247 U) (hV : ¬ BddAbove V) :
+    ¬ BddAbove {Q | ∃ p : fourthDomain247 U, p.val ∈ V ∧ (lift p).val = Q} := by
+  rintro ⟨b,hb⟩
+  apply hV
+  refine ⟨(max b 1)^4,?_⟩
+  intro P hPV
+  let p : fourthDomain247 U := ⟨P,hVP hPV⟩
+  have hbound : (lift p).val ≤ b := hb ⟨p,hPV,rfl⟩
+  have hpos : 0 ≤ (lift p).val := (zero_lt_one.trans (hq _ (lift p).property)).le
+  have hpow := pow_le_pow_left₀ hpos (hbound.trans (le_max_left b 1)) 4
+  rw [hlift p] at hpow
+  exact hpow
+
+
+open Exterior54_246
+
+theorem short_four_cutoff247 (kappa delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ Q : ℝ, T < Q → 24/kappa < Q^delta := by
+  obtain ⟨T,hT,h⟩ := compound_gap_cutoff42 (24/kappa) (2*delta) (by positivity)
+  refine ⟨T,hT,?_⟩
+  intro Q hQ
+  simpa only [show 2*delta/2 = delta by ring] using h Q hQ
+
+theorem short_four_bound247 (a : Fin 5 → ℝ) (ha : ∀ i, 0 < a i) (hm : Monotone a)
+    (nu : Fin 5 → ℝ) (kappa Q delta : ℝ) (hk : 0 < kappa) (hQ : 1 < Q)
+    (hcomp : kappa * fourProducts246 a 4 ≤ nu 4)
+    (hsource : a 0 < a 1 * Q^(-delta)) (hcut : 24/kappa < Q^delta) :
+    ∀ j : Fin 4, 24 * fourProducts246 a j.castSucc < nu 4 := by
+  have hp := Real.rpow_pos_of_pos (zero_lt_one.trans hQ) delta
+  have he : Q^(-delta)*Q^delta = 1 := by
+    rw [← Real.rpow_add (zero_lt_one.trans hQ), neg_add_cancel, Real.rpow_zero]
+  have hg := mul_lt_mul_of_pos_right (fourProducts_gap246 a ha Q delta hsource) hp
+  rw [mul_assoc,he,mul_one] at hg
+  have hc : 24 < Q^delta*kappa := (div_lt_iff₀ hk).mp hcut
+  have htop : 24 * fourProducts246 a 3 < nu 4 := by
+    calc
+      _ < (Q^delta*kappa)*fourProducts246 a 3 :=
+        mul_lt_mul_of_pos_right hc (fourProducts_pos246 a ha 3)
+      _ = kappa * (fourProducts246 a 3 * Q^delta) := by ring
+      _ < kappa * fourProducts246 a 4 := mul_lt_mul_of_pos_left hg hk
+      _ ≤ nu 4 := hcomp
+  intro j
+  exact (mul_le_mul_of_nonneg_left
+    (fourProducts_mono246 a ha hm (show j.castSucc ≤ (3 : Fin 5) by change j.val ≤ 3; omega))
+    (by norm_num)).trans_lt htop
+
+
+open Exterior54_246
+
+theorem powered_fixed_rank4_247
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q)
+    (hgap : ∀ (Q : ℝ) (hQO : Q ∈ Omega),
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 0 <
+        sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 1*Q^(-delta)) (Tshort : ℝ) :
+    ∃ H : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ H = 4 ∧
+      ∃ V : Set ℝ, ∃ hVO : V ⊆ Omega, ¬ BddAbove V ∧
+        ∀ (Q : ℝ) (hQV : Q ∈ V), Tshort < Q ∧
+          ∃ w : Fin 5 → originalSourceGroup5 (compound4246 A2) (compound4246 A3) (Q^4)
+            (normalizedWeights4246 c2) (normalizedWeights4246 c3),
+            LinearIndependent ℝ (fun j => integerReal (w j : Fin 5 → ℤ)) ∧
+            (∀ j, coordinateGauge5 (originalCoordinates5 (compound4246 L) (compound_unit4246 L hL)
+              (Q^4) (powered_gt_one4246 Q (hq Q (hVO hQV))) (normalizedWeights4246 c0))
+              (integerReal (w j : Fin 5 → ℤ)) = compoundMinima4246 A2 A3 L hL Q
+                (hq Q (hVO hQV)) c0 c2 c3 j) ∧
+            H = Submodule.span ℚ (Set.range
+              (fun j : Fin 4 => fun i => ((w j.castSucc : Fin 5 → ℤ) i : ℚ))) := by
+  obtain ⟨C,c,kappa,hC,hc,hk,he,huniform⟩ :=
+    source_rank1_compound4_gap246 A2 A3 L h2d h3d hLd hL hAlg
+  obtain ⟨Tgap,hTgap,hdelta,hgate⟩ := huniform delta hd
+  let U : Set ℝ := {Q | Q ∈ Omega ∧ max Tgap Tshort < Q}
+  have hU : ¬ BddAbove U := JSP000334.sourceDual_unbounded_tail3 Omega hO (max Tgap Tshort)
+  have hqU : ∀ Q ∈ U, 1 < Q := fun Q h => hq Q h.1
+  let P := fourthDomain247 U
+  have hP : ¬ BddAbove P := fourthDomain_unbounded247 U hU hqU
+  have hp : ∀ p ∈ P, 1 < p := fourthDomain_positive247 U hqU
+  obtain ⟨lift,hlift⟩ := exists_fourth_section247 U
+  have hgp (p : ℝ) (hpP : p ∈ P) :
+      sourceMinima5 (compound4246 A2) (compound4246 A3) (compound4246 L) (compound_unit4246 L hL)
+        p (hp p hpP) (normalizedWeights4246 c0) (normalizedWeights4246 c2) (normalizedWeights4246 c3) 3 <
+      sourceMinima5 (compound4246 A2) (compound4246 A3) (compound4246 L) (compound_unit4246 L hL)
+        p (hp p hpP) (normalizedWeights4246 c0) (normalizedWeights4246 c2) (normalizedWeights4246 c3) 4 *
+        p^(-(delta/8)) := by
+    let q := lift ⟨p,hpP⟩
+    obtain ⟨_,_,_,_,_,_,_,_,_,_,hg⟩ := hgate q.val (hqU q.val q.property)
+      c0 c2 c3 hc0 hc2 hc3 hb ((le_max_left _ _).trans_lt q.property.2)
+      (hgap q.val q.property.1)
+    have heq : q.val^4 = p := hlift ⟨p,hpP⟩
+    simpa only [heq, neg_div] using hg
+  obtain ⟨H,hH,Vprime,hVP,hVprime,hfixed⟩ :=
+    BlockRank4_245U.source_original_fixed_rank4_245
+      (compound4246 A2) (compound4246 A3) (compound4246 L)
+      (compound_det_one4246 A2 h2d) (compound_det_one4246 A3 h3d) (compound_det_one4246 L hLd)
+      (compound_unit4246 L hL) (compound_algebraic4246 L hAlg)
+      (normalizedWeights4246 c0) (normalizedWeights4246 c2) (normalizedWeights4246 c3)
+      (normalized_real_bound4246 c0 hc0) (normalized_finite_bounds4246 c2 hc2)
+      (normalized_finite_bounds4246 c3 hc3) (normalized_balance4246 c0 c2 c3 hb)
+      (delta/8) hdelta P hP hp hgp
+  let V : Set ℝ := {Q | ∃ p : P, p.val ∈ Vprime ∧ (lift p).val = Q}
+  have hVO : V ⊆ Omega := by
+    rintro Q ⟨p,hpV,rfl⟩
+    exact (lift p).property.1
+  refine ⟨H,hH,V,hVO,fourth_pullback_unbounded247 U hqU lift hlift Vprime hVP hVprime,?_⟩
+  intro Q hQV
+  obtain ⟨p,hpV,heq⟩ := hQV
+  have hlarge : Tshort < Q := by
+    rw [← heq]
+    exact (le_max_right _ _).trans_lt (lift p).property.2
+  have hpower : p.val = Q^4 := (hlift p).symm.trans (congrArg (fun x : ℝ => x^4) heq)
+  obtain ⟨w,hw,ha,hs⟩ := hfixed p.val hpV
+  rcases p with ⟨p,hpP⟩
+  change p = Q^4 at hpower
+  subst p
+  exact ⟨hlarge,w,hw,ha,hs⟩
+
+
+open Exterior54_246 SourceFlag241
+
+theorem sameQ_rank1_recovery247
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 5 → ℝ)
+    (kappa delta : ℝ) (hk : 0 < kappa)
+    (hcut : 24/kappa < Q^delta)
+    (hsource : sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 0 <
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 1*Q^(-delta))
+    (hcomp : kappa * fourProducts246 (sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3) 4 ≤
+      compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 4)
+    (H : Submodule ℚ (Fin 5 → ℚ)) (hH : Module.finrank ℚ H = 4)
+    (w : Fin 5 → originalSourceGroup5 (compound4246 A2) (compound4246 A3) (Q^4)
+      (normalizedWeights4246 c2) (normalizedWeights4246 c3))
+    (hw : LinearIndependent ℝ (fun j => integerReal (w j : Fin 5 → ℤ)))
+    (ha : ∀ j, coordinateGauge5 (originalCoordinates5 (compound4246 L) (compound_unit4246 L hL)
+      (Q^4) (powered_gt_one4246 Q hQ) (normalizedWeights4246 c0)) (integerReal (w j : Fin 5 → ℤ)) =
+      compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 j)
+    (hspan : H = Submodule.span ℚ (Set.range
+      (fun j : Fin 4 => fun i => ((w j.castSucc : Fin 5 → ℤ) i : ℚ)))) :
+    ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+      LinearIndependent ℝ (fun j => integerReal (u j : Fin 5 → ℤ)) ∧
+      (∀ j, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0)
+        (integerReal (u j : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 j) ∧
+      annihilator247 H = Submodule.span ℚ {fun i => ((u 0 : Fin 5 → ℤ) i : ℚ)} := by
+  have hp := sourceMinima5_pos_mono A2 A3 L hL Q hQ c0 c2 c3
+  have hshort := short_four_bound247 _ hp.1 hp.2 _ kappa Q delta hk hQ hcomp hsource hcut
+  have h34 : compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 3 <
+      compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 4 :=
+    (compoundMinima_upper4246 A2 A3 L hL Q hQ c0 c2 c3 3).trans_lt (hshort 3)
+  obtain ⟨u,hu,huatt,hm,hi,hg⟩ := actual_wedge_frame4246 A2 A3 L hL Q hQ c0 c2 c3
+  let uZ : Fin 5 → Fin 5 → ℤ := fun j => (u j : Fin 5 → ℤ)
+  let uR : Fin 5 → Fin 5 → ℚ := fun j i => (uZ j i : ℚ)
+  let v : Fin 4 → Fin 5 → ℚ := fun j i => ((signedQuad246 uZ j.castSucc.rev i : ℤ) : ℚ)
+  have hmem (j : Fin 4) : v j ∈ H := by
+    let z := signedQuad246 uZ j.castSucc.rev
+    have hz : z ∈ originalSourceGroup5 (compound4246 A2) (compound4246 A3) (Q^4)
+        (normalizedWeights4246 c2) (normalizedWeights4246 c3) := hm j.castSucc
+    have hzg : coordinateGauge5 (originalCoordinates5 (compound4246 L) (compound_unit4246 L hL)
+        (Q^4) (powered_gt_one4246 Q hQ) (normalizedWeights4246 c0)) (integerReal z) <
+        compoundMinima4246 A2 A3 L hL Q hQ c0 c2 c3 4 :=
+      (hg j.castSucc).trans_lt (hshort j)
+    have hs := attaining_short_span247 (compound4246 A2) (compound4246 A3) (compound4246 L)
+      (compound_unit4246 L hL) (Q^4) (powered_gt_one4246 Q hQ)
+      (normalizedWeights4246 c0) (normalizedWeights4246 c2) (normalizedWeights4246 c3)
+      w hw ha h34 z hz hzg
+    rw [hspan]
+    exact rational_span_of_real247 (fun k => (w k : Fin 5 → ℤ)) hw z hs
+  have hcast : v = fun j : Fin 4 => signedQuad246 uR j.castSucc.rev := by
+    funext j
+    exact signedQuad_rat_cast247 uZ j.castSucc.rev
+  have hur : LinearIndependent ℚ uR := original_rational_independent241 uZ hu
+  have hvi : LinearIndependent ℚ v := by
+    rw [hcast]
+    exact (signedQuad_rat_independent247 uR hur).comp (fun j : Fin 4 => j.castSucc.rev)
+      (Fin.rev_injective.comp (Fin.castSucc_injective 4))
+  have hle : Submodule.span ℚ (Set.range v) ≤ H := Submodule.span_le.mpr (by
+    rintro _ ⟨j,rfl⟩
+    exact hmem j)
+  have hd : Module.finrank ℚ (Submodule.span ℚ (Set.range v)) = 4 := by
+    simpa only [Fintype.card_fin] using finrank_span_eq_card hvi
+  have heq : H = Submodule.span ℚ (Set.range v) :=
+    (Submodule.eq_of_le_of_finrank_eq hle (hd.trans hH.symm)).symm
+  rw [hcast] at heq
+  have hr := four_wedge_annihilator247 uR hur
+  dsimp only at hr
+  rw [← heq] at hr
+  exact ⟨u,hu,huatt,hr.1⟩
+
+
+open Exterior54_246
+
+theorem original_head_control247 (u : Fin 5 → Fin 5 → ℤ)
+    (hu : LinearIndependent ℝ (fun j => integerReal (u j)))
+    (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : P = Submodule.span ℚ {fun i => (u 0 i : ℚ)}) :
+    u 0 ≠ 0 ∧ (fun i => (u 0 i : ℚ)) ≠ 0 ∧ (fun i => (u 0 i : ℚ)) ∈ P := by
+  have hr := SourceFlag241.original_rational_independent241 u hu
+  refine ⟨?_,hr.ne_zero 0,?_⟩
+  · intro hz
+    apply hu.ne_zero 0
+    rw [hz, map_zero]
+  · rw [hP]
+    exact Submodule.subset_span (Set.mem_singleton _)
+
+theorem source_original_fixed_rank1_247
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q)
+    (hgap : ∀ (Q : ℝ) (hQO : Q ∈ Omega),
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 0 <
+        sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 1*Q^(-delta)) :
+    ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = 1 ∧
+      ∃ V : Set ℝ, ∃ hVO : V ⊆ Omega, ¬ BddAbove V ∧
+        ∀ (Q : ℝ) (hQV : Q ∈ V),
+          ∃ u : Fin 5 → originalSourceGroup5 A2 A3 Q c2 c3,
+            LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+            (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q (hq Q (hVO hQV)) c0)
+              (integerReal (u i : Fin 5 → ℤ)) = sourceMinima5 A2 A3 L hL Q (hq Q (hVO hQV)) c0 c2 c3 i) ∧
+            P = Submodule.span ℚ {fun i => ((u 0 : Fin 5 → ℤ) i : ℚ)} := by
+  have h2 : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det A2).mpr (by rw [h2d]; exact isUnit_one)
+  have h3 : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det A3).mpr (by rw [h3d]; exact isUnit_one)
+  obtain ⟨C,c,kappa,hC,hc,hk,he,hcompare⟩ := source_uniform_comparison4246 A2 A3 L h2 h3 hL
+  obtain ⟨Tshort,hTshort,hcut⟩ := short_four_cutoff247 kappa delta hd
+  obtain ⟨H,hH,V,hVO,hV,hfixed⟩ := powered_fixed_rank4_247 A2 A3 L h2d h3d hLd hL hAlg
+    c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq hgap Tshort
+  refine ⟨annihilator247 H,annihilator_rank247 H hH,V,hVO,hV,?_⟩
+  intro Q hQV
+  obtain ⟨hlarge,w,hw,ha,hspan⟩ := hfixed Q hQV
+  exact sameQ_rank1_recovery247 A2 A3 L hL Q (hq Q (hVO hQV)) c0 c2 c3 kappa delta hk
+    (hcut Q hlarge) (hgap Q (hVO hQV))
+    ((hcompare Q (hq Q (hVO hQV)) c0 c2 c3 (fun i => (hc2 i).2) (fun i => (hc3 i).2) hb 4).1)
+    H hH w hw ha hspan
+
+
+end CompoundFeasibility.LiteralRank1_247
+#check CompoundFeasibility.LiteralRank1_247.dotDual247
+#print axioms CompoundFeasibility.LiteralRank1_247.dotDual247
+#check CompoundFeasibility.LiteralRank1_247.dotDual_apply247
+#print axioms CompoundFeasibility.LiteralRank1_247.dotDual_apply247
+#check CompoundFeasibility.LiteralRank1_247.annihilator247
+#print axioms CompoundFeasibility.LiteralRank1_247.annihilator247
+#check CompoundFeasibility.LiteralRank1_247.annihilator_rank247
+#print axioms CompoundFeasibility.LiteralRank1_247.annihilator_rank247
+#check CompoundFeasibility.LiteralRank1_247.signedQuad_pairing247
+#print axioms CompoundFeasibility.LiteralRank1_247.signedQuad_pairing247
+#check CompoundFeasibility.LiteralRank1_247.first_four_pairing247
+#print axioms CompoundFeasibility.LiteralRank1_247.first_four_pairing247
+#check CompoundFeasibility.LiteralRank1_247.signedQuad_rat_independent247
+#print axioms CompoundFeasibility.LiteralRank1_247.signedQuad_rat_independent247
+#check CompoundFeasibility.LiteralRank1_247.four_wedge_annihilator247
+#print axioms CompoundFeasibility.LiteralRank1_247.four_wedge_annihilator247
+#check CompoundFeasibility.LiteralRank1_247.signedQuad_rat_cast247
+#print axioms CompoundFeasibility.LiteralRank1_247.signedQuad_rat_cast247
+#check CompoundFeasibility.LiteralRank1_247.sourceMinima5_short_span247
+#print axioms CompoundFeasibility.LiteralRank1_247.sourceMinima5_short_span247
+#check CompoundFeasibility.LiteralRank1_247.attaining_short_span247
+#print axioms CompoundFeasibility.LiteralRank1_247.attaining_short_span247
+#check CompoundFeasibility.LiteralRank1_247.rational_span_of_real247
+#print axioms CompoundFeasibility.LiteralRank1_247.rational_span_of_real247
+#check CompoundFeasibility.LiteralRank1_247.fourthDomain247
+#print axioms CompoundFeasibility.LiteralRank1_247.fourthDomain247
+#check CompoundFeasibility.LiteralRank1_247.fourthDomain_unbounded247
+#print axioms CompoundFeasibility.LiteralRank1_247.fourthDomain_unbounded247
+#check CompoundFeasibility.LiteralRank1_247.fourthDomain_positive247
+#print axioms CompoundFeasibility.LiteralRank1_247.fourthDomain_positive247
+#check CompoundFeasibility.LiteralRank1_247.exists_fourth_section247
+#print axioms CompoundFeasibility.LiteralRank1_247.exists_fourth_section247
+#check CompoundFeasibility.LiteralRank1_247.fourth_pullback_unbounded247
+#print axioms CompoundFeasibility.LiteralRank1_247.fourth_pullback_unbounded247
+#check CompoundFeasibility.LiteralRank1_247.short_four_cutoff247
+#print axioms CompoundFeasibility.LiteralRank1_247.short_four_cutoff247
+#check CompoundFeasibility.LiteralRank1_247.short_four_bound247
+#print axioms CompoundFeasibility.LiteralRank1_247.short_four_bound247
+#check CompoundFeasibility.LiteralRank1_247.powered_fixed_rank4_247
+#print axioms CompoundFeasibility.LiteralRank1_247.powered_fixed_rank4_247
+#check CompoundFeasibility.LiteralRank1_247.sameQ_rank1_recovery247
+#print axioms CompoundFeasibility.LiteralRank1_247.sameQ_rank1_recovery247
+#check CompoundFeasibility.LiteralRank1_247.original_head_control247
+#print axioms CompoundFeasibility.LiteralRank1_247.original_head_control247
+#check CompoundFeasibility.LiteralRank1_247.source_original_fixed_rank1_247
+#print axioms CompoundFeasibility.LiteralRank1_247.source_original_fixed_rank1_247

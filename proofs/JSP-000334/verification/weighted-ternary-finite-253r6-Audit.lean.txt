@@ -1,0 +1,35 @@
+import SubspaceBridge.WeightedPairTransport2
+import SubspaceBridge.WeightedPairCover2
+import SubspaceBridge.WeightedPairLinear2
+#check JSP000334.weightedFixedSUnitPairs
+#print JSP000334.weightedFixedSUnitPairs
+#print axioms JSP000334.weightedFixedSUnitPairs
+#check JSP000334.weighted_pair_primitive_transport
+#print JSP000334.weighted_pair_primitive_transport
+#print axioms JSP000334.weighted_pair_primitive_transport
+#check JSP000334.weighted_normalized_sunit_scale2
+#print JSP000334.weighted_normalized_sunit_scale2
+#print axioms JSP000334.weighted_normalized_sunit_scale2
+#check JSP000334.weighted_pair_descale_mem
+#print JSP000334.weighted_pair_descale_mem
+#print axioms JSP000334.weighted_pair_descale_mem
+#check JSP000334.weighted_pair_high_product
+#print JSP000334.weighted_pair_high_product
+#print axioms JSP000334.weighted_pair_high_product
+#check JSP000334.weighted_pair_finite_proper_cover
+#print JSP000334.weighted_pair_finite_proper_cover
+#print axioms JSP000334.weighted_pair_finite_proper_cover
+#check JSP000334.binary_proper_annihilator
+#print JSP000334.binary_proper_annihilator
+#print axioms JSP000334.binary_proper_annihilator
+#check JSP000334.weighted_pair_exact_values
+#print JSP000334.weighted_pair_exact_values
+#print axioms JSP000334.weighted_pair_exact_values
+#check JSP000334.binary_weighted_allpoint_finite_cover
+#print axioms JSP000334.binary_weighted_allpoint_finite_cover
+#check JSP000334.sunit_denominator
+#print axioms JSP000334.sunit_denominator
+#check JSP000334.primitive_pair_height
+#print axioms JSP000334.primitive_pair_height
+#check JSP000334.pairHeight_sunit_scale
+#print axioms JSP000334.pairHeight_sunit_scale

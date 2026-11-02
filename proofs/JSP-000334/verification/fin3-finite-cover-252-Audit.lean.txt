@@ -1,0 +1,104 @@
+import ElementaryThreeTerm
+import SubspaceBridge.OriginalPlaneTransport3
+open scoped BigOperators Matrix
+namespace Fin3CoverDiagnostic252
+
+theorem small_first_does_not_give_second_gap252 :
+    (0 : ℚ) < 1/4 ∧ (1/4 : ℚ) ≤ 2 ∧ (2 : ℚ) ≤ 2 ∧
+    (1/4 : ℚ)*2*2 = 1 ∧ (1/4 : ℚ) < 1/2 ∧
+    ¬ ((2 : ℚ) < 1/2) ∧ ¬ ((2 : ℚ) < 2*(1/2)) := by
+  norm_num
+
+theorem omission_pattern_count252 : Fintype.card (Fin 3 → Fin 4) = 64 := by
+  decide
+
+def sumReplacement252 : Matrix (Fin 3) (Fin 3) ℚ :=
+  ![![1,1,1],![0,1,0],![0,0,1]]
+
+theorem cofactor_actual_row252 :
+    (sumReplacement252.adjugate.transpose) 1 = ![-1,1,0] := by
+  ext j
+  fin_cases j <;> norm_num [sumReplacement252,Matrix.adjugate_fin_three,Matrix.transpose_apply,
+    Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons]
+
+theorem cofactor_row_outside_four_form_directions252 (a : ℚ) :
+    (![-1,1,0] : Fin 3 → ℚ) ≠ a • ![1,0,0] ∧
+    (![-1,1,0] : Fin 3 → ℚ) ≠ a • ![0,1,0] ∧
+    (![-1,1,0] : Fin 3 → ℚ) ≠ a • ![0,0,1] ∧
+    (![-1,1,0] : Fin 3 → ℚ) ≠ a • ![1,1,1] := by
+  refine ⟨?_,?_,?_,?_⟩
+  · intro h
+    have hh := congrFun h 1
+    change (1 : ℚ) = a*0 at hh
+    norm_num at hh
+  · intro h
+    have hh := congrFun h 0
+    change (-1 : ℚ) = a*0 at hh
+    norm_num at hh
+  · intro h
+    have hh := congrFun h 0
+    change (-1 : ℚ) = a*0 at hh
+    norm_num at hh
+  · intro h
+    have h0 := congrFun h 0
+    have h1 := congrFun h 1
+    change (-1 : ℚ) = a*1 at h0
+    change (1 : ℚ) = a*1 at h1
+    linarith
+
+end Fin3CoverDiagnostic252
+
+#check Fin3CoverDiagnostic252.small_first_does_not_give_second_gap252
+#print Fin3CoverDiagnostic252.small_first_does_not_give_second_gap252
+#print axioms Fin3CoverDiagnostic252.small_first_does_not_give_second_gap252
+#check Fin3CoverDiagnostic252.omission_pattern_count252
+#print Fin3CoverDiagnostic252.omission_pattern_count252
+#print axioms Fin3CoverDiagnostic252.omission_pattern_count252
+#check Fin3CoverDiagnostic252.sumReplacement252
+#print Fin3CoverDiagnostic252.sumReplacement252
+#print axioms Fin3CoverDiagnostic252.sumReplacement252
+#check Fin3CoverDiagnostic252.cofactor_actual_row252
+#print Fin3CoverDiagnostic252.cofactor_actual_row252
+#print axioms Fin3CoverDiagnostic252.cofactor_actual_row252
+#check Fin3CoverDiagnostic252.cofactor_row_outside_four_form_directions252
+#print Fin3CoverDiagnostic252.cofactor_row_outside_four_form_directions252
+#print axioms Fin3CoverDiagnostic252.cofactor_row_outside_four_form_directions252
+
+#check JSP000334.normalizedRelations
+#print axioms JSP000334.normalizedRelations
+#check JSP000334.exists_primitive_four_term_relation
+#print axioms JSP000334.exists_primitive_four_term_relation
+#check JSP000334.threeCoordinateSumForms_independent
+#print axioms JSP000334.threeCoordinateSumForms_independent
+#check JSP000334.retainedIntegerMatrix3_det
+#print axioms JSP000334.retainedIntegerMatrix3_det
+#check JSP000334.primitive_triple_local_height
+#print axioms JSP000334.primitive_triple_local_height
+#check JSP000334.primitive_triple_height
+#print axioms JSP000334.primitive_triple_height
+#check JSP000334.four_term_forms_full_product
+#print axioms JSP000334.four_term_forms_full_product
+#check JSP000334.four_term_normalized_product_height
+#print axioms JSP000334.four_term_normalized_product_height
+#check JSP000334.four_term_retained_product_height
+#print axioms JSP000334.four_term_retained_product_height
+#check JSP000334.fixed_sunit_product_formula
+#print axioms JSP000334.fixed_sunit_product_formula
+#check JSP000334.fixed_sunit_norm_outside
+#print axioms JSP000334.fixed_sunit_norm_outside
+#check JSP000334.finiteWeightReduction3
+#print axioms JSP000334.finiteWeightReduction3
+#check JSP000334.sameIndex_source_family_contradiction3
+#print axioms JSP000334.sameIndex_source_family_contradiction3
+#check JSP000334.normalized_uniform_selected_vanishing3
+#print axioms JSP000334.normalized_uniform_selected_vanishing3
+#check JSP000334.source_uniform_selected_vanishing3
+#print axioms JSP000334.source_uniform_selected_vanishing3
+#check JSP000334.source_fixed_dual_direction3
+#print axioms JSP000334.source_fixed_dual_direction3
+#check JSP000334.source_gap_satz51_applicable3
+#print axioms JSP000334.source_gap_satz51_applicable3
+#check JSP000334.source_fixed_last_dual_under_gap3
+#print axioms JSP000334.source_fixed_last_dual_under_gap3
+#check JSP000334.roth_full_kernel_omega65_nonvanishing
+#print axioms JSP000334.roth_full_kernel_omega65_nonvanishing

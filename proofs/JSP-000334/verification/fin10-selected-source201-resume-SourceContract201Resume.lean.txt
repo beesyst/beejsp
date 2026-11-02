@@ -1,0 +1,26 @@
+import SubspaceBridge.SourceSelectedPrimitive10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M201ResumeContract
+open CompoundFeasibility CompoundFeasibility.SchmidtNormal10 CompoundFeasibility.SourceSelectedSet10 CompoundFeasibility.SourceSelectedUpper10
+
+theorem actual_three_place_scalar_identity (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (g : ℤ) (M : Fin 10 → ℤ) (s : MixedIndex10) :
+    mixedProduct10 A2 A3 L (fun k => g*M k) s =
+      (|(g : ℝ)| * ‖(g : ℚ_[2])‖*‖(g : ℚ_[3])‖)*mixedProduct10 A2 A3 L M s := by
+  exact mixedProduct10_int_mul A2 A3 L g M s
+
+#print actual_three_place_scalar_identity
+#print axioms actual_three_place_scalar_identity
+theorem actual_same_normal_monotonicity (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (g : ℤ) (hg : g ≠ 0)
+    (M : Fin 10 → ℤ) (s : MixedIndex10) :
+    mixedProduct10 A2 A3 L M s ≤ mixedProduct10 A2 A3 L (fun k => g*M k) s := by
+  exact mixedProduct10_le_int_mul10 A2 A3 L g hg M s
+
+#print actual_same_normal_monotonicity
+#print axioms actual_same_normal_monotonicity
+#print CompoundFeasibility.SourceSelectedUpper10.mixedProduct10
+#print CompoundFeasibility.SourcePrimitiveHeight10.primitive_original_cofactor_factor10
+#print axioms CompoundFeasibility.SourcePrimitiveHeight10.primitive_original_cofactor_factor10
+end M201ResumeContract

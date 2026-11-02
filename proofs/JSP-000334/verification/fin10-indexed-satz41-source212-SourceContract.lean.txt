@@ -1,0 +1,33 @@
+import SubspaceBridge.SourceOriginalIndex212
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M212SourceContract
+open SourceOriginalVariable10 SourceOriginalSatz212 SourceRelativeIndex6
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+
+theorem original_integer_lattice_contract212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0)
+    (x : Fin 10 → ℤ) :
+    x ∈ sourceLattice10 A2 A3 (fun i => (-D.f2 i).toNat) (fun i => (-D.f3 i).toNat) ↔
+      (∀ i, padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) ≤ (2 : ℚ)^(D.f2 i)) ∧
+      (∀ i, padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) ≤ (3 : ℚ)^(D.f3 i)) := by
+  exact original_lattice_mem212 D x
+
+theorem same_original_frame_index_contract212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    ∃ uG : Fin 10 → sourceLattice10 A2 A3 (fun i => (-D.f2 i).toNat) (fun i => (-D.f3 i).toNat),
+      (∀ j, (uG j : Fin 10 → ℤ) = D.u j) ∧ LinearIndependent ℤ uG ∧
+      originalIndex212 D = frameRelativeIndex
+        (sourceLattice10 A2 A3 (fun i => (-D.f2 i).toNat) (fun i => (-D.f3 i).toNat)) uG := by
+  exact ⟨originalFrame212 D,fun _ => rfl,original_frame_independent212 D,rfl⟩
+
+theorem original_covolume_contract212 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    originalCovolume212 D = ZLattice.covolume (integerRealImage
+      (sourceLattice10 A2 A3 (fun i => (-D.f2 i).toNat) (fun i => (-D.f3 i).toNat))) := rfl
+
+end CompoundFeasibility.M212SourceContract
+#print CompoundFeasibility.M212SourceContract.original_integer_lattice_contract212
+#print CompoundFeasibility.M212SourceContract.same_original_frame_index_contract212
+#print CompoundFeasibility.M212SourceContract.original_covolume_contract212
+#print axioms CompoundFeasibility.M212SourceContract.original_integer_lattice_contract212
+#print axioms CompoundFeasibility.M212SourceContract.same_original_frame_index_contract212
+#print axioms CompoundFeasibility.M212SourceContract.original_covolume_contract212

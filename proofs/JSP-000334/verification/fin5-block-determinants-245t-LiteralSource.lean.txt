@@ -1,0 +1,236 @@
+import SubspaceBridge.SourceBlockLattice245Q
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralBlock245T
+open BlockReduction245P BlockReduction245Q
+
+theorem block_rat_det_one245T (A : Matrix (Fin 5) (Fin 5) ℚ) (hA : A.det = 1) :
+    (block245P A).det = 1 := by
+  let E : (Fin 10 → ℚ) ≃ₗ[ℚ] ((Fin 5 → ℚ) × (Fin 5 → ℚ)) :=
+    { toFun := fun z => (first245Q z, second245Q z)
+      invFun := fun z => join245Q z.1 z.2
+      left_inv := by
+        intro z
+        funext j
+        obtain ⟨s,rfl⟩ := blockIndex245P.surjective j
+        cases s <;> simp [first245Q, second245Q, join245Q]
+      right_inv := by
+        intro z
+        exact Prod.ext (first_join245Q z.1 z.2) (second_join245Q z.1 z.2)
+      map_add' := fun _ _ => rfl
+      map_smul' := fun _ _ => rfl }
+  have hprod : E.toLinearMap ∘ₗ (block245P A).mulVecLin ∘ₗ E.symm.toLinearMap =
+      LinearMap.prodMap A.mulVecLin (LinearMap.id : Module.End ℚ (Fin 5 → ℚ)) := by
+    apply LinearMap.ext
+    intro z
+    apply Prod.ext
+    · funext i
+      change (block245P A *ᵥ join245Q z.1 z.2) (blockIndex245P (Sum.inl i)) = (A *ᵥ z.1) i
+      rw [block_mulVec_left245Q, first_join245Q]
+    · funext i
+      change (block245P A *ᵥ join245Q z.1 z.2) (blockIndex245P (Sum.inr i)) = z.2 i
+      rw [block_mulVec_right245Q, second_join245Q]
+  have hconj := LinearMap.det_conj (block245P A).mulVecLin E
+  rw [hprod] at hconj
+  have hfirst : LinearMap.det A.mulVecLin = A.det := by
+    rw [← Matrix.toLin'_apply']
+    exact LinearMap.det_toLin' A
+  have hfull : LinearMap.det (block245P A).mulVecLin = (block245P A).det := by
+    rw [← Matrix.toLin'_apply']
+    exact LinearMap.det_toLin' (block245P A)
+  have hid : LinearMap.det (LinearMap.id : Module.End ℚ (Fin 5 → ℚ)) = 1 :=
+    map_one LinearMap.det
+  rw [LinearMap.det_prodMap, hfirst, hid, hA, one_mul, hfull] at hconj
+  exact hconj.symm
+
+theorem block_real_det_one245T (A : Matrix (Fin 5) (Fin 5) ℝ) (hA : A.det = 1) :
+    (block245P A).det = 1 := by
+  let E : (Fin 10 → ℝ) ≃ₗ[ℝ] ((Fin 5 → ℝ) × (Fin 5 → ℝ)) :=
+    { toFun := fun z => (first245Q z, second245Q z)
+      invFun := fun z => join245Q z.1 z.2
+      left_inv := by
+        intro z
+        funext j
+        obtain ⟨s,rfl⟩ := blockIndex245P.surjective j
+        cases s <;> simp [first245Q, second245Q, join245Q]
+      right_inv := by
+        intro z
+        exact Prod.ext (first_join245Q z.1 z.2) (second_join245Q z.1 z.2)
+      map_add' := fun _ _ => rfl
+      map_smul' := fun _ _ => rfl }
+  have hprod : E.toLinearMap ∘ₗ (block245P A).mulVecLin ∘ₗ E.symm.toLinearMap =
+      LinearMap.prodMap A.mulVecLin (LinearMap.id : Module.End ℝ (Fin 5 → ℝ)) := by
+    apply LinearMap.ext
+    intro z
+    apply Prod.ext
+    · funext i
+      change (block245P A *ᵥ join245Q z.1 z.2) (blockIndex245P (Sum.inl i)) = (A *ᵥ z.1) i
+      rw [block_mulVec_left245Q, first_join245Q]
+    · funext i
+      change (block245P A *ᵥ join245Q z.1 z.2) (blockIndex245P (Sum.inr i)) = z.2 i
+      rw [block_mulVec_right245Q, second_join245Q]
+  have hconj := LinearMap.det_conj (block245P A).mulVecLin E
+  rw [hprod] at hconj
+  have hfirst : LinearMap.det A.mulVecLin = A.det := by
+    rw [← Matrix.toLin'_apply']
+    exact LinearMap.det_toLin' A
+  have hfull : LinearMap.det (block245P A).mulVecLin = (block245P A).det := by
+    rw [← Matrix.toLin'_apply']
+    exact LinearMap.det_toLin' (block245P A)
+  have hid : LinearMap.det (LinearMap.id : Module.End ℝ (Fin 5 → ℝ)) = 1 :=
+    map_one LinearMap.det
+  rw [LinearMap.det_prodMap, hfirst, hid, hA, one_mul, hfull] at hconj
+  exact hconj.symm
+
+theorem block_algebraic245T (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∀ i j, IsAlgebraic ℚ (block245P L i j) := by
+  intro i j
+  simp only [block245P, Matrix.reindex_apply, Matrix.submatrix_apply]
+  cases hi : blockIndex245P.symm i with
+  | inl a =>
+    cases hj : blockIndex245P.symm j with
+    | inl b => exact hAlg a b
+    | inr b => exact isAlgebraic_zero
+  | inr a =>
+    cases hj : blockIndex245P.symm j with
+    | inl b => exact isAlgebraic_zero
+    | inr b =>
+      change IsAlgebraic ℚ (if a = b then (1 : ℝ) else 0)
+      split_ifs
+      · exact isAlgebraic_one
+      · exact isAlgebraic_zero
+
+theorem source_block_prerequisites245T
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) :
+    (block245P A2).det = 1 ∧
+    (block245P A3).det = 1 ∧
+    (block245P L).det = 1 ∧
+    IsUnit (block245P L) ∧
+    (∀ i j, IsAlgebraic ℚ (block245P L i j)) ∧
+    (∀ i, |weight0245P c0 i| ≤ 1) ∧
+    (∀ i, -1 ≤ weightp245P c2 i ∧ weightp245P c2 i ≤ 0) ∧
+    (∀ i, -1 ≤ weightp245P c3 i ∧ weightp245P c3 i ≤ 0) ∧
+    (∑ i, (weight0245P c0 i+weightp245P c2 i+weightp245P c3 i)) = 0 := by
+  obtain ⟨h0,h2,h3⟩ := weight_bounds245P c0 c2 c3 hc0 hc2 hc3
+  exact ⟨block_rat_det_one245T A2 h2d, block_rat_det_one245T A3 h3d,
+    block_real_det_one245T L hLd, block_unit245Q L hL, block_algebraic245T L hAlg,
+    h0,h2,h3,weight_balance245P c0 c2 c3 hb⟩
+
+end CompoundFeasibility.LiteralBlock245T
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M245TChallenges
+open CompoundFeasibility CompoundFeasibility.BlockReduction245P
+  CompoundFeasibility.BlockReduction245Q CompoundFeasibility.LiteralBlock245T
+
+theorem raw_rat_det_one (A : Matrix (Fin 5) (Fin 5) ℚ) (hA : A.det = 1) :
+    Matrix.det (fun i j : Fin 10 =>
+      match blockIndex245P.symm i, blockIndex245P.symm j with
+      | Sum.inl a, Sum.inl b => A a b
+      | Sum.inr a, Sum.inr b => if a = b then (1 : ℚ) else 0
+      | _, _ => 0) = 1 := by
+  have he : (fun i j : Fin 10 =>
+      match blockIndex245P.symm i, blockIndex245P.symm j with
+      | Sum.inl a, Sum.inl b => A a b
+      | Sum.inr a, Sum.inr b => if a = b then (1 : ℚ) else 0
+      | _, _ => 0) = block245P A := by
+    funext i j
+    simp only [block245P, Matrix.reindex_apply, Matrix.submatrix_apply]
+    cases hi : blockIndex245P.symm i <;> cases hj : blockIndex245P.symm j <;>
+      simp [Matrix.fromBlocks, Matrix.one_apply]
+  rw [he]
+  exact block_rat_det_one245T A hA
+
+theorem raw_real_det_one (A : Matrix (Fin 5) (Fin 5) ℝ) (hA : A.det = 1) :
+    Matrix.det (fun i j : Fin 10 =>
+      match blockIndex245P.symm i, blockIndex245P.symm j with
+      | Sum.inl a, Sum.inl b => A a b
+      | Sum.inr a, Sum.inr b => if a = b then (1 : ℝ) else 0
+      | _, _ => 0) = 1 := by
+  have he : (fun i j : Fin 10 =>
+      match blockIndex245P.symm i, blockIndex245P.symm j with
+      | Sum.inl a, Sum.inl b => A a b
+      | Sum.inr a, Sum.inr b => if a = b then (1 : ℝ) else 0
+      | _, _ => 0) = block245P A := by
+    funext i j
+    simp only [block245P, Matrix.reindex_apply, Matrix.submatrix_apply]
+    cases hi : blockIndex245P.symm i <;> cases hj : blockIndex245P.symm j <;>
+      simp [Matrix.fromBlocks, Matrix.one_apply]
+  rw [he]
+  exact block_real_det_one245T A hA
+
+theorem raw_real_algebraic (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) :
+    ∀ i j, IsAlgebraic ℚ ((fun i j : Fin 10 =>
+      match blockIndex245P.symm i, blockIndex245P.symm j with
+      | Sum.inl a, Sum.inl b => L a b
+      | Sum.inr a, Sum.inr b => if a = b then (1 : ℝ) else 0
+      | _, _ => 0) i j) := by
+  intro i j
+  dsimp only
+  cases hi : blockIndex245P.symm i with
+  | inl a =>
+    cases hj : blockIndex245P.symm j with
+    | inl b => exact hAlg a b
+    | inr b => exact isAlgebraic_zero
+  | inr a =>
+    cases hj : blockIndex245P.symm j with
+    | inl b => exact isAlgebraic_zero
+    | inr b =>
+      by_cases hab : a = b
+      · simp only [hab, ite_true]
+        exact isAlgebraic_one
+      · simp only [hab, ite_false]
+        exact isAlgebraic_zero
+
+theorem original_prerequisites_expanded
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0) :
+    (Matrix.reindex blockIndex245P blockIndex245P (Matrix.fromBlocks A2 (0 : Matrix (Fin 5) (Fin 5) ℚ) 0 1)).det = 1 ∧
+    (Matrix.reindex blockIndex245P blockIndex245P (Matrix.fromBlocks A3 (0 : Matrix (Fin 5) (Fin 5) ℚ) 0 1)).det = 1 ∧
+    (Matrix.reindex blockIndex245P blockIndex245P (Matrix.fromBlocks L (0 : Matrix (Fin 5) (Fin 5) ℝ) 0 1)).det = 1 ∧
+    IsUnit (Matrix.reindex blockIndex245P blockIndex245P (Matrix.fromBlocks L (0 : Matrix (Fin 5) (Fin 5) ℝ) 0 1)) ∧
+    (∀ i j, IsAlgebraic ℚ ((Matrix.reindex blockIndex245P blockIndex245P (Matrix.fromBlocks L (0 : Matrix (Fin 5) (Fin 5) ℝ) 0 1)) i j)) ∧
+    (∀ i, |Sum.elim (fun j : Fin 5 => (c0 j-2)/3) (fun _ : Fin 5 => (2 : ℝ)/3) (blockIndex245P.symm i)| ≤ 1) ∧
+    (∀ i, -1 ≤ Sum.elim (fun j : Fin 5 => c2 j/3) (fun _ : Fin 5 => (0 : ℝ)) (blockIndex245P.symm i) ∧ Sum.elim (fun j : Fin 5 => c2 j/3) (fun _ : Fin 5 => (0 : ℝ)) (blockIndex245P.symm i) ≤ 0) ∧
+    (∀ i, -1 ≤ Sum.elim (fun j : Fin 5 => c3 j/3) (fun _ : Fin 5 => (0 : ℝ)) (blockIndex245P.symm i) ∧ Sum.elim (fun j : Fin 5 => c3 j/3) (fun _ : Fin 5 => (0 : ℝ)) (blockIndex245P.symm i) ≤ 0) ∧
+    (∑ i, (Sum.elim (fun j : Fin 5 => (c0 j-2)/3) (fun _ : Fin 5 => (2 : ℝ)/3) (blockIndex245P.symm i)+Sum.elim (fun j : Fin 5 => c2 j/3) (fun _ : Fin 5 => (0 : ℝ)) (blockIndex245P.symm i)+Sum.elim (fun j : Fin 5 => c3 j/3) (fun _ : Fin 5 => (0 : ℝ)) (blockIndex245P.symm i))) = 0 := by
+  obtain ⟨d2,d3,d0,hU,hAlgB,h0,h2,h3,hbal⟩ :=
+    source_block_prerequisites245T A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb
+  refine ⟨?_,?_,?_,?_,?_,h0,h2,h3,hbal⟩
+  · have he : Matrix.reindex blockIndex245P blockIndex245P
+        (Matrix.fromBlocks A2 (0 : Matrix (Fin 5) (Fin 5) ℚ) 0 1) = block245P A2 := rfl
+    exact (congrArg (fun M : Matrix (Fin 10) (Fin 10) ℚ => M.det) he).trans d2
+  · have he : Matrix.reindex blockIndex245P blockIndex245P
+        (Matrix.fromBlocks A3 (0 : Matrix (Fin 5) (Fin 5) ℚ) 0 1) = block245P A3 := rfl
+    exact (congrArg (fun M : Matrix (Fin 10) (Fin 10) ℚ => M.det) he).trans d3
+  · have he : Matrix.reindex blockIndex245P blockIndex245P
+        (Matrix.fromBlocks L (0 : Matrix (Fin 5) (Fin 5) ℝ) 0 1) = block245P L := rfl
+    exact (congrArg (fun M : Matrix (Fin 10) (Fin 10) ℝ => M.det) he).trans d0
+  · change IsUnit (block245P L)
+    exact hU
+  · change ∀ i j, IsAlgebraic ℚ (block245P L i j)
+    exact hAlgB
+
+end M245TChallenges
+#check M245TChallenges.raw_rat_det_one
+#print M245TChallenges.raw_rat_det_one
+#print axioms M245TChallenges.raw_rat_det_one
+#check M245TChallenges.raw_real_det_one
+#print M245TChallenges.raw_real_det_one
+#print axioms M245TChallenges.raw_real_det_one
+#check M245TChallenges.raw_real_algebraic
+#print M245TChallenges.raw_real_algebraic
+#print axioms M245TChallenges.raw_real_algebraic
+#check M245TChallenges.original_prerequisites_expanded
+#print M245TChallenges.original_prerequisites_expanded
+#print axioms M245TChallenges.original_prerequisites_expanded

@@ -1,0 +1,312 @@
+import SubspaceBridge.BinaryAuxCount2
+import SubspaceBridge.BinaryAuxMatrix2
+import SubspaceBridge.BinaryAuxSiegel2
+import SubspaceBridge.BinaryAuxSupport2
+import SubspaceBridge.BinaryAuxSourceIndex2
+import SubspaceBridge.BinaryAuxRational2
+#check JSP000334.BinaryAuxCoefficients
+#print JSP000334.BinaryAuxCoefficients
+#print axioms JSP000334.BinaryAuxCoefficients
+#check JSP000334.binaryAuxCentered
+#print JSP000334.binaryAuxCentered
+#print axioms JSP000334.binaryAuxCentered
+#check JSP000334.BinaryAuxBad
+#print JSP000334.BinaryAuxBad
+#print axioms JSP000334.BinaryAuxBad
+#check JSP000334.BinaryAuxEquations
+#print JSP000334.BinaryAuxEquations
+#print axioms JSP000334.BinaryAuxEquations
+#check JSP000334.binary_aux_dimension
+#print JSP000334.binary_aux_dimension
+#print axioms JSP000334.binary_aux_dimension
+#check JSP000334.binary_aux_bad_iff
+#print JSP000334.binary_aux_bad_iff
+#print axioms JSP000334.binary_aux_bad_iff
+#check JSP000334.binary_block_center_sum
+#print JSP000334.binary_block_center_sum
+#print axioms JSP000334.binary_block_center_sum
+#check JSP000334.binary_block_exp_sum
+#print JSP000334.binary_block_exp_sum
+#print axioms JSP000334.binary_block_exp_sum
+#check JSP000334.binaryBlockEquiv
+#print JSP000334.binaryBlockEquiv
+#print axioms JSP000334.binaryBlockEquiv
+#check JSP000334.binary_block_dimension
+#print JSP000334.binary_block_dimension
+#print axioms JSP000334.binary_block_dimension
+#check JSP000334.binary_aux_exp_moment
+#print JSP000334.binary_aux_exp_moment
+#print axioms JSP000334.binary_aux_exp_moment
+#check JSP000334.binary_aux_bad_bound
+#print JSP000334.binary_aux_bad_bound
+#print axioms JSP000334.binary_aux_bad_bound
+#check JSP000334.binary_aux_six_count
+#print JSP000334.binary_aux_six_count
+#print axioms JSP000334.binary_aux_six_count
+#check JSP000334.binary_aux_six_le_half
+#print JSP000334.binary_aux_six_le_half
+#print axioms JSP000334.binary_aux_six_le_half
+#check JSP000334.binary_aux_strict_surplus
+#print JSP000334.binary_aux_strict_surplus
+#print axioms JSP000334.binary_aux_strict_surplus
+#check JSP000334.RothBlockVars2
+#print JSP000334.RothBlockVars2
+#print axioms JSP000334.RothBlockVars2
+#check JSP000334.binaryAuxExponent
+#print JSP000334.binaryAuxExponent
+#print axioms JSP000334.binaryAuxExponent
+#check JSP000334.binaryAuxPolynomial
+#print JSP000334.binaryAuxPolynomial
+#print axioms JSP000334.binaryAuxPolynomial
+#check JSP000334.binaryBlockHomogeneous
+#print JSP000334.binaryBlockHomogeneous
+#print axioms JSP000334.binaryBlockHomogeneous
+#check JSP000334.binaryDividedDerivative
+#print JSP000334.binaryDividedDerivative
+#print axioms JSP000334.binaryDividedDerivative
+#check JSP000334.binaryScaledChart
+#print JSP000334.binaryScaledChart
+#print axioms JSP000334.binaryScaledChart
+#check JSP000334.binaryScaledSubstitution
+#print JSP000334.binaryScaledSubstitution
+#print axioms JSP000334.binaryScaledSubstitution
+#check JSP000334.binaryPivotDerivative
+#print JSP000334.binaryPivotDerivative
+#print axioms JSP000334.binaryPivotDerivative
+#check JSP000334.binaryFreeExponent
+#print JSP000334.binaryFreeExponent
+#print axioms JSP000334.binaryFreeExponent
+#check JSP000334.binary_exponent_block
+#print JSP000334.binary_exponent_block
+#print axioms JSP000334.binary_exponent_block
+#check JSP000334.binary_exponent_injective
+#print JSP000334.binary_exponent_injective
+#print axioms JSP000334.binary_exponent_injective
+#check JSP000334.binary_polynomial_coeff
+#print JSP000334.binary_polynomial_coeff
+#print axioms JSP000334.binary_polynomial_coeff
+#check JSP000334.binary_polynomial_support
+#print JSP000334.binary_polynomial_support
+#print axioms JSP000334.binary_polynomial_support
+#check JSP000334.binary_polynomial_homogeneous
+#print JSP000334.binary_polynomial_homogeneous
+#print axioms JSP000334.binary_polynomial_homogeneous
+#check JSP000334.binary_polynomial_ne_zero
+#print JSP000334.binary_polynomial_ne_zero
+#print axioms JSP000334.binary_polynomial_ne_zero
+#check JSP000334.binary_derivative_monomial
+#print JSP000334.binary_derivative_monomial
+#print axioms JSP000334.binary_derivative_monomial
+#check JSP000334.binary_scaled_derivative_monomial
+#print JSP000334.binary_scaled_derivative_monomial
+#print axioms JSP000334.binary_scaled_derivative_monomial
+#check JSP000334.binary_scaled_chart_form
+#print JSP000334.binary_scaled_chart_form
+#print axioms JSP000334.binary_scaled_chart_form
+#check JSP000334.binaryAuxSourceHeight
+#print JSP000334.binaryAuxSourceHeight
+#print axioms JSP000334.binaryAuxSourceHeight
+#check JSP000334.binary_source_height_one_le
+#print JSP000334.binary_source_height_one_le
+#print axioms JSP000334.binary_source_height_one_le
+#check JSP000334.binary_source_height_coeff
+#print JSP000334.binary_source_height_coeff
+#print axioms JSP000334.binary_source_height_coeff
+#check JSP000334.binary_exponent_sum
+#print JSP000334.binary_exponent_sum
+#print axioms JSP000334.binary_exponent_sum
+#check JSP000334.binary_binomial_bound
+#print JSP000334.binary_binomial_bound
+#print axioms JSP000334.binary_binomial_bound
+#check JSP000334.binary_scaled_chart_mass
+#print JSP000334.binary_scaled_chart_mass
+#print axioms JSP000334.binary_scaled_chart_mass
+#check JSP000334.binary_transformed_entry_bound
+#print JSP000334.binary_transformed_entry_bound
+#print axioms JSP000334.binary_transformed_entry_bound
+#check JSP000334.binaryAuxPivot
+#print JSP000334.binaryAuxPivot
+#print axioms JSP000334.binaryAuxPivot
+#check JSP000334.binaryAuxMatrix
+#print JSP000334.binaryAuxMatrix
+#print axioms JSP000334.binaryAuxMatrix
+#check JSP000334.binary_matrix_entry_bound
+#print JSP000334.binary_matrix_entry_bound
+#print axioms JSP000334.binary_matrix_entry_bound
+#check JSP000334.binary_dimension_pow_bound
+#print JSP000334.binary_dimension_pow_bound
+#print axioms JSP000334.binary_dimension_pow_bound
+#check JSP000334.binary_matrix_norm_bound
+#print JSP000334.binary_matrix_norm_bound
+#print axioms JSP000334.binary_matrix_norm_bound
+#check JSP000334.binary_siegel_base_bound
+#print JSP000334.binary_siegel_base_bound
+#print axioms JSP000334.binary_siegel_base_bound
+#check JSP000334.binary_bounded_integer_kernel
+#print JSP000334.binary_bounded_integer_kernel
+#print axioms JSP000334.binary_bounded_integer_kernel
+#check JSP000334.binaryPolynomialHeight
+#print JSP000334.binaryPolynomialHeight
+#print axioms JSP000334.binaryPolynomialHeight
+#check JSP000334.binary_polynomial_height_bound
+#print JSP000334.binary_polynomial_height_bound
+#print axioms JSP000334.binary_polynomial_height_bound
+#check JSP000334.binary_auxiliary_coefficient_kernel
+#print JSP000334.binary_auxiliary_coefficient_kernel
+#print axioms JSP000334.binary_auxiliary_coefficient_kernel
+#check JSP000334.binary_derivative_coeff
+#print JSP000334.binary_derivative_coeff
+#print axioms JSP000334.binary_derivative_coeff
+#check JSP000334.binary_transformed_coeff_sum
+#print JSP000334.binary_transformed_coeff_sum
+#print axioms JSP000334.binary_transformed_coeff_sum
+#check JSP000334.binary_transformed_polynomial
+#print JSP000334.binary_transformed_polynomial
+#print axioms JSP000334.binary_transformed_polynomial
+#check JSP000334.binary_matrix_mulVec
+#print JSP000334.binary_matrix_mulVec
+#print axioms JSP000334.binary_matrix_mulVec
+#check JSP000334.binary_weight_block
+#print JSP000334.binary_weight_block
+#print axioms JSP000334.binary_weight_block
+#check JSP000334.binary_weight_pivot
+#print JSP000334.binary_weight_pivot
+#print axioms JSP000334.binary_weight_pivot
+#check JSP000334.binary_chart_block_weight
+#print JSP000334.binary_chart_block_weight
+#print axioms JSP000334.binary_chart_block_weight
+#check JSP000334.binary_chart_pivot_weight
+#print JSP000334.binary_chart_pivot_weight
+#print axioms JSP000334.binary_chart_pivot_weight
+#check JSP000334.binary_scaled_monomial_weighted
+#print JSP000334.binary_scaled_monomial_weighted
+#print axioms JSP000334.binary_scaled_monomial_weighted
+#check JSP000334.binary_pivot_monomial_block_weight
+#print JSP000334.binary_pivot_monomial_block_weight
+#print axioms JSP000334.binary_pivot_monomial_block_weight
+#check JSP000334.binary_transformed_block_weight
+#print JSP000334.binary_transformed_block_weight
+#print axioms JSP000334.binary_transformed_block_weight
+#check JSP000334.binary_transformed_pivot_weight
+#print JSP000334.binary_transformed_pivot_weight
+#print axioms JSP000334.binary_transformed_pivot_weight
+#check JSP000334.binary_transformed_support
+#print JSP000334.binary_transformed_support
+#print axioms JSP000334.binary_transformed_support
+#check JSP000334.binary_pivot_coefficient_zero_iff
+#print JSP000334.binary_pivot_coefficient_zero_iff
+#print axioms JSP000334.binary_pivot_coefficient_zero_iff
+#check JSP000334.binary_matrix_kernel_iff
+#print JSP000334.binary_matrix_kernel_iff
+#print axioms JSP000334.binary_matrix_kernel_iff
+#check JSP000334.binary_derivative_add
+#print JSP000334.binary_derivative_add
+#print axioms JSP000334.binary_derivative_add
+#check JSP000334.binary_source_pderiv_eq_single
+#print JSP000334.binary_source_pderiv_eq_single
+#print axioms JSP000334.binary_source_pderiv_eq_single
+#check JSP000334.binary_source_derivative_comp
+#print JSP000334.binary_source_derivative_comp
+#print axioms JSP000334.binary_source_derivative_comp
+#check JSP000334.binary_source_pderiv_hasse
+#print JSP000334.binary_source_pderiv_hasse
+#print axioms JSP000334.binary_source_pderiv_hasse
+#check JSP000334.binarySourceDerivativeWeight
+#print JSP000334.binarySourceDerivativeWeight
+#print axioms JSP000334.binarySourceDerivativeWeight
+#check JSP000334.binary_source_scaled_chart_pderiv
+#print JSP000334.binary_source_scaled_chart_pderiv
+#print axioms JSP000334.binary_source_scaled_chart_pderiv
+#check JSP000334.binary_source_scaled_chain
+#print JSP000334.binary_source_scaled_chain
+#print axioms JSP000334.binary_source_scaled_chain
+#check JSP000334.binary_source_weight_add
+#print JSP000334.binary_source_weight_add
+#print axioms JSP000334.binary_source_weight_add
+#check JSP000334.binary_source_weight_mono
+#print JSP000334.binary_source_weight_mono
+#print axioms JSP000334.binary_source_weight_mono
+#check JSP000334.binary_source_weight_single
+#print JSP000334.binary_source_weight_single
+#print axioms JSP000334.binary_source_weight_single
+#check JSP000334.binary_source_weight_pivot
+#print JSP000334.binary_source_weight_pivot
+#print axioms JSP000334.binary_source_weight_pivot
+#check JSP000334.binarySourceFreeOrder
+#print JSP000334.binarySourceFreeOrder
+#print axioms JSP000334.binarySourceFreeOrder
+#check JSP000334.binary_source_free_add
+#print JSP000334.binary_source_free_add
+#print axioms JSP000334.binary_source_free_add
+#check JSP000334.binary_source_free_single
+#print JSP000334.binary_source_free_single
+#print axioms JSP000334.binary_source_free_single
+#check JSP000334.binary_source_free_zero_pivot
+#print JSP000334.binary_source_free_zero_pivot
+#print axioms JSP000334.binary_source_free_zero_pivot
+#check JSP000334.binary_source_scaled_mixed_vanishing
+#print JSP000334.binary_source_scaled_mixed_vanishing
+#print axioms JSP000334.binary_source_scaled_mixed_vanishing
+#check JSP000334.binaryKernelChart
+#print JSP000334.binaryKernelChart
+#print axioms JSP000334.binaryKernelChart
+#check JSP000334.binaryKernelRestriction
+#print JSP000334.binaryKernelRestriction
+#print axioms JSP000334.binaryKernelRestriction
+#check JSP000334.binary_scaled_chart_eq
+#print JSP000334.binary_scaled_chart_eq
+#print axioms JSP000334.binary_scaled_chart_eq
+#check JSP000334.binary_source_kernel_chart_form
+#print JSP000334.binary_source_kernel_chart_form
+#print axioms JSP000334.binary_source_kernel_chart_form
+#check JSP000334.binarySourceChartTransport
+#print JSP000334.binarySourceChartTransport
+#print axioms JSP000334.binarySourceChartTransport
+#check JSP000334.binary_source_chart_transport_variable
+#print JSP000334.binary_source_chart_transport_variable
+#print axioms JSP000334.binary_source_chart_transport_variable
+#check JSP000334.binary_source_chart_transport
+#print JSP000334.binary_source_chart_transport
+#print axioms JSP000334.binary_source_chart_transport
+#check JSP000334.binary_source_derivative_zero_of_block_excess
+#print JSP000334.binary_source_derivative_zero_of_block_excess
+#print axioms JSP000334.binary_source_derivative_zero_of_block_excess
+#check JSP000334.binarySourceHighIndex
+#print JSP000334.binarySourceHighIndex
+#print axioms JSP000334.binarySourceHighIndex
+#check JSP000334.binary_pivot_derivative_excess
+#print JSP000334.binary_pivot_derivative_excess
+#print axioms JSP000334.binary_pivot_derivative_excess
+#check JSP000334.binary_kernel_pivot_vanishing
+#print JSP000334.binary_kernel_pivot_vanishing
+#print axioms JSP000334.binary_kernel_pivot_vanishing
+#check JSP000334.binary_kernel_source_high_index
+#print JSP000334.binary_kernel_source_high_index
+#print axioms JSP000334.binary_kernel_source_high_index
+#check JSP000334.binary_auxiliary_integer_three_place
+#print JSP000334.binary_auxiliary_integer_three_place
+#print axioms JSP000334.binary_auxiliary_integer_three_place
+#check JSP000334.binary_common_denominator
+#print JSP000334.binary_common_denominator
+#print axioms JSP000334.binary_common_denominator
+#check JSP000334.binaryIntegerRetained2
+#print JSP000334.binaryIntegerRetained2
+#print axioms JSP000334.binaryIntegerRetained2
+#check JSP000334.binary_integer_retained_cast
+#print JSP000334.binary_integer_retained_cast
+#print axioms JSP000334.binary_integer_retained_cast
+#check JSP000334.binary_integer_retained_det
+#print JSP000334.binary_integer_retained_det
+#print axioms JSP000334.binary_integer_retained_det
+#check JSP000334.binary_integer_form_identity
+#print JSP000334.binary_integer_form_identity
+#print axioms JSP000334.binary_integer_form_identity
+#check JSP000334.binary_denominator_norm_factor
+#print JSP000334.binary_denominator_norm_factor
+#print axioms JSP000334.binary_denominator_norm_factor
+#check JSP000334.roth_scalar_omega65_nonvanishing
+#print axioms JSP000334.roth_scalar_omega65_nonvanishing
+#check JSP000334.roth_full_kernel_omega65_nonvanishing
+#print axioms JSP000334.roth_full_kernel_omega65_nonvanishing
+#check Int.Matrix.exists_ne_zero_int_vec_norm_le
+#print axioms Int.Matrix.exists_ne_zero_int_vec_norm_le

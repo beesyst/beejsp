@@ -1,0 +1,162 @@
+import SubspaceBridge.SourceFramePairing224
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M225ScopedLiteral
+open SourceSatz51Entry218 SourceOriginalVariable10 SourceDualAnnihilation222 SourceDualGeometry219 SourceFrame224
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem source_covolume_index225
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (q : ℝ) (c2 c3 : Fin 10 → ℝ) :
+    let G := originalSourceGroup10 A2 A3 q c2 c3
+    ZLattice.covolume (integerRealImage G) = (G.index : ℝ) ∧
+      0 < G.index ∧ 0 < ZLattice.covolume (integerRealImage G) ∧ G.index ≠ 0 := by
+  dsimp only
+  refine ⟨sourceLattice10_covolume_index A2 A3 _ _,
+    sourceLattice10_index_pos A2 A3 _ _, ZLattice.covolume_pos _ MeasureTheory.volume,
+    Nat.ne_of_gt (sourceLattice10_index_pos A2 A3 _ _)⟩
+
+theorem source_integer_pairing225
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (z : Fin 10 → ℚ) (hz : z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3))
+    (j : Fin 9) :
+    ∃ a : ℤ, pairing219 z (D.u j.castSucc) =
+        ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) * (a : ℚ) ∧
+      (pairing219 z (D.u j.castSucc) : ℝ) =
+        ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) * (a : ℝ) := by
+  have hb := source_covolume_index225 A2 A3 q c2 c3
+  obtain ⟨a, ha⟩ := (scaledDual_pairing219 _ hb.2.2.2 z).mp hz
+    ⟨D.u j.castSucc, D.member j.castSucc⟩
+  refine ⟨a, ha, ?_⟩
+  rw [hb.1, ha]
+  push_cast
+  rfl
+
+theorem source_first_nine_annihilation225
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (hsmall : 20 * sourceMinima10 A2 A3 L hL q hq
+      (fun i => normalizedWidth10 q (A i)) c2 c3 8 < 1)
+    (z : Fin 10 → ℚ) (hz : z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3))
+    (hg : dualGauge222 L hL
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive (ratReal222 z) ≤ 2) :
+    ∀ j : Fin 9, pairing219 z (D.u j.castSucc) = 0 := by
+  intro j
+  obtain ⟨a, ha, har⟩ := source_integer_pairing225 D z hz j
+  have hb := source_rational_pairing224 D z 2 hg j
+  rw [har, abs_mul, abs_of_pos (ZLattice.covolume_pos _ MeasureTheory.volume)] at hb
+  have hd := ZLattice.covolume_pos
+    (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) MeasureTheory.volume
+  have hstrict : |(a : ℝ)| < 1 := by
+    nlinarith [mul_pos hd (sub_pos.mpr hsmall)]
+  have ha0 : a = 0 := by
+    have hbounds := abs_lt.mp hstrict
+    have hlo : (-1 : ℤ) < a := by exact_mod_cast hbounds.1
+    have hhi : a < (1 : ℤ) := by exact_mod_cast hbounds.2
+    omega
+  rw [ha, ha0, Int.cast_zero, mul_zero]
+
+theorem delta_cutoff225 (delta : ℝ) (hdelta : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ q : ℝ, T < q → 20 * q ^ (-delta) < 1 := by
+  obtain ⟨B, hB⟩ := Filter.eventually_atTop.mp
+    ((tendsto_rpow_neg_atTop hdelta).eventually
+      (gt_mem_nhds (show (0 : ℝ) < 1 / 20 by norm_num)))
+  refine ⟨max B 2, lt_of_lt_of_le (by norm_num) (le_max_right _ _), ?_⟩
+  intro q hq
+  have hb := hB q ((le_max_left B 2).trans hq.le)
+  linarith
+
+theorem source_uniform_smallness225
+    (hcut : 20 * q ^ (-delta) < 1)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    0 ≤ sourceMinima10 A2 A3 L hL q hq
+        (fun i => normalizedWidth10 q (A i)) c2 c3 8 ∧
+      20 * sourceMinima10 A2 A3 L hL q hq
+        (fun i => normalizedWidth10 q (A i)) c2 c3 8 < 1 := by
+  exact ⟨((sourceMinima10_pos_mono A2 A3 L hL q hq
+      (fun i => normalizedWidth10 q (A i)) c2 c3).1 8).le,
+    (mul_lt_mul_of_pos_left D.small (by norm_num : (0 : ℝ) < 20)).trans hcut⟩
+
+theorem source_uniform_annihilation225 (delta : ℝ) (hdelta : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧
+      ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+        (hL : IsUnit L) (q : ℝ), T < q → ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+        (z : Fin 10 → ℚ), z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3) →
+        dualGauge222 L hL
+          (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+          (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive (ratReal222 z) ≤ 2 →
+        ∀ j : Fin 9, pairing219 z (D.u j.castSucc) = 0 := by
+  obtain ⟨T, hT, hcut⟩ := delta_cutoff225 delta hdelta
+  refine ⟨T, hT, ?_⟩
+  intro A2 A3 L hL q hqT hq c2 c3 A D z hz hg
+  exact source_first_nine_annihilation225 D
+    (source_uniform_smallness225 (hcut q hqT) D).2 z hz hg
+
+end CompoundFeasibility.M225ScopedLiteral
+
+#print CompoundFeasibility.M225ScopedLiteral.source_covolume_index225
+#print axioms CompoundFeasibility.M225ScopedLiteral.source_covolume_index225
+
+#print CompoundFeasibility.M225ScopedLiteral.source_integer_pairing225
+#print axioms CompoundFeasibility.M225ScopedLiteral.source_integer_pairing225
+
+#print CompoundFeasibility.M225ScopedLiteral.source_first_nine_annihilation225
+#print axioms CompoundFeasibility.M225ScopedLiteral.source_first_nine_annihilation225
+
+#print CompoundFeasibility.M225ScopedLiteral.delta_cutoff225
+#print axioms CompoundFeasibility.M225ScopedLiteral.delta_cutoff225
+
+#print CompoundFeasibility.M225ScopedLiteral.source_uniform_smallness225
+#print axioms CompoundFeasibility.M225ScopedLiteral.source_uniform_smallness225
+
+#print CompoundFeasibility.M225ScopedLiteral.source_uniform_annihilation225
+#print axioms CompoundFeasibility.M225ScopedLiteral.source_uniform_annihilation225
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.SourceSatz51Entry218
+  CompoundFeasibility.SourceOriginalVariable10 CompoundFeasibility.SourceDualAnnihilation222
+  CompoundFeasibility.SourceDualGeometry219 CompoundFeasibility.M225ScopedLiteral
+namespace M225SourceLiteral
+
+theorem original_source_endpoint (delta : ℝ) (hdelta : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧
+      ∀ (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+        (hL : IsUnit L) (q : ℝ), T < q → ∀ (hq : 1 < q) (c2 c3 A : Fin 10 → ℝ)
+        (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℚ),
+        z ∈ (fun v : Fin 10 → ℚ => ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) • v) ''
+          {v | ∀ x : originalSourceGroup10 A2 A3 q c2 c3,
+            ∃ a : ℤ, (∑ i, ((x : Fin 10 → ℤ) i : ℚ) * v i) = (a : ℚ)} →
+        (∀ i, |(L⁻¹.transpose *ᵥ (fun k => (z k : ℝ))) i| ≤
+          2 * (ZLattice.covolume (integerRealImage
+            (originalSourceGroup10 A2 A3 q c2 c3)) / A i)) →
+        ∀ j : Fin 9, (∑ i, (D.u j.castSucc i : ℚ) * z i) = 0 := by
+  obtain ⟨T, hT, h⟩ := source_uniform_annihilation225 delta hdelta
+  refine ⟨T, hT, ?_⟩
+  intro A2 A3 L hL q hqT hq c2 c3 A D z hz hg j
+  have hzg : dualGauge222 L hL
+      (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive (ratReal222 z) ≤ 2 :=
+    (dualGauge_bounds222 L hL _ _ A D.positive (ratReal222 z) 2).mpr hg
+  exact h A2 A3 L hL q hqT hq c2 c3 A D z hz hzg j
+
+theorem original_frame_and_scale
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (z : Fin 10 → ℚ)
+    (hz : z ∈ scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3)) (j : Fin 9) :
+    D.u j.castSucc ∈ originalSourceGroup10 A2 A3 q c2 c3 ∧
+      LinearIndependent ℝ (fun j => integerReal (D.u j)) ∧
+      ∃ a : ℤ, (∑ i, (D.u j.castSucc i : ℚ) * z i) =
+          ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) * (a : ℚ) ∧
+        (((∑ i, (D.u j.castSucc i : ℚ) * z i) : ℚ) : ℝ) =
+          ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) * (a : ℝ) := by
+  exact ⟨D.member j.castSucc, D.independent, source_integer_pairing225 D z hz j⟩
+
+end M225SourceLiteral
+#print M225SourceLiteral.original_source_endpoint
+#print axioms M225SourceLiteral.original_source_endpoint
+#print M225SourceLiteral.original_frame_and_scale
+#print axioms M225SourceLiteral.original_frame_and_scale

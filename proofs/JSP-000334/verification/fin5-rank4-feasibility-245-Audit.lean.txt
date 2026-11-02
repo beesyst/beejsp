@@ -1,0 +1,11 @@
+import SubspaceBridge.SourceFin5Dual245
+#check CompoundFeasibility.SourceRank4_245.last_dual_pairing245
+#print axioms CompoundFeasibility.SourceRank4_245.last_dual_pairing245
+#check CompoundFeasibility.SourceRank4_245.last_dual_nonzero245
+#print axioms CompoundFeasibility.SourceRank4_245.last_dual_nonzero245
+#check CompoundFeasibility.SourceRank4_245.last_dual_kernel245
+#print axioms CompoundFeasibility.SourceRank4_245.last_dual_kernel245
+#check CompoundFeasibility.SourceRank4_245.lattice5_eq_generic245
+#print axioms CompoundFeasibility.SourceRank4_245.lattice5_eq_generic245
+#check CompoundFeasibility.SourceRank4_245.exists_attaining_family245
+#print axioms CompoundFeasibility.SourceRank4_245.exists_attaining_family245

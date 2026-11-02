@@ -1,0 +1,1039 @@
+import SubspaceBridge.SourceDeformation10
+import SubspaceBridge.SourceSelectedCofactor10
+import SubspaceBridge.SourceSelectedCanonical10
+import SubspaceBridge.SourceFrameWitness10
+import SubspaceBridge.SourceSelectedTail10
+import SubspaceBridge.SourceSelectedNormalTransport10
+import SubspaceBridge.SourceOriginalFrame10
+import SubspaceBridge.SourceTailSampling10
+import Mathlib.Topology.MetricSpace.Pseudo.Pi
+import SubspaceBridge.SourceOriginalAuxiliary10
+import SubspaceBridge.SourceFixedSelectorHeight10
+open scoped BigOperators
+namespace CompoundFeasibility.M208LiteralGap10
+noncomputable section
+
+theorem absolute_ratio10 (lam : Fin 10 → ℝ) (hp : ∀ i, 0 < lam i)
+    (hm : Monotone lam) (c Q delta : ℝ) (hc : 0 < c) (hQ : 1 < Q)
+    (hprod : c ≤ ∏ i, lam i) (hsmall : lam 8 < Q^(-delta)) :
+    lam 8 / lam 9 < Q^(-10*delta)/c := by
+  have hnine : (∏ j : Fin 9, lam j.castSucc) ≤ (lam 8)^9 := by
+    calc
+      _ ≤ ∏ _j : Fin 9, lam 8 := Finset.prod_le_prod
+        (fun j _ => (hp _).le) (fun j _ => hm (by change j.val ≤ 8; omega))
+      _ = _ := by simp
+  have htotal : c ≤ (lam 8)^9 * lam 9 := by
+    apply hprod.trans
+    rw [Fin.prod_univ_castSucc]
+    exact mul_le_mul_of_nonneg_right hnine (hp 9).le
+  have hmul : c * lam 8 ≤ (lam 8)^10 * lam 9 := by
+    nlinarith [mul_le_mul_of_nonneg_right htotal (hp 8).le]
+  have hpow : (lam 8)^10 < Q^(-10*delta) := by
+    have hh := pow_lt_pow_left₀ hsmall (hp 8).le (by decide : (10 : ℕ) ≠ 0)
+    convert hh using 1
+    rw [← Real.rpow_natCast, ← Real.rpow_mul (zero_lt_one.trans hQ).le]
+    congr 1
+    ring
+  apply (div_lt_div_iff₀ (hp 9) hc).mpr
+  simpa only [mul_comm c] using hmul.trans_lt (mul_lt_mul_of_pos_right hpow (hp 9))
+
+theorem absolute_gap_cutoff10 (c delta : ℝ) (hc : 0 < c) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (Q : ℝ), T < Q →
+      ∀ (lam : Fin 10 → ℝ), (∀ i, 0 < lam i) → Monotone lam →
+      c ≤ (∏ i, lam i) → lam 8 < Q^(-delta) → lam 8 < lam 9*Q^(-delta) := by
+  obtain ⟨T,hT,hcut⟩ := compound_gap_cutoff42 (1/c) (18*delta) (by positivity)
+  refine ⟨T,hT,?_⟩
+  intro Q hTQ lam hp hm hprod hsmall
+  have hQ : 1 < Q := hT.trans hTQ
+  have hq : 0 < Q := zero_lt_one.trans hQ
+  have hcut' : 1/c < Q^(9*delta) := by
+    convert hcut Q hTQ using 1; congr 1; ring
+  have hr := absolute_ratio10 lam hp hm c Q delta hc hQ hprod hsmall
+  have hle : Q^(-10*delta)/c ≤ Q^(-delta) := by
+    calc
+      _ = (1/c)*Q^(-10*delta) := by ring
+      _ ≤ Q^(9*delta)*Q^(-10*delta) :=
+        mul_le_mul_of_nonneg_right hcut'.le (Real.rpow_pos_of_pos hq _).le
+      _ = _ := by rw [← Real.rpow_add hq]; congr 1; ring
+  have hh := (div_lt_iff₀ (hp 9)).mp (hr.trans_le hle)
+  simpa only [mul_comm] using hh
+
+theorem source_absolute_gap_uniform10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L)
+    (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (Q : ℝ) (hQ : 1 < Q) (c0 c2 c3 : Fin 10 → ℝ),
+      (∀ i, c2 i ≤ 0) → (∀ i, c3 i ≤ 0) →
+      (∑ i, (c0 i+c2 i+c3 i)) = 0 → T < Q →
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 < Q^(-delta) →
+      sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 8 <
+        sourceMinima10 A2 A3 L hL Q hQ c0 c2 c3 9*Q^(-delta) := by
+  obtain ⟨c,C,hc,hC,hbounds⟩ :=
+    source_original_uniform_minima_two_sided10 A2 A3 L h2 h3 hL
+  obtain ⟨T,hT,hgap⟩ := absolute_gap_cutoff10 c delta hc hd
+  refine ⟨T,hT,?_⟩
+  intro Q hQ c0 c2 c3 hc2 hc3 hb hTQ hsmall
+  have hp := sourceMinima10_pos_mono A2 A3 L hL Q hQ c0 c2 c3
+  exact hgap Q hTQ _ hp.1 hp.2 (hbounds Q hQ c0 c2 c3 hc2 hc3 hb).1 hsmall
+
+end
+end CompoundFeasibility.M208LiteralGap10
+
+open scoped BigOperators Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+noncomputable section
+
+def normalizedWidth10 (Q A : ℝ) : ℝ := Real.log A/Real.log Q
+
+def normalizedFinite10 (p : ℕ) (Q : ℝ) (f : ℤ) : ℝ :=
+  (f : ℝ)*Real.log (p : ℝ)/Real.log Q
+
+theorem normalized_width_exact10 (Q A : ℝ) (hQ : 1 < Q) (hA : 0 < A) :
+    Q^(normalizedWidth10 Q A) = A := by
+  rw [normalizedWidth10,Real.rpow_def_of_pos (zero_lt_one.trans hQ)]
+  have he : Real.log Q*(Real.log A/Real.log Q) = Real.log A := by
+    field_simp [(Real.log_pos hQ).ne']
+  rw [he,Real.exp_log hA]
+
+theorem normalized_finite_exact10 (p : ℕ) (hp : 1 < p) (Q : ℝ) (hQ : 1 < Q) (f : ℤ) :
+    Q^(normalizedFinite10 p Q f) = (p : ℝ)^f := by
+  have hpR : (1 : ℝ) < p := by exact_mod_cast hp
+  rw [normalizedFinite10,Real.rpow_def_of_pos (zero_lt_one.trans hQ),
+    ← Real.rpow_intCast (p : ℝ) f,
+    Real.rpow_def_of_pos (zero_lt_one.trans hpR)]
+  congr 1
+  field_simp [(Real.log_pos hQ).ne']
+  ring
+
+theorem normalized_threshold_exact10 (p : ℕ) (hp : 1 < p) (Q : ℝ) (hQ : 1 < Q)
+    (f : ℤ) :
+    Nat.ceil (JSP000334.qThreshold p Q (normalizedFinite10 p Q f)) = (-f).toNat := by
+  have hpR : (1 : ℝ) < p := by exact_mod_cast hp
+  have he : JSP000334.qThreshold p Q (normalizedFinite10 p Q f) = ((-f : ℤ) : ℝ) := by
+    unfold JSP000334.qThreshold normalizedFinite10
+    push_cast
+    field_simp [(Real.log_pos hQ).ne',(Real.log_pos hpR).ne']
+    ring
+  rw [he,Nat.ceil_intCast]
+
+theorem normalized_lattice_exact10 (p : ℕ) [Fact p.Prime] (hp : 1 < p)
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (Q : ℝ) (hQ : 1 < Q)
+    (f : Fin 10 → ℤ) (hf : ∀ i, f i ≤ 0) (x : Fin 10 → ℤ) :
+    x ∈ lattice10 p A (fun i => Nat.ceil
+      (JSP000334.qThreshold p Q (normalizedFinite10 p Q (f i)))) ↔
+      ∀ i, padicNorm p ((A *ᵥ (fun j => (x j : ℚ))) i) ≤ (p : ℚ)^(f i) := by
+  rw [lattice10_spec]
+  simp_rw [normalized_threshold_exact10 p hp Q hQ _,
+    Int.toNat_of_nonneg (neg_nonneg.mpr (hf _)),neg_neg]
+
+theorem normalized_balance10 (Q : ℝ) (A : Fin 10 → ℝ)
+    (hA : ∀ i, 0 < A i) (f2 f3 : Fin 10 → ℤ)
+    (hb : (∏ i, A i*(2 : ℝ)^(f2 i)*(3 : ℝ)^(f3 i)) = 1) :
+    (∑ i, (normalizedWidth10 Q (A i)+normalizedFinite10 2 Q (f2 i)+
+      normalizedFinite10 3 Q (f3 i))) = 0 := by
+  have hpos (i : Fin 10) : 0 < A i*(2 : ℝ)^(f2 i)*(3 : ℝ)^(f3 i) :=
+    mul_pos (mul_pos (hA i) (by positivity)) (by positivity)
+  have h := congrArg Real.log hb
+  rw [Real.log_prod _ _ (fun i _ => (hpos i).ne'),Real.log_one] at h
+  have he (i : Fin 10) : Real.log (A i*(2 : ℝ)^(f2 i)*(3 : ℝ)^(f3 i)) =
+      Real.log (A i)+(f2 i : ℝ)*Real.log 2+(f3 i : ℝ)*Real.log 3 := by
+    rw [Real.log_mul (mul_pos (hA i) (by positivity)).ne' (by positivity : (3 : ℝ)^f3 i ≠ 0),
+      Real.log_mul (hA i).ne' (by positivity : (2 : ℝ)^f2 i ≠ 0),Real.log_zpow,Real.log_zpow]
+  simp_rw [he] at h
+  simp only [normalizedWidth10,normalizedFinite10,← add_div,← Finset.sum_div,Nat.cast_ofNat,h,zero_div]
+
+theorem normalized_finite_bounds10 (p : ℕ) (hp : 1 < p) (Q : ℝ) (hQ : 1 < Q)
+    (f : ℤ) (hf : f ≤ 0) (hsize : (p : ℝ)^(-f) < Q) :
+    -1 < normalizedFinite10 p Q f ∧ normalizedFinite10 p Q f ≤ 0 := by
+  have hpR : (1 : ℝ) < p := by exact_mod_cast hp
+  have hlog := Real.log_lt_log (by positivity : (0 : ℝ) < (p : ℝ)^(-f)) hsize
+  rw [Real.log_zpow,Int.cast_neg] at hlog
+  have hfR : (f : ℝ) ≤ 0 := by exact_mod_cast hf
+  constructor
+  · apply (lt_div_iff₀ (Real.log_pos hQ)).mpr
+    linarith
+  · exact div_nonpos_of_nonpos_of_nonneg
+      (mul_nonpos_of_nonpos_of_nonneg hfR (Real.log_pos hpR).le) (Real.log_pos hQ).le
+
+theorem normalized_source_group_exact10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (Q : ℝ) (hQ : 1 < Q)
+    (f2 f3 : Fin 10 → ℤ) (hf2 : ∀ i, f2 i ≤ 0) (hf3 : ∀ i, f3 i ≤ 0)
+    (x : Fin 10 → ℤ) :
+    x ∈ originalSourceGroup10 A2 A3 Q
+      (fun i => normalizedFinite10 2 Q (f2 i)) (fun i => normalizedFinite10 3 Q (f3 i)) ↔
+      (∀ i, padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) ≤ (2 : ℚ)^(f2 i)) ∧
+      (∀ i, padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) ≤ (3 : ℚ)^(f3 i)) := by
+  change (x ∈ lattice10 2 A2 _ ∧ x ∈ lattice10 3 A3 _) ↔ _
+  rw [normalized_lattice_exact10 2 (by decide) A2 Q hQ f2 hf2,
+    normalized_lattice_exact10 3 (by decide) A3 Q hQ f3 hf3]
+  norm_num only [Nat.cast_ofNat]
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Matrix
+namespace CompoundFeasibility.M208LiteralBudget10
+open SourceSelectedUpper10 SourceSelectedSet10 OriginalDual10
+noncomputable section
+
+theorem complement_product10 (a b d : Fin 10 → ℝ)
+    (ha : ∀ i, 0 < a i) (hb : ∀ i, 0 < b i) (hd : ∀ i, 0 < d i)
+    (hbal : (∏ i, a i)*(∏ i, b i)*(∏ i, d i) = 1) (s : MixedIndex10) :
+    (∏ k : Fin 9, a ((s 0).succAbove k)) *
+      (∏ k : Fin 9, b ((s 1).succAbove k)) *
+      (∏ k : Fin 9, d ((s 2).succAbove k)) = (a (s 0)*b (s 1)*d (s 2))⁻¹ := by
+  rw [inv_eq_one_div,eq_div_iff (mul_pos (mul_pos (ha _) (hb _)) (hd _)).ne']
+  rw [Fin.prod_univ_succAbove a (s 0),Fin.prod_univ_succAbove b (s 1),
+    Fin.prod_univ_succAbove d (s 2)] at hbal
+  nlinarith only [hbal]
+
+theorem absolute_selected_budget10 (Q delta N : ℝ) (hQ : 1 < Q)
+    (hsmall : N ≤ Q^(-9*delta))
+    (a b d : Fin 10 → ℝ) (ha : ∀ i, 0 < a i) (hb : ∀ i, 0 < b i) (hd : ∀ i, 0 < d i)
+    (hbal : (∏ i, a i)*(∏ i, b i)*(∏ i, d i) = 1)
+    (s : MixedIndex10) (hsel : 1 ≤ a (s 0)*b (s 1)*d (s 2)*Q^(delta/2)) :
+    (362880*N*(∏ k : Fin 9, a ((s 0).succAbove k)))*
+      (∏ k : Fin 9, b ((s 1).succAbove k))*
+      (∏ k : Fin 9, d ((s 2).succAbove k)) ≤ 362880*Q^(-17*delta/2) := by
+  have hq : 0 < Q := zero_lt_one.trans hQ
+  have hpos := mul_pos (mul_pos (ha (s 0)) (hb (s 1))) (hd (s 2))
+  have hinv : (a (s 0)*b (s 1)*d (s 2))⁻¹ ≤ Q^(delta/2) := by
+    rw [inv_eq_one_div]
+    apply (div_le_iff₀ hpos).mpr
+    simpa only [mul_comm] using hsel
+  calc
+    _ = 362880*N*((a (s 0)*b (s 1)*d (s 2))⁻¹) := by
+      rw [← complement_product10 a b d ha hb hd hbal s]
+      ring
+    _ ≤ 362880*Q^(-9*delta)*Q^(delta/2) :=
+      mul_le_mul (mul_le_mul_of_nonneg_left hsmall (by norm_num)) hinv
+        (inv_nonneg.mpr hpos.le) (by positivity)
+    _ = _ := by rw [mul_assoc,← Real.rpow_add hq]; congr 2; ring
+
+end
+end CompoundFeasibility.M208LiteralBudget10
+
+open scoped BigOperators Matrix
+namespace CompoundFeasibility.M208LiteralBudget10
+open SourceSelectedUpper10 SourceSelectedSet10 OriginalDual10 M208LiteralVariable10
+noncomputable section
+
+theorem finite_integer_cofactor10 (p : ℕ) [Fact p.Prime] (hp : 1 < p)
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1)
+    (Q : ℝ) (hQ : 1 < Q) (f : Fin 10 → ℤ) (hf : ∀ i, f i ≤ 0)
+    (u : Fin 10 → Fin 10 → ℤ)
+    (hu : ∀ j i, padicNorm p ((A *ᵥ (fun k => (u j k : ℚ))) i) ≤ (p : ℚ)^(f i))
+    (i : Fin 10) :
+    ‖((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ
+      (fun k => (integerLastDual10 u k : ℚ_[p]))) i‖ ≤
+        ∏ k : Fin 9, (p : ℝ)^(f (i.succAbove k)) := by
+  have hm (j) := (normalized_lattice_exact10 p hp A Q hQ f hf (u j)).mpr (hu j)
+  have h := finite_cofactor_rounded10 p A hA Q (fun i => normalizedFinite10 p Q (f i)) u hm i
+  have he (k : Fin 10) : roundedRadius10 p Q (normalizedFinite10 p Q (f k)) = (p : ℝ)^(f k) := by
+    unfold roundedRadius10
+    rw [normalized_threshold_exact10 p hp Q hQ]
+    rw [← zpow_natCast,Int.toNat_of_nonneg (neg_nonneg.mpr (hf k)),zpow_neg,inv_inv]
+  simpa only [he] using h
+
+theorem original_absolute_cofactor_upper10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (Q delta : ℝ) (hQ : 1 < Q) (A : Fin 10 → ℝ) (hA : ∀ i, 0 < A i)
+    (f2 f3 : Fin 10 → ℤ) (hf2 : ∀ i, f2 i ≤ 0) (hf3 : ∀ i, f3 i ≤ 0)
+    (hbal : (∏ i, A i*(2 : ℝ)^(f2 i)*(3 : ℝ)^(f3 i)) = 1)
+    (lam : Fin 10 → ℝ) (hp : ∀ i, 0 < lam i) (hm : Monotone lam)
+    (hsmall : lam 8 < Q^(-delta)) (u : Fin 10 → Fin 10 → ℤ)
+    (hreal : ∀ (j : Fin 9) i, |(L *ᵥ integerReal (u j.castSucc)) i| ≤ lam j.castSucc*A i)
+    (hu2 : ∀ j i, padicNorm 2 ((A2 *ᵥ (fun k => (u j k : ℚ))) i) ≤ (2 : ℚ)^(f2 i))
+    (hu3 : ∀ j i, padicNorm 3 ((A3 *ᵥ (fun k => (u j k : ℚ))) i) ≤ (3 : ℚ)^(f3 i))
+    (s : MixedIndex10) (hsel : 1 ≤ A (s 0)*(2 : ℝ)^(f2 (s 1))*(3 : ℝ)^(f3 (s 2))*Q^(delta/2)) :
+    mixedProduct10 A2 A3 L (integerLastDual10 u) s ≤ 362880*Q^(-17*delta/2) := by
+  have h0 := real_cofactor_fin10 L hL u (fun j => lam j.castSucc) A hreal (s 0)
+  rw [real_dual_cast_norm10] at h0
+  have h2b := finite_integer_cofactor10 2 (by decide) A2 h2 Q hQ f2 hf2 u hu2 (s 1)
+  have h3b := finite_integer_cofactor10 3 (by decide) A3 h3 Q hQ f3 hf3 u hu3 (s 2)
+  have hn : (∏ j : Fin 9, lam j.castSucc) ≤ Q^(-9*delta) := by
+    calc
+      _ ≤ ∏ _j : Fin 9, Q^(-delta) := Finset.prod_le_prod
+        (fun j _ => (hp _).le) (fun j _ => (hm (by change j.val ≤ 8; omega)).trans hsmall.le)
+      _ = _ := by
+        simp only [Finset.prod_const,Finset.card_univ,Fintype.card_fin]
+        rw [← Real.rpow_natCast,← Real.rpow_mul (zero_lt_one.trans hQ).le]
+        congr 1
+        ring
+  have hb : (∏ i, A i)*(∏ i, (2 : ℝ)^(f2 i))*(∏ i, (3 : ℝ)^(f3 i)) = 1 := by
+    simpa only [Finset.prod_mul_distrib] using hbal
+  rw [finite_dual_norm_canonical10 2 A2 h2] at h2b
+  rw [finite_dual_norm_canonical10 3 A3 h3] at h3b
+  apply (mixedProduct10_le_canonical_bounds A2 A3 L h2 h3 (integerLastDual10 u) s
+    _ _ _ h0 h2b h3b).trans
+  exact absolute_selected_budget10 Q delta _ hQ hn A _ _ hA (fun _ => by positivity)
+    (fun _ => by positivity) hb s hsel
+
+end
+end CompoundFeasibility.M208LiteralBudget10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10 M208LiteralBudget10 SourceSampling10
+noncomputable section
+
+structure OriginalData10 (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (L : Matrix (Fin 10) (Fin 10) ℝ) (hL : IsUnit L) (Q : ℝ) (hQ : 1 < Q)
+    (delta : ℝ) (S0 : Finset MixedIndex10) where
+  A : Fin 10 → ℝ
+  positive : ∀ i, 0 < A i
+  f2 : Fin 10 → ℤ
+  f3 : Fin 10 → ℤ
+  nonpos2 : ∀ i, f2 i ≤ 0
+  nonpos3 : ∀ i, f3 i ≤ 0
+  sizes : ∀ i, A i < Q ∧ (A i)⁻¹ < Q ∧ (2 : ℝ)^(-f2 i) < Q ∧ (3 : ℝ)^(-f3 i) < Q
+  balance : (∏ i, A i*(2 : ℝ)^(f2 i)*(3 : ℝ)^(f3 i)) = 1
+  selected : ∀ s ∈ S0, 1 ≤ A (s 0)*(2 : ℝ)^(f2 (s 1))*(3 : ℝ)^(f3 (s 2))*Q^(delta/2)
+  u : Fin 10 → Fin 10 → ℤ
+  member2 : ∀ j i, padicNorm 2 ((A2 *ᵥ (fun k => (u j k : ℚ))) i) ≤ (2 : ℚ)^(f2 i)
+  member3 : ∀ j i, padicNorm 3 ((A3 *ᵥ (fun k => (u j k : ℚ))) i) ≤ (3 : ℚ)^(f3 i)
+  independent : LinearIndependent ℝ (fun j => integerReal (u j : Fin 10 → ℤ))
+  attaining : ∀ j, coordinateGauge10 (originalCoordinates10 L hL Q hQ (fun i => normalizedWidth10 Q (A i)))
+    (integerReal (u j : Fin 10 → ℤ)) = sourceMinima10 A2 A3 L hL Q hQ
+      (fun i => normalizedWidth10 Q (A i)) (fun i => normalizedFinite10 2 Q (f2 i))
+      (fun i => normalizedFinite10 3 Q (f3 i)) j
+  small : sourceMinima10 A2 A3 L hL Q hQ
+    (fun i => normalizedWidth10 Q (A i)) (fun i => normalizedFinite10 2 Q (f2 i))
+    (fun i => normalizedFinite10 3 Q (f3 i)) 8 < Q^(-delta)
+
+theorem original_data_cofactor_upper10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset MixedIndex10}
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (s : MixedIndex10) (hs : s ∈ S0) :
+    mixedProduct10 A2 A3 L (integerLastDual10 (fun j => (D.u j : Fin 10 → ℤ))) s ≤
+      362880*Q^(-17*delta/2) := by
+  have hp := sourceMinima10_pos_mono A2 A3 L hL Q hQ
+    (fun i => normalizedWidth10 Q (D.A i)) (fun i => normalizedFinite10 2 Q (D.f2 i))
+    (fun i => normalizedFinite10 3 Q (D.f3 i))
+  let u' : Fin 10 → originalSourceGroup10 A2 A3 Q
+      (fun i => normalizedFinite10 2 Q (D.f2 i)) (fun i => normalizedFinite10 3 Q (D.f3 i)) :=
+    fun j => ⟨D.u j,(normalized_source_group_exact10 A2 A3 Q hQ D.f2 D.f3 D.nonpos2 D.nonpos3
+      (D.u j)).mpr ⟨D.member2 j,D.member3 j⟩⟩
+  have hpoint := source_original_coordinate_bounds10 A2 A3 L hL Q hQ
+    (fun i => normalizedWidth10 Q (D.A i)) (fun i => normalizedFinite10 2 Q (D.f2 i))
+    (fun i => normalizedFinite10 3 Q (D.f3 i)) u' D.attaining
+  simp_rw [normalized_width_exact10 Q _ hQ (D.positive _)] at hpoint
+  exact original_absolute_cofactor_upper10 A2 A3 L h2 h3 hLd Q delta hQ D.A D.positive
+    D.f2 D.f3 D.nonpos2 D.nonpos3 D.balance _ hp.1 hp.2 D.small
+    (fun j => (D.u j : Fin 10 → ℤ)) hpoint D.member2 D.member3 s (D.selected s hs)
+
+theorem original_absolute_short_frame10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : IsUnit A2) (h3 : IsUnit A3) (hL : IsUnit L) (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (Q : ℝ) (hQ : 1 < Q) (S0 : Finset MixedIndex10)
+      (D : OriginalData10 A2 A3 L hL Q hQ delta S0), T < Q →
+      Nonempty (OriginalFrameWitness10 A2 A3 L Q delta
+        (fun i => normalizedFinite10 2 Q (D.f2 i)) (fun i => normalizedFinite10 3 Q (D.f3 i))
+        (fun j => (D.u j : Fin 10 → ℤ))) := by
+  obtain ⟨T1,hT1,hgap⟩ := M208LiteralGap10.source_absolute_gap_uniform10 A2 A3 L h2 h3 hL delta hd
+  obtain ⟨T2,hT2,hframe⟩ := original_frame_witness10 A2 A3 L h2 h3 hL delta hd
+  refine ⟨max T1 T2,hT1.trans_le (le_max_left _ _),?_⟩
+  intro Q hQ S0 D hTQ
+  have hc0 (i) : |normalizedWidth10 Q (D.A i)| ≤ 1 :=
+    abs_le.mpr ⟨(logWeight10_bounds Q _ hQ (D.positive i) (D.sizes i).1 (D.sizes i).2.1).1.le,
+      (logWeight10_bounds Q _ hQ (D.positive i) (D.sizes i).1 (D.sizes i).2.1).2.le⟩
+  have hc2 (i) := normalized_finite_bounds10 2 (by decide) Q hQ (D.f2 i) (D.nonpos2 i) (D.sizes i).2.2.1
+  have hc3 (i) := normalized_finite_bounds10 3 (by decide) Q hQ (D.f3 i) (D.nonpos3 i) (D.sizes i).2.2.2
+  have hb := normalized_balance10 Q D.A D.positive D.f2 D.f3 D.balance
+  have hg := hgap Q hQ _ _ _ (fun i => (hc2 i).2) (fun i => (hc3 i).2) hb
+    ((le_max_left _ _).trans_lt hTQ) D.small
+  let u' : Fin 10 → originalSourceGroup10 A2 A3 Q
+      (fun i => normalizedFinite10 2 Q (D.f2 i)) (fun i => normalizedFinite10 3 Q (D.f3 i)) :=
+    fun j => ⟨D.u j,(normalized_source_group_exact10 A2 A3 Q hQ D.f2 D.f3 D.nonpos2 D.nonpos3
+      (D.u j)).mpr ⟨D.member2 j,D.member3 j⟩⟩
+  exact hframe Q hQ _ _ _ hc0 (fun i => ⟨(hc2 i).1.le,(hc2 i).2⟩)
+    (fun i => ⟨(hc3 i).1.le,(hc3 i).2⟩) hb ((le_max_right _ _).trans_lt hTQ)
+    u' D.independent D.attaining hg
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10 SourceSampling10 SourceGlobalSelected10
+noncomputable section
+
+theorem original_fixed_selector_bad_tail10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (h2u : IsUnit A2) (h3u : IsUnit A3) (hL : IsUnit L)
+    (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (U : Set ℝ) (hQU : ∀ q ∈ U, 1 < q)
+      (D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0),
+      (¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0,
+        mixedProduct10 A2 A3 L (integerLastDual10 (fun j => ((D q).u j : Fin 10 → ℤ))) s = 0) →
+      ∀ B : ℝ, ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+        ∀ q : V, max T B < q.val ∧
+          (∃ s ∈ S0, mixedProduct10 A2 A3 L
+            (integerLastDual10 (fun j => ((D ⟨q.val,hVU q.property⟩).u j : Fin 10 → ℤ))) s ≠ 0) ∧
+          (∀ s ∈ S0, mixedProduct10 A2 A3 L
+            (integerLastDual10 (fun j => ((D ⟨q.val,hVU q.property⟩).u j : Fin 10 → ℤ))) s ≤
+              362880*q.val^(-17*delta/2)) ∧
+          Nonempty (OriginalFrameWitness10 A2 A3 L q.val delta
+            (fun i => normalizedFinite10 2 q.val ((D ⟨q.val,hVU q.property⟩).f2 i))
+            (fun i => normalizedFinite10 3 q.val ((D ⟨q.val,hVU q.property⟩).f3 i))
+            (fun j => ((D ⟨q.val,hVU q.property⟩).u j : Fin 10 → ℤ))) := by
+  obtain ⟨T,hT,hframe⟩ := original_absolute_short_frame10 A2 A3 L h2u h3u hL delta hd
+  refine ⟨T,hT,?_⟩
+  intro U hQU D hfail B
+  let P : U → MixedIndex10 → ℝ := fun q s => mixedProduct10 A2 A3 L
+    (integerLastDual10 (fun j => ((D q).u j : Fin 10 → ℤ))) s
+  let W := {q : ℝ | ∃ hq : q ∈ U, ∃ s ∈ S0, P ⟨q,hq⟩ s ≠ 0}
+  have hW : ¬ BddAbove W := unbounded_selected_nonzero_tail10 U (fun _ => S0) P hfail
+  let V := {q : ℝ | q ∈ W ∧ max T B < q}
+  have hVU : V ⊆ U := fun q hq => hq.1.choose
+  have hV : ¬ BddAbove V := by
+    rintro ⟨C,hC⟩
+    obtain ⟨q,hq,hlarge⟩ := not_bddAbove_iff.mp hW (max C (max T B))
+    have hqV : q ∈ V := ⟨hq,(le_max_right _ _).trans_lt hlarge⟩
+    exact (not_lt_of_ge (hC hqV)) ((le_max_left _ _).trans_lt hlarge)
+  refine ⟨V,hVU,hV,?_⟩
+  intro q
+  have hq := q.property
+  obtain ⟨hU,s,hs,hn⟩ := hq.1
+  refine ⟨hq.2,⟨s,hs,hn⟩,?_,?_⟩
+  · intro s hs
+    exact original_data_cofactor_upper10 h2 h3 hLd (D ⟨q.val,hVU q.property⟩) s hs
+  · exact hframe q.val (hQU q.val (hVU q.property)) S0 (D ⟨q.val,hVU q.property⟩)
+      ((le_max_left _ _).trans_lt hq.2)
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10 SourceGlobalSelected10
+noncomputable section
+
+theorem original_data_primitive_upper_nonzero10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset MixedIndex10}
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (M a : Fin 10 → ℤ)
+    (hM : M ≠ 0) (ha : (∑ i, a i*M i) = 1)
+    (hann : ∀ j : Fin 9, (∑ i, M i*D.u j.castSucc i) = 0) :
+    ∃ g : ℤ, g ≠ 0 ∧ integerLastDual10 D.u = (fun i => g*M i) ∧
+      ∀ s ∈ S0, mixedProduct10 A2 A3 L M s ≤ 362880*Q^(-17*delta/2) ∧
+        (mixedProduct10 A2 A3 L (integerLastDual10 D.u) s ≠ 0 ↔
+          mixedProduct10 A2 A3 L M s ≠ 0) := by
+  let f : (Fin 10 → ℚ) →ₗ[ℚ] (Fin 10 → ℝ) :=
+    LinearMap.pi (fun i => (Algebra.linearMap ℚ ℝ).comp (LinearMap.proj i))
+  have hvQ : LinearIndependent ℚ (fun j i => (D.u j i : ℚ)) := by
+    apply LinearIndependent.of_comp f
+    convert D.independent.restrict_scalars' ℚ using 1
+  have hg := SourcePrimitiveHeight10.primitive_original_cofactor_factor10 D.u hvQ M a hM ha hann
+  let g : ℤ := ∑ i, a i*integerLastDual10 D.u i
+  have hscale : integerLastDual10 D.u = fun i => g*M i := funext hg.2.1
+  refine ⟨g,hg.1,hscale,?_⟩
+  intro s hs
+  have hup := original_data_cofactor_upper10 h2 h3 hLd D s hs
+  have hle := mixedProduct10_le_int_mul10 A2 A3 L g hg.1 M s
+  rw [← hscale] at hle
+  refine ⟨hle.trans hup,?_⟩
+  rw [hscale]
+  exact mixedProduct10_int_mul_ne_zero_iff A2 A3 L g hg.1 M s
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M208LiteralVariable10
+
+theorem select_unbounded_original_weights10 (U : Set ℝ) (hU : ¬ BddAbove U)
+    (alpha : ℝ → (Fin 3 × Fin 10) → ℝ) (hb : ∀ q ∈ U, ∀ i, |alpha q i| ≤ 1)
+    (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ V : Set ℝ, V ⊆ U ∧ ¬ BddAbove V ∧ ∃ q0 ∈ V,
+      ∀ q ∈ V, ∀ i, |alpha q i-alpha q0 i| < epsilon := by
+  let B : Set ((Fin 3 × Fin 10) → ℝ) := Set.pi Set.univ (fun _ => Set.Icc (-1 : ℝ) 1)
+  have hB : IsCompact B := isCompact_univ_pi (fun _ => isCompact_Icc)
+  obtain ⟨S,hSB,hS,hcover⟩ := hB.finite_cover_balls (show 0 < epsilon/2 by positivity)
+  let F : ((Fin 3 × Fin 10) → ℝ) → Set ℝ := fun x => {q | q ∈ U ∧ alpha q ∈ Metric.ball x (epsilon/2)}
+  have hUF : U ⊆ ⋃ x ∈ S, F x := by
+    intro q hq
+    have ha : alpha q ∈ B := by
+      intro i hi
+      exact abs_le.mp (hb q hq i)
+    obtain ⟨x,hx,hqx⟩ := Set.mem_iUnion₂.mp (hcover ha)
+    exact Set.mem_iUnion₂.mpr ⟨x,hx,hq,hqx⟩
+  have hex : ∃ x ∈ S, ¬ BddAbove (F x) := by
+    by_contra hn
+    push_neg at hn
+    exact hU (((hS.bddAbove_biUnion).mpr hn).mono hUF)
+  obtain ⟨x,hx,hF⟩ := hex
+  obtain ⟨q0,h0,_⟩ := not_bddAbove_iff.mp hF 0
+  refine ⟨F x,fun q hq => hq.1,hF,q0,h0,?_⟩
+  intro q hq i
+  have hqi := (dist_pi_lt_iff (show 0 < epsilon/2 by positivity)).mp hq.2 i
+  have h0i := (dist_pi_lt_iff (show 0 < epsilon/2 by positivity)).mp h0.2 i
+  rw [Real.dist_eq] at hqi h0i
+  calc
+    |alpha q i-alpha q0 i| ≤ |alpha q i-x i|+|x i-alpha q0 i| := abs_sub_le _ _ _
+    _ < epsilon/2+epsilon/2 := add_lt_add hqi (by simpa only [abs_sub_comm] using h0i)
+    _ = epsilon := by ring
+
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+noncomputable section
+
+def finiteUpper10 (x e : ℝ) : ℝ := min 0 (x+e)
+
+def balanceCorrection10 (x : Fin 3 → Fin 10 → ℝ) (e : ℝ) : ℝ :=
+  ((∑ i, (finiteUpper10 (x 1 i) e-x 1 i))+(∑ i, (finiteUpper10 (x 2 i) e-x 2 i)))/10
+
+def fixedOriginalWeights10 (x : Fin 3 → Fin 10 → ℝ) (e : ℝ) : Fin 3 → Fin 10 → ℝ :=
+  ![fun i => x 0 i-balanceCorrection10 x e,
+    fun i => finiteUpper10 (x 1 i) e,fun i => finiteUpper10 (x 2 i) e]
+
+theorem finite_upper_bounds10 (x e : ℝ) (hx : x ≤ 0) (he : 0 ≤ e) :
+    x ≤ finiteUpper10 x e ∧ finiteUpper10 x e ≤ 0 ∧ finiteUpper10 x e-x ≤ e := by
+  unfold finiteUpper10
+  exact ⟨le_min hx (by linarith),min_le_left _ _,by have := min_le_right 0 (x+e); linarith⟩
+
+theorem fixed_original_weights10 (x : Fin 3 → Fin 10 → ℝ) (e : ℝ)
+    (he : 0 < e) (he1 : e ≤ 1/40) (hx : ∀ tau i, |x tau i| ≤ 1/5)
+    (hx1 : ∀ i, x 1 i ≤ 0) (hx2 : ∀ i, x 2 i ≤ 0)
+    (hbal : (∑ tau, ∑ i, x tau i) = 0) :
+    let c := fixedOriginalWeights10 x e
+    (∀ tau i, |c tau i| ≤ 1) ∧ (∑ tau, ∑ i, c tau i) = 0 ∧
+      (∀ i, c 1 i ≤ 0 ∧ c 2 i ≤ 0) ∧
+      (∀ i, c 0 i+2*e ≥ x 0 i) ∧
+      (∀ i, x 1 i ≤ c 1 i ∧ x 2 i ≤ c 2 i) := by
+  have h1 (i) := finite_upper_bounds10 (x 1 i) e (hx1 i) he.le
+  have h2 (i) := finite_upper_bounds10 (x 2 i) e (hx2 i) he.le
+  have hc : 0 ≤ balanceCorrection10 x e ∧ balanceCorrection10 x e ≤ 2*e := by
+    have hs (tau : Fin 3) (ht : ∀ i, x tau i ≤ 0) :
+        0 ≤ (∑ i, (finiteUpper10 (x tau i) e-x tau i)) ∧
+          (∑ i, (finiteUpper10 (x tau i) e-x tau i)) ≤ 10*e := by
+      constructor
+      · exact Finset.sum_nonneg (fun i _ => sub_nonneg.mpr (finite_upper_bounds10 _ _ (ht i) he.le).1)
+      · calc
+          _ ≤ ∑ _i : Fin 10, e := Finset.sum_le_sum (fun i _ => (finite_upper_bounds10 _ _ (ht i) he.le).2.2)
+          _ = _ := by simp
+    unfold balanceCorrection10
+    constructor <;> linarith [(hs 1 hx1).1,(hs 1 hx1).2,(hs 2 hx2).1,(hs 2 hx2).2]
+  dsimp only [fixedOriginalWeights10]
+  refine ⟨?_,?_,fun i => ⟨(h1 i).2.1,(h2 i).2.1⟩,fun i => ?_,fun i => ⟨(h1 i).1,(h2 i).1⟩⟩
+  · intro tau i
+    fin_cases tau
+    · change |x 0 i-balanceCorrection10 x e| ≤ 1
+      exact abs_le.mpr ⟨by linarith [(abs_le.mp (hx 0 i)).1],by linarith [(abs_le.mp (hx 0 i)).2]⟩
+    · change |finiteUpper10 (x 1 i) e| ≤ 1
+      exact abs_le.mpr ⟨by linarith [(abs_le.mp (hx 1 i)).1,(h1 i).1],by linarith [(h1 i).2.1]⟩
+    · change |finiteUpper10 (x 2 i) e| ≤ 1
+      exact abs_le.mpr ⟨by linarith [(abs_le.mp (hx 2 i)).1,(h2 i).1],by linarith [(h2 i).2.1]⟩
+  · simp only [Fin.sum_univ_three,Matrix.cons_val_zero,Matrix.cons_val_one,Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons,Nat.cast_ofNat,
+      Finset.sum_sub_distrib,Finset.sum_const,Finset.card_univ,Fintype.card_fin,nsmul_eq_mul,
+      balanceCorrection10]
+    simp only [Fin.sum_univ_three] at hbal
+    linarith
+  · change x 0 i-balanceCorrection10 x e+2*e ≥ x 0 i
+    linarith
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+noncomputable section
+
+theorem select_original_balanced_weights10 (U : Set ℝ) (hU : ¬ BddAbove U)
+    (a : U → Fin 3 → Fin 10 → ℝ) (ha : ∀ q tau i, |a q tau i| ≤ 1/5)
+    (ha1 : ∀ q i, a q 1 i ≤ 0) (ha2 : ∀ q i, a q 2 i ≤ 0)
+    (hbal : ∀ q, (∑ tau, ∑ i, a q tau i) = 0) (delta : ℝ) (hd : 0 < delta) :
+    ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+      ∃ e : ℝ, 0 < e ∧ e < 1 ∧ ∃ c : Fin 3 → Fin 10 → ℝ,
+        (∀ tau i, |c tau i| ≤ 1) ∧ (∑ tau, ∑ i, c tau i) = 0 ∧
+        (∀ i, c 1 i ≤ 0 ∧ c 2 i ≤ 0) ∧
+        ∀ q : V, ∀ i, a ⟨q.val,hVU q.property⟩ 0 i-delta/5 ≤ c 0 i-e ∧
+          a ⟨q.val,hVU q.property⟩ 1 i ≤ c 1 i ∧ a ⟨q.val,hVU q.property⟩ 2 i ≤ c 2 i := by
+  let e := min (delta/40) (1/40 : ℝ)
+  have he : 0 < e := lt_min (by positivity) (by norm_num)
+  have he1 : e ≤ 1/40 := min_le_right _ _
+  have hed : 4*e ≤ delta/5 := by have := min_le_left (delta/40) (1/40 : ℝ); linarith
+  let alpha : ℝ → (Fin 3 × Fin 10) → ℝ := fun q i => if hq : q ∈ U then a ⟨q,hq⟩ i.1 i.2 else 0
+  have halpha (q : U) (tau : Fin 3) (i : Fin 10) : alpha q.val (tau,i) = a q tau i := by simp only [alpha,dif_pos q.property]
+  obtain ⟨V,hVU,hV,q0,hq0,hclose⟩ := select_unbounded_original_weights10 U hU alpha
+    (fun q hq i => by rw [halpha ⟨q,hq⟩ i.1 i.2]; exact (ha ⟨q,hq⟩ i.1 i.2).trans (by norm_num)) e he
+  let x := a ⟨q0,hVU hq0⟩
+  have hc := fixed_original_weights10 x e he he1 (ha ⟨q0,hVU hq0⟩) (ha1 ⟨q0,hVU hq0⟩)
+    (ha2 ⟨q0,hVU hq0⟩) (hbal ⟨q0,hVU hq0⟩)
+  refine ⟨V,hVU,hV,e,he,by linarith,fixedOriginalWeights10 x e,hc.1,hc.2.1,hc.2.2.1,?_⟩
+  intro q i
+  have hnear (tau : Fin 3) : a ⟨q.val,hVU q.property⟩ tau i ≤ x tau i+e := by
+    have h := (abs_lt.mp (hclose q.val q.property (tau,i))).2
+    rw [halpha ⟨q.val,hVU q.property⟩ tau i,halpha ⟨q0,hVU hq0⟩ tau i] at h
+    linarith
+  refine ⟨?_,?_,?_⟩
+  · linarith [(hc.2.2.2.1 i),hnear 0]
+  · change a ⟨q.val,hVU q.property⟩ 1 i ≤ min 0 (x 1 i+e)
+    exact le_min (ha1 _ i) (hnear 1)
+  · change a ⟨q.val,hVU q.property⟩ 2 i ≤ min 0 (x 2 i+e)
+    exact le_min (ha2 _ i) (hnear 2)
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open OriginalDual10 SourceSampling10 OriginalDeformation10
+noncomputable section
+
+def originalPowerWeights10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) : Fin 3 → Fin 10 → ℝ :=
+  ![fun i => normalizedWidth10 Q (D.A i)/5,
+    fun i => normalizedFinite10 2 Q (D.f2 i)/5,fun i => normalizedFinite10 3 Q (D.f3 i)/5]
+
+theorem original_power_weights_bounds10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    (∀ tau i, |originalPowerWeights10 D tau i| ≤ 1/5) ∧
+      (∀ i, originalPowerWeights10 D 1 i ≤ 0) ∧ (∀ i, originalPowerWeights10 D 2 i ≤ 0) ∧
+      (∑ tau, ∑ i, originalPowerWeights10 D tau i) = 0 := by
+  have h0 (i) := logWeight10_bounds Q (D.A i) hQ (D.positive i) (D.sizes i).1 (D.sizes i).2.1
+  have h1 (i) := normalized_finite_bounds10 2 (by decide) Q hQ (D.f2 i) (D.nonpos2 i) (D.sizes i).2.2.1
+  have h2 (i) := normalized_finite_bounds10 3 (by decide) Q hQ (D.f3 i) (D.nonpos3 i) (D.sizes i).2.2.2
+  refine ⟨?_,fun i => div_nonpos_of_nonpos_of_nonneg (h1 i).2 (by norm_num),
+    fun i => div_nonpos_of_nonpos_of_nonneg (h2 i).2 (by norm_num),?_⟩
+  · intro tau i
+    fin_cases tau
+    · change |normalizedWidth10 Q (D.A i)/5| ≤ 1/5
+      change ∀ i, -1 < normalizedWidth10 Q (D.A i) ∧ normalizedWidth10 Q (D.A i) < 1 at h0
+      exact abs_le.mpr ⟨by linarith [(h0 i).1],by linarith [(h0 i).2]⟩
+    · change |normalizedFinite10 2 Q (D.f2 i)/5| ≤ 1/5
+      exact abs_le.mpr ⟨by linarith [(h1 i).1],by linarith [(h1 i).2]⟩
+    · change |normalizedFinite10 3 Q (D.f3 i)/5| ≤ 1/5
+      exact abs_le.mpr ⟨by linarith [(h2 i).1],by linarith [(h2 i).2]⟩
+  · have hb := normalized_balance10 Q D.A D.positive D.f2 D.f3 D.balance
+    simp only [originalPowerWeights10,Fin.sum_univ_three,Matrix.cons_val_zero,Matrix.cons_val_one,
+      Matrix.cons_val_two,Matrix.head_cons,Matrix.tail_cons,← Finset.sum_div]
+    simp only [Finset.sum_add_distrib] at hb
+    linarith
+
+theorem original_power_frame_bounds10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+    (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    (∀ (j : Fin 9) i, ‖(L *ᵥ integerReal (D.u j.castSucc)) i‖ ≤
+      (Q^5)^(originalPowerWeights10 D 0 i-delta/5)) ∧
+    (∀ (j : Fin 10) i, ‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ
+      (fun k => (D.u j k : ℚ_[2]))) i‖ ≤ (Q^5)^(originalPowerWeights10 D 1 i)) ∧
+    (∀ (j : Fin 10) i, ‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ
+      (fun k => (D.u j k : ℚ_[3]))) i‖ ≤ (Q^5)^(originalPowerWeights10 D 2 i)) := by
+  have hq : 0 < Q := zero_lt_one.trans hQ
+  have hm := (sourceMinima10_pos_mono A2 A3 L hL Q hQ
+    (fun i => normalizedWidth10 Q (D.A i)) (fun i => normalizedFinite10 2 Q (D.f2 i))
+    (fun i => normalizedFinite10 3 Q (D.f3 i))).2
+  refine ⟨?_,?_,?_⟩
+  · intro j i
+    have hpoint := (originalCoordinates10_bounds L hL Q hQ
+      (fun i => normalizedWidth10 Q (D.A i)) (integerReal (D.u j.castSucc)) _).mp
+      (D.attaining j.castSucc).le i
+    have hsmall := (hm (show j.castSucc ≤ (8 : Fin 10) by change j.val ≤ 8; omega)).trans D.small.le
+    rw [Real.norm_eq_abs]
+    apply hpoint.trans
+    have hh := mul_le_mul_of_nonneg_right hsmall
+      (Real.rpow_pos_of_pos hq (normalizedWidth10 Q (D.A i))).le
+    apply hh.trans_eq
+    rw [← Real.rpow_add hq]
+    change Q^(-delta+normalizedWidth10 Q (D.A i)) =
+      (Q^5)^(normalizedWidth10 Q (D.A i)/5-delta/5)
+    rw [← Real.rpow_natCast_mul hq.le]
+    congr 1
+    ring
+  · intro j i
+    change ‖((A2.map (algebraMap ℚ ℚ_[2])) *ᵥ _) i‖ ≤ (Q^5)^(normalizedFinite10 2 Q (D.f2 i)/5)
+    rw [rescaled_power10 Q _ hq,normalized_finite_exact10 2 (by decide) Q hQ,finite_form_norm10]
+    have hr := (Rat.cast_le (K := ℝ)
+      (p := padicNorm 2 ((A2 *ᵥ (fun k => (D.u j k : ℚ))) i))
+      (q := (2 : ℚ)^(D.f2 i))).mpr (D.member2 j i)
+    simpa only [Rat.cast_zpow,Rat.cast_ofNat] using hr
+  · intro j i
+    change ‖((A3.map (algebraMap ℚ ℚ_[3])) *ᵥ _) i‖ ≤ (Q^5)^(normalizedFinite10 3 Q (D.f3 i)/5)
+    rw [rescaled_power10 Q _ hq,normalized_finite_exact10 3 (by decide) Q hQ,finite_form_norm10]
+    have hr := (Rat.cast_le (K := ℝ)
+      (p := padicNorm 3 ((A3 *ᵥ (fun k => (D.u j k : ℚ))) i))
+      (q := (3 : ℚ)^(D.f3 i))).mpr (D.member3 j i)
+    simpa only [Rat.cast_zpow,Rat.cast_ofNat] using hr
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSampling10 OriginalDual10
+noncomputable section
+
+theorem original_source_group_envelope10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (Q : ℝ) (hQ : 1 < Q)
+    (c2 c3 d2 d3 : Fin 10 → ℝ) (h2 : ∀ i, c2 i ≤ d2 i) (h3 : ∀ i, c3 i ≤ d3 i)
+    (hd2 : ∀ i, d2 i ≤ 0) (hd3 : ∀ i, d3 i ≤ 0) :
+    originalSourceGroup10 A2 A3 Q c2 c3 ≤ originalSourceGroup10 A2 A3 Q d2 d3 := by
+  intro x hx
+  constructor
+  · apply (lattice10_spec 2 A2 _ x).mpr
+    intro i
+    have hn := source_finite_short_bound10 2 A2 Q hQ c2 (fun i => (h2 i).trans (hd2 i)) x hx.1 i
+    rw [SourceForms10.finiteMatrix10,finite_form_norm10] at hn
+    have hh := hn.trans (Real.rpow_le_rpow_of_exponent_le hQ.le (h2 i))
+    simpa only [zpow_neg,zpow_natCast] using (padic_rpow_ceil42 2 Q (d2 i) hQ (hd2 i) _).mp hh
+  · apply (lattice10_spec 3 A3 _ x).mpr
+    intro i
+    have hn := source_finite_short_bound10 3 A3 Q hQ c3 (fun i => (h3 i).trans (hd3 i)) x hx.2 i
+    rw [SourceForms10.finiteMatrix10,finite_form_norm10] at hn
+    have hh := hn.trans (Real.rpow_le_rpow_of_exponent_le hQ.le (h3 i))
+    simpa only [zpow_neg,zpow_natCast] using (padic_rpow_ceil42 3 Q (d3 i) hQ (hd3 i) _).mp hh
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSampling10 SourceSelectedSet10 OriginalDual10 OriginalDeformation10
+noncomputable section
+
+theorem original_variable_auxiliary_family10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ D0 E0 : ℝ, 1 ≤ D0 ∧ 1 ≤ E0 ∧
+      ∀ (U : Set ℝ), ¬ BddAbove U → ∀ (hQU : ∀ q ∈ U, 1 < q)
+        (D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0),
+      ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+      ∃ e : ℝ, 0 < e ∧ e < 1 ∧ ∃ c : Fin 3 → Fin 10 → ℝ,
+        (∀ tau i, |c tau i| ≤ 1) ∧ (∑ tau, ∑ i, c tau i) = 0 ∧
+        (∀ i, c 1 i ≤ 0 ∧ c 2 i ≤ 0) ∧
+      ∃ eta : ℝ, 0 < eta ∧ 4000*eta < e ∧ ∃ m : ℕ, ∃ hm : 0 < m,
+        4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) ∧
+        ∀ rho : ℝ, 0 < rho → ∀ B : ℝ,
+          Nonempty (OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm) := by
+  obtain ⟨K,hK,D0,E0,hD0,hE0,haux⟩ := source_auxiliary_samples10 A2 A3 L h2 h3 hLd hAlg
+  refine ⟨K,hK,D0,E0,hD0,hE0,?_⟩
+  intro U hU hQU D
+  have hprops (q : U) := original_power_weights_bounds10 (D q)
+  obtain ⟨V,hVU,hV,e,he,he1,c,hc,hbal,hcf,hbounds⟩ := select_original_balanced_weights10
+    U hU (fun q => originalPowerWeights10 (D q)) (fun q => (hprops q).1)
+    (fun q => (hprops q).2.1) (fun q => (hprops q).2.2.1) (fun q => (hprops q).2.2.2) delta hd
+  let v : V → Fin 10 → Fin 10 → ℤ := fun q => (D ⟨q.val,hVU q.property⟩).u
+  have hv (q : V) : LinearIndependent ℝ (fun j => integerReal (v q j)) := (D ⟨q.val,hVU q.property⟩).independent
+  have hQ (q : V) : 1 < q.val := hQU q.val (hVU q.property)
+  have hQ5 (q : V) : 1 < q.val^5 := one_lt_pow₀ (hQ q) (by decide)
+  have hpoint (q : V) := original_power_frame_bounds10 (D ⟨q.val,hVU q.property⟩)
+  have hreal (q : V) (j : Fin 9) (i : Fin 10) :
+      ‖(L *ᵥ integerReal (v q j.castSucc)) i‖ ≤ (q.val^5)^(c 0 i-e) :=
+    ((hpoint q).1 j i).trans (Real.rpow_le_rpow_of_exponent_le (hQ5 q).le (hbounds q i).1)
+  have htwo (q : V) (j i : Fin 10) :
+      ‖(SourceForms10.finiteMatrix10 2 A2 *ᵥ (fun k => (v q j k : ℚ_[2]))) i‖ ≤ (q.val^5)^(c 1 i) :=
+    ((hpoint q).2.1 j i).trans (Real.rpow_le_rpow_of_exponent_le (hQ5 q).le (hbounds q i).2.1)
+  have hthree (q : V) (j i : Fin 10) :
+      ‖(SourceForms10.finiteMatrix10 3 A3 *ᵥ (fun k => (v q j k : ℚ_[3]))) i‖ ≤ (q.val^5)^(c 2 i) :=
+    ((hpoint q).2.2 j i).trans (Real.rpow_le_rpow_of_exponent_le (hQ5 q).le (hbounds q i).2.2)
+  have hmem (q : V) (j : Fin 10) : v q j ∈ originalSourceGroup10 A2 A3 q.val
+      (fun i => 5*c 1 i) (fun i => 5*c 2 i) := by
+    let Dq := D ⟨q.val,hVU q.property⟩
+    have hsource := (normalized_source_group_exact10 A2 A3 q.val (hQ q) Dq.f2 Dq.f3
+      Dq.nonpos2 Dq.nonpos3 (v q j)).mpr ⟨Dq.member2 j,Dq.member3 j⟩
+    apply original_source_group_envelope10 A2 A3 q.val (hQ q)
+      (fun i => normalizedFinite10 2 q.val (Dq.f2 i))
+      (fun i => normalizedFinite10 3 q.val (Dq.f3 i))
+      (fun i => 5*c 1 i) (fun i => 5*c 2 i) _ _
+      (fun i => by change 5*c 1 i ≤ 0; linarith [(hcf i).1])
+      (fun i => by change 5*c 2 i ≤ 0; linarith [(hcf i).2]) hsource
+    · intro i
+      have hh := (hbounds q i).2.1
+      change normalizedFinite10 2 q.val (Dq.f2 i)/5 ≤ c 1 i at hh
+      change normalizedFinite10 2 q.val (Dq.f2 i) ≤ 5*c 1 i
+      linarith
+    · intro i
+      have hh := (hbounds q i).2.2
+      change normalizedFinite10 3 q.val (Dq.f3 i)/5 ≤ c 2 i at hh
+      change normalizedFinite10 3 q.val (Dq.f3 i) ≤ 5*c 2 i
+      linarith
+  let w : (q : V) → Fin 10 → originalSourceGroup10 A2 A3 q.val
+      (fun i => 5*c 1 i) (fun i => 5*c 2 i) := fun q j => ⟨v q j,hmem q j⟩
+  obtain ⟨eta,heta,hmargin,m,hm,hcount,hsamples⟩ := haux _ _ V hV v hv w hv (fun _ => rfl)
+    c e he he1 hc hbal hreal (fun q j => htwo q j.castSucc) (fun q j => hthree q j.castSucc)
+  exact ⟨V,hVU,hV,e,he,he1,c,hc,hbal,hcf,eta,heta,hmargin,m,hm,hcount,hsamples⟩
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSampling10 SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10 SourceGlobalSelected10
+noncomputable section
+
+theorem original_fixed_set_sample_transfer10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {hL : IsUnit L} {delta : ℝ} {S0 : Finset MixedIndex10}
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    {V : Set ℝ} (hQV : ∀ q ∈ V, 1 < q)
+    (D : (q : V) → OriginalData10 A2 A3 L hL q.val (hQV q.val q.property) delta S0)
+    (hbad : ∀ q : V, ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s ≠ 0)
+    {c2 c3 : Fin 10 → ℝ} {c : Fin 3 → Fin 10 → ℝ}
+    {e eta D0 E0 B rho : ℝ} {m : ℕ} {hm : 0 < m}
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V (fun q => (D q).u) c e eta D0 E0 B rho m hm)
+    (h : Fin m) :
+    ∃ s ∈ S0, mixedProduct10 A2 A3 L (S.data.M h) s ≠ 0 ∧
+      mixedProduct10 A2 A3 L (S.data.M h) s ≤ 362880*((S.data.t h).val^5)^(-17*delta/10) := by
+  obtain ⟨s,hs,hn⟩ := hbad (S.data.t h)
+  have hv (q : V) : LinearIndependent ℝ (fun j => integerReal ((D q).u j)) := (D q).independent
+  obtain ⟨g,hg,hscale⟩ := original_attaining_cofactor_factor10 hv S h
+  have hu := original_data_cofactor_upper10 h2 h3 hLd (D (S.data.t h)) s hs
+  have hle := mixedProduct10_le_int_mul10 A2 A3 L g hg (S.data.M h) s
+  rw [← hscale] at hle
+  have heq : (S.data.t h).val^(-17*delta/2) = ((S.data.t h).val^5)^(-17*delta/10) := by
+    rw [← Real.rpow_natCast_mul (zero_lt_one.trans (hQV _ (S.data.t h).property)).le]
+    congr 1
+    ring
+  rw [heq] at hu
+  exact ⟨s,hs,original_cofactor_sample_nonzero10 hv S h s hn,hle.trans hu⟩
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSampling10 SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10 SourceHeightEnvelope10 SchmidtNormal10
+noncomputable section
+
+theorem original_fixed_set_sample_height10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) :
+    ∃ alpha C_upper T : ℝ, 0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      ∀ (S0 : Finset MixedIndex10) (V : Set ℝ) (hQV : ∀ q ∈ V, 1 < q)
+        (D : (q : V) → OriginalData10 A2 A3 L hL q.val (hQV q.val q.property) delta S0),
+      (∀ q : V, ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s ≠ 0) →
+      ∀ (c2 c3 : Fin 10 → ℝ) (c : Fin 3 → Fin 10 → ℝ), (∀ i, |c 0 i| ≤ 1) →
+      ∀ (e : ℝ), 0 < e → ∀ (eta D0 E0 B rho : ℝ) (m : ℕ) (hm : 0 < m)
+        (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V (fun q => (D q).u) c e eta D0 E0 B rho m hm)
+        (h : Fin m), T < (S.data.t h).val^5 →
+          ((S.data.t h).val^5)^alpha ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+          (normalHeight10 (S.data.M h) : ℝ) ≤ C_upper*((S.data.t h).val^5)^9 := by
+  obtain ⟨C,hC,d,hlower⟩ := actual_same_normal_mixed_lower10 A2 A3 L h2 h3 hLd hAlg
+  let z := 68*delta/5
+  have hz : 0 < z := by dsimp [z]; positivity
+  obtain ⟨T,hT,hcut⟩ := height_growth_cutoff10 C z hC hz
+  refine ⟨z/(16*((d+2 : ℕ) : ℝ)),transposeRowConstant10 L*362880,T,
+    by positivity,mul_pos (transposeRowConstant10_pos L) (by norm_num),hT,?_⟩
+  intro S0 V hQV D hbad c2 c3 c hc0 e he eta D0 E0 B rho m hm S h hlarge
+  obtain ⟨s,hs,hn,hu⟩ := original_fixed_set_sample_transfer10 h2 h3 hLd hQV D hbad S h
+  have hn' := (SourceGlobalSelected10.mixedProduct10_ne_zero_iff A2 A3 L (S.data.M h) s).mp hn
+  have hl := hlower (S.data.M h) (s 0) (s 1) (s 2) hn'.1 hn'.2.1 hn'.2.2
+  rw [original_p2_dual_norm10 A2 h2 (S.data.M h) (s 1),
+    original_p3_dual_norm10 A3 h3 (S.data.M h) (s 2)] at hl
+  rw [mixedProduct10_canonical A2 A3 L h2 h3 (S.data.M h) s] at hu
+  have heq : -17*delta/10 = -z/8 := by dsimp [z]; ring
+  rw [heq] at hu
+  have htotal : C ≤ 362880*((S.data.t h).val^5)^(-z/8)*
+      (max 1 (normalHeight10 (S.data.M h) : ℝ))^(d+2) :=
+    hl.trans (mul_le_mul_of_nonneg_right hu (by positivity))
+  have hp := height_power_rearrange10 C _ z _ d
+    (zero_lt_one.trans (S.conditions.large h).2.2.1) htotal
+  have hheight := nonzero_normal_height_one10 (S.data.M h) (S.conditions.normal_nonzero h)
+  rw [max_eq_right hheight] at hp
+  have hgrowth := height_growth_root10 _ z _ d
+    (zero_lt_one.trans (S.conditions.large h).2.2.1) (zero_le_one.trans hheight)
+    ((hcut _ hlarge).trans hp)
+  obtain ⟨g,_hg,_hscale,hupper⟩ := original_sample_height_upper10 hLd hc0 he S h
+  exact ⟨hgrowth,hupper⟩
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSampling10 SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10 SchmidtNormal10
+noncomputable section
+
+theorem original_counterexample_schmidt_inputs10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10) :
+    ∃ K : IntermediateField ℚ ℝ, FiniteDimensional ℚ K ∧
+      ∃ D0 E0 alpha C_upper T : ℝ, 1 ≤ D0 ∧ 1 ≤ E0 ∧ 0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      ∀ (U : Set ℝ) (hQU : ∀ q ∈ U, 1 < q)
+        (D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0),
+      (¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0,
+        mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s = 0) →
+      ∀ B1 : ℝ, ∃ V : Set ℝ, ∃ hVU : V ⊆ U, ¬ BddAbove V ∧
+        (∀ q : V, max T B1 < q.val) ∧
+      ∃ e : ℝ, 0 < e ∧ e < 1 ∧ ∃ c : Fin 3 → Fin 10 → ℝ,
+        (∀ tau i, |c tau i| ≤ 1) ∧ (∑ tau, ∑ i, c tau i) = 0 ∧
+        (∀ i, c 1 i ≤ 0 ∧ c 2 i ≤ 0) ∧
+      ∃ eta : ℝ, 0 < eta ∧ 4000*eta < e ∧ ∃ m : ℕ, ∃ hm : 0 < m,
+        4*(eta^2)⁻¹*Real.log (60*(Module.finrank ℚ K : ℝ)) ≤ (m : ℝ) ∧
+        (∀ rho : ℝ, 0 < rho → ∀ B : ℝ,
+          Nonempty (OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm)) ∧
+        ∀ (rho B : ℝ)
+          (S : OriginalAuxiliarySample10 A2 A3 L (fun i => 5*c 1 i) (fun i => 5*c 2 i)
+            V (fun q => (D ⟨q.val,hVU q.property⟩).u) c e eta D0 E0 B rho m hm) (h : Fin m),
+          ((S.data.t h).val^5)^alpha ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+          (normalHeight10 (S.data.M h) : ℝ) ≤ C_upper*((S.data.t h).val^5)^9 ∧
+          ∃ s ∈ S0, mixedProduct10 A2 A3 L (S.data.M h) s ≠ 0 ∧
+            mixedProduct10 A2 A3 L (S.data.M h) s ≤ 362880*((S.data.t h).val^5)^(-17*delta/10) := by
+  have h2u : IsUnit A2 := (Matrix.isUnit_iff_isUnit_det _).mpr (by rw [h2]; exact isUnit_one)
+  have h3u : IsUnit A3 := (Matrix.isUnit_iff_isUnit_det _).mpr (by rw [h3]; exact isUnit_one)
+  obtain ⟨alpha,C_upper,Tg,halpha,hCu,hTg,hheight⟩ :=
+    original_fixed_set_sample_height10 A2 A3 L h2 h3 hLd hL hAlg delta hd
+  obtain ⟨T,hT,htail⟩ := original_fixed_selector_bad_tail10 A2 A3 L h2 h3 hLd h2u h3u hL delta hd S0
+  obtain ⟨K,hK,D0,E0,hD0,hE0,hfamily⟩ := original_variable_auxiliary_family10 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  refine ⟨K,hK,D0,E0,alpha,C_upper,max T Tg,hD0,hE0,halpha,hCu,hT.trans_le (le_max_left _ _),?_⟩
+  intro U hQU D hfail B1
+  obtain ⟨W,hWU,hW,hbad⟩ := htail U hQU D hfail (max B1 Tg)
+  let hQW : ∀ q ∈ W, 1 < q := fun q hq => hQU q (hWU hq)
+  let DW : (q : W) → OriginalData10 A2 A3 L hL q.val (hQW q.val q.property) delta S0 :=
+    fun q => D ⟨q.val,hWU q.property⟩
+  obtain ⟨V,hVW,hV,e,he,he1,c,hc,hbal,hcf,eta,heta,hmargin,m,hm,hcount,hsamples⟩ :=
+    hfamily W hW hQW DW
+  let hVU : V ⊆ U := fun q hq => hWU (hVW hq)
+  have hlarge (q : V) : max (max T Tg) B1 < q.val := by
+    have hh := (hbad ⟨q.val,hVW q.property⟩).1
+    exact max_lt_iff.mpr ⟨max_lt_iff.mpr ⟨(le_max_left _ _).trans_lt hh,
+      ((le_max_right _ _).trans (le_max_right _ _)).trans_lt hh⟩,
+      ((le_max_left _ _).trans (le_max_right _ _)).trans_lt hh⟩
+  refine ⟨V,hVU,hV,hlarge,
+    e,he,he1,c,hc,hbal,hcf,eta,heta,hmargin,m,hm,hcount,hsamples,?_⟩
+  intro rho B S h
+  let hQV : ∀ q ∈ V, 1 < q := fun q hq => hQU q (hVU hq)
+  let DV : (q : V) → OriginalData10 A2 A3 L hL q.val (hQV q.val q.property) delta S0 :=
+    fun q => D ⟨q.val,hVU q.property⟩
+  have hbadV (q : V) : ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 (DV q).u) s ≠ 0 :=
+    (hbad ⟨q.val,hVW q.property⟩).2.1
+  have hTq : Tg < (S.data.t h).val :=
+    ((le_max_right _ _).trans (le_max_left _ _)).trans_lt (hlarge (S.data.t h))
+  have hTQ : Tg < (S.data.t h).val^5 := hTq.trans_le
+    (le_self_pow₀ (hQV _ (S.data.t h).property).le (by decide))
+  have hgrowth := hheight S0 V hQV DV hbadV _ _ c (fun i => hc 0 i) e he
+    eta D0 E0 B rho m hm S h hTQ
+  exact ⟨hgrowth.1,hgrowth.2,original_fixed_set_sample_transfer10 h2 h3 hLd hQV DV hbadV S h⟩
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+open scoped BigOperators Classical Matrix
+namespace CompoundFeasibility.M208LiteralVariable10
+open SourceSelectedSet10 SourceSelectedUpper10 OriginalDual10
+noncomputable section
+
+theorem original_counterexamples_unbounded10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (hL : IsUnit L) (delta : ℝ) (S0 : Finset MixedIndex10)
+    (hfail : ∀ B : ℝ, ∃ Q : ℝ, ∃ hQ : 1 < Q, B < Q ∧
+      ∃ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+        ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 D.u) s ≠ 0) :
+    ∃ U : Set ℝ, ¬ BddAbove U ∧ ∃ hQU : ∀ q ∈ U, 1 < q,
+      ∃ D : (q : U) → OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0,
+        (∀ q : U, ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s ≠ 0) ∧
+        ¬ ∃ B : ℝ, ∀ q : U, B < q.val → ∀ s ∈ S0,
+          mixedProduct10 A2 A3 L (integerLastDual10 (D q).u) s = 0 := by
+  let U := {Q : ℝ | ∃ hQ : 1 < Q, ∃ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+    ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 D.u) s ≠ 0}
+  have hU : ¬ BddAbove U := by
+    rintro ⟨B,hB⟩
+    obtain ⟨Q,hQ,hBQ,D,s,hs,hn⟩ := hfail B
+    exact (not_le_of_gt hBQ) (hB ⟨hQ,D,s,hs,hn⟩)
+  let hQU : ∀ q ∈ U, 1 < q := fun q hq => hq.choose
+  have hdata (q : U) : ∃ D : OriginalData10 A2 A3 L hL q.val (hQU q.val q.property) delta S0,
+      ∃ s ∈ S0, mixedProduct10 A2 A3 L (integerLastDual10 D.u) s ≠ 0 := by
+    obtain ⟨hQ,D,s,hs,hn⟩ := q.property
+    exact ⟨D,s,hs,hn⟩
+  choose D hbad using hdata
+  refine ⟨U,hU,hQU,D,hbad,?_⟩
+  rintro ⟨B,hzero⟩
+  obtain ⟨q,hq,hBq⟩ := not_bddAbove_iff.mp hU B
+  obtain ⟨s,hs,hn⟩ := hbad ⟨q,hq⟩
+  exact hn (hzero ⟨q,hq⟩ hBq s hs)
+
+end
+end CompoundFeasibility.M208LiteralVariable10
+
+#print axioms CompoundFeasibility.M208LiteralGap10.absolute_ratio10
+
+#print axioms CompoundFeasibility.M208LiteralGap10.absolute_gap_cutoff10
+
+#print axioms CompoundFeasibility.M208LiteralGap10.source_absolute_gap_uniform10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalizedWidth10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalizedFinite10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalized_width_exact10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalized_finite_exact10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalized_threshold_exact10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalized_lattice_exact10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalized_balance10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalized_finite_bounds10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.normalized_source_group_exact10
+
+#print axioms CompoundFeasibility.M208LiteralBudget10.complement_product10
+
+#print axioms CompoundFeasibility.M208LiteralBudget10.absolute_selected_budget10
+
+#print axioms CompoundFeasibility.M208LiteralBudget10.finite_integer_cofactor10
+
+#print axioms CompoundFeasibility.M208LiteralBudget10.original_absolute_cofactor_upper10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.OriginalData10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_data_cofactor_upper10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_absolute_short_frame10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_fixed_selector_bad_tail10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_data_primitive_upper_nonzero10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.select_unbounded_original_weights10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.finiteUpper10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.balanceCorrection10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.fixedOriginalWeights10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.finite_upper_bounds10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.fixed_original_weights10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.select_original_balanced_weights10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.originalPowerWeights10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_power_weights_bounds10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_power_frame_bounds10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_source_group_envelope10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_variable_auxiliary_family10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_fixed_set_sample_transfer10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_fixed_set_sample_height10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_counterexample_schmidt_inputs10
+
+#print axioms CompoundFeasibility.M208LiteralVariable10.original_counterexamples_unbounded10

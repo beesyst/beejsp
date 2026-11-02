@@ -1,0 +1,25 @@
+import SubspaceBridge.SourceMixedLiouville10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M200R4Contract
+open CompoundFeasibility CompoundFeasibility.SchmidtNormal10 CompoundFeasibility.SourceHeightEnvelope10
+
+theorem original_place_2_lower (A2 : Matrix (Fin 10) (Fin 10) ℚ)
+    (h2 : A2.det = 1) :
+    ∃ C : ℝ, 0 < C ∧ ∀ (M : Fin 10 → ℤ) i,
+      ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) i ≠ 0 →
+      C ≤ ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[2]))) i‖ *
+        max 1 (normalHeight10 M : ℝ) := by
+  exact actual_p2_dual_lower10 A2 h2
+
+#print axioms original_place_2_lower
+theorem original_place_3_lower (A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (h3 : A3.det = 1) :
+    ∃ C : ℝ, 0 < C ∧ ∀ (M : Fin 10 → ℤ) i,
+      ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) i ≠ 0 →
+      C ≤ ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (M k : ℚ_[3]))) i‖ *
+        max 1 (normalHeight10 M : ℝ) := by
+  exact actual_p3_dual_lower10 A3 h3
+
+#print axioms original_place_3_lower
+end M200R4Contract

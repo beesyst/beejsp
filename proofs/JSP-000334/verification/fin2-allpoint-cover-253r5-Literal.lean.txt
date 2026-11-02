@@ -1,0 +1,956 @@
+import SubspaceBridge.AllPointFixedFamily3
+import SubspaceBridge.BinaryAnalyticContradiction2
+import SubspaceBridge.BinaryAuxRational2
+import SubspaceBridge.ParameterSelection3
+open scoped BigOperators Classical Matrix
+open JSP000334
+namespace LiteralR5
+
+
+noncomputable def binaryLogRaw (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (tau : Fin 3) (i : Fin 2) : ℝ :=
+  Real.log (a tau i)/Real.log Q
+noncomputable def binaryLogAlpha (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) : ℝ :=
+  -(∑ tau : Fin 3,∑ i : Fin 2,Real.log (a tau i))/(6*Real.log Q)
+noncomputable def binaryLogWeights (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (tau : Fin 3) (i : Fin 2) : ℝ :=
+  binaryLogRaw a Q tau i+binaryLogAlpha a Q
+
+theorem binary_log_balance (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (hQ : 1<Q) :
+    (∑ tau : Fin 3,∑ i : Fin 2,binaryLogWeights a Q tau i)=0 := by
+  have hl : Real.log Q ≠ 0 := (Real.log_pos hQ).ne'
+  simp only [binaryLogWeights,binaryLogRaw,binaryLogAlpha,Fin.sum_univ_three,Fin.sum_univ_two]
+  field_simp
+  ring
+
+theorem binary_log_positive_margin (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (hQ : 1<Q)
+    (ha : ∀ tau i,0<a tau i)
+    (hp : (∏ tau : Fin 3,∏ i : Fin 2,a tau i)<Real.rpow Q (-(1 : ℝ)/16)) :
+    1/96<binaryLogAlpha a Q := by
+  have hprod : 0<(∏ tau : Fin 3,∏ i : Fin 2,a tau i) :=
+    Finset.prod_pos (fun tau _ => Finset.prod_pos (fun i _ => ha tau i))
+  have hh := Real.log_lt_log hprod hp
+  rw [Real.rpow_eq_pow,Real.log_rpow (lt_trans zero_lt_one hQ)] at hh
+  rw [Real.log_prod _ _ (fun tau _ => ne_of_gt (Finset.prod_pos (fun i _ => ha tau i)))] at hh
+  simp_rw [Real.log_prod _ _ (fun i _ => ne_of_gt (ha _ i))] at hh
+  unfold binaryLogAlpha
+  apply (lt_div_iff₀ (mul_pos (by norm_num : (0 : ℝ)<6) (Real.log_pos hQ))).mpr
+  linarith
+
+theorem binary_log_source_bounds (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) (hQ : 1<Q)
+    (ha : ∀ tau i,0<a tau i) (hd : (1 : ℝ)/192≤binaryLogAlpha a Q) :
+    ∀ tau i,a tau i≤Real.rpow Q (binaryLogWeights a Q tau i-if tau=0 then (1 : ℝ)/192 else 0) := by
+  intro tau i
+  have he : a tau i=Real.rpow Q (binaryLogRaw a Q tau i) := by
+    rw [Real.rpow_eq_pow,Real.rpow_def_of_pos (lt_trans zero_lt_one hQ)]
+    unfold binaryLogRaw
+    rw [mul_div_cancel₀ _ (Real.log_pos hQ).ne',Real.exp_log (ha tau i)]
+  rw [he]
+  apply Real.rpow_le_rpow_of_exponent_le hQ.le
+  unfold binaryLogWeights
+  by_cases ht : tau=0 <;> simp only [ht,ite_true,ite_false] <;> linarith
+
+theorem binary_log_alpha_raw_sum (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ) :
+    binaryLogAlpha a Q=-(∑ tau : Fin 3,∑ i : Fin 2,binaryLogRaw a Q tau i)/6 := by
+  unfold binaryLogAlpha binaryLogRaw
+  simp only [← Finset.sum_div]
+  ring
+
+theorem binary_log_uniform_bound (a : Fin 3 → Fin 2 → ℝ) (Q : ℝ)
+    (ha : 0≤binaryLogAlpha a Q)
+    (hreal : ∀ i,0≤binaryLogRaw a Q 0 i ∧ binaryLogRaw a Q 0 i≤9/32)
+    (hfinite : ∀ tau : Fin 3,tau ≠ 0 → ∀ i,-9/32≤binaryLogRaw a Q tau i ∧ binaryLogRaw a Q tau i≤0) :
+    ∀ tau i,|binaryLogWeights a Q tau i|≤15/32 := by
+  have hs := binary_log_alpha_raw_sum a Q
+  rw [Fin.sum_univ_three] at hs
+  simp only [Fin.sum_univ_two] at hs
+  have h00 := hreal 0
+  have h01 := hreal 1
+  have h10 := hfinite 1 (by decide) 0
+  have h11 := hfinite 1 (by decide) 1
+  have h20 := hfinite 2 (by decide) 0
+  have h21 := hfinite 2 (by decide) 1
+  have halpha : binaryLogAlpha a Q≤3/16 := by linarith
+  intro tau i
+  have hr : -9/32≤binaryLogRaw a Q tau i ∧ binaryLogRaw a Q tau i≤9/32 := by
+    by_cases ht : tau=0
+    · subst tau
+      have hh := hreal i
+      constructor <;> linarith
+    · have hh := hfinite tau ht i
+      constructor <;> linarith
+  unfold binaryLogWeights
+  apply abs_le.mpr
+  constructor <;> linarith
+
+
+
+theorem binary_weighted_normalization (B C u v : ℚ) :
+    weightedNormalizedProduct2 B C u v=weightedRetainedProduct2 B C u v/pairHeight u v^2 := by
+  unfold weightedNormalizedProduct2 weightedRetainedProduct2 pairHeight
+  simp_rw [div_mul_div_comm,← pow_two]
+  rw [Finset.prod_div_distrib,Finset.prod_pow]
+
+theorem binary_primitive_retained_bound (B C : ℚ) (z : Fin 2 → ℤ) (hz : PrimitivePair z)
+    (hH : 1<(archPairHeight z : ℝ))
+    (hp : (weightedNormalizedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (archPairHeight z : ℝ) (-(5 : ℝ)/2)) :
+    (weightedRetainedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (archPairHeight z : ℝ) (-(1 : ℝ)/2) := by
+  rw [binary_weighted_normalization,primitive_pair_height z hz] at hp
+  push_cast at hp
+  have hpos : 0<(archPairHeight z : ℝ) := lt_trans zero_lt_one hH
+  have hh := (div_lt_iff₀ (pow_pos hpos 2)).mp hp
+  have he : Real.rpow (archPairHeight z : ℝ) (-(5 : ℝ)/2)*(archPairHeight z : ℝ)^2=
+      Real.rpow (archPairHeight z : ℝ) (-(1 : ℝ)/2) := by
+    rw [Real.rpow_eq_pow,← Real.rpow_natCast,← Real.rpow_add hpos]
+    norm_num
+  rwa [he] at hh
+
+theorem binary_denominator_tail_bound (K H : ℝ) (hK : 0<K) (hH : 1<H) (hcut : K^4<H) :
+    K*Real.rpow H (-(1 : ℝ)/2)<Real.rpow (H^4) (-(1 : ℝ)/16) := by
+  have hH0 : 0<H := lt_trans zero_lt_one hH
+  have hklog := Real.log_lt_log (pow_pos hK 4) hcut
+  rw [Real.log_pow] at hklog
+  norm_num only [Nat.cast_ofNat] at hklog
+  have hk : K<H^((1 : ℝ)/4) := by
+    apply (Real.log_lt_log_iff hK (Real.rpow_pos_of_pos hH0 _)).mp
+    rw [Real.log_rpow hH0]
+    nlinarith
+  have hh := mul_lt_mul_of_pos_right hk (Real.rpow_pos_of_pos hH0 (-(1 : ℝ)/2))
+  convert hh using 1
+  rw [Real.rpow_eq_pow,← Real.rpow_natCast,← Real.rpow_mul hH0.le,← Real.rpow_add hH0]
+  norm_num
+
+theorem binary_place_norm_cast (tau : Fin 3) (x : ℚ) :
+    (rationalPlaceNorm tau x : ℝ)=rothLocalAbs tau x := by
+  fin_cases tau <;> simp [rationalPlaceNorm,rothLocalAbs]
+
+theorem binary_integer_pattern_value (B C : ℚ) (d : ℕ) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) (k i : Fin 2) (z : Fin 2 → ℤ) :
+    binaryLocalVectorValue (binaryIntegerRetained2 d b c k) z i=
+      (d : ℚ)*((weightedRetainedMatrix2 B C k *ᵥ fun j => (z j : ℚ)) i) := by
+  have hh := congrFun (binary_integer_form_identity B C d b c hb hc k (fun j => (z j : ℚ))) i
+  simpa [binaryLocalVectorValue,Matrix.mulVec,dotProduct] using hh
+
+theorem binary_integer_pattern_product (B C : ℚ) (d : ℕ) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) (z : Fin 2 → ℤ) :
+    ∃ k : Fin 3 → Fin 2,
+    (∏ tau : Fin 3,∏ i : Fin 2,rothLocalAbs tau (binaryLocalVectorValue (binaryIntegerRetained2 d b c (k tau)) z i))=
+      (threePlaceProduct (d : ℚ) : ℝ)^2*(weightedRetainedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ) := by
+  obtain ⟨k,hk⟩ := weighted_eight_patterns2 B C (z 0 : ℚ) (z 1 : ℚ)
+  refine ⟨k,?_⟩
+  have hz : (![ (z 0 : ℚ),(z 1 : ℚ)] : Fin 2 → ℚ)=(fun j => (z j : ℚ)) := by
+    ext j
+    fin_cases j <;> rfl
+  rw [hz] at hk
+  simp_rw [binary_integer_pattern_value B C d b c hb hc,← binary_place_norm_cast]
+  simp only [← Rat.cast_prod]
+  have hh := binary_denominator_norm_factor (d : ℚ)
+    (fun tau i => ((weightedRetainedMatrix2 B C (k tau) *ᵥ fun j => (z j : ℚ)) i))
+  rw [hk] at hh
+  exact_mod_cast hh
+
+
+
+noncomputable def binaryIntegerFormConstant (d : ℕ) (b c : ℤ) : ℝ := 1+(d : ℝ)+(b.natAbs : ℝ)+(c.natAbs : ℝ)
+
+theorem binary_integer_norm_bounds (n : ℤ) (hn : n ≠ 0) (tau : Fin 3) :
+    0<rothLocalAbs tau (n : ℚ) ∧
+    (rothLocalAbs tau (n : ℚ))⁻¹≤|(n : ℝ)| ∧
+    (tau ≠ 0 → rothLocalAbs tau (n : ℚ)≤1) := by
+  have hnq : (n : ℚ) ≠ 0 := by exact_mod_cast hn
+  have hpos (v : Fin 3) : 0<rothLocalAbs v (n : ℚ) := by
+    rw [← binary_place_norm_cast]
+    exact_mod_cast rationalPlaceNorm_pos v hnq
+  have h2 := rothNormalAbs_int_finite 1 (by decide) n
+  have h3 := rothNormalAbs_int_finite 2 (by decide) n
+  have hp := rothInteger_three_place_lower n hn
+  have ha : 1≤rothLocalAbs 0 (n : ℚ) := by
+    have hh : rothLocalAbs 1 (n : ℚ)*rothLocalAbs 2 (n : ℚ)≤1 :=
+      mul_le_one₀ h2 (hpos 2).le h3
+    nlinarith [mul_le_mul_of_nonneg_left hh (hpos 0).le]
+  have hb2 : 1≤rothLocalAbs 0 (n : ℚ)*rothLocalAbs 1 (n : ℚ) := by
+    nlinarith [mul_le_mul_of_nonneg_left h3 (mul_pos (hpos 0) (hpos 1)).le]
+  have hb3 : 1≤rothLocalAbs 0 (n : ℚ)*rothLocalAbs 2 (n : ℚ) := by
+    nlinarith [mul_le_mul_of_nonneg_left h2 (mul_pos (hpos 0) (hpos 2)).le]
+  have harch : rothLocalAbs 0 (n : ℚ)=|(n : ℝ)| := by simp [rothLocalAbs]
+  refine ⟨hpos tau,?_,?_⟩
+  · rw [← harch]
+    have hi : tau=0 ∨ tau=1 ∨ tau=2 := by omega
+    rcases hi with rfl | rfl | rfl
+    · apply (inv_le_iff_one_le_mul₀ (hpos 0)).mpr
+      nlinarith
+    · exact (inv_le_iff_one_le_mul₀ (hpos 1)).mpr hb2
+    · exact (inv_le_iff_one_le_mul₀ (hpos 2)).mpr hb3
+  · intro ht
+    exact rothNormalAbs_int_finite tau ht n
+
+theorem binary_integer_pattern_arch_bound (d : ℕ) (b c : ℤ) (k i : Fin 2) (z : Fin 2 → ℤ) :
+    rothLocalAbs 0 (binaryLocalVectorValue (binaryIntegerRetained2 d b c k) z i)≤
+      binaryIntegerFormConstant d b c*(archPairHeight z : ℝ) := by
+  have hz (j : Fin 2) : |(z j : ℝ)|≤(archPairHeight z : ℝ) := by
+    have hh : |(z j : ℚ)|≤archPairHeight z := by
+      have hj : j=0 ∨ j=1 := by omega
+      rcases hj with rfl | rfl
+      · exact le_max_left _ _
+      · exact le_max_right _ _
+    exact_mod_cast hh
+  have hH : 0≤(archPairHeight z : ℝ) := (abs_nonneg _).trans (hz 0)
+  have hb : |(b : ℝ)|=(b.natAbs : ℝ)  := by simp only [Int.cast_natAbs,Int.cast_abs]
+  have hc : |(c : ℝ)|=(c.natAbs : ℝ)  := by simp only [Int.cast_natAbs,Int.cast_abs]
+  have hh := abs_add ((b : ℝ)*(z 0 : ℝ)) ((c : ℝ)*(z 1 : ℝ))
+  rw [abs_mul,abs_mul,hb,hc] at hh
+  have hbz := mul_le_mul_of_nonneg_left (hz 0) (Nat.cast_nonneg b.natAbs : (0 : ℝ)≤b.natAbs)
+  have hcz := mul_le_mul_of_nonneg_left (hz 1) (Nat.cast_nonneg c.natAbs : (0 : ℝ)≤c.natAbs)
+  have hd (j : Fin 2) := mul_le_mul_of_nonneg_left (hz j) (Nat.cast_nonneg d : (0 : ℝ)≤d)
+  fin_cases k <;> fin_cases i <;>
+    simp [rothLocalAbs,binaryLocalVectorValue,binaryIntegerRetained2,Fin.sum_univ_two,binaryIntegerFormConstant] <;>
+    (try simp only [abs_mul,abs_of_nonneg (Nat.cast_nonneg d : (0 : ℝ)≤d)]) <;> nlinarith [hd 0,hd 1]
+
+
+
+def binaryPairNormal (z : Fin 2 → ℤ) : Fin 2 → ℤ := ![-z 1,z 0]
+
+theorem binary_primitive_pair_ideal (z : Fin 2 → ℤ) (hz : PrimitivePair z) :
+    Ideal.span (Set.range z)=⊤ := by
+  obtain ⟨c,hc⟩ := hz
+  apply (Ideal.eq_top_iff_one _).mpr
+  rw [← hc]
+  apply Ideal.sum_mem
+  intro i _
+  exact Ideal.mul_mem_left _ _ (Ideal.subset_span (Set.mem_range_self i))
+
+theorem binary_pair_normal_primitive (z : Fin 2 → ℤ) (hz : PrimitivePair z) :
+    PrimitivePair (binaryPairNormal z) := by
+  obtain ⟨c,hc⟩ := hz
+  refine ⟨![-c 1,c 0],?_⟩
+  simp only [Fin.sum_univ_two] at hc ⊢
+  simp only [binaryPairNormal,Matrix.cons_val_zero,Matrix.cons_val_one,Matrix.head_cons]
+  nlinarith
+
+theorem binary_pair_normal_ideal (z : Fin 2 → ℤ) (hz : PrimitivePair z) :
+    Ideal.span (Set.range (binaryPairNormal z))=⊤ :=
+  binary_primitive_pair_ideal _ (binary_pair_normal_primitive z hz)
+
+theorem binary_pair_normal_nonzero (z : Fin 2 → ℤ) (hz : PrimitivePair z) :
+    ∃ i,binaryPairNormal z i ≠ 0 := by
+  by_contra hh
+  push_neg at hh
+  obtain ⟨c,hc⟩ := binary_pair_normal_primitive z hz
+  simp [hh] at hc
+
+theorem binary_pair_normal_vector (z : Fin 2 → ℤ) :
+    binaryKernelVector (binaryPairNormal z)=z := by
+  ext i
+  have hi : i=0 ∨ i=1 := by omega
+  rcases hi with rfl | rfl <;> simp [binaryKernelVector,binaryPairNormal]
+
+theorem binary_pair_normal_height (z : Fin 2 → ℤ) :
+    (binaryNormalHeight (binaryPairNormal z) : ℝ)=(archPairHeight z : ℝ) := by
+  simp [binaryNormalHeight,binaryPairNormal,archPairHeight,max_comm,Int.cast_natAbs,Int.cast_abs]
+
+
+
+theorem binary_vector_value_integer (L : Matrix (Fin 2) (Fin 2) ℤ) (z : Fin 2 → ℤ) (i : Fin 2) :
+    binaryLocalVectorValue L z i=((∑ j : Fin 2,L i j*z j : ℤ) : ℚ) := by
+  simp [binaryLocalVectorValue]
+
+theorem binary_pattern_value_nonzero (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) (k i : Fin 2) (z : Fin 2 → ℤ)
+    (h0 : z 0 ≠ 0) (h1 : z 1 ≠ 0) (hs : B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0) :
+    binaryLocalVectorValue (binaryIntegerRetained2 d b c k) z i ≠ 0 := by
+  rw [binary_integer_pattern_value B C d b c hb hc]
+  apply mul_ne_zero (by exact_mod_cast (ne_of_gt hd))
+  have h0q : (z 0 : ℚ) ≠ 0 := by exact_mod_cast h0
+  have h1q : (z 1 : ℚ) ≠ 0 := by exact_mod_cast h1
+  fin_cases k <;> fin_cases i <;>
+    simp_all [weightedRetainedMatrix2,Matrix.mulVec,dotProduct,Fin.sum_univ_two]
+
+theorem binary_pattern_local_bounds (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) (k : Fin 2) (z : Fin 2 → ℤ)
+    (h0 : z 0 ≠ 0) (h1 : z 1 ≠ 0) (hs : B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0) (tau : Fin 3) (i : Fin 2) :
+    let a := rothLocalAbs tau (binaryLocalVectorValue (binaryIntegerRetained2 d b c k) z i)
+    0<a ∧ a⁻¹≤binaryIntegerFormConstant d b c*(archPairHeight z : ℝ) ∧
+    (tau ≠ 0 → a≤1) ∧
+    (tau=0 → 1≤a ∧ a≤binaryIntegerFormConstant d b c*(archPairHeight z : ℝ)) := by
+  let L := binaryIntegerRetained2 d b c k
+  let n : ℤ := ∑ j : Fin 2,L i j*z j
+  have he : binaryLocalVectorValue L z i=(n : ℚ) := binary_vector_value_integer L z i
+  have hn : n ≠ 0 := by
+    intro hz
+    have hh := binary_pattern_value_nonzero B C d hd b c hb hc k i z h0 h1 hs
+    change binaryLocalVectorValue L z i ≠ 0 at hh
+    rw [he,hz,Int.cast_zero] at hh
+    exact hh rfl
+  have hl := binary_integer_norm_bounds n hn tau
+  have harch : |(n : ℝ)|=rothLocalAbs 0 (binaryLocalVectorValue L z i) := by
+    rw [he]
+    simp [rothLocalAbs]
+  have hu := binary_integer_pattern_arch_bound d b c k i z
+  change rothLocalAbs 0 (binaryLocalVectorValue L z i)≤_ at hu
+  change 0<rothLocalAbs tau (binaryLocalVectorValue L z i) ∧ _
+  rw [he]
+  refine ⟨hl.1,hl.2.1.trans (harch.le.trans hu),hl.2.2,?_⟩
+  intro ht
+  subst tau
+  constructor
+  · have hh : (1 : ℝ)≤(n.natAbs : ℝ) := by exact_mod_cast Int.natAbs_pos.mpr hn
+    simpa only [Int.cast_natAbs,Int.cast_abs] using hh
+  · simpa only [he] using hu
+
+
+
+theorem binary_log_tail_bounds (C H : ℝ) (hC : 1≤C) (hH : 1<H) (hcut : C^8<H)
+    (a : Fin 3 → Fin 2 → ℝ) (ha : ∀ tau i,0<a tau i)
+    (hinv : ∀ tau i,(a tau i)⁻¹≤C*H)
+    (hreal : ∀ i,1≤a 0 i ∧ a 0 i≤C*H)
+    (hfinite : ∀ tau : Fin 3,tau ≠ 0 → ∀ i,a tau i≤1) :
+    (∀ i,0≤binaryLogRaw a (H^4) 0 i ∧ binaryLogRaw a (H^4) 0 i≤9/32) ∧
+    (∀ tau : Fin 3,tau ≠ 0 → ∀ i,-9/32≤binaryLogRaw a (H^4) tau i ∧ binaryLogRaw a (H^4) tau i≤0) := by
+  have hH0 : 0<H := lt_trans zero_lt_one hH
+  have hC0 : 0<C := lt_of_lt_of_le zero_lt_one hC
+  have hlog : 0<Real.log H := Real.log_pos hH
+  have hlog4 : Real.log (H^4)=4*Real.log H := by rw [Real.log_pow];norm_num
+  have hlog4p : 0<Real.log (H^4) := by rw [hlog4];positivity
+  have hc := Real.log_lt_log (pow_pos hC0 8) hcut
+  rw [Real.log_pow] at hc
+  norm_num only [Nat.cast_ofNat] at hc
+  have hCH : Real.log (C*H)≤(9/32)*Real.log (H^4) := by
+    rw [Real.log_mul hC0.ne' hH0.ne',hlog4]
+    linarith
+  have hlower (tau i) : -9/32≤binaryLogRaw a (H^4) tau i := by
+    have hh := Real.log_le_log (inv_pos.mpr (ha tau i)) (hinv tau i)
+    rw [Real.log_inv] at hh
+    unfold binaryLogRaw
+    apply (le_div_iff₀ hlog4p).mpr
+    linarith
+  constructor
+  · intro i
+    constructor
+    · exact div_nonneg (Real.log_nonneg (hreal i).1) hlog4p.le
+    · apply (div_le_iff₀ hlog4p).mpr
+      exact (Real.log_le_log (ha 0 i) (hreal i).2).trans hCH
+  · intro tau ht i
+    refine ⟨hlower tau i,?_⟩
+    exact div_nonpos_of_nonpos_of_nonneg (Real.log_nonpos (ha tau i).le (hfinite tau ht i)) hlog4p.le
+
+
+
+noncomputable def binaryPatternNorms (d : ℕ) (b c : ℤ) (k : Fin 3 → Fin 2)
+    (z : Fin 2 → ℤ) (tau : Fin 3) (i : Fin 2) : ℝ :=
+  rothLocalAbs tau (binaryLocalVectorValue (binaryIntegerRetained2 d b c (k tau)) z i)
+
+theorem binary_weighted_source_point (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) :
+    ∃ cut : ℝ,1≤cut ∧ ∀ z : Fin 2 → ℤ,PrimitivePair z →
+    z 0 ≠ 0 → z 1 ≠ 0 → B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0 →
+    cut<(archPairHeight z : ℝ) →
+    (weightedNormalizedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (archPairHeight z : ℝ) (-(5 : ℝ)/2) →
+    ∃ k : Fin 3 → Fin 2,
+    let a := binaryPatternNorms d b c k z
+    let Q := (archPairHeight z : ℝ)^4
+    1<Q ∧ (∀ tau i,0<a tau i) ∧
+    (∑ tau : Fin 3,∑ i : Fin 2,binaryLogWeights a Q tau i)=0 ∧
+    (∀ tau i,|binaryLogWeights a Q tau i|≤15/32) ∧
+    (1 : ℝ)/192≤binaryLogAlpha a Q ∧
+    (∀ tau i,a tau i≤Real.rpow Q (binaryLogWeights a Q tau i-if tau=0 then (1 : ℝ)/192 else 0)) := by
+  let M := binaryIntegerFormConstant d b c
+  let K := (threePlaceProduct (d : ℚ) : ℝ)^2
+  have hM : 1≤M := by
+    dsimp [M,binaryIntegerFormConstant]
+    have hd0 : (0 : ℝ)≤d := Nat.cast_nonneg d
+    have hb0 : (0 : ℝ)≤b.natAbs := Nat.cast_nonneg b.natAbs
+    have hc0 : (0 : ℝ)≤c.natAbs := Nat.cast_nonneg c.natAbs
+    linarith
+  have hK : 0<K := by
+    dsimp [K]
+    have hh : 0<(threePlaceProduct (d : ℚ) : ℝ) := by
+      exact_mod_cast weighted_constant_pos2 (d : ℚ) (by exact_mod_cast (ne_of_gt hd))
+    positivity
+  let cut := max 1 (max (K^4) (M^8))
+  refine ⟨cut,le_max_left _ _,?_⟩
+  intro z hz h0 h1 hs htail hproduct
+  have hH : 1<(archPairHeight z : ℝ) := lt_of_le_of_lt (le_max_left _ _) htail
+  have hKcut : K^4<(archPairHeight z : ℝ) :=
+    lt_of_le_of_lt ((le_max_left _ _).trans (le_max_right _ _)) htail
+  have hMcut : M^8<(archPairHeight z : ℝ) :=
+    lt_of_le_of_lt ((le_max_right _ _).trans (le_max_right _ _)) htail
+  obtain ⟨k,hk⟩ := binary_integer_pattern_product B C d b c hb hc z
+  let a := binaryPatternNorms d b c k z
+  let Q := (archPairHeight z : ℝ)^4
+  have hQ : 1<Q := one_lt_pow₀ hH (by decide)
+  have ha (tau i) : 0<a tau i :=
+    (binary_pattern_local_bounds B C d hd b c hb hc (k tau) z h0 h1 hs tau i).1
+  have hp : (∏ tau : Fin 3,∏ i : Fin 2,a tau i)<Real.rpow Q (-(1 : ℝ)/16) := by
+    calc
+      _ = K*(weightedRetainedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ) := hk
+      _ < K*Real.rpow (archPairHeight z : ℝ) (-(1 : ℝ)/2) :=
+        mul_lt_mul_of_pos_left (binary_primitive_retained_bound B C z hz hH hproduct) hK
+      _ < _ := binary_denominator_tail_bound K _ hK hH hKcut
+  have halpha := binary_log_positive_margin a Q hQ ha hp
+  have hlocal (tau i) := binary_pattern_local_bounds B C d hd b c hb hc (k tau) z h0 h1 hs tau i
+  have hbounds := binary_log_tail_bounds M (archPairHeight z : ℝ) hM hH hMcut a ha
+    (fun tau i => (hlocal tau i).2.1)
+    (fun i => (hlocal 0 i).2.2.2 rfl)
+    (fun tau ht i => (hlocal tau i).2.2.1 ht)
+  have hdelta : (1 : ℝ)/192≤binaryLogAlpha a Q := by linarith
+  exact ⟨k,hQ,ha,binary_log_balance a Q hQ,
+    binary_log_uniform_bound a Q (by linarith) hbounds.1 hbounds.2,hdelta,
+    binary_log_source_bounds a Q hQ ha hdelta⟩
+
+
+
+noncomputable def binaryWeightIndex (c : Fin 3 → Fin 2 → ℝ) (tau : Fin 3) (i : Fin 2) : ℤ :=
+  ⌈1152*c tau i⌉
+noncomputable def binaryWeightRaw (z : Fin 3 → Fin 2 → ℤ) (tau : Fin 3) (i : Fin 2) : ℝ :=
+  (z tau i : ℝ)/1152
+noncomputable def binaryWeightCandidate (z : Fin 3 → Fin 2 → ℤ) (tau : Fin 3) (i : Fin 2) : ℝ :=
+  if tau=0 then binaryWeightRaw z tau i-(∑ t : Fin 3,∑ j : Fin 2,binaryWeightRaw z t j)/2
+  else binaryWeightRaw z tau i
+noncomputable def binaryWeightApprox (c : Fin 3 → Fin 2 → ℝ) : Fin 3 → Fin 2 → ℝ :=
+  binaryWeightCandidate (binaryWeightIndex c)
+
+theorem binary_weight_raw_error (c : Fin 3 → Fin 2 → ℝ) (tau : Fin 3) (i : Fin 2) :
+    c tau i≤binaryWeightRaw (binaryWeightIndex c) tau i ∧
+      binaryWeightRaw (binaryWeightIndex c) tau i≤c tau i+1/1152 := by
+  unfold binaryWeightRaw binaryWeightIndex
+  have hl := Int.le_ceil (1152*c tau i)
+  have hu := Int.ceil_lt_add_one (1152*c tau i)
+  constructor <;> linarith
+
+theorem binary_weight_candidate_balance (z : Fin 3 → Fin 2 → ℤ) :
+    (∑ tau : Fin 3,∑ i : Fin 2,binaryWeightCandidate z tau i)=0 := by
+  simp only [binaryWeightCandidate,Fin.sum_univ_three,Fin.sum_univ_two,Fin.isValue,
+    Fin.reduceEq,ite_true,ite_false]
+  ring
+
+theorem binary_weight_round_bounds (c : Fin 3 → Fin 2 → ℝ)
+    (hb : (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0) (hc : ∀ tau i,|c tau i|≤15/32) :
+    (∀ tau i,|binaryWeightApprox c tau i|≤1) ∧
+    (∀ i,c 0 i-1/384≤binaryWeightApprox c 0 i) ∧
+    (∀ tau : Fin 3,tau ≠ 0 → ∀ i,c tau i≤binaryWeightApprox c tau i) := by
+  let s := ∑ tau : Fin 3,∑ i : Fin 2,binaryWeightRaw (binaryWeightIndex c) tau i
+  have h0 := binary_weight_raw_error c 0
+  have h1 := binary_weight_raw_error c 1
+  have h2 := binary_weight_raw_error c 2
+  have hs : 0≤s ∧ s≤1/192 := by
+    dsimp [s]
+    simp only [Fin.sum_univ_three,Fin.sum_univ_two] at hb ⊢
+    constructor <;> linarith [(h0 0).1,(h0 0).2,(h0 1).1,(h0 1).2,
+      (h1 0).1,(h1 0).2,(h1 1).1,(h1 1).2,(h2 0).1,(h2 0).2,(h2 1).1,(h2 1).2]
+  have he (tau i) := binary_weight_raw_error c tau i
+  have hre (i : Fin 2) : binaryWeightApprox c 0 i=binaryWeightRaw (binaryWeightIndex c) 0 i-s/2 := by
+    rfl
+  have hfi (tau : Fin 3) (ht : tau ≠ 0) (i : Fin 2) :
+      binaryWeightApprox c tau i=binaryWeightRaw (binaryWeightIndex c) tau i := by
+    simp [binaryWeightApprox,binaryWeightCandidate,ht]
+  refine ⟨?_,?_,?_⟩
+  · intro tau i
+    have hh := abs_le.mp (hc tau i)
+    apply abs_le.mpr
+    by_cases ht : tau=0
+    · subst tau
+      rw [hre]
+      constructor <;> linarith [(he 0 i).1,(he 0 i).2]
+    · rw [hfi tau ht]
+      constructor <;> linarith [(he tau i).1,(he tau i).2]
+  · intro i
+    rw [hre]
+    linarith [(he 0 i).1]
+  · intro tau ht i
+    rw [hfi tau ht]
+    exact (he tau i).1
+
+noncomputable def binaryWeightCandidates : Set (Fin 3 → Fin 2 → ℝ) :=
+  (binaryWeightCandidate '' {z : Fin 3 → Fin 2 → ℤ | ∀ tau i,-1152≤z tau i ∧ z tau i≤1152}) ∩
+    {c | (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0 ∧ ∀ tau i,|c tau i|≤1}
+
+theorem binary_weight_candidates_finite : binaryWeightCandidates.Finite := by
+  have hh : {z : Fin 3 → Fin 2 → ℤ | ∀ tau i,-1152≤z tau i ∧ z tau i≤1152}.Finite :=
+    Set.Finite.pi' (fun _ => Set.Finite.pi' (fun _ => Set.finite_Icc _ _))
+  exact (hh.image binaryWeightCandidate).subset Set.inter_subset_left
+
+theorem binary_weight_approx_mem (c : Fin 3 → Fin 2 → ℝ)
+    (hb : (∑ tau : Fin 3,∑ i : Fin 2,c tau i)=0) (hc : ∀ tau i,|c tau i|≤15/32) :
+    binaryWeightApprox c ∈ binaryWeightCandidates := by
+  have hz (tau i) : -(1152 : ℤ)≤binaryWeightIndex c tau i ∧ binaryWeightIndex c tau i≤1152 := by
+    have hh := abs_le.mp (hc tau i)
+    unfold binaryWeightIndex
+    constructor
+    · exact_mod_cast (show -(1152 : ℝ)≤(⌈1152*c tau i⌉ : ℝ) by linarith [Int.le_ceil (1152*c tau i)])
+    · exact Int.ceil_le.mpr (by norm_num;linarith)
+  exact ⟨⟨binaryWeightIndex c,hz,rfl⟩,binary_weight_candidate_balance _,(binary_weight_round_bounds c hb hc).1⟩
+
+
+
+theorem binary_weighted_fixed_source_point (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) :
+    ∃ cut : ℝ,1≤cut ∧ ∀ z : Fin 2 → ℤ,PrimitivePair z →
+    z 0 ≠ 0 → z 1 ≠ 0 → B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0 →
+    cut<(archPairHeight z : ℝ) →
+    (weightedNormalizedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+      Real.rpow (archPairHeight z : ℝ) (-(5 : ℝ)/2) →
+    ∃ k : Fin 3 → Fin 2,∃ v ∈ binaryWeightCandidates,
+    let Q := (archPairHeight z : ℝ)^4
+    1<Q ∧ (∑ tau : Fin 3,∑ i : Fin 2,v tau i)=0 ∧ (∀ tau i,|v tau i|≤1) ∧
+    (∀ tau i,binaryPatternNorms d b c k z tau i≤Real.rpow Q (v tau i-if tau=0 then (1 : ℝ)/384 else 0)) := by
+  obtain ⟨cut,hcut,hpoint⟩ := binary_weighted_source_point B C d hd b c hb hc
+  refine ⟨cut,hcut,?_⟩
+  intro z hz h0 h1 hs htail hp
+  obtain ⟨k,hQ,ha,hbal,hbound,hdelta,hnorm⟩ := hpoint z hz h0 h1 hs htail hp
+  let v := binaryLogWeights (binaryPatternNorms d b c k z) ((archPairHeight z : ℝ)^4)
+  have hm := binary_weight_approx_mem v hbal hbound
+  have hr := binary_weight_round_bounds v hbal hbound
+  refine ⟨k,binaryWeightApprox v,hm,hQ,(hm.2).1,(hm.2).2,?_⟩
+  intro tau i
+  apply (hnorm tau i).trans
+  apply Real.rpow_le_rpow_of_exponent_le hQ.le
+  by_cases ht : tau=0
+  · subst tau
+    have hh := hr.2.1 i
+    simp only [ite_true]
+    linarith
+  · have hh := hr.2.2 tau ht i
+    simp only [if_neg ht,sub_zero]
+    exact hh
+
+
+
+noncomputable def binaryCoordinateLine (i : Fin 2) : Submodule ℚ (Fin 2 → ℚ) :=
+  LinearMap.ker (LinearMap.proj i)
+noncomputable def binaryWeightedForm (B C : ℚ) : (Fin 2 → ℚ) →ₗ[ℚ] ℚ where
+  toFun x := B*x 0+C*x 1
+  map_add' x y := by simp [mul_add];ring
+  map_smul' a x := by simp [mul_add];ring
+noncomputable def binaryWeightedLine (B C : ℚ) : Submodule ℚ (Fin 2 → ℚ) :=
+  LinearMap.ker (binaryWeightedForm B C)
+noncomputable def binaryZeroLines (B C : ℚ) : Finset (Submodule ℚ (Fin 2 → ℚ)) :=
+  {binaryCoordinateLine 0,binaryCoordinateLine 1,binaryWeightedLine B C}
+
+theorem binary_coordinate_line_proper (i : Fin 2) : binaryCoordinateLine i ≠ ⊤ := by
+  intro he
+  have hh : Pi.single i (1 : ℚ) ∈ binaryCoordinateLine i := by rw [he];trivial
+  change ((Pi.single i (1 : ℚ)) : Fin 2 → ℚ) i=0 at hh
+  simpa using hh
+
+theorem binary_weighted_line_proper (B C : ℚ) (hB : B ≠ 0) : binaryWeightedLine B C ≠ ⊤ := by
+  intro he
+  have hh : (![1,0] : Fin 2 → ℚ) ∈ binaryWeightedLine B C := by rw [he];trivial
+  have hz : B=0 := by simpa [binaryWeightedLine,LinearMap.mem_ker,binaryWeightedForm] using hh
+  exact hB hz
+
+theorem binary_zero_lines_proper (B C : ℚ) (hB : B ≠ 0) :
+    ∀ P ∈ binaryZeroLines B C,P ≠ ⊤ := by
+  intro P hP
+  simp only [binaryZeroLines,Finset.mem_insert,Finset.mem_singleton] at hP
+  rcases hP with rfl | rfl | rfl
+  · exact binary_coordinate_line_proper 0
+  · exact binary_coordinate_line_proper 1
+  · exact binary_weighted_line_proper B C hB
+
+theorem binary_zero_form_cover (B C : ℚ) (z : Fin 2 → ℤ)
+    (hz : z 0=0 ∨ z 1=0 ∨ B*(z 0 : ℚ)+C*(z 1 : ℚ)=0) :
+    ∃ P ∈ binaryZeroLines B C,(fun i => (z i : ℚ)) ∈ P := by
+  rcases hz with h0 | h1 | hs
+  · refine ⟨binaryCoordinateLine 0,by simp [binaryZeroLines],?_⟩
+    change (z 0 : ℚ)=0
+    simp [h0]
+  · refine ⟨binaryCoordinateLine 1,by simp [binaryZeroLines],?_⟩
+    change (z 1 : ℚ)=0
+    simp [h1]
+  · refine ⟨binaryWeightedLine B C,by simp [binaryZeroLines],?_⟩
+    exact hs
+
+
+
+theorem binary_parameter_selection (D E delta : ℝ) (hD : 1≤D) (hE : 1≤E)
+    (hd : 0<delta) (hd1 : delta<1) :
+    ∃ eta theta : ℝ,∃ m : ℕ,∃ hm : 0<m,
+    0<eta ∧ eta<1/2 ∧ 0<theta ∧ theta<1/12 ∧ theta≤2*eta*m ∧ 40*eta<delta ∧
+    4*(eta^2)⁻¹*Real.log 12≤(m : ℝ) ∧
+    ∀ U : Set ℝ,¬BddAbove U → ∀ cut : ℝ,
+    ∃ Q : Fin m → ℝ,∃ r : Fin m → ℕ,
+    (∀ h,Q h ∈ U ∧ cut<Q h ∧ 1<Q h) ∧ (∀ h,0<r h) ∧
+    (∀ (h : Fin m) (hh : h.val+1<m),(r ⟨h.val+1,hh⟩ : ℝ)≤rothInductionOmega m theta*(r h : ℝ)) ∧
+    (∀ h,(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)≤(r h : ℝ)*Real.log (Q h) ∧
+      (r h : ℝ)*Real.log (Q h)≤(1+eta)*(r ⟨0,hm⟩ : ℝ)*Real.log (Q ⟨0,hm⟩)) ∧
+    (∀ h,2*E<Real.rpow (Q h) eta) ∧
+    ∀ H : Fin m → ℝ,(∀ h,H h=(Q h)^((1 : ℝ)/4)) →
+    (∀ h,Real.rpow (H ⟨0,hm⟩) ((r ⟨0,hm⟩ : ℝ)*1)≤H h^r h) ∧
+    (∀ h,(2 : ℝ)^(3*m)≤Real.rpow (H h) (rothInductionOmega m theta*1)) ∧
+    D^(∑ h,r h)≤Real.rpow (H ⟨0,hm⟩) (rothInductionOmega m theta*(r ⟨0,hm⟩ : ℝ)*1) := by
+  let eta := delta/1000
+  let theta := eta/2
+  obtain ⟨m,hm⟩ := exists_nat_gt (max 1 (4*(eta^2)⁻¹*Real.log 12))
+  have he : 0<eta := by dsimp [eta];positivity
+  have ht : 0<theta := by dsimp [theta];positivity
+  have hm1 : (1 : ℝ)<m := lt_of_le_of_lt (le_max_left _ _) hm
+  have hmn : 0<m := by exact_mod_cast (lt_trans zero_lt_one hm1)
+  have heta1 : eta<1/2 := by dsimp [eta];linarith
+  have ht1 : theta<1/12 := by dsimp [theta,eta];linarith
+  have htb : theta≤2*eta*m := by dsimp [theta];nlinarith
+  have hed : 40*eta<delta := by dsimp [eta];linarith
+  let rho := rothInductionOmega m theta
+  have hrho : 0<rho := rothInductionOmega_pos m theta ht
+  refine ⟨eta,theta,m,hmn,he,heta1,ht,ht1,htb,hed,(lt_of_le_of_lt (le_max_right _ _) hm).le,?_⟩
+  intro U hU cut
+  let B1 := Real.log (2*E)/eta
+  let B2 := ((12*m : ℕ)*Real.log 2)/((1/4)*rho)
+  let B3 := ((m : ℝ)*(1+eta)*Real.log D)/((1/4)*rho)
+  let B := max B1 (max B2 B3)
+  obtain ⟨Q,hQ,hmono,hgap⟩ := parameter_sparse_Q U hU (max cut (Real.exp B)) ((1+eta)/rho) m
+  have hQone (h) : 1<Q h := (hQ h).2.2
+  have hlog (h) : B<Real.log (Q h) := by
+    have hh : Real.exp B<Q h := lt_of_le_of_lt (le_max_right _ _) (hQ h).2.1
+    simpa only [Real.log_exp] using Real.log_lt_log (Real.exp_pos B) hh
+  have hb1 (h) : B1<Real.log (Q h) := lt_of_le_of_lt (le_max_left _ _) (hlog h)
+  have hb2 (h) : B2<Real.log (Q h) :=
+    lt_of_le_of_lt ((le_max_left _ _).trans (le_max_right _ _)) (hlog h)
+  have hb3 (h) : B3<Real.log (Q h) :=
+    lt_of_le_of_lt ((le_max_right _ _).trans (le_max_right _ _)) (hlog h)
+  have hgap' (h : Fin m) (hh : h.val+1<m) :
+      (1+eta)*Real.log (Q h)≤rho*Real.log (Q ⟨h.val+1,hh⟩) := by
+    have hx := mul_lt_mul_of_pos_left (hgap h hh) hrho
+    have hx' : rho*((1+eta)/rho*Real.log (Q h))=(1+eta)*Real.log (Q h) := by field_simp
+    rw [hx'] at hx
+    exact hx.le
+  obtain ⟨r,hr,hsep,hbal⟩ := parameter_integer_degrees m hmn eta rho he hrho Q hQone hgap'
+  refine ⟨Q,r,?_,hr,hsep,hbal,?_,?_⟩
+  · intro h
+    exact ⟨(hQ h).1,lt_of_le_of_lt (le_max_left _ _) (hQ h).2.1,hQone h⟩
+  · intro h
+    exact parameter_rpow_threshold _ _ _ (hQone h) he (by linarith) (hb1 h)
+  · intro H hH
+    have hHb (h) : Q h^((1 : ℝ)/4)≤H h ∧ H h≤Q h^((1 : ℝ)/4) := by rw [hH h];exact ⟨le_rfl,le_rfl⟩
+    have hHpos (h) : 0<H h := by rw [hH h];exact Real.rpow_pos_of_pos (lt_trans zero_lt_one (hQone h)) _
+    have hHlog (h) : Real.log (H h)=(1/4)*Real.log (Q h) := by
+      rw [hH h,Real.log_rpow (lt_trans zero_lt_one (hQone h))]
+    refine ⟨parameter_roth_growth m hmn (1/4) (1/4) 1 (by norm_num) (by norm_num) (by norm_num)
+      Q H hQone hHb r (fun h => (hbal h).1),?_,?_⟩
+    · intro h
+      have hc : (12*m : ℕ)*Real.log 2≤(1/4)*rho*1*Real.log (Q h) := by
+        have hh := (div_lt_iff₀ (mul_pos (by norm_num : (0 : ℝ)<1/4) hrho)).mp (hb2 h)
+        nlinarith
+      have hh := parameter_roth_denominator m (1/4) rho 1 hrho (by norm_num) (Q h) (H h) (hQone h) (hHb h).1 hc
+      exact (pow_le_pow_right₀ (by norm_num : (1 : ℝ)≤2) (by omega : 3*m≤12*m)).trans hh
+    · have hsum := parameter_degree_sum m hmn eta he Q hQone hmono.monotone r (fun h => (hbal h).2)
+      have hc := (div_lt_iff₀ (mul_pos (by norm_num : (0 : ℝ)<1/4) hrho)).mp (hb3 ⟨0,hmn⟩)
+      apply (Real.log_le_log_iff (pow_pos (lt_of_lt_of_le zero_lt_one hD) _)
+        (Real.rpow_pos_of_pos (hHpos _) _)).mp
+      rw [Real.log_pow,Real.log_rpow (hHpos _),hHlog]
+      have h1 := mul_le_mul_of_nonneg_right hsum (Real.log_nonneg hD)
+      have h2 := mul_le_mul_of_nonneg_right hc.le (Nat.cast_nonneg (r ⟨0,hmn⟩) : (0 : ℝ)≤r ⟨0,hmn⟩)
+      change ((∑ h,r h : ℕ) : ℝ)*Real.log D≤(rho*(r ⟨0,hmn⟩ : ℝ)*1)*((1/4)*Real.log (Q ⟨0,hmn⟩))
+      nlinarith
+
+
+
+theorem binary_fixed_source_family (B C : ℚ) (d : ℕ) (hd : 0<d) (b c : ℤ)
+    (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) :
+    ∃ cut : ℝ,1≤cut ∧ ∀ U : Set ℝ,¬BddAbove U →
+    ∀ z : U → Fin 2 → ℤ,(∀ q,PrimitivePair (z q)) →
+    (∀ q,z q 0 ≠ 0 ∧ z q 1 ≠ 0 ∧ B*(z q 0 : ℚ)+C*(z q 1 : ℚ) ≠ 0) →
+    (∀ q,cut<(archPairHeight (z q) : ℝ)) →
+    (∀ q,(weightedNormalizedProduct2 B C (z q 0 : ℚ) (z q 1 : ℚ) : ℝ)<
+      Real.rpow (archPairHeight (z q) : ℝ) (-(5 : ℝ)/2)) →
+    (∀ q,q.val=(archPairHeight (z q) : ℝ)^4) →
+    ∃ k : Fin 3 → Fin 2,∃ v ∈ binaryWeightCandidates,∃ W : Set ℝ,W ⊆ U ∧ ¬BddAbove W ∧
+    ∀ q : U,q.val ∈ W → 1<q.val ∧ ∀ tau i,
+      binaryPatternNorms d b c k (z q) tau i≤Real.rpow q.val (v tau i-if tau=0 then (1 : ℝ)/384 else 0) := by
+  obtain ⟨cut,hcut,hpoint⟩ := binary_weighted_fixed_source_point B C d hd b c hb hc
+  refine ⟨cut,hcut,?_⟩
+  intro U hU z hz hn htail hproduct hparam
+  have hp (q : U) : ∃ k : Fin 3 → Fin 2,∃ v ∈ binaryWeightCandidates,
+      1<q.val ∧ (∑ tau : Fin 3,∑ i : Fin 2,v tau i)=0 ∧ (∀ tau i,|v tau i|≤1) ∧
+      ∀ tau i,binaryPatternNorms d b c k (z q) tau i≤
+        Real.rpow q.val (v tau i-if tau=0 then (1 : ℝ)/384 else 0) := by
+    simpa only [← hparam q] using hpoint (z q) (hz q) (hn q).1 (hn q).2.1 (hn q).2.2 (htail q) (hproduct q)
+  choose k v hv hQ hbal hbound hlocal using hp
+  let F : Set ((Fin 3 → Fin 2) × (Fin 3 → Fin 2 → ℝ)) := Set.univ ×ˢ binaryWeightCandidates
+  have hF : F.Finite := Set.finite_univ.prod binary_weight_candidates_finite
+  let a (Q : ℝ) := if h : Q ∈ U then (k ⟨Q,h⟩,v ⟨Q,h⟩) else (fun _ => 0,fun _ _ => 0)
+  have ha : ∀ Q ∈ U,a Q ∈ F := by
+    intro Q h
+    simp only [a,dif_pos h,F,Set.mem_prod,Set.mem_univ,true_and]
+    exact hv ⟨Q,h⟩
+  obtain ⟨⟨K,V⟩,hKV,hW⟩ := allpoint_finite_parameter_fiber3 F hF U hU a ha
+  let W : Set ℝ := {Q | Q ∈ U ∧ a Q=(K,V)}
+  refine ⟨K,V,hKV.2,W,fun Q h => h.1,hW,?_⟩
+  intro q hq
+  have hh := hq.2
+  simp only [a,dif_pos q.property] at hh
+  have he : k q=K ∧ v q=V := Prod.mk.inj hh
+  exact ⟨hQ q,by simpa only [he.1,he.2] using hlocal q⟩
+
+
+
+theorem binary_weighted_source_family_bounded (B C : ℚ) (hB : B ≠ 0) (hC : C ≠ 0)
+    (d : ℕ) (hd : 0<d) (b c : ℤ) (hb : (b : ℚ)=(d : ℚ)*B) (hc : (c : ℚ)=(d : ℚ)*C) :
+    ∃ cut : ℝ,1≤cut ∧ ∀ U : Set ℝ,∀ z : U → Fin 2 → ℤ,
+    (∀ q,PrimitivePair (z q)) →
+    (∀ q,z q 0 ≠ 0 ∧ z q 1 ≠ 0 ∧ B*(z q 0 : ℚ)+C*(z q 1 : ℚ) ≠ 0) →
+    (∀ q,cut<(archPairHeight (z q) : ℝ)) →
+    (∀ q,(weightedNormalizedProduct2 B C (z q 0 : ℚ) (z q 1 : ℚ) : ℝ)<
+      Real.rpow (archPairHeight (z q) : ℝ) (-(5 : ℝ)/2)) →
+    (∀ q,q.val=(archPairHeight (z q) : ℝ)^4) → BddAbove U := by
+  obtain ⟨cut,hcut,hfamily⟩ := binary_fixed_source_family B C d hd b c hb hc
+  refine ⟨cut,hcut,?_⟩
+  intro U z hz hn htail hproduct hparam
+  by_contra hU
+  obtain ⟨k,v,hv,W,hWU,hW,hlocal⟩ := hfamily U hU z hz hn htail hproduct hparam
+  let L : Fin 3 → Matrix (Fin 2) (Fin 2) ℤ := fun tau => binaryIntegerRetained2 d b c (k tau)
+  have hL (tau) : (binaryLocalRationalMatrix (L tau)).det ≠ 0 :=
+    binary_integer_retained_det B C hB hC d hd b c hb hc (k tau)
+  obtain ⟨D,E,hD,hE,hcontr⟩ := binary_auxiliary_integer_analytic_contradiction L hL
+  obtain ⟨eta,theta,m,hm,he,he1,ht,ht1,htb,hed,hcount,hselect⟩ :=
+    binary_parameter_selection D E ((1 : ℝ)/384) hD hE (by norm_num) (by norm_num)
+  obtain ⟨Q,r,hQ,hr,hsep,hlog,hthreshold,hbudgets⟩ := hselect W hW 1
+  let qh : Fin m → U := fun h => ⟨Q h,hWU (hQ h).1⟩
+  let Z : Fin m → Fin 2 → ℤ := fun h => z (qh h)
+  let V : Fin m → Fin 2 → ℤ := fun h => binaryPairNormal (Z h)
+  let H : Fin m → ℝ := fun h => (archPairHeight (Z h) : ℝ)
+  have hHone (h) : 1<H h := lt_of_le_of_lt hcut (htail (qh h))
+  have hHQ (h) : H h=(Q h)^((1 : ℝ)/4) := by
+    have hh := hparam (qh h)
+    change Q h=(H h)^4 at hh
+    rw [hh,← Real.rpow_natCast,← Real.rpow_mul (show 0≤H h by linarith [hHone h])]
+    norm_num
+  obtain ⟨hgrowth,hden,hheight⟩ := hbudgets H hHQ
+  have hVH (h) : (binaryNormalHeight (V h) : ℝ)=H h := binary_pair_normal_height (Z h)
+  apply hcontr eta he he1 m hm hcount r hr theta 1 ht ht1 htb (by norm_num) (by norm_num) hsep
+    ((1 : ℝ)/384) hed (by norm_num) v hv.2.1 hv.2.2 Q (fun h => (hQ h).2.2) hthreshold hlog V
+  · intro h
+    exact ⟨binary_pair_normal_nonzero (Z h) (hz (qh h)),binary_pair_normal_ideal (Z h) (hz (qh h))⟩
+  · intro h _
+    simpa only [hVH] using hgrowth h
+  · intro h
+    simpa only [hVH] using hden h
+  · simpa only [hVH] using hheight
+  · intro tau h i
+    change rothLocalAbs tau (binaryLocalVectorValue (L tau) (binaryKernelVector (binaryPairNormal (Z h))) i)≤_
+    rw [binary_pair_normal_vector]
+    exact (hlocal (qh h) (hQ h).1).2 tau i
+
+
+
+theorem binary_integer_height_ball_finite (T : Set (Fin 2 → ℤ)) (M : ℝ)
+    (hM : ∀ z ∈ T,(archPairHeight z : ℝ)≤M) : T.Finite := by
+  have hbox : {z : Fin 2 → ℤ | ∀ i,-⌈M⌉≤z i ∧ z i≤⌈M⌉}.Finite :=
+    Set.Finite.pi' (fun _ => Set.finite_Icc _ _)
+  apply hbox.subset
+  intro z hz i
+  have hc : |(z i : ℝ)|≤(archPairHeight z : ℝ) := by
+    have hq : |(z i : ℚ)|≤archPairHeight z := by
+      have hi : i=0 ∨ i=1 := by omega
+      rcases hi with rfl | rfl
+      · exact le_max_left _ _
+      · exact le_max_right _ _
+    exact_mod_cast hq
+  have hh := abs_le.mp (hc.trans (hM z hz))
+  have hm := Int.le_ceil M
+  constructor
+  · exact_mod_cast (show -((⌈M⌉ : ℤ) : ℝ)≤(z i : ℝ) by linarith)
+  · exact_mod_cast (show (z i : ℝ)≤((⌈M⌉ : ℤ) : ℝ) by linarith)
+
+noncomputable def binaryRationalSpan (z : Fin 2 → ℤ) : Submodule ℚ (Fin 2 → ℚ) :=
+  Submodule.span ℚ {(fun i => (z i : ℚ))}
+
+theorem binary_rational_span_mem (z : Fin 2 → ℤ) : (fun i => (z i : ℚ)) ∈ binaryRationalSpan z :=
+  Submodule.subset_span (Set.mem_singleton _)
+
+theorem binary_rational_span_proper (z : Fin 2 → ℤ) (h1 : z 1 ≠ 0) : binaryRationalSpan z ≠ ⊤ := by
+  have hline : binaryWeightedLine (-(z 1 : ℚ)) (z 0 : ℚ) ≠ ⊤ :=
+    binary_weighted_line_proper _ _ (neg_ne_zero.mpr (by exact_mod_cast h1))
+  have hle : binaryRationalSpan z≤binaryWeightedLine (-(z 1 : ℚ)) (z 0 : ℚ) := by
+    apply Submodule.span_le.mpr
+    intro x hx
+    have he : x=(fun i => (z i : ℚ)) := Set.mem_singleton_iff.mp hx
+    subst x
+    change -(z 1 : ℚ)*(z 0 : ℚ)+(z 0 : ℚ)*(z 1 : ℚ)=0
+    ring
+  intro he
+  rw [he] at hle
+  exact hline (top_le_iff.mp hle)
+
+
+
+def BinaryWeightedNonexceptional (B C : ℚ) (z : Fin 2 → ℤ) : Prop :=
+  PrimitivePair z ∧ z 0 ≠ 0 ∧ z 1 ≠ 0 ∧ B*(z 0 : ℚ)+C*(z 1 : ℚ) ≠ 0 ∧
+  (weightedNormalizedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+    Real.rpow (archPairHeight z : ℝ) (-(5 : ℝ)/2)
+
+theorem binary_weighted_solution_height_bound (B C : ℚ) (hB : B ≠ 0) (hC : C ≠ 0) :
+    ∃ M : ℝ,∀ z : Fin 2 → ℤ,BinaryWeightedNonexceptional B C z → (archPairHeight z : ℝ)≤M := by
+  obtain ⟨d,hd,b,c,hb,hc⟩ := binary_common_denominator B C
+  obtain ⟨cut,hcut,hbounded⟩ := binary_weighted_source_family_bounded B C hB hC d hd b c hb hc
+  let U : Set ℝ := {Q | ∃ z : Fin 2 → ℤ,BinaryWeightedNonexceptional B C z ∧
+    cut<(archPairHeight z : ℝ) ∧ Q=(archPairHeight z : ℝ)^4}
+  have hp (q : U) : ∃ z : Fin 2 → ℤ,BinaryWeightedNonexceptional B C z ∧
+      cut<(archPairHeight z : ℝ) ∧ q.val=(archPairHeight z : ℝ)^4 := q.property
+  choose z hz htail hparam using hp
+  have hU : BddAbove U := hbounded U z (fun q => (hz q).1)
+    (fun q => ⟨(hz q).2.1,(hz q).2.2.1,(hz q).2.2.2.1⟩) htail
+    (fun q => (hz q).2.2.2.2) hparam
+  obtain ⟨M,hM⟩ := hU
+  refine ⟨max cut (max 1 M),?_⟩
+  intro z hz
+  by_contra! hlarge
+  have hc : cut<(archPairHeight z : ℝ) := lt_of_le_of_lt (le_max_left _ _) hlarge
+  have hH : 1<(archPairHeight z : ℝ) :=
+    lt_of_le_of_lt ((le_max_left _ _).trans (le_max_right _ _)) hlarge
+  have hm : M<(archPairHeight z : ℝ) :=
+    lt_of_le_of_lt ((le_max_right _ _).trans (le_max_right _ _)) hlarge
+  have hh := hM (show (archPairHeight z : ℝ)^4 ∈ U from ⟨z,hz,hc,rfl⟩)
+  have hpow : (archPairHeight z : ℝ)≤(archPairHeight z : ℝ)^4 := by
+    simpa using (pow_le_pow_right₀ hH.le (by decide : 1≤4))
+  linarith
+
+
+
+theorem binary_weighted_allpoint_finite_cover (B C : ℚ) (hB : B ≠ 0) (hC : C ≠ 0) :
+    ∃ F : Set (Submodule ℚ (Fin 2 → ℚ)),F.Finite ∧ (∀ P ∈ F,P ≠ ⊤) ∧
+    ∀ z : Fin 2 → ℤ,PrimitivePair z →
+      (weightedNormalizedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ)<
+        Real.rpow (archPairHeight z : ℝ) (-(5 : ℝ)/2) →
+      ∃ P ∈ F,(fun i => (z i : ℚ)) ∈ P := by
+  obtain ⟨M,hM⟩ := binary_weighted_solution_height_bound B C hB hC
+  let T : Set (Fin 2 → ℤ) := {z | BinaryWeightedNonexceptional B C z}
+  have hT : T.Finite := binary_integer_height_ball_finite T M hM
+  let F : Set (Submodule ℚ (Fin 2 → ℚ)) :=
+    (binaryZeroLines B C : Set (Submodule ℚ (Fin 2 → ℚ))) ∪ (binaryRationalSpan '' T)
+  have hF : F.Finite := (binaryZeroLines B C).finite_toSet.union (hT.image binaryRationalSpan)
+  refine ⟨F,hF,?_,?_⟩
+  · intro P hP
+    rcases hP with hzero | hspan
+    · exact binary_zero_lines_proper B C hB P hzero
+    · obtain ⟨z,hz,rfl⟩ := hspan
+      exact binary_rational_span_proper z hz.2.2.1
+  · intro z hz hp
+    by_cases he : z 0=0 ∨ z 1=0 ∨ B*(z 0 : ℚ)+C*(z 1 : ℚ)=0
+    · obtain ⟨P,hP,hzP⟩ := binary_zero_form_cover B C z he
+      exact ⟨P,Or.inl hP,hzP⟩
+    · push_neg at he
+      have hzT : z ∈ T := ⟨hz,he.1,he.2.1,he.2.2,hp⟩
+      exact ⟨binaryRationalSpan z,Or.inr ⟨z,hzT,rfl⟩,binary_rational_span_mem z⟩
+
+
+end LiteralR5
+
+#check LiteralR5.binaryLogRaw
+#print axioms LiteralR5.binaryLogRaw
+#check LiteralR5.binaryLogAlpha
+#print axioms LiteralR5.binaryLogAlpha
+#check LiteralR5.binaryLogWeights
+#print axioms LiteralR5.binaryLogWeights
+#check LiteralR5.binary_log_balance
+#print axioms LiteralR5.binary_log_balance
+#check LiteralR5.binary_log_positive_margin
+#print axioms LiteralR5.binary_log_positive_margin
+#check LiteralR5.binary_log_source_bounds
+#print axioms LiteralR5.binary_log_source_bounds
+#check LiteralR5.binary_log_alpha_raw_sum
+#print axioms LiteralR5.binary_log_alpha_raw_sum
+#check LiteralR5.binary_log_uniform_bound
+#print axioms LiteralR5.binary_log_uniform_bound
+#check LiteralR5.binary_weighted_normalization
+#print axioms LiteralR5.binary_weighted_normalization
+#check LiteralR5.binary_primitive_retained_bound
+#print axioms LiteralR5.binary_primitive_retained_bound
+#check LiteralR5.binary_denominator_tail_bound
+#print axioms LiteralR5.binary_denominator_tail_bound
+#check LiteralR5.binary_place_norm_cast
+#print axioms LiteralR5.binary_place_norm_cast
+#check LiteralR5.binary_integer_pattern_value
+#print axioms LiteralR5.binary_integer_pattern_value
+#check LiteralR5.binary_integer_pattern_product
+#print axioms LiteralR5.binary_integer_pattern_product
+#check LiteralR5.binaryIntegerFormConstant
+#print axioms LiteralR5.binaryIntegerFormConstant
+#check LiteralR5.binary_integer_norm_bounds
+#print axioms LiteralR5.binary_integer_norm_bounds
+#check LiteralR5.binary_integer_pattern_arch_bound
+#print axioms LiteralR5.binary_integer_pattern_arch_bound
+#check LiteralR5.binaryPairNormal
+#print axioms LiteralR5.binaryPairNormal
+#check LiteralR5.binary_primitive_pair_ideal
+#print axioms LiteralR5.binary_primitive_pair_ideal
+#check LiteralR5.binary_pair_normal_primitive
+#print axioms LiteralR5.binary_pair_normal_primitive
+#check LiteralR5.binary_pair_normal_ideal
+#print axioms LiteralR5.binary_pair_normal_ideal
+#check LiteralR5.binary_pair_normal_nonzero
+#print axioms LiteralR5.binary_pair_normal_nonzero
+#check LiteralR5.binary_pair_normal_vector
+#print axioms LiteralR5.binary_pair_normal_vector
+#check LiteralR5.binary_pair_normal_height
+#print axioms LiteralR5.binary_pair_normal_height
+#check LiteralR5.binary_vector_value_integer
+#print axioms LiteralR5.binary_vector_value_integer
+#check LiteralR5.binary_pattern_value_nonzero
+#print axioms LiteralR5.binary_pattern_value_nonzero
+#check LiteralR5.binary_pattern_local_bounds
+#print axioms LiteralR5.binary_pattern_local_bounds
+#check LiteralR5.binary_log_tail_bounds
+#print axioms LiteralR5.binary_log_tail_bounds
+#check LiteralR5.binaryPatternNorms
+#print axioms LiteralR5.binaryPatternNorms
+#check LiteralR5.binary_weighted_source_point
+#print axioms LiteralR5.binary_weighted_source_point
+#check LiteralR5.binaryWeightIndex
+#print axioms LiteralR5.binaryWeightIndex
+#check LiteralR5.binaryWeightRaw
+#print axioms LiteralR5.binaryWeightRaw
+#check LiteralR5.binaryWeightCandidate
+#print axioms LiteralR5.binaryWeightCandidate
+#check LiteralR5.binaryWeightApprox
+#print axioms LiteralR5.binaryWeightApprox
+#check LiteralR5.binary_weight_raw_error
+#print axioms LiteralR5.binary_weight_raw_error
+#check LiteralR5.binary_weight_candidate_balance
+#print axioms LiteralR5.binary_weight_candidate_balance
+#check LiteralR5.binary_weight_round_bounds
+#print axioms LiteralR5.binary_weight_round_bounds
+#check LiteralR5.binaryWeightCandidates
+#print axioms LiteralR5.binaryWeightCandidates
+#check LiteralR5.binary_weight_candidates_finite
+#print axioms LiteralR5.binary_weight_candidates_finite
+#check LiteralR5.binary_weight_approx_mem
+#print axioms LiteralR5.binary_weight_approx_mem
+#check LiteralR5.binary_weighted_fixed_source_point
+#print axioms LiteralR5.binary_weighted_fixed_source_point
+#check LiteralR5.binaryCoordinateLine
+#print axioms LiteralR5.binaryCoordinateLine
+#check LiteralR5.binaryWeightedForm
+#print axioms LiteralR5.binaryWeightedForm
+#check LiteralR5.binaryWeightedLine
+#print axioms LiteralR5.binaryWeightedLine
+#check LiteralR5.binaryZeroLines
+#print axioms LiteralR5.binaryZeroLines
+#check LiteralR5.binary_coordinate_line_proper
+#print axioms LiteralR5.binary_coordinate_line_proper
+#check LiteralR5.binary_weighted_line_proper
+#print axioms LiteralR5.binary_weighted_line_proper
+#check LiteralR5.binary_zero_lines_proper
+#print axioms LiteralR5.binary_zero_lines_proper
+#check LiteralR5.binary_zero_form_cover
+#print axioms LiteralR5.binary_zero_form_cover
+#check LiteralR5.binary_parameter_selection
+#print axioms LiteralR5.binary_parameter_selection
+#check LiteralR5.binary_fixed_source_family
+#print axioms LiteralR5.binary_fixed_source_family
+#check LiteralR5.binary_weighted_source_family_bounded
+#print axioms LiteralR5.binary_weighted_source_family_bounded
+#check LiteralR5.binary_integer_height_ball_finite
+#print axioms LiteralR5.binary_integer_height_ball_finite
+#check LiteralR5.binaryRationalSpan
+#print axioms LiteralR5.binaryRationalSpan
+#check LiteralR5.binary_rational_span_mem
+#print axioms LiteralR5.binary_rational_span_mem
+#check LiteralR5.binary_rational_span_proper
+#print axioms LiteralR5.binary_rational_span_proper
+#check LiteralR5.BinaryWeightedNonexceptional
+#print axioms LiteralR5.BinaryWeightedNonexceptional
+#check LiteralR5.binary_weighted_solution_height_bound
+#print axioms LiteralR5.binary_weighted_solution_height_bound
+#check LiteralR5.binary_weighted_allpoint_finite_cover
+#print axioms LiteralR5.binary_weighted_allpoint_finite_cover

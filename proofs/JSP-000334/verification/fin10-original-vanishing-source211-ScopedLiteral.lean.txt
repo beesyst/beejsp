@@ -1,0 +1,118 @@
+import SubspaceBridge.SourceOriginalFixedBudgets10
+import SubspaceBridge.SourceSchmidtVanishing10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M211LiteralVanishing10
+open SourceFixedBudget10 SourceSchmidtContradiction10 SourceOriginalDual10 SourceOriginalVariable10
+open SchmidtNormal10 OriginalDual10 SourceSampling10 SourceSelectedSet10
+open SchmidtCoordinate10 SchmidtPolynomial10 SchmidtRationalNormalization6 SchmidtScalar10
+
+theorem actual_sample_budget_contradiction10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {c2 c3 : Fin 10 → ℝ} {V : Set ℝ} {v : V → Fin 10 → Fin 10 → ℤ}
+    {c : Fin 3 → Fin 10 → ℝ} {epsilon eta D E B rho : ℝ} {m : ℕ} {hm : 0 < m}
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+    (alpha B0 theta C_sch : ℝ)
+    (ht : 0 < theta) (htu : theta < 1/12) (hCs : 0 < C_sch) (hCs1 : C_sch ≤ 1)
+    (hmargin : theta < (m : ℝ)*eta)
+    (hbudget :
+            ∃ (C : (h : Fin m) → NormalCoordinateChoice10 (S.data.M h))
+              (G : MvPolynomial (Fin m) ℤ),
+              G ≠ 0 ∧ JSP000334.rothIntegerHeight G ≤ height10 S.data.P ∧
+              (∀ h, G.degreeOf h ≤ S.data.r h) ∧
+              G.map (Int.castRingHom ℝ) ∈ monicIdeal6
+                (binaryLift6 (permutedNormals10 S.data.M (fun h => (C h).e))) S.data.r ((m : ℝ)*eta) ∧
+              (∀ h, 0 < S.data.r h) ∧
+              (∀ (h : Fin m) (hh : h.val+1 < m),
+                (S.data.r ⟨h.val+1,hh⟩ : ℝ) ≤ JSP000334.omega65 m theta*(S.data.r h : ℝ)) ∧
+              let N := permutedNormals10 S.data.M (fun g => (C g).e)
+              let b := fun h => rootDenominator6 (N h 0) (N h 1)
+              let p := fun h => rootNumerator6 (N h 0) (N h 1)
+              (JSP000334.rothIntegerHeight G : ℝ) ≤ D^((m : ℝ)*(1+eta)*(S.data.r ⟨0,hm⟩ : ℝ)) ∧
+              (JSP000334.rothIntegerHeight G : ℝ) ≤
+                |(b ⟨0,hm⟩ : ℝ)|^(JSP000334.omega65 m theta*(S.data.r ⟨0,hm⟩ : ℝ)*C_sch) ∧
+              ∀ h, B0 < (S.data.t h).val^5 ∧
+                ((S.data.t h).val^5)^alpha ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+                N h 0 ≠ 0 ∧ Int.gcd (N h 0) (N h 1)^9 ≤ (N h 0).natAbs^8 ∧
+                b h ≠ 0 ∧ Int.gcd (p h) (b h) = 1 ∧
+                (normalHeight10 (S.data.M h) : ℝ)^(1/9 : ℝ) ≤ |(b h : ℝ)| ∧
+                |(b h : ℝ)| ≤ (normalHeight10 (S.data.M h) : ℝ) ∧
+                ((S.data.t h).val^5)^(alpha/9) ≤ |(b h : ℝ)| ∧
+                |(b ⟨0,hm⟩ : ℝ)|^((S.data.r ⟨0,hm⟩ : ℝ)*C_sch) ≤
+                  |(b h : ℝ)|^(S.data.r h : ℝ) ∧
+                (2 : ℝ)^(3*m) ≤ |(b h : ℝ)|^(JSP000334.omega65 m theta*C_sch) ) : False := by
+  obtain ⟨C,G,hGn,_hGH,hdeg,hideal,hpos,hsep,_hGHpower,hpoly,hdata⟩ := hbudget
+  let N := permutedNormals10 S.data.M (fun h => (C h).e)
+  have hb (h : Fin m) : rootDenominator6 (N h 0) (N h 1) ≠ 0 ∧
+      Int.gcd (rootNumerator6 (N h 0) (N h 1)) (rootDenominator6 (N h 0) (N h 1)) = 1 := by
+    obtain ⟨_hcut,_hheight,_hN,_hgcd,hbn,hcop,_hroot,_hupper,_hlower,_hgrow,_hden⟩ := hdata h
+    exact ⟨hbn,hcop⟩
+  have hgrowth (h : Fin m) :
+      |(rootDenominator6 (N ⟨0,hm⟩ 0) (N ⟨0,hm⟩ 1) : ℝ)|^((S.data.r ⟨0,hm⟩ : ℝ)*C_sch) ≤
+      |(rootDenominator6 (N h 0) (N h 1) : ℝ)|^(S.data.r h : ℝ) := by
+    obtain ⟨_hcut,_hheight,_hN,_hgcd,_hbn,_hcop,_hroot,_hupper,_hlower,hgrow,_hden⟩ := hdata h
+    exact hgrow
+  have hden (h : Fin m) : (2 : ℝ)^(3*m) ≤
+      |(rootDenominator6 (N h 0) (N h 1) : ℝ)|^(JSP000334.omega65 m theta*C_sch) := by
+    obtain ⟨_hcut,_hheight,_hN,_hgcd,_hbn,_hcop,_hroot,_hupper,_hlower,_hgrow,hden⟩ := hdata h
+    exact hden
+  exact same_derivative_contradiction10 m hm N theta C_sch ((m : ℝ)*eta)
+    ht htu hCs hCs1 hmargin S.data.r G hpos hsep hb hgrowth hden hGn hdeg hpoly hideal
+
+end CompoundFeasibility.M211LiteralVanishing10
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M211LiteralVanishing10
+open SourceFixedBudget10 SourceOriginalDual10 SourceOriginalVariable10 SourceSelectedSet10
+
+theorem original_rational_failure_contradiction10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10)
+    (hfail : ∀ B : ℝ, ∃ Q : ℝ, ∃ hQ : 1 < Q, B < Q ∧
+      ∃ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+        ∃ s ∈ S0, dataRationalDualProduct10 D s ≠ 0) : False := by
+  obtain ⟨K,_hK,D0,E0,alpha,C_upper,T,_hD,_hE,_ha,_hC,_hT,hinputs⟩ :=
+    original_rational_fixed_budgets10 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  obtain ⟨U,_hU,hQU,D,_hbad,V,hVU,_hV,_hlarge,e,_he,_he1,c,_hc,_hbal,_hfin,
+    eta,_heta,_hmargin,m,hm,_hcount,hfamily,_hheight,hpackage⟩ := hinputs hfail 0
+  let theta := min (1/24 : ℝ) ((m : ℝ)*eta/2)
+  let rho := min (1/2 : ℝ) (JSP000334.omega65 m theta)
+  obtain ⟨B0,_hB0,_hB01,hCs,hCs1,ht,htu,hmargin,hr,_hrhalf,_hrw,_hw,_hden,_hpoly,hbudget⟩ := hpackage
+  obtain ⟨S⟩ := hfamily rho hr B0
+  exact actual_sample_budget_contradiction10 S alpha B0 theta
+    (min (1/2 : ℝ) (alpha/180)) ht htu hCs hCs1 hmargin (hbudget B0 le_rfl S)
+
+end CompoundFeasibility.M211LiteralVanishing10
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M211LiteralVanishing10
+open SourceFixedBudget10 SourceOriginalDual10 SourceOriginalVariable10 SourceSelectedSet10
+
+theorem original_rational_selected_eventually_zero10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (delta : ℝ) (hd : 0 < delta) (S0 : Finset MixedIndex10) :
+    ∃ Q0 : ℝ, ∀ Q : ℝ, ∀ hQ : 1 < Q, Q0 < Q →
+      ∀ D : OriginalData10 A2 A3 L hL Q hQ delta S0,
+      ∀ s : MixedIndex10, s ∈ S0 → dataRationalDualProduct10 D s = 0 := by
+  classical
+  by_contra hnot
+  apply original_rational_failure_contradiction10 A2 A3 L h2 h3 hLd hL hAlg delta hd S0
+  intro B
+  by_contra hnone
+  apply hnot
+  refine ⟨B,?_⟩
+  intro Q hQ hBQ D s hs
+  by_contra hn
+  exact hnone ⟨Q,hQ,hBQ,D,s,hs,hn⟩
+
+end CompoundFeasibility.M211LiteralVanishing10
+
+#print axioms CompoundFeasibility.M211LiteralVanishing10.actual_sample_budget_contradiction10
+
+#print axioms CompoundFeasibility.M211LiteralVanishing10.original_rational_failure_contradiction10
+
+#print axioms CompoundFeasibility.M211LiteralVanishing10.original_rational_selected_eventually_zero10

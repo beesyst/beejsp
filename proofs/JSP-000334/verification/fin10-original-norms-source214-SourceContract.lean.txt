@@ -1,0 +1,77 @@
+import SubspaceBridge.SourceOriginalNorms214
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M214SourceContract
+open OriginalDual10 SourceOriginalDual10 SourceOriginalSatz212 SourceOriginalVariable10 SourceOriginalNorm214
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+
+theorem real_source_norm214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ =
+      ‖∑ k, (((originalIndex212 D : ℝ)*originalCovolume212 D)*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℝ))*L⁻¹.transpose i k‖ := by
+  exact original_real_sum_norm214 D i
+
+theorem p2_source_norm214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℚ_[2]))) i‖ =
+      ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))*(A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose i k‖ := by
+  rw [original_p2_norm214 D i]
+  congr 1
+  simp only [Matrix.mulVec,dotProduct]
+  apply Finset.sum_congr rfl
+  intro k _
+  exact mul_comm _ _
+
+theorem p3_source_norm214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℚ_[3]))) i‖ =
+      ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))*(A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose i k‖ := by
+  rw [original_p3_norm214 D i]
+  congr 1
+  simp only [Matrix.mulVec,dotProduct]
+  apply Finset.sum_congr rfl
+  intro k _
+  exact mul_comm _ _
+
+theorem integrated_source_norms214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    0 < originalIndex212 D ∧ 0 < originalCovolume212 D ∧
+      originalIndex212 D * (originalLattice212 D).index = ((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det).natAbs ∧
+      |((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det : ℝ)| = (originalIndex212 D : ℝ)*originalCovolume212 D ∧
+      originalCovolume212 D = ((originalLattice212 D).index : ℝ) ∧
+      ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℝ) =
+        (originalIndex212 D : ℝ)*originalCovolume212 D ∧
+      ∀ i : Fin 10,
+      ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ =
+      ‖∑ k, (((originalIndex212 D : ℝ)*originalCovolume212 D)*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℝ))*L⁻¹.transpose i k‖ ∧
+      ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℚ_[2]))) i‖ =
+      ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))*(A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose i k‖ ∧
+      ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℚ_[3]))) i‖ =
+      ‖∑ k, (((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+        (lastDual10 (fun j i => (D.u j i : ℚ))
+          (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))*(A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose i k‖ := by
+  obtain ⟨hJ,hd,hN,hdet,hidx,hscale,_hnorms⟩ := original_norm_transport214 D
+  refine ⟨hJ,hd,hN,hdet,hidx,hscale,?_⟩
+  intro i
+  exact ⟨real_source_norm214 D i,p2_source_norm214 D i,p3_source_norm214 D i⟩
+
+end CompoundFeasibility.M214SourceContract
+
+#print CompoundFeasibility.M214SourceContract.real_source_norm214
+#print axioms CompoundFeasibility.M214SourceContract.real_source_norm214
+
+#print CompoundFeasibility.M214SourceContract.p2_source_norm214
+#print axioms CompoundFeasibility.M214SourceContract.p2_source_norm214
+
+#print CompoundFeasibility.M214SourceContract.p3_source_norm214
+#print axioms CompoundFeasibility.M214SourceContract.p3_source_norm214
+
+#print CompoundFeasibility.M214SourceContract.integrated_source_norms214
+#print axioms CompoundFeasibility.M214SourceContract.integrated_source_norms214

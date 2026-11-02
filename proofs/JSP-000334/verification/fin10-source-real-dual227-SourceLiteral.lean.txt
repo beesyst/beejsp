@@ -1,0 +1,74 @@
+import SubspaceBridge.SourceOriginalDualBasis220
+import SubspaceBridge.SourceShortLine226
+open scoped BigOperators Matrix
+noncomputable section
+namespace CompoundFeasibility.M227ScopedLiteral
+
+theorem rational_real_independent227 (u : Fin 10 → Fin 10 → ℚ)
+    (hu : LinearIndependent ℚ u) : LinearIndependent ℝ (fun j i => (u j i : ℝ)) := by
+  classical
+  let f := Fintype.linearCombination ℚ u
+  obtain ⟨g,hg⟩ := f.exists_leftInverse_of_injective
+    (LinearMap.ker_eq_bot.mpr hu.fintypeLinearCombination_injective)
+  let U : Matrix (Fin 10) (Fin 10) ℚ := fun i j => u j i
+  let G := LinearMap.toMatrix' g
+  have hfmat : LinearMap.toMatrix' f = U := by
+    ext i j
+    simp [f,U,LinearMap.toMatrix'_apply,Fintype.linearCombination_apply,Finset.sum_apply,Pi.smul_apply,smul_eq_mul,ite_apply]
+  have hGU : G * U = 1 := by
+    dsimp only [G]
+    rw [← hfmat,← LinearMap.toMatrix'_comp,hg,LinearMap.toMatrix'_id]
+  let UR := U.map (algebraMap ℚ ℝ)
+  let GR := G.map (algebraMap ℚ ℝ)
+  have hGR : GR * UR = 1 := by
+    dsimp only [GR,UR]
+    rw [← Matrix.map_mul,hGU,Matrix.map_one] <;> simp
+  have hinj : Function.Injective (Matrix.toLin' UR) := by
+    apply Function.LeftInverse.injective (g := Matrix.toLin' GR)
+    intro x
+    change GR *ᵥ (UR *ᵥ x) = x
+    rw [Matrix.mulVec_mulVec,hGR,Matrix.one_mulVec]
+  have hli := (Pi.basisFun ℝ (Fin 10)).linearIndependent.map'
+    (Matrix.toLin' UR) (LinearMap.ker_eq_bot.mpr hinj)
+  convert hli using 1
+  funext j i
+  simp [UR,U,Pi.basisFun_apply,Matrix.toLin'_apply,Matrix.mulVec,Pi.single_apply]
+
+
+theorem rational_columns_independent227 (V : Matrix (Fin 10) (Fin 10) ℚ)
+    (hV : V.det ≠ 0) : LinearIndependent ℚ (fun j i => V i j) := by
+  exact Matrix.linearIndependent_cols_iff_isUnit.mpr
+    ((Matrix.isUnit_iff_isUnit_det V).mpr (isUnit_iff_ne_zero.mpr hV))
+
+end CompoundFeasibility.M227ScopedLiteral
+
+#check CompoundFeasibility.M227ScopedLiteral.rational_real_independent227
+#print CompoundFeasibility.M227ScopedLiteral.rational_real_independent227
+#print axioms CompoundFeasibility.M227ScopedLiteral.rational_real_independent227
+
+#check CompoundFeasibility.M227ScopedLiteral.rational_columns_independent227
+#print CompoundFeasibility.M227ScopedLiteral.rational_columns_independent227
+#print axioms CompoundFeasibility.M227ScopedLiteral.rational_columns_independent227
+
+open scoped BigOperators Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.M227ScopedLiteral
+  CompoundFeasibility.SourceDualGeometry219
+namespace M227SourceLiteral
+
+theorem original_basis_real_cast (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ)
+    (q : ℝ) (c2 c3 : Fin 10 → ℝ) :
+    let G := originalSourceGroup10 A2 A3 q c2 c3
+    let c : Basis (Fin 10) ℤ G := (sourceLattice10_has_basis A2 A3
+      (fun i => Nat.ceil (JSP000334.qThreshold 2 q (c2 i)))
+      (fun i => Nat.ceil (JSP000334.qThreshold 3 q (c3 i)))).some
+    LinearIndependent ℝ (fun j i => ((c j : Fin 10 → ℤ) i : ℝ)) := by
+  dsimp only
+  have hq := original_basis_independent220 A2 A3 q c2 c3
+    (sourceLattice10_has_basis A2 A3 _ _).some
+  simpa only [Rat.cast_intCast] using rational_real_independent227 _ hq
+
+end M227SourceLiteral
+#check M227SourceLiteral.original_basis_real_cast
+#print M227SourceLiteral.original_basis_real_cast
+#print axioms M227SourceLiteral.original_basis_real_cast

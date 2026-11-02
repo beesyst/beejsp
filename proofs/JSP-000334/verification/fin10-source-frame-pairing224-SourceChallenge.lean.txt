@@ -1,0 +1,48 @@
+import SubspaceBridge.SourceFramePairing224
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M224SourceChallenge
+open CompoundFeasibility SourceFrame224 SourceSatz51Entry218 SourceOriginalVariable10
+  SourceDualAnnihilation222 SourceDualGeometry219
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem original_frame_contract224 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    LinearIndependent ℝ (fun j => integerReal (D.u j)) ∧
+    (∀ j, D.u j ∈ originalSourceGroup10 A2 A3 q c2 c3) ∧
+    (∀ j i : Fin 10, |(L *ᵥ integerReal (D.u j)) i| ≤ sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 j * A i) ∧
+    (∀ j : Fin 9, 0 ≤ sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 j.castSucc ∧
+      sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 j.castSucc ≤ sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 ∧
+      ∀ i : Fin 10, |(L *ᵥ integerReal (D.u j.castSucc)) i| ≤ sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 * A i) := by
+  refine ⟨D.independent, D.member, source_frame_coordinates224 D, ?_⟩
+  intro j
+  exact ⟨(source_first_nine_minima224 D j).1,
+    (source_first_nine_minima224 D j).2, source_first_nine_coordinates224 D j⟩
+
+theorem real_source_checkpoint224 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (z : Fin 10 → ℝ) (r : ℝ)
+    (hz : dualGauge222 L hL (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive z ≤ r) (j : Fin 9) :
+    |∑ i, (D.u j.castSucc i : ℝ) * z i| ≤
+      10 * r * (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) * sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 := by
+  exact source_covolume_pairing224 D z r hz j
+
+theorem rational_source_checkpoint224 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (z : Fin 10 → ℚ) (r : ℝ)
+    (hz : dualGauge222 L hL (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)))
+      (ZLattice.covolume_pos _ MeasureTheory.volume) A D.positive
+      (fun i => (z i : ℝ)) ≤ r) (j : Fin 9) :
+    |((∑ i, (D.u j.castSucc i : ℚ) * z i : ℚ) : ℝ)| ≤
+      10 * r * (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3))) * sourceMinima10 A2 A3 L hL q hq (fun k => normalizedWidth10 q (A k)) c2 c3 8 := by
+  exact source_rational_pairing224 D z r hz j
+
+end M224SourceChallenge
+#check M224SourceChallenge.original_frame_contract224
+#print M224SourceChallenge.original_frame_contract224
+#print axioms M224SourceChallenge.original_frame_contract224
+#check M224SourceChallenge.real_source_checkpoint224
+#print M224SourceChallenge.real_source_checkpoint224
+#print axioms M224SourceChallenge.real_source_checkpoint224
+#check M224SourceChallenge.rational_source_checkpoint224
+#print M224SourceChallenge.rational_source_checkpoint224
+#print axioms M224SourceChallenge.rational_source_checkpoint224

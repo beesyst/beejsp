@@ -1,0 +1,172 @@
+import SubspaceBridge.CofactorSourceVanishing3
+#check JSP000334.cofactorIntegerMatrix3
+#print JSP000334.cofactorIntegerMatrix3
+#print axioms JSP000334.cofactorIntegerMatrix3
+#check JSP000334.cofactorIntegerMatrix3_det
+#print JSP000334.cofactorIntegerMatrix3_det
+#print axioms JSP000334.cofactorIntegerMatrix3_det
+#check JSP000334.cofactorIntegerMatrix3_isUnit
+#print JSP000334.cofactorIntegerMatrix3_isUnit
+#print axioms JSP000334.cofactorIntegerMatrix3_isUnit
+#check JSP000334.cofactorForms3
+#print JSP000334.cofactorForms3
+#print axioms JSP000334.cofactorForms3
+#check JSP000334.cofactorIntegerMatrix3_apply
+#print JSP000334.cofactorIntegerMatrix3_apply
+#print axioms JSP000334.cofactorIntegerMatrix3_apply
+#check JSP000334.exists_cofactor_mixedCongruence3_Q_lattice
+#print JSP000334.exists_cofactor_mixedCongruence3_Q_lattice
+#print axioms JSP000334.exists_cofactor_mixedCongruence3_Q_lattice
+#check JSP000334.cofactorRealMatrix3
+#print JSP000334.cofactorRealMatrix3
+#print axioms JSP000334.cofactorRealMatrix3
+#check JSP000334.cofactorRealMatrix3_det
+#print JSP000334.cofactorRealMatrix3_det
+#print axioms JSP000334.cofactorRealMatrix3_det
+#check JSP000334.cofactorRealCoordinates3
+#print JSP000334.cofactorRealCoordinates3
+#print axioms JSP000334.cofactorRealCoordinates3
+#check JSP000334.cofactorRealCoordinates3_abs_det
+#print JSP000334.cofactorRealCoordinates3_abs_det
+#print axioms JSP000334.cofactorRealCoordinates3_abs_det
+#check JSP000334.cofactorRealBody3_volume
+#print JSP000334.cofactorRealBody3_volume
+#print axioms JSP000334.cofactorRealBody3_volume
+#check JSP000334.cofactorSourceBody3
+#print JSP000334.cofactorSourceBody3
+#print axioms JSP000334.cofactorSourceBody3
+#check JSP000334.cofactorSourceCoordinates3
+#print JSP000334.cofactorSourceCoordinates3
+#print axioms JSP000334.cofactorSourceCoordinates3
+#check JSP000334.cofactorSourceLattice3
+#print JSP000334.cofactorSourceLattice3
+#print axioms JSP000334.cofactorSourceLattice3
+#check JSP000334.cofactorSourceBody3_eq_parallelepiped
+#print JSP000334.cofactorSourceBody3_eq_parallelepiped
+#print axioms JSP000334.cofactorSourceBody3_eq_parallelepiped
+#check JSP000334.cofactorSourceBody3_volume
+#print JSP000334.cofactorSourceBody3_volume
+#print axioms JSP000334.cofactorSourceBody3_volume
+#check JSP000334.cofactorSourceLattice3_spec
+#print JSP000334.cofactorSourceLattice3_spec
+#print axioms JSP000334.cofactorSourceLattice3_spec
+#check JSP000334.exists_cofactorSource_minima_upper
+#print JSP000334.exists_cofactorSource_minima_upper
+#print axioms JSP000334.exists_cofactorSource_minima_upper
+#check JSP000334.cofactorSource_arch_bound
+#print JSP000334.cofactorSource_arch_bound
+#print axioms JSP000334.cofactorSource_arch_bound
+#check JSP000334.exists_cofactorSource_integer_attaining_frame
+#print JSP000334.exists_cofactorSource_integer_attaining_frame
+#print axioms JSP000334.exists_cofactorSource_integer_attaining_frame
+#check JSP000334.cofactorOriginalMatrix3_table
+#print JSP000334.cofactorOriginalMatrix3_table
+#print axioms JSP000334.cofactorOriginalMatrix3_table
+#check JSP000334.cofactorIntegerMatrix3_table
+#print JSP000334.cofactorIntegerMatrix3_table
+#print axioms JSP000334.cofactorIntegerMatrix3_table
+#check JSP000334.cofactorRationalMatrix3
+#print JSP000334.cofactorRationalMatrix3
+#print axioms JSP000334.cofactorRationalMatrix3
+#check JSP000334.cofactorDualValue3
+#print JSP000334.cofactorDualValue3
+#print axioms JSP000334.cofactorDualValue3
+#check JSP000334.cofactorRationalMatrix3_det
+#print JSP000334.cofactorRationalMatrix3_det
+#print axioms JSP000334.cofactorRationalMatrix3_det
+#check JSP000334.cofactorDualValue3_inverse
+#print JSP000334.cofactorDualValue3_inverse
+#print axioms JSP000334.cofactorDualValue3_inverse
+#check JSP000334.cofactor_scaled_dual_padic_bound3
+#print JSP000334.cofactor_scaled_dual_padic_bound3
+#print axioms JSP000334.cofactor_scaled_dual_padic_bound3
+#check JSP000334.cofactor_source_value3
+#print JSP000334.cofactor_source_value3
+#print axioms JSP000334.cofactor_source_value3
+#check JSP000334.cofactor_actual_finite_bounds3
+#print JSP000334.cofactor_actual_finite_bounds3
+#print axioms JSP000334.cofactor_actual_finite_bounds3
+#check JSP000334.cofactorDualInt3
+#print JSP000334.cofactorDualInt3
+#print axioms JSP000334.cofactorDualInt3
+#check JSP000334.cofactorDualInt3_value
+#print JSP000334.cofactorDualInt3_value
+#print axioms JSP000334.cofactorDualInt3_value
+#check JSP000334.cofactorDualInt3_height_bound
+#print JSP000334.cofactorDualInt3_height_bound
+#print axioms JSP000334.cofactorDualInt3_height_bound
+#check JSP000334.cofactorSelectedProduct3
+#print JSP000334.cofactorSelectedProduct3
+#print axioms JSP000334.cofactorSelectedProduct3
+#check JSP000334.cofactor_selected_product_lower3
+#print JSP000334.cofactor_selected_product_lower3
+#print axioms JSP000334.cofactor_selected_product_lower3
+#check JSP000334.cofactor_actual_real_bound3
+#print JSP000334.cofactor_actual_real_bound3
+#print axioms JSP000334.cofactor_actual_real_bound3
+#check JSP000334.cofactorDualRealCoordinates3
+#print JSP000334.cofactorDualRealCoordinates3
+#print axioms JSP000334.cofactorDualRealCoordinates3
+#check JSP000334.cofactorDualRealCoordinates3_apply
+#print JSP000334.cofactorDualRealCoordinates3_apply
+#print axioms JSP000334.cofactorDualRealCoordinates3_apply
+#check JSP000334.cofactorDualInt3_real_value
+#print JSP000334.cofactorDualInt3_real_value
+#print axioms JSP000334.cofactorDualInt3_real_value
+#check JSP000334.cofactor_scaled_real_value3
+#print JSP000334.cofactor_scaled_real_value3
+#print axioms JSP000334.cofactor_scaled_real_value3
+#check JSP000334.cofactorDualValue3_scale
+#print JSP000334.cofactorDualValue3_scale
+#print axioms JSP000334.cofactorDualValue3_scale
+#check JSP000334.cofactorSelectedProduct3_nonneg
+#print JSP000334.cofactorSelectedProduct3_nonneg
+#print axioms JSP000334.cofactorSelectedProduct3_nonneg
+#check JSP000334.cofactorSelectedProduct3_scale
+#print JSP000334.cofactorSelectedProduct3_scale
+#print axioms JSP000334.cofactorSelectedProduct3_scale
+#check JSP000334.cofactor_primitive_product_le3
+#print JSP000334.cofactor_primitive_product_le3
+#print axioms JSP000334.cofactor_primitive_product_le3
+#check JSP000334.cofactor_selected_product_upper3
+#print JSP000334.cofactor_selected_product_upper3
+#print axioms JSP000334.cofactor_selected_product_upper3
+#check JSP000334.cofactorDualInt3_reconstruct
+#print JSP000334.cofactorDualInt3_reconstruct
+#print axioms JSP000334.cofactorDualInt3_reconstruct
+#check JSP000334.cofactor_primitive_height_bound3
+#print JSP000334.cofactor_primitive_height_bound3
+#print axioms JSP000334.cofactor_primitive_height_bound3
+#check JSP000334.cofactor_upper_height_power3
+#print JSP000334.cofactor_upper_height_power3
+#print axioms JSP000334.cofactor_upper_height_power3
+#check JSP000334.cofactorDualValue3_real_cast
+#print JSP000334.cofactorDualValue3_real_cast
+#print axioms JSP000334.cofactorDualValue3_real_cast
+#check JSP000334.cofactor_original_normal_height3
+#print JSP000334.cofactor_original_normal_height3
+#print axioms JSP000334.cofactor_original_normal_height3
+#check JSP000334.cofactor_source_normal_height3
+#print JSP000334.cofactor_source_normal_height3
+#print axioms JSP000334.cofactor_source_normal_height3
+#check JSP000334.cofactor_finiteWeight_real_local_value3
+#print JSP000334.cofactor_finiteWeight_real_local_value3
+#print axioms JSP000334.cofactor_finiteWeight_real_local_value3
+#check JSP000334.cofactor_finiteWeight_rational_local_value3
+#print JSP000334.cofactor_finiteWeight_rational_local_value3
+#print axioms JSP000334.cofactor_finiteWeight_rational_local_value3
+#check JSP000334.cofactor_finiteWeight_same_frame3
+#print JSP000334.cofactor_finiteWeight_same_frame3
+#print axioms JSP000334.cofactor_finiteWeight_same_frame3
+#check JSP000334.cofactor_source_family_contradiction3
+#print JSP000334.cofactor_source_family_contradiction3
+#print axioms JSP000334.cofactor_source_family_contradiction3
+#check JSP000334.cofactorSelectedBadQ3
+#print JSP000334.cofactorSelectedBadQ3
+#print axioms JSP000334.cofactorSelectedBadQ3
+#check JSP000334.cofactorSelectedBadQ3_bddAbove
+#print JSP000334.cofactorSelectedBadQ3_bddAbove
+#print axioms JSP000334.cofactorSelectedBadQ3_bddAbove
+#check JSP000334.cofactor_uniform_selected_vanishing3
+#print JSP000334.cofactor_uniform_selected_vanishing3
+#print axioms JSP000334.cofactor_uniform_selected_vanishing3

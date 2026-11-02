@@ -1,0 +1,52 @@
+import SubspaceBridge.AllPointFiniteCover3
+namespace M253Audit
+open JSP000334
+local instance : Fact (Nat.Prime 5) := ⟨by decide⟩
+def WeightedTernaryTarget : Prop :=
+  ∀ A B C : ℚ, A ≠ 0 → B ≠ 0 → C ≠ 0 →
+    {p : fixedSUnitGroup × fixedSUnitGroup |
+      A + B * ((p.1 : ℚˣ) : ℚ) + C * ((p.2 : ℚˣ) : ℚ) = 0}.Finite
+
+theorem five_not_fixed_unit :
+    ¬ ∃ u : fixedSUnitGroup, ((u : ℚˣ) : ℚ) = 5 := by
+  rintro ⟨u, hu⟩
+  have h := fixed_sunit_norm_outside 5 (by decide) (by decide) u
+  rw [hu] at h
+  have hp : padicNorm 5 (5 : ℚ) = (5 : ℚ)⁻¹ := by
+    convert padicNorm.padicNorm_p (p := 5) (by decide) using 1
+  rw [hp] at h
+  norm_num at h
+
+theorem five_not_smooth23 : ¬ Smooth23 5 := by
+  intro h
+  have hp := h 5 (by decide) (by decide)
+  norm_num at hp
+end M253Audit
+
+#check JSP000334.fixed_three_term_finite
+#print JSP000334.fixed_three_term_finite
+#print axioms JSP000334.fixed_three_term_finite
+
+#check JSP000334.primitive_smooth23_bound
+#print JSP000334.primitive_smooth23_bound
+#print axioms JSP000334.primitive_smooth23_bound
+
+#check JSP000334.source_primitive_four_term_finite_cover3
+#print JSP000334.source_primitive_four_term_finite_cover3
+#print axioms JSP000334.source_primitive_four_term_finite_cover3
+
+#check JSP000334.source_four_term_finite_cover3
+#print JSP000334.source_four_term_finite_cover3
+#print axioms JSP000334.source_four_term_finite_cover3
+
+#check JSP000334.allpoint_four_term_recovery3
+#print JSP000334.allpoint_four_term_recovery3
+#print axioms JSP000334.allpoint_four_term_recovery3
+
+#check JSP000334.fixed_sunit_norm_outside
+#print JSP000334.fixed_sunit_norm_outside
+#print axioms JSP000334.fixed_sunit_norm_outside
+
+#print M253Audit.WeightedTernaryTarget
+#print axioms M253Audit.five_not_fixed_unit
+#print axioms M253Audit.five_not_smooth23

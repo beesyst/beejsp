@@ -141,6 +141,44 @@ Do not infer MCP target from a branch name.
 
 Do not substitute another worktree.
 
+## Phase 1a — Long-running proof readiness gate
+
+For long-running Lean formalizations, apply this gate after resolving the approved Issue and exact target, but before starting the complete manifest/diff review.
+
+Read:
+
+- AGENTS.md
+- .agents/skills/beejsp-proof-loop/SKILL.md
+- the current proof's PROGRESS.md
+- the relevant principal theorem source
+- the supplied implementation evidence
+
+Use actual current proof sources to confirm the status. An executor's report alone is not sufficient.
+
+If the approved principal theorem is still absent, or a mandatory mathematical milestone remains PARTIAL/BLOCKED, do not begin the final Issue review.
+
+Return:
+
+FINAL REVIEW DEFERRED — PROOF LOOP CONTINUES
+
+Include:
+
+1. Verified current mathematical state.
+2. Exact unresolved theorem or mathematical bridge.
+3. The next single meaningful mathematical milestone.
+4. One copy-ready Codex implementation/correction prompt.
+5. Required Lean verification and permanent evidence.
+6. Explicit statement that commit, push, PR and merge are
+   not authorized and the Issue is not ready for closure.
+
+The Codex prompt must allow local file edits and Lean commands. Do not copy BeeMCP or reviewer read-only restrictions into the executor prompt.
+
+This is a workflow-routing result, not a completed code review or approval verdict.
+
+Do not use this shortcut when the principal proof and independent verification are reported complete. In that case proceed to the full review, including the complete manifest, diff and all mandatory evidence.
+
+Keep REVIEW INCOMPLETE for missing mandatory review data, pagination failures and unreadable required files after a full review has begun. Never convert incomplete inspection into a code verdict.
+
 ## Phase 2 — Read the complete manifest and diff
 
 ### Review manifest

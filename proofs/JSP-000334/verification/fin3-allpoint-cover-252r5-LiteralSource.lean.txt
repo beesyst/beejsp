@@ -1,0 +1,1696 @@
+import ElementaryThreeTerm
+import SubspaceBridge.CofactorOriginalRankOne3
+open JSP000334
+namespace Literal252R5
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_primitive_product3 {x : Fin 4 → ℚ}
+    (hx : x ∈ normalizedRelations fixedSUnitGroup 3)
+    (z : IntegerTriple) (s : fixedSUnitGroup) (hz : PrimitiveTriple z)
+    (hscale : ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc) :
+    ∃ choice : Fin 3 → Fin 3,
+      tripleChoiceFormsProduct choice (fun i => (z i : ℚ))*archTripleHeight z = 1 := by
+  obtain ⟨choice,hret⟩ := four_term_retained_product_height hx
+  have hvec : (fun i => (z i : ℚ)) = (fun i => ((s : ℚˣ) : ℚ)*x i.castSucc) := funext hscale
+  have hH := primitive_triple_height z hz
+  rw [hvec,tripleHeight_sunit_scale] at hH
+  refine ⟨choice,?_⟩
+  rw [← hH,hvec,tripleChoiceFormsProduct_sunit_scale]
+  exact hret
+
+theorem allpoint_primitive_input3 {x : Fin 4 → ℚ}
+    (hx : x ∈ normalizedRelations fixedSUnitGroup 3) :
+    ∃ w : Fin 4 → ℤ, ∃ s : fixedSUnitGroup,
+      PrimitiveTriple (fun i => w i.castSucc) ∧ (∀ i, w i ≠ 0) ∧
+      (∑ i, w i = 0) ∧ Nondegenerate (fun i => (w i : ℚ)) ∧
+      (∀ i, (w i : ℚ) = ((s : ℚˣ) : ℚ)*x i) ∧
+      ∃ choice : Fin 3 → Fin 3,
+        tripleChoiceFormsProduct choice (fun i => (w i.castSucc : ℚ))*
+          archTripleHeight (fun i => w i.castSucc) = 1 := by
+  obtain ⟨w,s,hp,hn,hs,hd,he⟩ := exists_primitive_four_term_relation hx
+  exact ⟨w,s,hp,hn,hs,hd,he,allpoint_primitive_product3 hx _ s hp (fun i => he i.castSucc)⟩
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_form_product3 {x : Fin 4 → ℚ}
+    (hx : x ∈ normalizedRelations fixedSUnitGroup 3)
+    (z : IntegerTriple) (s : fixedSUnitGroup)
+    (hscale : ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc)
+    (k i : Fin 3) :
+    threePlaceProduct (threeCoordinateSumForms k i (fun j => (z j : ℚ))) = 1 := by
+  have hu (j : Fin 4) : threePlaceProduct (x j) = 1 := by
+    obtain ⟨u,he⟩ := hx.2.1 j
+    rw [← he]
+    exact fixed_sunit_product_formula u
+  have hz (j : Fin 3) : threePlaceProduct (z j : ℚ) = 1 := by
+    rw [hscale,threePlaceProduct_mul,fixed_sunit_product_formula,hu]
+    norm_num
+  have hsumx : x 0+x 1+x 2+x 3 = 0 := by
+    simpa [Fin.sum_univ_succ,add_assoc] using hx.2.2.1
+  have hs : (z 0 : ℚ)+z 1+z 2 = -(((s : ℚˣ) : ℚ)*x 3) := by
+    have h0 := hscale 0
+    have h1 := hscale 1
+    have h2 := hscale 2
+    change (z 0 : ℚ) = ((s : ℚˣ) : ℚ)*x 0 at h0
+    change (z 1 : ℚ) = ((s : ℚˣ) : ℚ)*x 1 at h1
+    change (z 2 : ℚ) = ((s : ℚˣ) : ℚ)*x 2 at h2
+    have hh : ((s : ℚˣ) : ℚ)*(x 0+x 1+x 2+x 3) = 0 := by rw [hsumx,mul_zero]
+    nlinarith
+  have hsum : threePlaceProduct ((z 0 : ℚ)+z 1+z 2) = 1 := by
+    rw [hs]
+    have hneg (q : ℚ) : threePlaceProduct (-q) = threePlaceProduct q := by simp [threePlaceProduct]
+    rw [hneg,threePlaceProduct_mul,fixed_sunit_product_formula,hu]
+    norm_num
+  fin_cases i
+  · simpa [threeCoordinateSumForms] using hz (k.succAbove 0)
+  · simpa [threeCoordinateSumForms] using hz (k.succAbove 1)
+  · simpa [threeCoordinateSumForms] using hsum
+
+theorem allpoint_form_arch_bound3 (z : IntegerTriple) (k i : Fin 3) :
+    |threeCoordinateSumForms k i (fun j => (z j : ℚ))| ≤ 3*archTripleHeight z := by
+  have hcoord (j : Fin 3) : |(z j : ℚ)| ≤ archTripleHeight z := by
+    fin_cases j
+    · exact le_max_left _ _
+    · exact (le_max_left _ _).trans (le_max_right _ _)
+    · exact (le_max_right _ _).trans (le_max_right _ _)
+  have hH : 0 ≤ archTripleHeight z := (abs_nonneg (z 0 : ℚ)).trans (hcoord 0)
+  fin_cases i
+  · simpa [threeCoordinateSumForms] using (hcoord (k.succAbove 0)).trans (by linarith : archTripleHeight z ≤ 3*archTripleHeight z)
+  · simpa [threeCoordinateSumForms] using (hcoord (k.succAbove 1)).trans (by linarith : archTripleHeight z ≤ 3*archTripleHeight z)
+  · change |(z 0 : ℚ)+z 1+z 2| ≤ _
+    have hb := (abs_add ((z 0 : ℚ)+z 1) (z 2 : ℚ)).trans
+      (add_le_add_right (abs_add (z 0 : ℚ) (z 1 : ℚ)) |(z 2 : ℚ)|)
+    linarith [hcoord 0,hcoord 1,hcoord 2]
+
+
+theorem allpoint_local_inverse3 (m : ℤ) (hprod : threePlaceProduct (m : ℚ) = 1) (tau : Fin 3) :
+    0 < rationalPlaceNorm tau (m : ℚ) ∧
+    (rationalPlaceNorm tau (m : ℚ))⁻¹ ≤ |(m : ℚ)| ∧
+    (tau ≠ 0 → rationalPlaceNorm tau (m : ℚ) ≤ 1) := by
+  have hn : (m : ℚ) ≠ 0 := by
+    intro h
+    simp [h,threePlaceProduct] at hprod
+  have hpos := rationalPlaceNorm_pos tau hn
+  have h2 := padicNorm.of_int (p := 2) m
+  have h3 := padicNorm.of_int (p := 3) m
+  have hp2 : 0 < padicNorm 2 (m : ℚ) := by simpa [rationalPlaceNorm] using rationalPlaceNorm_pos 1 hn
+  have hp3 : 0 < padicNorm 3 (m : ℚ) := by simpa [rationalPlaceNorm] using rationalPlaceNorm_pos 2 hn
+  have ha : 0 < |(m : ℚ)| := abs_pos.mpr hn
+  change |(m : ℚ)| *padicNorm 2 (m : ℚ)*padicNorm 3 (m : ℚ) = 1 at hprod
+  have h23 : padicNorm 2 (m : ℚ)*padicNorm 3 (m : ℚ) ≤ 1 := by
+    nlinarith [mul_le_mul h2 h3 hp3.le (by norm_num : (0 : ℚ) ≤ 1)]
+  have hA : 1 ≤ |(m : ℚ)| := by
+    nlinarith [mul_le_mul_of_nonneg_left h23 ha.le]
+  have hb2 : 1 ≤ |(m : ℚ)| *padicNorm 2 (m : ℚ) := by
+    nlinarith [mul_le_mul_of_nonneg_left h3 (mul_pos ha hp2).le]
+  have hb3 : 1 ≤ |(m : ℚ)| *padicNorm 3 (m : ℚ) := by
+    nlinarith [mul_le_mul_of_nonneg_left h2 (mul_pos ha hp3).le]
+  refine ⟨hpos,?_,?_⟩
+  · fin_cases tau
+    · change |(m : ℚ)|⁻¹ ≤ |(m : ℚ)|
+      apply (inv_le_iff_one_le_mul₀ ha).mpr
+      nlinarith
+    · change (padicNorm 2 (m : ℚ))⁻¹ ≤ |(m : ℚ)|
+      exact (inv_le_iff_one_le_mul₀ hp2).mpr hb2
+    · change (padicNorm 3 (m : ℚ))⁻¹ ≤ |(m : ℚ)|
+      exact (inv_le_iff_one_le_mul₀ hp3).mpr hb3
+  · intro ht
+    fin_cases tau
+    · exact (ht rfl).elim
+    · exact h2
+    · exact h3
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+def allpoint_balanced_values3 (Q : ℝ) (a : Fin 3 → Fin 3 → ℝ) (tau i : Fin 3) : ℝ :=
+  if tau = 0 then a tau i*Q^((1 : ℝ)/12) else a tau i
+
+theorem allpoint_balanced_weights3 (H : ℝ) (hH : 3 ≤ H)
+    (a : Fin 3 → Fin 3 → ℝ) (ha : ∀ tau i, 0 < a tau i)
+    (hreal : ∀ i, a 0 i ≤ 3*H)
+    (hfinite : ∀ tau, tau ≠ 0 → ∀ i, a tau i ≤ 1)
+    (hinv : ∀ tau i, (a tau i)⁻¹ ≤ 3*H)
+    (hprod : (∏ tau, ∏ i, a tau i)*H = 1) :
+    let Q := H^4
+    let W := allpoint_balanced_values3 Q a
+    1 < Q ∧ sourceWeightConditions3 (sourceLogWeights3 Q W) ∧
+      (∀ tau i, Q^(sourceLogWeights3 Q W tau i) = W tau i) ∧
+      (∀ i, a 0 i = Q^(sourceLogWeights3 Q W 0 i-(1 : ℝ)/12)) ∧
+      (∀ tau, tau ≠ 0 → ∀ i, a tau i = Q^(sourceLogWeights3 Q W tau i)) := by
+  intro Q W
+  have hH0 : 0 < H := by linarith
+  have hQ : 1 < Q := by dsimp [Q]; nlinarith [sq_nonneg (H^2-1)]
+  have hQ0 := lt_trans zero_lt_one hQ
+  let r := Q^((1 : ℝ)/12)
+  have hr : 0 < r := Real.rpow_pos_of_pos hQ0 _
+  have hr1 : 1 ≤ r := Real.one_le_rpow hQ.le (by norm_num)
+  have hrH : r ≤ H := by
+    have he : (H^4)^((1 : ℝ)/12) = H^((1 : ℝ)/3) := by
+      rw [← Real.rpow_natCast,← Real.rpow_mul hH0.le]
+      congr 1
+      norm_num
+    change (H^4)^((1 : ℝ)/12) ≤ H
+    rw [he]
+    simpa using Real.rpow_le_rpow_of_exponent_le (show 1 ≤ H by linarith) (by norm_num : (1 : ℝ)/3 ≤ 1)
+  have hrpow : r^3 = H := by
+    change ((H^4)^((1 : ℝ)/12))^3 = H
+    rw [← Real.rpow_mul_natCast (pow_pos hH0 4).le,← Real.rpow_natCast,← Real.rpow_mul hH0.le]
+    norm_num
+  have hW : ∀ tau i, 0 < W tau i := by
+    intro tau i
+    dsimp [W,allpoint_balanced_values3]
+    split_ifs
+    · exact mul_pos (ha tau i) (Real.rpow_pos_of_pos hQ0 _)
+    · exact ha tau i
+  have h3H : 3*H < Q := by dsimp [Q]; nlinarith [sq_nonneg (H^2-3)]
+  have h3H2 : 3*H^2 < Q := by dsimp [Q]; nlinarith [sq_nonneg (H^2-3)]
+  have hcut : ∀ tau i, (W tau i)⁻¹ < Q := by
+    intro tau i
+    by_cases ht : tau = 0
+    · subst tau
+      change (a 0 i*r)⁻¹ < Q
+      rw [mul_inv_rev]
+      have hri : r⁻¹ ≤ 1 := (inv_le_one₀ hr).mpr hr1
+      have hh := mul_le_mul_of_nonneg_right hri (inv_pos.mpr (ha 0 i)).le
+      exact (by nlinarith [hinv 0 i] : r⁻¹*(a 0 i)⁻¹ ≤ 3*H).trans_lt h3H
+    · simpa only [W,allpoint_balanced_values3,if_neg ht] using (hinv tau i).trans_lt h3H
+  have hcut0 : ∀ i, W 0 i < Q := by
+    intro i
+    change a 0 i*r < Q
+    have hh := mul_le_mul (hreal i) hrH hr.le (by linarith : 0 ≤ 3*H)
+    exact (by nlinarith : a 0 i*r ≤ 3*H^2).trans_lt h3H2
+  have hWfin : ∀ tau, tau ≠ 0 → ∀ i, W tau i ≤ 1 := by
+    intro tau ht i
+    simpa only [W,allpoint_balanced_values3,if_neg ht] using hfinite tau ht i
+  have hWprod : (∏ tau, ∏ i, W tau i) = 1 := by
+    simp only [W,allpoint_balanced_values3,Fin.prod_univ_three,Fin.isValue,Fin.reduceEq,ite_true,ite_false] at ⊢
+    have hp := hprod
+    simp only [Fin.prod_univ_three] at hp
+    change (a 0 0*r*(a 0 1*r)*(a 0 2*r))*(a 1 0*a 1 1*a 1 2)*(a 2 0*a 2 1*a 2 2) = 1
+    calc
+      _ = (a 0 0*a 0 1*a 0 2)*(a 1 0*a 1 1*a 1 2)*(a 2 0*a 2 1*a 2 2)*r^3 := by ring
+      _ = 1 := by rw [hrpow]; exact hp
+  have heq := sourceLogWeights3_rpow Q hQ W hW
+  refine ⟨hQ,sourceLogWeights3_conditions Q hQ W hW hcut hcut0 hWfin hWprod,heq,?_,?_⟩
+  · intro i
+    rw [Real.rpow_sub hQ0,heq]
+    change a 0 i = (a 0 i*r)/r
+    exact (mul_div_cancel_right₀ _ hr.ne').symm
+  · intro tau ht i
+    rw [heq]
+    simp only [W,allpoint_balanced_values3,if_neg ht]
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_round_point3 (Q : ℝ) (hQ : 1 < Q)
+    (k0 k2 k3 : Fin 3) (c : Fin 3 → Fin 3 → ℝ) (hc : sourceWeightConditions3 c)
+    (z : IntegerTriple) (hz : z ∈ qSourceLattice3 k2 k3 Q (c 1) (c 2))
+    (hshort : coordinateGauge3 (qSourceCoordinates3 k0 Q (c 0) hQ) (integerTripleReal3 z) ≤
+      Q^(-(1 : ℝ)/12)) :
+    let d := finiteWeightApprox3 168 c
+    d ∈ finiteWeightCandidates3 168 ∧ sourceWeightConditions3 d ∧
+    z ∈ qSourceLattice3 k2 k3 Q (d 1) (d 2) ∧
+    coordinateGauge3 (qSourceCoordinates3 k0 Q (d 0) hQ) (integerTripleReal3 z) ≤ Q^(-(1 : ℝ)/24) := by
+  intro d
+  obtain ⟨hd,hreal,hfinite⟩ := finiteWeightApprox3_bounds 168 (by norm_num) c hc
+  have hQ0 := lt_trans zero_lt_one hQ
+  have hpoint := ((qSourceLattice3_spec k2 k3 Q (c 1) (c 2) hQ
+    (fun i => (hc.2.1 1 (by decide) i).2) (fun i => (hc.2.1 2 (by decide) i).2)).1 z).mp hz
+  refine ⟨finiteWeightApprox3_mem 168 (by norm_num) c hc,hd,?_,?_⟩
+  · apply ((qSourceLattice3_spec k2 k3 Q (d 1) (d 2) hQ
+      (fun i => (hd.2.1 1 (by decide) i).2) (fun i => (hd.2.1 2 (by decide) i).2)).1 z).mpr
+    exact ⟨fun i => (hpoint.1 i).trans (Real.rpow_le_rpow_of_exponent_le hQ.le (hfinite 1 (by decide) i)),
+      fun i => (hpoint.2 i).trans (Real.rpow_le_rpow_of_exponent_le hQ.le (hfinite 2 (by decide) i))⟩
+  · apply (pi_norm_le_iff_of_nonempty _).mpr
+    intro i
+    change |retainedRealCoordinates3 k0 (integerTripleReal3 z) i / Q^(d 0 i)| ≤ _
+    rw [abs_div,abs_of_pos (Real.rpow_pos_of_pos hQ0 _),div_le_iff₀ (Real.rpow_pos_of_pos hQ0 _)]
+    have hh := qSource_arch_bound k0 Q (c 0) hQ (integerTripleReal3 z) i
+    have hbound := hh.trans (mul_le_mul_of_nonneg_right hshort (Real.rpow_nonneg hQ0.le _))
+    have he : Q^(-(1 : ℝ)/12)*Q^(c 0 i) = Q^(c 0 i-(1 : ℝ)/12) := by
+      rw [← Real.rpow_add hQ0]; congr 1; ring
+    rw [he] at hbound
+    have hw : c 0 i-(1 : ℝ)/12 ≤ d 0 i-(1 : ℝ)/24 := by
+      have hr := hreal i
+      norm_num at hr
+      linarith
+    have hp := hbound.trans (Real.rpow_le_rpow_of_exponent_le hQ.le hw)
+    have he' : Q^(d 0 i-(1 : ℝ)/24) = Q^(-(1 : ℝ)/24)*Q^(d 0 i) := by
+      rw [← Real.rpow_add hQ0]; congr 1; ring
+    rw [he'] at hp
+    exact hp
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+def allpoint_norms3 (choice : Fin 3 → Fin 3) (z : IntegerTriple) (tau i : Fin 3) : ℝ :=
+  rationalPlaceNorm tau (threeCoordinateSumForms (choice tau) i (fun j => (z j : ℚ)))
+
+theorem allpoint_source_weights3 {x : Fin 4 → ℚ}
+    (hx : x ∈ normalizedRelations fixedSUnitGroup 3)
+    (z : IntegerTriple) (s : fixedSUnitGroup) (hz : PrimitiveTriple z)
+    (hscale : ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc)
+    (hH : 3 ≤ (archTripleHeight z : ℝ)) :
+    let Q := (archTripleHeight z : ℝ)^4
+    ∃ choice : Fin 3 → Fin 3, ∃ c : Fin 3 → Fin 3 → ℝ,
+      ∃ hQ : 1 < Q, sourceWeightConditions3 c ∧
+      c = sourceLogWeights3 Q (allpoint_balanced_values3 Q (allpoint_norms3 choice z)) ∧
+      z ∈ qSourceLattice3 (choice 1) (choice 2) Q (c 1) (c 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) Q (c 0) hQ) (integerTripleReal3 z) ≤ Q^(-(1 : ℝ)/12) := by
+  intro Q
+  obtain ⟨choice,hret⟩ := allpoint_primitive_product3 hx z s hz hscale
+  let a := allpoint_norms3 choice z
+  have hlocal (tau i : Fin 3) :
+      0 < a tau i ∧ (a tau i)⁻¹ ≤ 3*(archTripleHeight z : ℝ) ∧
+      (tau ≠ 0 → a tau i ≤ 1) := by
+    let m := (retainedIntegerMatrix3 (choice tau) *ᵥ z) i
+    have hp : threePlaceProduct (m : ℚ) = 1 := by
+      rw [retainedIntegerMatrix3_apply]
+      exact allpoint_form_product3 hx z s hscale _ _
+    have hl := allpoint_local_inverse3 m hp tau
+    have ha := allpoint_form_arch_bound3 z (choice tau) i
+    have hm : (m : ℚ) = threeCoordinateSumForms (choice tau) i (fun j => (z j : ℚ)) :=
+      retainedIntegerMatrix3_apply _ _ _
+    rw [hm] at hl
+    dsimp only [a,allpoint_norms3]
+    refine ⟨by exact_mod_cast hl.1,?_,?_⟩
+    · have hb := hl.2.1.trans ha
+      exact_mod_cast hb
+    · intro ht
+      exact_mod_cast hl.2.2 ht
+  have hprod : (∏ tau, ∏ i, a tau i)*(archTripleHeight z : ℝ) = 1 := by
+    unfold tripleChoiceFormsProduct at hret
+    dsimp only [a,allpoint_norms3]
+    exact_mod_cast hret
+  obtain ⟨hQ,hc,heq,hreal,hfinite⟩ := allpoint_balanced_weights3 (archTripleHeight z : ℝ) hH a
+    (fun tau i => (hlocal tau i).1)
+    (fun i => by
+      change ((|threeCoordinateSumForms (choice 0) i (fun j => (z j : ℚ))| : ℚ) : ℝ) ≤ 3*(archTripleHeight z : ℝ)
+      exact_mod_cast allpoint_form_arch_bound3 z (choice 0) i)
+    (fun tau ht i => (hlocal tau i).2.2 ht)
+    (fun tau i => (hlocal tau i).2.1) hprod
+  let c := sourceLogWeights3 Q (allpoint_balanced_values3 Q a)
+  refine ⟨choice,c,hQ,hc,rfl,?_,?_⟩
+  · apply ((qSourceLattice3_spec (choice 1) (choice 2) Q (c 1) (c 2) hQ
+      (fun i => (hc.2.1 1 (by decide) i).2) (fun i => (hc.2.1 2 (by decide) i).2)).1 z).mpr
+    constructor
+    · intro i
+      change a 1 i ≤ Q^(c 1 i)
+      exact (hfinite 1 (by decide) i).le
+    · intro i
+      change a 2 i ≤ Q^(c 2 i)
+      exact (hfinite 2 (by decide) i).le
+  · apply (pi_norm_le_iff_of_nonempty _).mpr
+    intro i
+    have hQ0 := lt_trans zero_lt_one hQ
+    change |retainedRealCoordinates3 (choice 0) (integerTripleReal3 z) i / Q^(c 0 i)| ≤ _
+    rw [abs_div,abs_of_pos (Real.rpow_pos_of_pos hQ0 _),← finiteWeight_real_local_value3,
+      finiteWeight_rational_local_value3]
+    have hnorm : rothLocalAbs 0 (threeCoordinateSumForms (choice 0) i (fun j => (z j : ℚ))) = a 0 i := by
+      simp [a,allpoint_norms3,rothLocalAbs,rationalPlaceNorm]
+    rw [hnorm,hreal]
+    have hp : Q^(c 0 i-(1 : ℝ)/12) = Q^(-(1 : ℝ)/12)*Q^(c 0 i) := by
+      rw [← Real.rpow_add hQ0]; congr 1; ring
+    rw [hp,mul_div_cancel_right₀ _ (Real.rpow_pos_of_pos hQ0 _).ne']
+
+theorem allpoint_fixed_source_point3 {x : Fin 4 → ℚ}
+    (hx : x ∈ normalizedRelations fixedSUnitGroup 3)
+    (z : IntegerTriple) (s : fixedSUnitGroup) (hz : PrimitiveTriple z)
+    (hscale : ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc)
+    (hH : 3 ≤ (archTripleHeight z : ℝ)) :
+    let Q := (archTripleHeight z : ℝ)^4
+    ∃ choice : Fin 3 → Fin 3, ∃ d ∈ finiteWeightCandidates3 168,
+      ∃ hQ : 1 < Q, sourceWeightConditions3 d ∧
+      z ∈ qSourceLattice3 (choice 1) (choice 2) Q (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) Q (d 0) hQ) (integerTripleReal3 z) ≤ Q^(-(1 : ℝ)/24) := by
+  intro Q
+  obtain ⟨choice,c,hQ,hc,_,hzL,hg⟩ := allpoint_source_weights3 hx z s hz hscale hH
+  obtain ⟨hd,hcond,hmem,hgauge⟩ := allpoint_round_point3 Q hQ (choice 0) (choice 1) (choice 2) c hc z hzL hg
+  exact ⟨choice,finiteWeightApprox3 168 c,hd,hQ,hcond,hmem,hgauge⟩
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_rank_cutoff3 (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ C : ℝ, 1 ≤ C ∧ ∀ Q : ℝ, C < Q →
+      6 * (Q ^ (-epsilon)) ^ 3 * (Q ^ (epsilon / 8)) ^ 4 < 1 := by
+  obtain ⟨C,hC⟩ := Filter.eventually_atTop.mp
+    ((tendsto_rpow_atTop (show 0 < 5*epsilon/2 by linarith)).eventually
+      (Filter.eventually_gt_atTop 6))
+  refine ⟨max 1 C,le_max_left _ _,?_⟩
+  intro Q hQ
+  have hq : 0 < Q := lt_of_lt_of_le zero_lt_one ((le_max_left 1 C).trans hQ.le)
+  have hh : 6 < Q^(5*epsilon/2) := hC Q (lt_of_le_of_lt (le_max_right 1 C) hQ).le
+  have hp : 0 < Q^(-(5*epsilon/2)) := Real.rpow_pos_of_pos hq _
+  have hmul := mul_lt_mul_of_pos_right hh hp
+  rw [← Real.rpow_add hq,add_neg_cancel,Real.rpow_zero] at hmul
+  have heq : (Q^(-epsilon))^3*(Q^(epsilon/8))^4 = Q^(-(5*epsilon/2)) := by
+    rw [← Real.rpow_mul_natCast hq.le,← Real.rpow_mul_natCast hq.le,← Real.rpow_add hq]
+    congr 1
+    ring
+  simpa only [mul_assoc,heq] using hmul
+
+theorem allpoint_rank_scalar3 (a b c g t q : ℝ)
+    (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (ht : 0 < t) (hq : 1 ≤ q)
+    (hab : a ≤ b) (hbc : b ≤ c) (hag : a ≤ g) (hgt : g ≤ t)
+    (hp : (1 : ℝ)/6 ≤ a*b*c) (hcut : 6*t^3*q^4 < 1) :
+    (b < c/q ∧ g < c) ∨ (c/q ≤ b ∧ a < b/q ∧ g < b) := by
+  have hq0 : 0 < q := lt_of_lt_of_le zero_lt_one hq
+  have hprod : a*b*c ≤ t*c^2 := by
+    have h1 := mul_le_mul_of_nonneg_right (hag.trans hgt) hb.le
+    have h2 := mul_le_mul_of_nonneg_left hbc ht.le
+    nlinarith [mul_le_mul_of_nonneg_right (h1.trans h2) hc.le]
+  have hbig : t*q^2 < c := by
+    by_contra h
+    have hle : c ≤ t*q^2 := le_of_not_gt h
+    have hsq := mul_self_le_mul_self hc.le hle
+    have hm := mul_le_mul_of_nonneg_left hsq ht.le
+    have htprod : t*(t*q^2*(t*q^2)) = t^3*q^4 := by ring
+    rw [htprod] at hm
+    nlinarith
+  have hq2 : 1 ≤ q^2 := by nlinarith
+  have htc : t < c := (by nlinarith : t ≤ t*q^2).trans_lt hbig
+  by_cases hgap : b < c/q
+  · exact Or.inl ⟨hgap,hgt.trans_lt htc⟩
+  · have hbq : c ≤ b*q := (div_le_iff₀ hq0).mp (le_of_not_gt hgap)
+    have htb : t*q < b := by
+      have hh : t*q^2 < b*q := hbig.trans_le hbq
+      nlinarith
+    have hgb : g < b := hgt.trans_lt ((by nlinarith : t ≤ t*q).trans_lt htb)
+    have haq : a*q < b := (mul_le_mul_of_nonneg_right (hag.trans hgt) hq0.le).trans_lt htb
+    exact Or.inr ⟨le_of_not_gt hgap,(lt_div_iff₀ hq0).mpr haq,hgb⟩
+
+end JSP000334
+
+namespace JSP000334
+
+theorem allpoint_rank_threshold3 (epsilon Q : ℝ) (he : 0 < epsilon) (hQ : 1 < Q)
+    (hcut : 6*(Q^(-epsilon))^3*(Q^(epsilon/8))^4 < 1)
+    (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple)
+    (v : Fin 3 → RealTriple) (hv : LinearIndependent ℝ v)
+    (hvL : ∀ i, v i ∈ lattice3 B)
+    (hatt : ∀ i, coordinateGauge3 e (v i) = successiveRadius3 B e i)
+    (z : RealTriple) (hz : z ∈ lattice3 B) (hnz : z ≠ 0)
+    (hshort : coordinateGauge3 e z ≤ Q^(-epsilon))
+    (hprod : (1 : ℝ)/6 ≤ ∏ i, successiveRadius3 B e i) :
+    ∃ k : Fin 3, (k = 1 ∨ k = 2) ∧
+      successiveRadius3 B e (k-1) < successiveRadius3 B e k*Q^(-(epsilon/8)) ∧
+      coordinateGauge3 e z < successiveRadius3 B e k ∧ z ∈ minimaFlag3 v k := by
+  have hQ0 := lt_trans zero_lt_one hQ
+  let l := successiveRadius3 B e
+  obtain ⟨_,_,_,hl,hm,_⟩ := exists_successive_minima3 B e
+  have hfirst : l 0 ≤ coordinateGauge3 e z := by
+    apply successiveRadius3_le_family B e 0 (fun _ : Fin 1 => z)
+    · exact linearIndependent_unique (fun _ : Fin 1 => z) hnz
+    · intro i; exact hz
+    · intro i; exact le_rfl
+  have hq : 1 ≤ Q^(epsilon/8) :=
+    Real.one_le_rpow hQ.le (by linarith)
+  have hpow : Q^(-(epsilon/8)) = (Q^(epsilon/8))⁻¹ := Real.rpow_neg hQ0.le _
+  have hp : (1 : ℝ)/6 ≤ l 0*l 1*l 2 := by simpa [Fin.prod_univ_three,l] using hprod
+  obtain hh | hh := allpoint_rank_scalar3 (l 0) (l 1) (l 2) (coordinateGauge3 e z)
+    (Q^(-epsilon)) (Q^(epsilon/8)) (hl 0) (hl 1) (hl 2)
+    (Real.rpow_pos_of_pos hQ0 _) hq hm.1 hm.2 hfirst hshort hp hcut
+  · have hg : l 1 < l 2*Q^(-(epsilon/8)) := by
+      rw [hpow]
+      simpa only [div_eq_mul_inv] using hh.1
+    have hgap : ∀ i : Fin 3, i < 2 → l i < l 2 := by
+      intro i hi
+      have hfac : Q^(-(epsilon/8)) < 1 :=
+        Real.rpow_lt_one_of_one_lt_of_neg hQ (by linarith)
+      have h12 : l 1 < l 2 := hg.trans (by nlinarith [hl 2])
+      exact (successiveRadius3_monotone B e (show i ≤ 1 by omega)).trans_lt h12
+    exact ⟨2,Or.inr rfl,by simpa using hg,hh.2,
+      lattice3_short_mem_minimaFlag B e v hv hvL hatt 2 hgap z hz hh.2⟩
+  · have hg : l 0 < l 1*Q^(-(epsilon/8)) := by
+      rw [hpow]
+      simpa only [div_eq_mul_inv] using hh.2.1
+    have hgap : ∀ i : Fin 3, i < 1 → l i < l 1 := by
+      intro i hi
+      have hi0 : i = 0 := by omega
+      subst i
+      have hfac : Q^(-(epsilon/8)) < 1 :=
+        Real.rpow_lt_one_of_one_lt_of_neg hQ (by linarith)
+      exact hg.trans (by nlinarith [hl 1])
+    exact ⟨1,Or.inl rfl,by simpa using hg,hh.2.2,
+      lattice3_short_mem_minimaFlag B e v hv hvL hatt 1 hgap z hz hh.2.2⟩
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_rational_flag3 (w : Fin 3 → IntegerTriple)
+    (hw : LinearIndependent ℝ (fun j => integerTripleReal3 (w j)))
+    (k : Fin 3) (z : IntegerTriple)
+    (hz : integerTripleReal3 z ∈ minimaFlag3 (fun j => integerTripleReal3 (w j)) k) :
+    (fun i => (z i : ℚ)) ∈ Submodule.span ℚ
+      (Set.range (fun j : Fin k.val => fun i => (w (Fin.castLE (by omega) j) i : ℚ))) := by
+  classical
+  let v : Fin 3 → Fin 3 → ℚ := fun j i => (w j i : ℚ)
+  have hQ := dualFrameMatrix3_rational_independent w hw
+  let b := basisOfLinearIndependentOfCardEqFinrank hQ (by simp)
+  have hb (i : Fin 3) : b i = v i :=
+    congrFun (coe_basisOfLinearIndependentOfCardEqFinrank hQ _) i
+  have hzero (j : Fin 3) (hj : k ≤ j) : b.repr (fun i => (z i : ℚ)) j = 0 := by
+    let f : (Fin 3 → ℚ) →ₗ[ℚ] ℚ := originalPlanePairing3 (dualFrameVector3 w j)
+    let g : RealTriple →ₗ[ℝ] ℝ :=
+      { toFun := fun x => ∑ i, x i*(dualFrameVector3 w j i : ℝ)
+        map_add' := by intro x y; simp [add_mul,Finset.sum_add_distrib]
+        map_smul' := by intro c x; simp [Finset.mul_sum,mul_assoc] }
+    have hc (x : IntegerTriple) : g (integerTripleReal3 x) = (f (fun i => (x i : ℚ)) : ℝ) := by
+      simp [g,f,originalPlanePairing3,integerTripleReal3]
+    have hpair (i : Fin 3) : f (v i) = if i = j then 1 else 0 :=
+      dualFrameVector3_pairing w hQ i j
+    have hcoord : f = b.coord j := by
+      apply b.ext
+      intro i
+      rw [hb,hpair]
+      rw [← hb i]
+      simp [Basis.coord_apply,Finsupp.single_apply,eq_comm]
+    have hk : minimaFlag3 (fun i => integerTripleReal3 (w i)) k ≤ LinearMap.ker g := by
+      apply Submodule.span_le.mpr
+      rintro _ ⟨i,rfl⟩
+      have hij : (Fin.castLE (by omega) i : Fin 3) ≠ j := by
+        intro he
+        have hval := congrArg Fin.val he
+        have hji := hj
+        change k.val ≤ j.val at hji
+        change i.val = j.val at hval
+        omega
+      change g (integerTripleReal3 (w (Fin.castLE (by omega) i))) = 0
+      rw [hc,hpair,if_neg hij,Rat.cast_zero]
+    have hh := hk hz
+    change g (integerTripleReal3 z) = 0 at hh
+    rw [hc] at hh
+    have hf : f (fun i => (z i : ℚ)) = 0 := by exact_mod_cast hh
+    rw [hcoord] at hf
+    exact hf
+  rw [← b.sum_repr (fun i => (z i : ℚ))]
+  apply Submodule.sum_mem
+  intro i _
+  by_cases hi : i.val < k.val
+  · apply Submodule.smul_mem
+    rw [hb]
+    apply Submodule.subset_span
+    refine ⟨⟨i.val,hi⟩,?_⟩
+    rfl
+  · have hij : k ≤ i := by omega
+    rw [hzero i hij,zero_smul]
+    exact Submodule.zero_mem _
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_line_proper3 (b : IntegerTriple) (hb : b ≠ 0) :
+    Submodule.span ℚ {fun i => (b i : ℚ)} ≠ ⊤ := by
+  have hn : (fun i => (b i : ℚ)) ≠ 0 := by
+    intro h
+    apply hb
+    funext i
+    have hi := congrFun h i
+    change (b i : ℚ) = 0 at hi
+    change b i = 0
+    exact_mod_cast hi
+  have hf := finrank_span_singleton (K := ℚ) hn
+  intro htop
+  rw [htop] at hf
+  norm_num at hf
+
+theorem allpoint_kernel_proper3 (b : IntegerTriple) (hb : b ≠ 0) :
+    LinearMap.ker (originalPlanePairing3 (fun i => (b i : ℚ))) ≠ ⊤ := by
+  intro h
+  have hf := LinearMap.ker_eq_top.mp h
+  have hn : (fun i => (b i : ℚ)) ≠ 0 := by
+    intro he
+    apply hb
+    funext i
+    have hi := congrFun he i
+    change (b i : ℚ) = 0 at hi
+    change b i = 0
+    exact_mod_cast hi
+  obtain ⟨i,hi⟩ := Function.ne_iff.mp hn
+  have hh := congrArg (fun f : (Fin 3 → ℚ) →ₗ[ℚ] ℚ => f (Pi.single i 1)) hf
+  apply hi
+  simpa [originalPlanePairing3,Pi.single_apply] using hh
+
+theorem allpoint_source_short_rational3 (k0 k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 3 → ℝ) (B : Basis (Fin 3) ℝ RealTriple)
+    (u : Fin 3 → qSourceLattice3 k2 k3 Q c2 c3)
+    (hB : lattice3 B = (qSourceLattice3 k2 k3 Q c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (ha : ∀ j, coordinateGauge3 (qSourceCoordinates3 k0 Q c0 hQ) (integerTripleReal3 (u j : IntegerTriple)) =
+      successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) j)
+    (k : Fin 3)
+    (hgap : ∀ i : Fin 3, i < k → successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) i <
+      successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) k)
+    (z : IntegerTriple) (hz : z ∈ qSourceLattice3 k2 k3 Q c2 c3)
+    (hshort : coordinateGauge3 (qSourceCoordinates3 k0 Q c0 hQ) (integerTripleReal3 z) <
+      successiveRadius3 B (qSourceCoordinates3 k0 Q c0 hQ) k) :
+    (fun i => (z i : ℚ)) ∈ Submodule.span ℚ (Set.range
+      (fun j : Fin k.val => fun i => ((u (Fin.castLE (by omega) j) : IntegerTriple) i : ℚ))) := by
+  apply allpoint_rational_flag3 (fun j => (u j : IntegerTriple)) hu k z
+  apply lattice3_short_mem_minimaFlag B (qSourceCoordinates3 k0 Q c0 hQ) _ hu _ ha k hgap _ _ hshort
+  · intro i
+    rw [hB]
+    exact Submodule.mem_map.mpr ⟨(u i : IntegerTriple),(u i).property,rfl⟩
+  · rw [hB]
+    exact Submodule.mem_map.mpr ⟨z,hz,rfl⟩
+
+theorem allpoint_first_rational_span3 (w : Fin 3 → IntegerTriple) :
+    Submodule.span ℚ (Set.range (fun j : Fin (1 : Fin 3).val => fun i => (w (Fin.castLE (by omega) j) i : ℚ))) =
+      Submodule.span ℚ {fun i => (w 0 i : ℚ)} := by
+  congr 1
+  ext x
+  simp [Set.range_unique]
+
+theorem allpoint_plane_annihilation3 (w : Fin 3 → IntegerTriple)
+    (hw : LinearIndependent ℝ (fun j => integerTripleReal3 (w j)))
+    (z : Fin 3 → ℚ) (hz : z ∈ Submodule.span ℚ (Set.range
+      (fun j : Fin (2 : Fin 3).val => fun i => (w (Fin.castLE (by omega) j) i : ℚ)))) :
+    originalPlanePairing3 (dualFrameVector3 w 2) z = 0 := by
+  have hle : Submodule.span ℚ (Set.range
+      (fun j : Fin (2 : Fin 3).val => fun i => (w (Fin.castLE (by omega) j) i : ℚ))) ≤
+      LinearMap.ker (originalPlanePairing3 (dualFrameVector3 w 2)) := by
+    apply Submodule.span_le.mpr
+    rintro _ ⟨j,rfl⟩
+    change (∑ i, (w (Fin.castLE (by omega) j) i : ℚ)*dualFrameVector3 w 2 i) = 0
+    rw [dualFrameVector3_pairing w (dualFrameMatrix3_rational_independent w hw),if_neg]
+    intro he
+    have hh := congrArg Fin.val he
+    change j.val = 2 at hh
+    omega
+  exact hle hz
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_rank1_extract3 (k0 k2 k3 : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → qSourceLattice3 k2 k3 Q.val c2 c3)
+    (hB : ∀ Q : Omega, lattice3 (B Q) = (qSourceLattice3 k2 k3 Q.val c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) j)
+    (hgap : ∀ Q : Omega,
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) 0 <
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) 1*Q.val^(-delta))
+    (z : Omega → IntegerTriple)
+    (hz : ∀ Q : Omega, z Q ∈ qSourceLattice3 k2 k3 Q.val c2 c3)
+    (hshort : ∀ Q : Omega, coordinateGauge3 (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property))
+      (integerTripleReal3 (z Q)) < successiveRadius3 (B Q)
+      (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) 1) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ), P ≠ ⊤ ∧ ∃ W : Set ℝ,
+      W ⊆ Omega ∧ ¬ BddAbove W ∧ ∀ Q : Omega, Q.val ∈ W → (fun i => (z Q i : ℚ)) ∈ P := by
+  obtain ⟨b,hb0,W,hWO,hW,hfixed⟩ := source_original_fixed_rank1_restricted3 k0 k2 k3 delta hd
+    c0 c2 c3 hc0 hc2 hc3 hb Omega hOmega hQ B u hB hu hatt hgap Omega (fun _ h => h) hOmega
+  refine ⟨Submodule.span ℚ {fun i => (b i : ℚ)},allpoint_line_proper3 b hb0,W,hWO,hW,?_⟩
+  intro Q hQW
+  have hfac : Q.val^(-delta) < 1 := Real.rpow_lt_one_of_one_lt_of_neg (hQ _ Q.property) (by linarith)
+  obtain ⟨_,_,_,hl,_,_⟩ := exists_successive_minima3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ _ Q.property))
+  have hg : successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ _ Q.property)) 0 <
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ _ Q.property)) 1 :=
+    (hgap Q).trans (by nlinarith [hl 1])
+  have hm := allpoint_source_short_rational3 k0 k2 k3 Q.val (hQ _ Q.property) c0 c2 c3
+    (B Q) (u Q) (hB Q) (hu Q) (hatt Q) 1
+    (fun i hi => by
+      have he : i = 0 := by omega
+      simpa only [he] using hg)
+    (z Q) (hz Q) (hshort Q)
+  rw [allpoint_first_rational_span3 (fun j => (u Q j : IntegerTriple))] at hm
+  rwa [hfixed Q hQW] at hm
+
+theorem allpoint_rank2_extract3 (k0 k2 k3 : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → qSourceLattice3 k2 k3 Q.val c2 c3)
+    (hB : ∀ Q : Omega, lattice3 (B Q) = (qSourceLattice3 k2 k3 Q.val c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) j)
+    (hgap : ∀ Q : Omega,
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) 1 <
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) 2*Q.val^(-delta))
+    (z : Omega → IntegerTriple)
+    (hz : ∀ Q : Omega, z Q ∈ qSourceLattice3 k2 k3 Q.val c2 c3)
+    (hshort : ∀ Q : Omega, coordinateGauge3 (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property))
+      (integerTripleReal3 (z Q)) < successiveRadius3 (B Q)
+      (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) 2) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ), P ≠ ⊤ ∧ ∃ W : Set ℝ,
+      W ⊆ Omega ∧ ¬ BddAbove W ∧ ∀ Q : Omega, Q.val ∈ W → (fun i => (z Q i : ℚ)) ∈ P := by
+  obtain ⟨b,hb0,W,hWO,hW,hfixed⟩ := source_fixed_last_dual_under_gap3 k0 k2 k3 delta hd
+    c0 c2 c3 hc0 hc2 hc3 hb Omega hOmega hQ B u hB hu hatt hgap
+  refine ⟨LinearMap.ker (originalPlanePairing3 (fun i => (b i : ℚ))),
+    allpoint_kernel_proper3 b hb0,W,hWO,hW,?_⟩
+  intro Q hQW
+  have hfac : Q.val^(-delta) < 1 := Real.rpow_lt_one_of_one_lt_of_neg (hQ _ Q.property) (by linarith)
+  obtain ⟨_,_,_,hl,_,_⟩ := exists_successive_minima3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ _ Q.property))
+  have hg : successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ _ Q.property)) 1 <
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ _ Q.property)) 2 :=
+    (hgap Q).trans (by nlinarith [hl 2])
+  have hm := allpoint_source_short_rational3 k0 k2 k3 Q.val (hQ _ Q.property) c0 c2 c3
+    (B Q) (u Q) (hB Q) (hu Q) (hatt Q) 2
+    (fun i hi => (successiveRadius3_monotone (B Q) _ (show i ≤ 1 by omega)).trans_lt hg)
+    (z Q) (hz Q) (hshort Q)
+  have hann := allpoint_plane_annihilation3 (fun j => (u Q j : IntegerTriple)) (hu Q) _ hm
+  have hbmem : (fun i => (b i : ℚ)) ∈
+      Submodule.span ℚ {dualFrameVector3 (fun j => (u Q j : IntegerTriple)) 2} := by
+    rw [hfixed Q hQW]
+    exact Submodule.mem_span_singleton_self _
+  obtain ⟨r,hr⟩ := Submodule.mem_span_singleton.mp hbmem
+  change originalPlanePairing3 (fun i => (b i : ℚ)) (fun i => (z Q i : ℚ)) = 0
+  rw [← hr]
+  change (∑ i, (z Q i : ℚ)*(r*dualFrameVector3 (fun j => (u Q j : IntegerTriple)) 2 i)) = 0
+  calc
+    _ = r*(∑ i, (z Q i : ℚ)*dualFrameVector3 (fun j => (u Q j : IntegerTriple)) 2 i) := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro i _
+      ring
+    _ = 0 := by
+      change r*originalPlanePairing3 (dualFrameVector3 (fun j => (u Q j : IntegerTriple)) 2)
+        (fun i => (z Q i : ℚ)) = 0
+      rw [hann,mul_zero]
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_finite_parameter_fiber3 {A : Type*} (F : Set A) (hF : F.Finite)
+    (U : Set ℝ) (hU : ¬ BddAbove U) (a : ℝ → A) (ha : ∀ Q ∈ U, a Q ∈ F) :
+    ∃ d ∈ F, ¬ BddAbove {Q | Q ∈ U ∧ a Q = d} := by
+  classical
+  by_contra hnone
+  have hb (d : F) : BddAbove {Q | Q ∈ U ∧ a Q = d.val} := by
+    by_contra h
+    exact hnone ⟨d.val,d.property,h⟩
+  choose b hb using hb
+  letI := hF.fintype
+  obtain ⟨B,hB⟩ := (Set.finite_range b).bddAbove
+  apply hU
+  refine ⟨B,?_⟩
+  intro Q hQ
+  let d : F := ⟨a Q,ha Q hQ⟩
+  exact (hb d ⟨hQ,rfl⟩).trans (hB (Set.mem_range_self d))
+
+theorem allpoint_fixed_short_family3 (k0 k2 k3 : Fin 3)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → qSourceLattice3 k2 k3 Q.val c2 c3)
+    (hB : ∀ Q : Omega, lattice3 (B Q) = (qSourceLattice3 k2 k3 Q.val c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      successiveRadius3 (B Q) (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property)) j)
+
+    (z : Omega → IntegerTriple) (hz0 : ∀ Q : Omega, z Q ≠ 0)
+    (hz : ∀ Q : Omega, z Q ∈ qSourceLattice3 k2 k3 Q.val c2 c3)
+    (hshort : ∀ Q : Omega, coordinateGauge3 (qSourceCoordinates3 k0 Q.val c0 (hQ Q.val Q.property))
+      (integerTripleReal3 (z Q)) ≤ Q.val^(-(1 : ℝ)/24)) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ), P ≠ ⊤ ∧ ∃ W : Set ℝ,
+      W ⊆ Omega ∧ ¬ BddAbove W ∧ ∀ Q : Omega, Q.val ∈ W → (fun i => (z Q i : ℚ)) ∈ P := by
+  classical
+  obtain ⟨C,hC,hcut⟩ := allpoint_rank_cutoff3 ((1 : ℝ)/24) (by norm_num)
+  let O : Set ℝ := {Q | Q ∈ Omega ∧ C < Q}
+  have hO : ¬ BddAbove O := sourceDual_unbounded_tail3 Omega hOmega C
+  let embed (q : O) : Omega := ⟨q.val,q.property.1⟩
+  have hdata (q : O) : ∃ k : Fin 3, (k = 1 ∨ k = 2) ∧
+      successiveRadius3 (B (embed q)) (qSourceCoordinates3 k0 q.val c0 (hQ _ q.property.1)) (k-1) <
+        successiveRadius3 (B (embed q)) (qSourceCoordinates3 k0 q.val c0 (hQ _ q.property.1)) k*q.val^(-((1 : ℝ)/192)) ∧
+      coordinateGauge3 (qSourceCoordinates3 k0 q.val c0 (hQ _ q.property.1)) (integerTripleReal3 (z (embed q))) <
+        successiveRadius3 (B (embed q)) (qSourceCoordinates3 k0 q.val c0 (hQ _ q.property.1)) k := by
+    have hmem (v : qSourceLattice3 k2 k3 q.val c2 c3) : integerTripleReal3 (v : IntegerTriple) ∈ lattice3 (B (embed q)) := by
+      rw [hB (embed q)]
+      exact Submodule.mem_map.mpr ⟨(v : IntegerTriple),v.property,rfl⟩
+    have hzmem : integerTripleReal3 (z (embed q)) ∈ lattice3 (B (embed q)) :=
+      hmem ⟨z (embed q),hz (embed q)⟩
+    have hn : integerTripleReal3 (z (embed q)) ≠ 0 := by
+      intro he
+      apply hz0 (embed q)
+      apply integerTripleReal3_injective
+      simpa only [map_zero] using he
+    have hp := (gap_source_product3 k0 k2 k3 q.val c0 c2 c3 (hQ _ q.property.1)
+      (fun i => (hc2 i).2) (fun i => (hc3 i).2) hb (B (embed q)) (u (embed q))
+      (hB (embed q)) (hatt (embed q))).1
+    obtain ⟨k,hk,hg,hs,_⟩ := allpoint_rank_threshold3 ((1 : ℝ)/24) q.val (by norm_num)
+      (hQ _ q.property.1) (hcut _ q.property.2) (B (embed q))
+      (qSourceCoordinates3 k0 q.val c0 (hQ _ q.property.1))
+      (fun j => integerTripleReal3 (u (embed q) j : IntegerTriple)) (hu (embed q))
+      (fun j => hmem (u (embed q) j)) (hatt (embed q)) (integerTripleReal3 (z (embed q)))
+      hzmem hn (by simpa only [neg_div] using hshort (embed q)) hp
+    exact ⟨k,hk,by norm_num at hg; exact hg,hs⟩
+  choose k hk hg hs using hdata
+  let f (Q : ℝ) : Fin 3 := if h : Q ∈ O then k ⟨Q,h⟩ else 0
+  obtain ⟨r,_,hT⟩ := allpoint_finite_parameter_fiber3 (Set.univ : Set (Fin 3)) Set.finite_univ O hO f (by intros; trivial)
+  let T : Set ℝ := {Q | Q ∈ O ∧ f Q = r}
+  let original (t : T) : O := ⟨t.val,t.property.1⟩
+  let e (t : T) : Omega := embed (original t)
+  have hkr (t : T) : k (original t) = r := by
+    simpa only [f,dif_pos t.property.1,original] using t.property.2
+  obtain ⟨t,ht,_⟩ := not_bddAbove_iff.mp hT 0
+  have hr : r = 1 ∨ r = 2 := by
+    rw [← hkr ⟨t,ht⟩]
+    exact hk (original ⟨t,ht⟩)
+  have hQt : ∀ Q ∈ T, 1 < Q := fun Q hQT => hQ Q hQT.1.1
+  have hBT (t : T) : lattice3 (B (e t)) = (qSourceLattice3 k2 k3 t.val c2 c3).toIntSubmodule.map integerTripleReal3 := hB (e t)
+  rcases hr with hr | hr
+  · have hgT (t : T) : successiveRadius3 (B (e t)) (qSourceCoordinates3 k0 t.val c0 (hQt _ t.property)) 0 <
+        successiveRadius3 (B (e t)) (qSourceCoordinates3 k0 t.val c0 (hQt _ t.property)) 1*t.val^(-((1 : ℝ)/192)) := by
+      have hh := hg (original t)
+      rw [hkr t,hr] at hh
+      simpa using hh
+    have hsT (t : T) : coordinateGauge3 (qSourceCoordinates3 k0 t.val c0 (hQt _ t.property)) (integerTripleReal3 (z (e t))) <
+        successiveRadius3 (B (e t)) (qSourceCoordinates3 k0 t.val c0 (hQt _ t.property)) 1 := by
+      have hh := hs (original t)
+      rw [hkr t,hr] at hh
+      exact hh
+    obtain ⟨P,hP,W,hWT,hW,hm⟩ := allpoint_rank1_extract3 k0 k2 k3 ((1 : ℝ)/192) (by norm_num)
+      c0 c2 c3 hc0 hc2 hc3 hb T hT hQt (fun t => B (e t)) (fun t => u (e t)) hBT
+      (fun t => hu (e t)) (fun t => hatt (e t)) hgT (fun t => z (e t)) (fun t => hz (e t)) hsT
+    refine ⟨P,hP,W,fun Q hQW => (hWT hQW).1.1,hW,?_⟩
+    intro Q hQW
+    exact hm ⟨Q.val,hWT hQW⟩ hQW
+  · have hgT (t : T) : successiveRadius3 (B (e t)) (qSourceCoordinates3 k0 t.val c0 (hQt _ t.property)) 1 <
+        successiveRadius3 (B (e t)) (qSourceCoordinates3 k0 t.val c0 (hQt _ t.property)) 2*t.val^(-((1 : ℝ)/192)) := by
+      have hh := hg (original t)
+      rw [hkr t,hr] at hh
+      simpa using hh
+    have hsT (t : T) : coordinateGauge3 (qSourceCoordinates3 k0 t.val c0 (hQt _ t.property)) (integerTripleReal3 (z (e t))) <
+        successiveRadius3 (B (e t)) (qSourceCoordinates3 k0 t.val c0 (hQt _ t.property)) 2 := by
+      have hh := hs (original t)
+      rw [hkr t,hr] at hh
+      exact hh
+    obtain ⟨P,hP,W,hWT,hW,hm⟩ := allpoint_rank2_extract3 k0 k2 k3 ((1 : ℝ)/192) (by norm_num)
+      c0 c2 c3 hc0 hc2 hc3 hb T hT hQt (fun t => B (e t)) (fun t => u (e t)) hBT
+      (fun t => hu (e t)) (fun t => hatt (e t)) hgT (fun t => z (e t)) (fun t => hz (e t)) hsT
+    refine ⟨P,hP,W,fun Q hQW => (hWT hQW).1.1,hW,?_⟩
+    intro Q hQW
+    exact hm ⟨Q.val,hWT hQW⟩ hQW
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_source_family3 (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega)
+    (x : Omega → Fin 4 → ℚ) (hx : ∀ q, x q ∈ normalizedRelations fixedSUnitGroup 3)
+    (z : Omega → IntegerTriple) (s : Omega → fixedSUnitGroup)
+    (hz : ∀ q, PrimitiveTriple (z q))
+    (hscale : ∀ q, ∀ i : Fin 3, (z q i : ℚ) = ((s q : ℚˣ) : ℚ)*x q i.castSucc)
+    (hH : ∀ q, 3 ≤ (archTripleHeight (z q) : ℝ))
+    (hparam : ∀ q, q.val = (archTripleHeight (z q) : ℝ)^4) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ), P ≠ ⊤ ∧ ∃ W : Set ℝ,
+      W ⊆ Omega ∧ ¬ BddAbove W ∧ ∀ q : Omega, q.val ∈ W → (fun i => (z q i : ℚ)) ∈ P := by
+  classical
+  have hp (q : Omega) : ∃ choice : Fin 3 → Fin 3, ∃ d ∈ finiteWeightCandidates3 168,
+      ∃ hQ : 1 < q.val, sourceWeightConditions3 d ∧
+      z q ∈ qSourceLattice3 (choice 1) (choice 2) q.val (d 1) (d 2) ∧
+      coordinateGauge3 (qSourceCoordinates3 (choice 0) q.val (d 0) hQ) (integerTripleReal3 (z q)) ≤ q.val^(-(1 : ℝ)/24) := by
+    simpa only [← hparam q] using allpoint_fixed_source_point3 (hx q) (z q) (s q) (hz q) (hscale q) (hH q)
+  choose choice d hd hQ hc hzL hg using hp
+  let F : Set ((Fin 3 → Fin 3) × (Fin 3 → Fin 3 → ℝ)) := Set.univ ×ˢ finiteWeightCandidates3 168
+  have hF : F.Finite := Set.finite_univ.prod (finiteWeightCandidates3_finite 168)
+  let a (Q : ℝ) := if h : Q ∈ Omega then (choice ⟨Q,h⟩,d ⟨Q,h⟩) else (fun _ => 0,fun _ _ => 0)
+  have ha : ∀ Q ∈ Omega, a Q ∈ F := by
+    intro Q h
+    simp only [a,dif_pos h,F,Set.mem_prod,Set.mem_univ,true_and]
+    exact hd ⟨Q,h⟩
+  obtain ⟨⟨k,c⟩,hkc,hT⟩ := allpoint_finite_parameter_fiber3 F hF Omega hOmega a ha
+  let T : Set ℝ := {Q | Q ∈ Omega ∧ a Q = (k,c)}
+  let embed (t : T) : Omega := ⟨t.val,t.property.1⟩
+  have hcfix : sourceWeightConditions3 c := hkc.2.2
+  have he (t : T) : choice (embed t) = k ∧ d (embed t) = c := by
+    have hh := t.property.2
+    simp only [a,dif_pos t.property.1] at hh
+    exact Prod.mk.inj hh
+  have htq : ∀ Q ∈ T, 1 < Q := fun Q h => hQ ⟨Q,h.1⟩
+  have hmem (t : T) : z (embed t) ∈ qSourceLattice3 (k 1) (k 2) t.val (c 1) (c 2) := by
+    have hh := hzL (embed t)
+    simpa only [(he t).1,(he t).2] using hh
+  have hshort (t : T) : coordinateGauge3 (qSourceCoordinates3 (k 0) t.val (c 0) (htq _ t.property))
+      (integerTripleReal3 (z (embed t))) ≤ t.val^(-(1 : ℝ)/24) := by
+    have hh := hg (embed t)
+    simpa only [(he t).1,(he t).2] using hh
+  have hbal : ∑ i, (c 0 i+c 1 i+c 2 i) = 0 := by
+    have hh := hcfix.2.2
+    simp only [Fin.sum_univ_three] at hh ⊢
+    linarith
+  have hframe (t : T) : ∃ (B : Basis (Fin 3) ℝ RealTriple)
+      (u : Fin 3 → qSourceLattice3 (k 1) (k 2) t.val (c 1) (c 2)),
+      lattice3 B = (qSourceLattice3 (k 1) (k 2) t.val (c 1) (c 2)).toIntSubmodule.map integerTripleReal3 ∧
+      LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)) ∧
+      ∀ j, coordinateGauge3 (qSourceCoordinates3 (k 0) t.val (c 0) (htq _ t.property))
+        (integerTripleReal3 (u j : IntegerTriple)) =
+        successiveRadius3 B (qSourceCoordinates3 (k 0) t.val (c 0) (htq _ t.property)) j := by
+    obtain ⟨B,u,hB,hu,ha,_⟩ := exists_qSource_integer_attaining_frame (k 0) (k 1) (k 2) t.val
+      (c 0) (c 1) (c 2) (htq _ t.property) (fun i => (hcfix.2.1 1 (by decide) i).2)
+      (fun i => (hcfix.2.1 2 (by decide) i).2) hbal
+    exact ⟨B,u,hB,hu,ha⟩
+  choose B u hB hu hatt using hframe
+  have hn (t : T) : z (embed t) ≠ 0 := by
+    intro heq
+    obtain ⟨b,hb⟩ := hz (embed t)
+    simp [heq] at hb
+  obtain ⟨P,hP,W,hWT,hW,hm⟩ := allpoint_fixed_short_family3 (k 0) (k 1) (k 2) (c 0) (c 1) (c 2)
+    (fun i => abs_le.mp (hcfix.1 i)) (hcfix.2.1 1 (by decide)) (hcfix.2.1 2 (by decide)) hbal
+    T hT htq B u hB hu hatt (fun t => z (embed t)) hn hmem hshort
+  refine ⟨P,hP,W,fun Q hQW => (hWT hQW).1,hW,?_⟩
+  intro q hqW
+  exact hm ⟨q.val,hWT hqW⟩ hqW
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+theorem allpoint_pair_proper3 (v w : Fin 3 → ℚ) :
+    Submodule.span ℚ {v,w} ≠ ⊤ := by
+  classical
+  have hr : Set.range (![v,w] : Fin 2 → Fin 3 → ℚ) = {v,w} := by
+    ext x
+    simp only [Set.mem_range,Set.mem_insert_iff,Set.mem_singleton_iff]
+    constructor
+    · rintro ⟨i,rfl⟩
+      fin_cases i <;> simp
+    · rintro (rfl | rfl)
+      · exact ⟨0,rfl⟩
+      · exact ⟨1,rfl⟩
+  intro h
+  have hh : Submodule.span ℚ (Set.range (![v,w] : Fin 2 → Fin 3 → ℚ)) = ⊤ := by rw [hr,h]
+  have hf := finrank_le_of_span_eq_top (R := ℚ) hh
+  norm_num at hf
+
+theorem allpoint_bounded_height_finite3 (M : ℝ) :
+    {z : IntegerTriple | (archTripleHeight z : ℝ) ≤ M}.Finite := by
+  classical
+  let N := Nat.ceil (max 0 M)
+  have hM : M ≤ (N : ℝ) := (le_max_right 0 M).trans (Nat.le_ceil _)
+  have hbox : {z : IntegerTriple | ∀ i, -(N : ℤ) ≤ z i ∧ z i ≤ (N : ℤ)}.Finite :=
+    Set.Finite.pi' (fun _ => Set.finite_Icc _ _)
+  apply hbox.subset
+  intro z hz i
+  have hcoord : |(z i : ℚ)| ≤ archTripleHeight z := by
+    fin_cases i
+    · exact le_max_left _ _
+    · exact (le_max_left _ _).trans (le_max_right _ _)
+    · exact (le_max_right _ _).trans (le_max_right _ _)
+  have hR : |(z i : ℝ)| ≤ (archTripleHeight z : ℝ) := by exact_mod_cast hcoord
+  have hh := abs_le.mp (hR.trans (hz.trans hM))
+  constructor
+  · exact_mod_cast hh.1
+  · exact_mod_cast hh.2
+
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+noncomputable section
+
+def allpoint_no_finite_cover3 (E : IntegerTriple → Prop) : Prop :=
+  ¬ ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+    ∀ z, E z → ∃ P ∈ F, (fun i => (z i : ℚ)) ∈ P
+
+theorem allpoint_avoid_finite3 (E : IntegerTriple → Prop) (hno : allpoint_no_finite_cover3 E)
+    (F : Finset (Submodule ℚ (Fin 3 → ℚ))) (hF : ∀ P ∈ F, P ≠ ⊤) :
+    ∃ z, E z ∧ ∀ P ∈ F, (fun i => (z i : ℚ)) ∉ P := by
+  classical
+  by_contra h
+  push_neg at h
+  exact hno ⟨(F : Set (Submodule ℚ (Fin 3 → ℚ))),F.finite_toSet,hF,h⟩
+
+theorem allpoint_general_position_step3 (E : IntegerTriple → Prop) (hno : allpoint_no_finite_cover3 E)
+    (n : ℕ) (v : Fin n → IntegerTriple) :
+    ∃ z, E z ∧ max 3 (max (n : ℝ) ((∑ i, (archTripleHeight (v i) : ℝ))+1)) < (archTripleHeight z : ℝ) ∧
+      ∀ i j : Fin n, (fun k => (z k : ℚ)) ∉ Submodule.span ℚ
+        {fun k => (v i k : ℚ),fun k => (v j k : ℚ)} := by
+  classical
+  let M := max 3 (max (n : ℝ) ((∑ i, (archTripleHeight (v i) : ℝ))+1))
+  let pairs : Finset (Submodule ℚ (Fin 3 → ℚ)) := Finset.univ.image
+    (fun ij : Fin n × Fin n => Submodule.span ℚ {fun k => (v ij.1 k : ℚ),fun k => (v ij.2 k : ℚ)})
+  let low := (allpoint_bounded_height_finite3 M).toFinset.image
+    (fun z => Submodule.span ℚ {fun k => (z k : ℚ),fun k => (z k : ℚ)})
+  have hproper : ∀ P ∈ pairs ∪ low, P ≠ ⊤ := by
+    intro P hP
+    rcases Finset.mem_union.mp hP with hp | hp
+    · obtain ⟨ij,_,rfl⟩ := Finset.mem_image.mp hp
+      exact allpoint_pair_proper3 _ _
+    · obtain ⟨z,_,rfl⟩ := Finset.mem_image.mp hp
+      exact allpoint_pair_proper3 _ _
+  obtain ⟨z,hz,havoid⟩ := allpoint_avoid_finite3 E hno (pairs ∪ low) hproper
+  refine ⟨z,hz,?_,?_⟩
+  · by_contra h
+    have hb : (archTripleHeight z : ℝ) ≤ M := le_of_not_gt h
+    have hlow : Submodule.span ℚ {fun k => (z k : ℚ),fun k => (z k : ℚ)} ∈ low := by
+      apply Finset.mem_image.mpr
+      exact ⟨z,by simpa using hb,rfl⟩
+    apply havoid _ (Finset.mem_union_right _ hlow)
+    exact Submodule.subset_span (by simp)
+  · intro i j
+    apply havoid
+    apply Finset.mem_union_left
+    exact Finset.mem_image.mpr ⟨(i,j),Finset.mem_univ _,rfl⟩
+
+theorem allpoint_general_position_sequence3 (E : IntegerTriple → Prop) (hno : allpoint_no_finite_cover3 E) :
+    ∃ z : ℕ → IntegerTriple, (∀ n, E (z n)) ∧
+      (∀ n, 3 < (archTripleHeight (z n) : ℝ) ∧ (n : ℝ) < (archTripleHeight (z n) : ℝ)) ∧
+      StrictMono (fun n => (archTripleHeight (z n) : ℝ)) ∧
+      ∀ n, ∀ i j : Fin n, (fun k => (z n k : ℚ)) ∉ Submodule.span ℚ
+        {fun k => (z i.val k : ℚ),fun k => (z j.val k : ℚ)} := by
+  classical
+  choose next hE hheight havoid using allpoint_general_position_step3 E hno
+  let step (n : ℕ) (prev : ∀ m, m < n → IntegerTriple) : IntegerTriple := next n (fun i => prev i.val i.isLt)
+  let z (n : ℕ) : IntegerTriple := Nat.strongRecOn n step
+  have hrec (n : ℕ) : z n = next n (fun i => z i.val) := by
+    change Nat.lt_wfRel.wf.fix step n = _
+    rw [WellFounded.fix_eq]
+    rfl
+  have hspec (n : ℕ) : E (z n) ∧
+      max 3 (max (n : ℝ) ((∑ i : Fin n, (archTripleHeight (z i.val) : ℝ))+1)) < (archTripleHeight (z n) : ℝ) ∧
+      ∀ i j : Fin n, (fun k => (z n k : ℚ)) ∉ Submodule.span ℚ
+        {fun k => (z i.val k : ℚ),fun k => (z j.val k : ℚ)} := by
+    have h := And.intro (hE n (fun i => z i.val))
+      (And.intro (hheight n (fun i => z i.val)) (havoid n (fun i => z i.val)))
+    rw [← hrec n] at h
+    exact h
+  refine ⟨z,fun n => (hspec n).1,?_,?_,fun n => (hspec n).2.2⟩
+  · intro n
+    exact ⟨lt_of_le_of_lt (le_max_left _ _) (hspec n).2.1,
+      lt_of_le_of_lt ((le_max_left _ _).trans (le_max_right _ _)) (hspec n).2.1⟩
+  · intro i j hij
+    have hnon (l : Fin j) : 0 ≤ (archTripleHeight (z l.val) : ℝ) := by
+      change 0 ≤ ((max |(z l.val 0 : ℚ)| (max |(z l.val 1 : ℚ)| |(z l.val 2 : ℚ)|) : ℚ) : ℝ)
+      positivity
+    have hh := Finset.single_le_sum (fun l _ => hnon l) (Finset.mem_univ (⟨i,hij⟩ : Fin j))
+    have hb : (archTripleHeight (z i) : ℝ) < (∑ l : Fin j, (archTripleHeight (z l.val) : ℝ))+1 := by linarith
+    exact hb.trans (lt_of_le_of_lt ((le_max_right _ _).trans (le_max_right _ _)) (hspec j).2.1)
+
+
+theorem allpoint_general_position_intersection3 (z : ℕ → IntegerTriple)
+    (hH : ∀ n, 3 < (archTripleHeight (z n) : ℝ))
+    (havoid : ∀ n, ∀ i j : Fin n, (fun k => (z n k : ℚ)) ∉ Submodule.span ℚ
+      {fun k => (z i.val k : ℚ),fun k => (z j.val k : ℚ)})
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P ≠ ⊤) :
+    {n | (fun i => (z n i : ℚ)) ∈ P}.Finite ∧ {n | (fun i => (z n i : ℚ)) ∈ P}.ncard ≤ 2 := by
+  classical
+  let v (n : ℕ) : Fin 3 → ℚ := fun i => (z n i : ℚ)
+  have hn (n : ℕ) : v n ≠ 0 := by
+    intro h
+    have hh := hH n
+    have hc (i : Fin 3) : (z n i : ℚ) = 0 := by simpa only [v,Pi.zero_apply] using congrFun h i
+    norm_num [archTripleHeight,hc] at hh
+  have hbad (i j k : ℕ) (hij : i < j) (hjk : j < k)
+      (hi : v i ∈ P) (hj : v j ∈ P) (hk : v k ∈ P) : False := by
+    have hnotj : v j ∉ Submodule.span ℚ {v i} := by
+      simpa only [v,Set.pair_eq_singleton] using havoid j ⟨i,hij⟩ ⟨i,hij⟩
+    have hpair : LinearIndependent ℚ (![v j,v i] : Fin 2 → Fin 3 → ℚ) := by
+      apply linearIndependent_fin2.mpr
+      refine ⟨hn i,?_⟩
+      intro a ha
+      exact hnotj (Submodule.mem_span_singleton.mpr ⟨a,ha⟩)
+    have hrange : Set.range (![v j,v i] : Fin 2 → Fin 3 → ℚ) = {v j,v i} := by
+      ext x
+      simp [Fin.exists_fin_two,eq_comm,or_comm]
+    have hnotk : v k ∉ Submodule.span ℚ (Set.range (![v j,v i] : Fin 2 → Fin 3 → ℚ)) := by
+      rw [hrange]
+      exact havoid k ⟨j,hjk⟩ ⟨i,lt_trans hij hjk⟩
+    have htriple : LinearIndependent ℚ (![v k,v j,v i] : Fin 3 → Fin 3 → ℚ) :=
+      linearIndependent_fin_cons.mpr ⟨hpair,hnotk⟩
+    have htop := htriple.span_eq_top_of_card_eq_finrank (by simp)
+    have hle : Submodule.span ℚ (Set.range (![v k,v j,v i] : Fin 3 → Fin 3 → ℚ)) ≤ P := by
+      apply Submodule.span_le.mpr
+      rintro _ ⟨a,rfl⟩
+      fin_cases a
+      · exact hk
+      · exact hj
+      · exact hi
+    rw [htop] at hle
+    exact hP (top_unique hle)
+  let S : Set ℕ := {n | v n ∈ P}
+  have hbound : BddAbove S := by
+    apply Classical.byContradiction
+    intro h
+    obtain ⟨i,hi,_⟩ := not_bddAbove_iff.mp h 0
+    obtain ⟨j,hj,hij⟩ := not_bddAbove_iff.mp h i
+    obtain ⟨k,hk,hjk⟩ := not_bddAbove_iff.mp h j
+    exact hbad i j k hij hjk hi hj hk
+  obtain ⟨N,hN⟩ := hbound
+  have hfinite : S.Finite := (Set.finite_Iic N).subset (fun n hn => hN hn)
+  refine ⟨hfinite,?_⟩
+  apply Nat.le_of_not_gt
+  intro hcard
+  obtain ⟨a,b,c,ha,hb,hc,hab,hac,hbc⟩ := (Set.two_lt_ncard_iff hfinite).mp hcard
+  have hord : (a < b ∧ b < c) ∨ (a < c ∧ c < b) ∨ (b < a ∧ a < c) ∨
+      (b < c ∧ c < a) ∨ (c < a ∧ a < b) ∨ (c < b ∧ b < a) := by omega
+  rcases hord with h | h | h | h | h | h
+  · exact hbad a b c h.1 h.2 ha hb hc
+  · exact hbad a c b h.1 h.2 ha hc hb
+  · exact hbad b a c h.1 h.2 hb ha hc
+  · exact hbad b c a h.1 h.2 hb hc ha
+  · exact hbad c a b h.1 h.2 hc ha hb
+  · exact hbad c b a h.1 h.2 hc hb ha
+
+end
+end JSP000334
+
+open scoped BigOperators Matrix
+namespace JSP000334
+
+def allpointEligible3 (z : IntegerTriple) : Prop :=
+  PrimitiveTriple z ∧ ∃ x : Fin 4 → ℚ, x ∈ normalizedRelations fixedSUnitGroup 3 ∧
+    ∃ s : fixedSUnitGroup, ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc
+
+theorem source_primitive_four_term_finite_cover3 :
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+      ∀ z : IntegerTriple, allpointEligible3 z → ∃ P ∈ F, (fun i => (z i : ℚ)) ∈ P := by
+  classical
+  by_contra hno
+  change allpoint_no_finite_cover3 allpointEligible3 at hno
+  obtain ⟨z,hE,hheight,hmono,havoid⟩ := allpoint_general_position_sequence3 allpointEligible3 hno
+  choose x hx s hscale using (fun n => (hE n).2)
+  let q (n : ℕ) : ℝ := (archTripleHeight (z n) : ℝ)^4
+  let Omega : Set ℝ := Set.range q
+  have hOmega : ¬ BddAbove Omega := by
+    rintro ⟨M,hM⟩
+    obtain ⟨n,hn⟩ := exists_nat_gt M
+    have hb := hM (show q n ∈ Omega from Set.mem_range_self n)
+    have hH := (hheight n).1
+    have hHn := (hheight n).2
+    have hsq : (archTripleHeight (z n) : ℝ) ≤ (archTripleHeight (z n) : ℝ)^2 := by nlinarith
+    have hfour : (archTripleHeight (z n) : ℝ)^2 ≤ (archTripleHeight (z n) : ℝ)^4 := by
+      nlinarith [sq_nonneg ((archTripleHeight (z n) : ℝ)^2-1)]
+    change (archTripleHeight (z n) : ℝ)^4 ≤ M at hb
+    linarith
+  have hex (t : Omega) : ∃ n : ℕ, q n = t.val := t.property
+  choose original hparam using hex
+  obtain ⟨P,hP,W,hWO,hW,hm⟩ := allpoint_source_family3 Omega hOmega
+    (fun t => x (original t)) (fun t => hx (original t)) (fun t => z (original t))
+    (fun t => s (original t)) (fun t => (hE (original t)).1) (fun t => hscale (original t))
+    (fun t => (hheight (original t)).1.le) (fun t => (hparam t).symm)
+  have hS := (allpoint_general_position_intersection3 z (fun n => (hheight n).1) havoid P hP).1
+  have hsub : W ⊆ q '' {n | (fun i => (z n i : ℚ)) ∈ P} := by
+    intro Q hQW
+    let t : Omega := ⟨Q,hWO hQW⟩
+    exact ⟨original t,hm t hQW,hparam t⟩
+  exact hW ((hS.image q).bddAbove.mono hsub)
+
+theorem allpoint_four_term_recovery3 {x : Fin 4 → ℚ}
+    (hx : x ∈ normalizedRelations fixedSUnitGroup 3) (w : Fin 4 → ℤ) (s : fixedSUnitGroup)
+    (hscale : ∀ i, (w i : ℚ) = ((s : ℚˣ) : ℚ)*x i) :
+    ∀ i, x i = (w i : ℚ)/(w 0 : ℚ) := by
+  have h0 : (w 0 : ℚ) = ((s : ℚˣ) : ℚ) := by simpa only [hx.1,mul_one] using hscale 0
+  intro i
+  rw [hscale,h0]
+  exact (mul_div_cancel_left₀ (x i) (Units.ne_zero (s : ℚˣ))).symm
+
+theorem source_four_term_finite_cover3 :
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+      ∀ x ∈ normalizedRelations fixedSUnitGroup 3,
+        ∃ w : Fin 4 → ℤ, ∃ s : fixedSUnitGroup,
+          PrimitiveTriple (fun i => w i.castSucc) ∧ (∀ i, w i ≠ 0) ∧
+          (∑ i, w i = 0) ∧ Nondegenerate (fun i => (w i : ℚ)) ∧
+          (∀ i, (w i : ℚ) = ((s : ℚˣ) : ℚ)*x i) ∧
+          (∀ i, x i = (w i : ℚ)/(w 0 : ℚ)) ∧ ∃ P ∈ F, (fun i : Fin 3 => (w i.castSucc : ℚ)) ∈ P := by
+  obtain ⟨F,hF,hproper,hcover⟩ := source_primitive_four_term_finite_cover3
+  refine ⟨F,hF,hproper,?_⟩
+  intro x hx
+  obtain ⟨w,s,hprim,hn,hs,hd,hscale⟩ := exists_primitive_four_term_relation hx
+  refine ⟨w,s,hprim,hn,hs,hd,hscale,allpoint_four_term_recovery3 hx w s hscale,?_⟩
+  exact hcover _ ⟨hprim,x,hx,s,fun i => hscale i.castSucc⟩
+
+end JSP000334
+
+end Literal252R5
+open Literal252R5.JSP000334
+open scoped BigOperators Matrix
+open MeasureTheory JSP000334
+namespace LiteralCoverRaw252R5
+noncomputable section
+
+def rawA (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ :=
+  ![Pi.single (k.succAbove 0) 1,Pi.single (k.succAbove 1) 1,fun _ => 1]
+
+def rawC (k : Fin 3) : Matrix (Fin 3) (Fin 3) ℤ := (rawA k).adjugate.transpose
+
+def rawG (k2 k3 : Fin 3) (Q : ℝ) (c2 c3 : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (rawA k2) (rawA k3)
+    (fun i => Nat.ceil (-c2 i*Real.log Q/Real.log 2))
+    (fun i => Nat.ceil (-c3 i*Real.log Q/Real.log 3))
+
+def rawCG (k2 k3 : Fin 3) (Q : ℝ) (c2 c3 : Fin 3 → ℝ) : AddSubgroup IntegerTriple :=
+  mixedCongruence3 (rawC k2) (rawC k3)
+    (fun i => Nat.ceil (-c2 i*Real.log Q/Real.log 2))
+    (fun i => Nat.ceil (-c3 i*Real.log Q/Real.log 3))
+
+def rawReal (k : Fin 3) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  LinearEquiv.ofBijective (Matrix.toLin' ((rawA k).map (Int.castRingHom ℝ))) (by
+    have h : IsUnit ((rawA k).map (Int.castRingHom ℝ)) := by
+      change IsUnit (retainedRealMatrix3 k)
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [retainedRealMatrix3_det]
+      split_ifs <;> norm_num
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr h,Matrix.mulVec_surjective_iff_isUnit.mpr h⟩)
+
+def rawCReal (k : Fin 3) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  LinearEquiv.ofBijective (Matrix.toLin' ((rawC k).map (Int.castRingHom ℝ))) (by
+    have h : IsUnit ((rawC k).map (Int.castRingHom ℝ)) := by
+      change IsUnit (cofactorRealMatrix3 k)
+      apply (Matrix.isUnit_iff_isUnit_det _).mpr
+      rw [cofactorRealMatrix3_det]
+      exact isUnit_one
+    exact ⟨Matrix.mulVec_injective_iff_isUnit.mpr h,Matrix.mulVec_surjective_iff_isUnit.mpr h⟩)
+
+def rawE (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) (hQ : 1 < Q) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3 (rawReal k) (fun i => Q^c i) (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+
+def rawCE (k : Fin 3) (Q : ℝ) (c : Fin 3 → ℝ) (hQ : 1 < Q) : RealTriple ≃ₗ[ℝ] RealTriple :=
+  archCoordinates3 (rawCReal k) (fun i => Q^c i) (fun i => Real.rpow_pos_of_pos (lt_trans zero_lt_one hQ) _)
+
+def rawMin (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (j.val+1) → RealTriple, LinearIndependent ℝ u ∧
+    (∀ i, u i ∈ lattice3 B) ∧ ∀ i, coordinateGauge3 e (u i) ≤ r}
+
+def rawPair (c : Fin 3 → ℝ) (i : Fin 3) : ℝ := (c (i.succAbove 0)+c (i.succAbove 1))/2
+
+def rawProducts (l : Fin 3 → ℝ) : Fin 3 → ℝ := ![l 0*l 1,l 0*l 2,l 1*l 2]
+
+def rawWedge {R : Type*} [CommRing R] (x y : Fin 3 → R) : Fin 3 → R :=
+  ![x 1*y 2-x 2*y 1,x 2*y 0-x 0*y 2,x 0*y 1-x 1*y 0]
+
+def rawFrame {R : Type*} [CommRing R] (u : Fin 3 → Fin 3 → R) : Fin 3 → Fin 3 → R :=
+  ![rawWedge (u 0) (u 1),rawWedge (u 0) (u 2),rawWedge (u 1) (u 2)]
+
+theorem raw_minimum_eq (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple) (j : Fin 3) :
+    rawMin B e j = successiveRadius3 B e j := rfl
+
+def rawGroup3 : Subgroup ℚˣ :=
+  Subgroup.closure ({-1,Units.mk0 2 (by norm_num),Units.mk0 3 (by norm_num)} : Set ℚˣ)
+
+def rawRelations3 : Set (Fin 4 → ℚ) :=
+  {x | x 0 = 1 ∧ (∀ i, ∃ u : rawGroup3, (u : ℚˣ).val = x i) ∧ (∑ i, x i = 0) ∧
+    ∀ I : Finset (Fin 4), I.Nonempty → I ≠ Finset.univ → ∑ i ∈ I, x i ≠ 0}
+
+def rawPrimitive3 (z : IntegerTriple) : Prop := ∃ c : Fin 3 → ℤ, ∑ i, c i*z i = 1
+
+def rawHeight3 (z : IntegerTriple) : ℚ := max |(z 0 : ℚ)| (max |(z 1 : ℚ)| |(z 2 : ℚ)|)
+
+def rawForms3 (k : Fin 3) : Fin 3 → ((Fin 3 → ℚ) →ₗ[ℚ] ℚ) :=
+  ![LinearMap.proj (k.succAbove 0),LinearMap.proj (k.succAbove 1),
+    LinearMap.proj (R := ℚ) (φ := fun _ : Fin 3 => ℚ) 0 + LinearMap.proj 1 + LinearMap.proj 2]
+
+def rawNorms3 (choice : Fin 3 → Fin 3) (z : IntegerTriple) (tau i : Fin 3) : ℝ :=
+  ((![|rawForms3 (choice tau) i (fun j => (z j : ℚ))|,
+    padicNorm 2 (rawForms3 (choice tau) i (fun j => (z j : ℚ))),
+    padicNorm 3 (rawForms3 (choice tau) i (fun j => (z j : ℚ)))] tau : ℚ) : ℝ)
+
+def rawBalanced3 (Q : ℝ) (a : Fin 3 → Fin 3 → ℝ) (tau i : Fin 3) : ℝ :=
+  if tau = 0 then a tau i*Q^((1 : ℝ)/12) else a tau i
+
+def rawLogs3 (Q : ℝ) (a : Fin 3 → Fin 3 → ℝ) (tau i : Fin 3) : ℝ := Real.log (a tau i)/Real.log Q
+
+def rawConditions3 (c : Fin 3 → Fin 3 → ℝ) : Prop :=
+  (∀ i, |c 0 i| ≤ 1) ∧ (∀ tau, tau ≠ 0 → ∀ i, -1 ≤ c tau i ∧ c tau i ≤ 0) ∧
+    (∑ tau : Fin 3, ∑ i : Fin 3, c tau i) = 0
+
+def rawIndex3 (n : ℕ) (c : Fin 3 → Fin 3 → ℝ) (tau i : Fin 3) : ℤ :=
+  if tau = 0 then ⌊(n : ℝ)*((1-4/(n : ℝ))*c tau i)⌋ else ⌈(n : ℝ)*((1-4/(n : ℝ))*c tau i)⌉
+
+def rawApprox3 (n : ℕ) (c : Fin 3 → Fin 3 → ℝ) (tau i : Fin 3) : ℝ :=
+  if tau = 0 then (rawIndex3 n c tau i : ℝ)/(n : ℝ) -
+    (∑ t : Fin 3, ∑ j : Fin 3, (rawIndex3 n c t j : ℝ)/(n : ℝ))/3
+  else (rawIndex3 n c tau i : ℝ)/(n : ℝ)
+
+def rawEligible3 (z : IntegerTriple) : Prop :=
+  rawPrimitive3 z ∧ ∃ x : Fin 4 → ℚ, x ∈ rawRelations3 ∧ ∃ s : rawGroup3,
+    ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc
+
+def rawNoCover3 (E : IntegerTriple → Prop) : Prop :=
+  ¬ ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+    ∀ z, E z → ∃ P ∈ F, (fun i => (z i : ℚ)) ∈ P
+
+theorem raw_allpoint_primitive_product3 {x : Fin 4 → ℚ}
+    (hx : x ∈ rawRelations3)
+    (z : IntegerTriple) (s : rawGroup3) (hz : rawPrimitive3 z)
+    (hscale : ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc) :
+    ∃ choice : Fin 3 → Fin 3,
+      tripleChoiceFormsProduct choice (fun i => (z i : ℚ))*rawHeight3 z = 1 := by
+  exact Literal252R5.JSP000334.allpoint_primitive_product3 hx z s hz hscale
+
+theorem raw_allpoint_primitive_input3 {x : Fin 4 → ℚ}
+    (hx : x ∈ rawRelations3) :
+    ∃ w : Fin 4 → ℤ, ∃ s : rawGroup3,
+      rawPrimitive3 (fun i => w i.castSucc) ∧ (∀ i, w i ≠ 0) ∧
+      (∑ i, w i = 0) ∧ Nondegenerate (fun i => (w i : ℚ)) ∧
+      (∀ i, (w i : ℚ) = ((s : ℚˣ) : ℚ)*x i) ∧
+      ∃ choice : Fin 3 → Fin 3,
+        tripleChoiceFormsProduct choice (fun i => (w i.castSucc : ℚ))*
+          rawHeight3 (fun i => w i.castSucc) = 1 := by
+  exact Literal252R5.JSP000334.allpoint_primitive_input3 hx
+
+theorem raw_allpoint_form_product3 {x : Fin 4 → ℚ}
+    (hx : x ∈ rawRelations3)
+    (z : IntegerTriple) (s : rawGroup3)
+    (hscale : ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc)
+    (k i : Fin 3) :
+    threePlaceProduct (rawForms3 k i (fun j => (z j : ℚ))) = 1 := by
+  exact Literal252R5.JSP000334.allpoint_form_product3 hx z s hscale k i
+
+theorem raw_allpoint_form_arch_bound3 (z : IntegerTriple) (k i : Fin 3) :
+    |rawForms3 k i (fun j => (z j : ℚ))| ≤ 3*rawHeight3 z := by
+  exact Literal252R5.JSP000334.allpoint_form_arch_bound3 z k i
+
+theorem raw_allpoint_local_inverse3 (m : ℤ) (hprod : threePlaceProduct (m : ℚ) = 1) (tau : Fin 3) :
+    0 < rationalPlaceNorm tau (m : ℚ) ∧
+    (rationalPlaceNorm tau (m : ℚ))⁻¹ ≤ |(m : ℚ)| ∧
+    (tau ≠ 0 → rationalPlaceNorm tau (m : ℚ) ≤ 1) := by
+  exact Literal252R5.JSP000334.allpoint_local_inverse3 m hprod tau
+
+theorem raw_allpoint_balanced_weights3 (H : ℝ) (hH : 3 ≤ H)
+    (a : Fin 3 → Fin 3 → ℝ) (ha : ∀ tau i, 0 < a tau i)
+    (hreal : ∀ i, a 0 i ≤ 3*H)
+    (hfinite : ∀ tau, tau ≠ 0 → ∀ i, a tau i ≤ 1)
+    (hinv : ∀ tau i, (a tau i)⁻¹ ≤ 3*H)
+    (hprod : (∏ tau, ∏ i, a tau i)*H = 1) :
+    let Q := H^4
+    let W := rawBalanced3 Q a
+    1 < Q ∧ rawConditions3 (rawLogs3 Q W) ∧
+      (∀ tau i, Q^(rawLogs3 Q W tau i) = W tau i) ∧
+      (∀ i, a 0 i = Q^(rawLogs3 Q W 0 i-(1 : ℝ)/12)) ∧
+      (∀ tau, tau ≠ 0 → ∀ i, a tau i = Q^(rawLogs3 Q W tau i)) := by
+  exact Literal252R5.JSP000334.allpoint_balanced_weights3 H hH a ha hreal hfinite hinv hprod
+
+theorem raw_allpoint_round_point3 (Q : ℝ) (hQ : 1 < Q)
+    (k0 k2 k3 : Fin 3) (c : Fin 3 → Fin 3 → ℝ) (hc : rawConditions3 c)
+    (z : IntegerTriple) (hz : z ∈ rawG k2 k3 Q (c 1) (c 2))
+    (hshort : coordinateGauge3 (rawE k0 Q (c 0) hQ) (integerTripleReal3 z) ≤
+      Q^(-(1 : ℝ)/12)) :
+    let d := rawApprox3 168 c
+    d ∈ finiteWeightCandidates3 168 ∧ rawConditions3 d ∧
+    z ∈ rawG k2 k3 Q (d 1) (d 2) ∧
+    coordinateGauge3 (rawE k0 Q (d 0) hQ) (integerTripleReal3 z) ≤ Q^(-(1 : ℝ)/24) := by
+  exact Literal252R5.JSP000334.allpoint_round_point3 Q hQ k0 k2 k3 c hc z hz hshort
+
+theorem raw_allpoint_source_weights3 {x : Fin 4 → ℚ}
+    (hx : x ∈ rawRelations3)
+    (z : IntegerTriple) (s : rawGroup3) (hz : rawPrimitive3 z)
+    (hscale : ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc)
+    (hH : 3 ≤ (rawHeight3 z : ℝ)) :
+    let Q := (rawHeight3 z : ℝ)^4
+    ∃ choice : Fin 3 → Fin 3, ∃ c : Fin 3 → Fin 3 → ℝ,
+      ∃ hQ : 1 < Q, rawConditions3 c ∧
+      c = rawLogs3 Q (rawBalanced3 Q (rawNorms3 choice z)) ∧
+      z ∈ rawG (choice 1) (choice 2) Q (c 1) (c 2) ∧
+      coordinateGauge3 (rawE (choice 0) Q (c 0) hQ) (integerTripleReal3 z) ≤ Q^(-(1 : ℝ)/12) := by
+  exact Literal252R5.JSP000334.allpoint_source_weights3 hx z s hz hscale hH
+
+theorem raw_allpoint_fixed_source_point3 {x : Fin 4 → ℚ}
+    (hx : x ∈ rawRelations3)
+    (z : IntegerTriple) (s : rawGroup3) (hz : rawPrimitive3 z)
+    (hscale : ∀ i : Fin 3, (z i : ℚ) = ((s : ℚˣ) : ℚ)*x i.castSucc)
+    (hH : 3 ≤ (rawHeight3 z : ℝ)) :
+    let Q := (rawHeight3 z : ℝ)^4
+    ∃ choice : Fin 3 → Fin 3, ∃ d ∈ finiteWeightCandidates3 168,
+      ∃ hQ : 1 < Q, rawConditions3 d ∧
+      z ∈ rawG (choice 1) (choice 2) Q (d 1) (d 2) ∧
+      coordinateGauge3 (rawE (choice 0) Q (d 0) hQ) (integerTripleReal3 z) ≤ Q^(-(1 : ℝ)/24) := by
+  exact Literal252R5.JSP000334.allpoint_fixed_source_point3 hx z s hz hscale hH
+
+theorem raw_allpoint_rank_cutoff3 (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ C : ℝ, 1 ≤ C ∧ ∀ Q : ℝ, C < Q →
+      6 * (Q ^ (-epsilon)) ^ 3 * (Q ^ (epsilon / 8)) ^ 4 < 1 := by
+  exact Literal252R5.JSP000334.allpoint_rank_cutoff3 epsilon he
+
+theorem raw_allpoint_rank_scalar3 (a b c g t q : ℝ)
+    (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (ht : 0 < t) (hq : 1 ≤ q)
+    (hab : a ≤ b) (hbc : b ≤ c) (hag : a ≤ g) (hgt : g ≤ t)
+    (hp : (1 : ℝ)/6 ≤ a*b*c) (hcut : 6*t^3*q^4 < 1) :
+    (b < c/q ∧ g < c) ∨ (c/q ≤ b ∧ a < b/q ∧ g < b) := by
+  exact Literal252R5.JSP000334.allpoint_rank_scalar3 a b c g t q ha hb hc ht hq hab hbc hag hgt hp hcut
+
+theorem raw_allpoint_rank_threshold3 (epsilon Q : ℝ) (he : 0 < epsilon) (hQ : 1 < Q)
+    (hcut : 6*(Q^(-epsilon))^3*(Q^(epsilon/8))^4 < 1)
+    (B : Basis (Fin 3) ℝ RealTriple) (e : RealTriple ≃ₗ[ℝ] RealTriple)
+    (v : Fin 3 → RealTriple) (hv : LinearIndependent ℝ v)
+    (hvL : ∀ i, v i ∈ lattice3 B)
+    (hatt : ∀ i, coordinateGauge3 e (v i) = rawMin B e i)
+    (z : RealTriple) (hz : z ∈ lattice3 B) (hnz : z ≠ 0)
+    (hshort : coordinateGauge3 e z ≤ Q^(-epsilon))
+    (hprod : (1 : ℝ)/6 ≤ ∏ i, rawMin B e i) :
+    ∃ k : Fin 3, (k = 1 ∨ k = 2) ∧
+      rawMin B e (k-1) < rawMin B e k*Q^(-(epsilon/8)) ∧
+      coordinateGauge3 e z < rawMin B e k ∧ z ∈ minimaFlag3 v k := by
+  exact Literal252R5.JSP000334.allpoint_rank_threshold3 epsilon Q he hQ hcut B e v hv hvL hatt z hz hnz hshort hprod
+
+theorem raw_allpoint_rational_flag3 (w : Fin 3 → IntegerTriple)
+    (hw : LinearIndependent ℝ (fun j => integerTripleReal3 (w j)))
+    (k : Fin 3) (z : IntegerTriple)
+    (hz : integerTripleReal3 z ∈ minimaFlag3 (fun j => integerTripleReal3 (w j)) k) :
+    (fun i => (z i : ℚ)) ∈ Submodule.span ℚ
+      (Set.range (fun j : Fin k.val => fun i => (w (Fin.castLE (by omega) j) i : ℚ))) := by
+  exact Literal252R5.JSP000334.allpoint_rational_flag3 w hw k z hz
+
+theorem raw_allpoint_line_proper3 (b : IntegerTriple) (hb : b ≠ 0) :
+    Submodule.span ℚ {fun i => (b i : ℚ)} ≠ ⊤ := by
+  exact Literal252R5.JSP000334.allpoint_line_proper3 b hb
+
+theorem raw_allpoint_kernel_proper3 (b : IntegerTriple) (hb : b ≠ 0) :
+    LinearMap.ker (originalPlanePairing3 (fun i => (b i : ℚ))) ≠ ⊤ := by
+  exact Literal252R5.JSP000334.allpoint_kernel_proper3 b hb
+
+theorem raw_allpoint_source_short_rational3 (k0 k2 k3 : Fin 3) (Q : ℝ) (hQ : 1 < Q)
+    (c0 c2 c3 : Fin 3 → ℝ) (B : Basis (Fin 3) ℝ RealTriple)
+    (u : Fin 3 → rawG k2 k3 Q c2 c3)
+    (hB : lattice3 B = (rawG k2 k3 Q c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : LinearIndependent ℝ (fun j => integerTripleReal3 (u j : IntegerTriple)))
+    (ha : ∀ j, coordinateGauge3 (rawE k0 Q c0 hQ) (integerTripleReal3 (u j : IntegerTriple)) =
+      rawMin B (rawE k0 Q c0 hQ) j)
+    (k : Fin 3)
+    (hgap : ∀ i : Fin 3, i < k → rawMin B (rawE k0 Q c0 hQ) i <
+      rawMin B (rawE k0 Q c0 hQ) k)
+    (z : IntegerTriple) (hz : z ∈ rawG k2 k3 Q c2 c3)
+    (hshort : coordinateGauge3 (rawE k0 Q c0 hQ) (integerTripleReal3 z) <
+      rawMin B (rawE k0 Q c0 hQ) k) :
+    (fun i => (z i : ℚ)) ∈ Submodule.span ℚ (Set.range
+      (fun j : Fin k.val => fun i => ((u (Fin.castLE (by omega) j) : IntegerTriple) i : ℚ))) := by
+  exact Literal252R5.JSP000334.allpoint_source_short_rational3 k0 k2 k3 Q hQ c0 c2 c3 B u hB hu ha k hgap z hz hshort
+
+theorem raw_allpoint_first_rational_span3 (w : Fin 3 → IntegerTriple) :
+    Submodule.span ℚ (Set.range (fun j : Fin (1 : Fin 3).val => fun i => (w (Fin.castLE (by omega) j) i : ℚ))) =
+      Submodule.span ℚ {fun i => (w 0 i : ℚ)} := by
+  exact Literal252R5.JSP000334.allpoint_first_rational_span3 w
+
+theorem raw_allpoint_plane_annihilation3 (w : Fin 3 → IntegerTriple)
+    (hw : LinearIndependent ℝ (fun j => integerTripleReal3 (w j)))
+    (z : Fin 3 → ℚ) (hz : z ∈ Submodule.span ℚ (Set.range
+      (fun j : Fin (2 : Fin 3).val => fun i => (w (Fin.castLE (by omega) j) i : ℚ)))) :
+    originalPlanePairing3 (dualFrameVector3 w 2) z = 0 := by
+  exact Literal252R5.JSP000334.allpoint_plane_annihilation3 w hw z hz
+
+theorem raw_allpoint_rank1_extract3 (k0 k2 k3 : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawG k2 k3 Q.val c2 c3)
+    (hB : ∀ Q : Omega, lattice3 (B Q) = (rawG k2 k3 Q.val c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (rawE k0 Q.val c0 (hQ Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) j)
+    (hgap : ∀ Q : Omega,
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) 0 <
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) 1*Q.val^(-delta))
+    (z : Omega → IntegerTriple)
+    (hz : ∀ Q : Omega, z Q ∈ rawG k2 k3 Q.val c2 c3)
+    (hshort : ∀ Q : Omega, coordinateGauge3 (rawE k0 Q.val c0 (hQ Q.val Q.property))
+      (integerTripleReal3 (z Q)) < rawMin (B Q)
+      (rawE k0 Q.val c0 (hQ Q.val Q.property)) 1) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ), P ≠ ⊤ ∧ ∃ W : Set ℝ,
+      W ⊆ Omega ∧ ¬ BddAbove W ∧ ∀ Q : Omega, Q.val ∈ W → (fun i => (z Q i : ℚ)) ∈ P := by
+  exact Literal252R5.JSP000334.allpoint_rank1_extract3 k0 k2 k3 delta hd c0 c2 c3 hc0 hc2 hc3 hb Omega hOmega hQ B u hB hu hatt hgap z hz hshort
+
+theorem raw_allpoint_rank2_extract3 (k0 k2 k3 : Fin 3) (delta : ℝ) (hd : 0 < delta)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawG k2 k3 Q.val c2 c3)
+    (hB : ∀ Q : Omega, lattice3 (B Q) = (rawG k2 k3 Q.val c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (rawE k0 Q.val c0 (hQ Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) j)
+    (hgap : ∀ Q : Omega,
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) 1 <
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) 2*Q.val^(-delta))
+    (z : Omega → IntegerTriple)
+    (hz : ∀ Q : Omega, z Q ∈ rawG k2 k3 Q.val c2 c3)
+    (hshort : ∀ Q : Omega, coordinateGauge3 (rawE k0 Q.val c0 (hQ Q.val Q.property))
+      (integerTripleReal3 (z Q)) < rawMin (B Q)
+      (rawE k0 Q.val c0 (hQ Q.val Q.property)) 2) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ), P ≠ ⊤ ∧ ∃ W : Set ℝ,
+      W ⊆ Omega ∧ ¬ BddAbove W ∧ ∀ Q : Omega, Q.val ∈ W → (fun i => (z Q i : ℚ)) ∈ P := by
+  exact Literal252R5.JSP000334.allpoint_rank2_extract3 k0 k2 k3 delta hd c0 c2 c3 hc0 hc2 hc3 hb Omega hOmega hQ B u hB hu hatt hgap z hz hshort
+
+theorem raw_allpoint_finite_parameter_fiber3 {A : Type*} (F : Set A) (hF : F.Finite)
+    (U : Set ℝ) (hU : ¬ BddAbove U) (a : ℝ → A) (ha : ∀ Q ∈ U, a Q ∈ F) :
+    ∃ d ∈ F, ¬ BddAbove {Q | Q ∈ U ∧ a Q = d} := by
+  exact Literal252R5.JSP000334.allpoint_finite_parameter_fiber3 F hF U hU a ha
+
+theorem raw_allpoint_fixed_short_family3 (k0 k2 k3 : Fin 3)
+    (c0 c2 c3 : Fin 3 → ℝ)
+    (hc0 : ∀ i, -1 ≤ c0 i ∧ c0 i ≤ 1)
+    (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (hb : ∑ i, (c0 i+c2 i+c3 i) = 0)
+    (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega) (hQ : ∀ Q ∈ Omega, 1 < Q)
+    (B : Omega → Basis (Fin 3) ℝ RealTriple)
+    (u : ∀ Q : Omega, Fin 3 → rawG k2 k3 Q.val c2 c3)
+    (hB : ∀ Q : Omega, lattice3 (B Q) = (rawG k2 k3 Q.val c2 c3).toIntSubmodule.map integerTripleReal3)
+    (hu : ∀ Q : Omega, LinearIndependent ℝ (fun j => integerTripleReal3 (u Q j : IntegerTriple)))
+    (hatt : ∀ Q : Omega, ∀ j,
+      coordinateGauge3 (rawE k0 Q.val c0 (hQ Q.val Q.property))
+        (integerTripleReal3 (u Q j : IntegerTriple)) =
+      rawMin (B Q) (rawE k0 Q.val c0 (hQ Q.val Q.property)) j)
+
+    (z : Omega → IntegerTriple) (hz0 : ∀ Q : Omega, z Q ≠ 0)
+    (hz : ∀ Q : Omega, z Q ∈ rawG k2 k3 Q.val c2 c3)
+    (hshort : ∀ Q : Omega, coordinateGauge3 (rawE k0 Q.val c0 (hQ Q.val Q.property))
+      (integerTripleReal3 (z Q)) ≤ Q.val^(-(1 : ℝ)/24)) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ), P ≠ ⊤ ∧ ∃ W : Set ℝ,
+      W ⊆ Omega ∧ ¬ BddAbove W ∧ ∀ Q : Omega, Q.val ∈ W → (fun i => (z Q i : ℚ)) ∈ P := by
+  exact Literal252R5.JSP000334.allpoint_fixed_short_family3 k0 k2 k3 c0 c2 c3 hc0 hc2 hc3 hb Omega hOmega hQ B u hB hu hatt z hz0 hz hshort
+
+theorem raw_allpoint_source_family3 (Omega : Set ℝ) (hOmega : ¬ BddAbove Omega)
+    (x : Omega → Fin 4 → ℚ) (hx : ∀ q, x q ∈ rawRelations3)
+    (z : Omega → IntegerTriple) (s : Omega → rawGroup3)
+    (hz : ∀ q, rawPrimitive3 (z q))
+    (hscale : ∀ q, ∀ i : Fin 3, (z q i : ℚ) = ((s q : ℚˣ) : ℚ)*x q i.castSucc)
+    (hH : ∀ q, 3 ≤ (rawHeight3 (z q) : ℝ))
+    (hparam : ∀ q, q.val = (rawHeight3 (z q) : ℝ)^4) :
+    ∃ P : Submodule ℚ (Fin 3 → ℚ), P ≠ ⊤ ∧ ∃ W : Set ℝ,
+      W ⊆ Omega ∧ ¬ BddAbove W ∧ ∀ q : Omega, q.val ∈ W → (fun i => (z q i : ℚ)) ∈ P := by
+  exact Literal252R5.JSP000334.allpoint_source_family3 Omega hOmega x hx z s hz hscale hH hparam
+
+theorem raw_allpoint_pair_proper3 (v w : Fin 3 → ℚ) :
+    Submodule.span ℚ {v,w} ≠ ⊤ := by
+  exact Literal252R5.JSP000334.allpoint_pair_proper3 v w
+
+theorem raw_allpoint_bounded_height_finite3 (M : ℝ) :
+    {z : IntegerTriple | (rawHeight3 z : ℝ) ≤ M}.Finite := by
+  exact Literal252R5.JSP000334.allpoint_bounded_height_finite3 M
+
+theorem raw_allpoint_avoid_finite3 (E : IntegerTriple → Prop) (hno : rawNoCover3 E)
+    (F : Finset (Submodule ℚ (Fin 3 → ℚ))) (hF : ∀ P ∈ F, P ≠ ⊤) :
+    ∃ z, E z ∧ ∀ P ∈ F, (fun i => (z i : ℚ)) ∉ P := by
+  exact Literal252R5.JSP000334.allpoint_avoid_finite3 E hno F hF
+
+theorem raw_allpoint_general_position_step3 (E : IntegerTriple → Prop) (hno : rawNoCover3 E)
+    (n : ℕ) (v : Fin n → IntegerTriple) :
+    ∃ z, E z ∧ max 3 (max (n : ℝ) ((∑ i, (rawHeight3 (v i) : ℝ))+1)) < (rawHeight3 z : ℝ) ∧
+      ∀ i j : Fin n, (fun k => (z k : ℚ)) ∉ Submodule.span ℚ
+        {fun k => (v i k : ℚ),fun k => (v j k : ℚ)} := by
+  exact Literal252R5.JSP000334.allpoint_general_position_step3 E hno n v
+
+theorem raw_allpoint_general_position_sequence3 (E : IntegerTriple → Prop) (hno : rawNoCover3 E) :
+    ∃ z : ℕ → IntegerTriple, (∀ n, E (z n)) ∧
+      (∀ n, 3 < (rawHeight3 (z n) : ℝ) ∧ (n : ℝ) < (rawHeight3 (z n) : ℝ)) ∧
+      StrictMono (fun n => (rawHeight3 (z n) : ℝ)) ∧
+      ∀ n, ∀ i j : Fin n, (fun k => (z n k : ℚ)) ∉ Submodule.span ℚ
+        {fun k => (z i.val k : ℚ),fun k => (z j.val k : ℚ)} := by
+  exact Literal252R5.JSP000334.allpoint_general_position_sequence3 E hno
+
+theorem raw_allpoint_general_position_intersection3 (z : ℕ → IntegerTriple)
+    (hH : ∀ n, 3 < (rawHeight3 (z n) : ℝ))
+    (havoid : ∀ n, ∀ i j : Fin n, (fun k => (z n k : ℚ)) ∉ Submodule.span ℚ
+      {fun k => (z i.val k : ℚ),fun k => (z j.val k : ℚ)})
+    (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P ≠ ⊤) :
+    {n | (fun i => (z n i : ℚ)) ∈ P}.Finite ∧ {n | (fun i => (z n i : ℚ)) ∈ P}.ncard ≤ 2 := by
+  exact Literal252R5.JSP000334.allpoint_general_position_intersection3 z hH havoid P hP
+
+theorem raw_source_primitive_four_term_finite_cover3 :
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+      ∀ z : IntegerTriple, rawEligible3 z → ∃ P ∈ F, (fun i => (z i : ℚ)) ∈ P := by
+  exact Literal252R5.JSP000334.source_primitive_four_term_finite_cover3
+
+theorem raw_allpoint_four_term_recovery3 {x : Fin 4 → ℚ}
+    (hx : x ∈ rawRelations3) (w : Fin 4 → ℤ) (s : rawGroup3)
+    (hscale : ∀ i, (w i : ℚ) = ((s : ℚˣ) : ℚ)*x i) :
+    ∀ i, x i = (w i : ℚ)/(w 0 : ℚ) := by
+  exact Literal252R5.JSP000334.allpoint_four_term_recovery3 hx w s hscale
+
+theorem raw_source_four_term_finite_cover3 :
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+      ∀ x ∈ rawRelations3,
+        ∃ w : Fin 4 → ℤ, ∃ s : rawGroup3,
+          rawPrimitive3 (fun i => w i.castSucc) ∧ (∀ i, w i ≠ 0) ∧
+          (∑ i, w i = 0) ∧ Nondegenerate (fun i => (w i : ℚ)) ∧
+          (∀ i, (w i : ℚ) = ((s : ℚˣ) : ℚ)*x i) ∧
+          (∀ i, x i = (w i : ℚ)/(w 0 : ℚ)) ∧ ∃ P ∈ F, (fun i : Fin 3 => (w i.castSucc : ℚ)) ∈ P := by
+  exact Literal252R5.JSP000334.source_four_term_finite_cover3
+
+end
+end LiteralCoverRaw252R5
+#check LiteralCoverRaw252R5.rawA
+#print axioms LiteralCoverRaw252R5.rawA
+#check LiteralCoverRaw252R5.rawC
+#print axioms LiteralCoverRaw252R5.rawC
+#check LiteralCoverRaw252R5.rawG
+#print axioms LiteralCoverRaw252R5.rawG
+#check LiteralCoverRaw252R5.rawCG
+#print axioms LiteralCoverRaw252R5.rawCG
+#check LiteralCoverRaw252R5.rawReal
+#print axioms LiteralCoverRaw252R5.rawReal
+#check LiteralCoverRaw252R5.rawCReal
+#print axioms LiteralCoverRaw252R5.rawCReal
+#check LiteralCoverRaw252R5.rawE
+#print axioms LiteralCoverRaw252R5.rawE
+#check LiteralCoverRaw252R5.rawCE
+#print axioms LiteralCoverRaw252R5.rawCE
+#check LiteralCoverRaw252R5.rawMin
+#print axioms LiteralCoverRaw252R5.rawMin
+#check LiteralCoverRaw252R5.rawPair
+#print axioms LiteralCoverRaw252R5.rawPair
+#check LiteralCoverRaw252R5.rawProducts
+#print axioms LiteralCoverRaw252R5.rawProducts
+#check LiteralCoverRaw252R5.rawWedge
+#print axioms LiteralCoverRaw252R5.rawWedge
+#check LiteralCoverRaw252R5.rawFrame
+#print axioms LiteralCoverRaw252R5.rawFrame
+#check LiteralCoverRaw252R5.raw_minimum_eq
+#print axioms LiteralCoverRaw252R5.raw_minimum_eq
+#check LiteralCoverRaw252R5.rawGroup3
+#print axioms LiteralCoverRaw252R5.rawGroup3
+#check LiteralCoverRaw252R5.rawRelations3
+#print axioms LiteralCoverRaw252R5.rawRelations3
+#check LiteralCoverRaw252R5.rawPrimitive3
+#print axioms LiteralCoverRaw252R5.rawPrimitive3
+#check LiteralCoverRaw252R5.rawHeight3
+#print axioms LiteralCoverRaw252R5.rawHeight3
+#check LiteralCoverRaw252R5.rawForms3
+#print axioms LiteralCoverRaw252R5.rawForms3
+#check LiteralCoverRaw252R5.rawNorms3
+#print axioms LiteralCoverRaw252R5.rawNorms3
+#check LiteralCoverRaw252R5.rawBalanced3
+#print axioms LiteralCoverRaw252R5.rawBalanced3
+#check LiteralCoverRaw252R5.rawLogs3
+#print axioms LiteralCoverRaw252R5.rawLogs3
+#check LiteralCoverRaw252R5.rawConditions3
+#print axioms LiteralCoverRaw252R5.rawConditions3
+#check LiteralCoverRaw252R5.rawIndex3
+#print axioms LiteralCoverRaw252R5.rawIndex3
+#check LiteralCoverRaw252R5.rawApprox3
+#print axioms LiteralCoverRaw252R5.rawApprox3
+#check LiteralCoverRaw252R5.rawEligible3
+#print axioms LiteralCoverRaw252R5.rawEligible3
+#check LiteralCoverRaw252R5.rawNoCover3
+#print axioms LiteralCoverRaw252R5.rawNoCover3
+#check LiteralCoverRaw252R5.raw_allpoint_primitive_product3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_primitive_product3
+#check LiteralCoverRaw252R5.raw_allpoint_primitive_input3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_primitive_input3
+#check LiteralCoverRaw252R5.raw_allpoint_form_product3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_form_product3
+#check LiteralCoverRaw252R5.raw_allpoint_form_arch_bound3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_form_arch_bound3
+#check LiteralCoverRaw252R5.raw_allpoint_local_inverse3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_local_inverse3
+#check LiteralCoverRaw252R5.raw_allpoint_balanced_weights3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_balanced_weights3
+#check LiteralCoverRaw252R5.raw_allpoint_round_point3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_round_point3
+#check LiteralCoverRaw252R5.raw_allpoint_source_weights3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_source_weights3
+#check LiteralCoverRaw252R5.raw_allpoint_fixed_source_point3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_fixed_source_point3
+#check LiteralCoverRaw252R5.raw_allpoint_rank_cutoff3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_rank_cutoff3
+#check LiteralCoverRaw252R5.raw_allpoint_rank_scalar3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_rank_scalar3
+#check LiteralCoverRaw252R5.raw_allpoint_rank_threshold3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_rank_threshold3
+#check LiteralCoverRaw252R5.raw_allpoint_rational_flag3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_rational_flag3
+#check LiteralCoverRaw252R5.raw_allpoint_line_proper3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_line_proper3
+#check LiteralCoverRaw252R5.raw_allpoint_kernel_proper3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_kernel_proper3
+#check LiteralCoverRaw252R5.raw_allpoint_source_short_rational3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_source_short_rational3
+#check LiteralCoverRaw252R5.raw_allpoint_first_rational_span3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_first_rational_span3
+#check LiteralCoverRaw252R5.raw_allpoint_plane_annihilation3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_plane_annihilation3
+#check LiteralCoverRaw252R5.raw_allpoint_rank1_extract3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_rank1_extract3
+#check LiteralCoverRaw252R5.raw_allpoint_rank2_extract3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_rank2_extract3
+#check LiteralCoverRaw252R5.raw_allpoint_finite_parameter_fiber3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_finite_parameter_fiber3
+#check LiteralCoverRaw252R5.raw_allpoint_fixed_short_family3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_fixed_short_family3
+#check LiteralCoverRaw252R5.raw_allpoint_source_family3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_source_family3
+#check LiteralCoverRaw252R5.raw_allpoint_pair_proper3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_pair_proper3
+#check LiteralCoverRaw252R5.raw_allpoint_bounded_height_finite3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_bounded_height_finite3
+#check LiteralCoverRaw252R5.raw_allpoint_avoid_finite3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_avoid_finite3
+#check LiteralCoverRaw252R5.raw_allpoint_general_position_step3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_general_position_step3
+#check LiteralCoverRaw252R5.raw_allpoint_general_position_sequence3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_general_position_sequence3
+#check LiteralCoverRaw252R5.raw_allpoint_general_position_intersection3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_general_position_intersection3
+#check LiteralCoverRaw252R5.raw_source_primitive_four_term_finite_cover3
+#print axioms LiteralCoverRaw252R5.raw_source_primitive_four_term_finite_cover3
+#check LiteralCoverRaw252R5.raw_allpoint_four_term_recovery3
+#print axioms LiteralCoverRaw252R5.raw_allpoint_four_term_recovery3
+#check LiteralCoverRaw252R5.raw_source_four_term_finite_cover3
+#print axioms LiteralCoverRaw252R5.raw_source_four_term_finite_cover3

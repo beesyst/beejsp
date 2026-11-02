@@ -1,0 +1,140 @@
+import SubspaceBridge.FourTermProjection3
+import SubspaceBridge.FourTermSource3
+import SubspaceBridge.FourTermCoefficientFiber3
+import SubspaceBridge.FourTermFiniteness3
+open scoped BigOperators Classical Matrix
+namespace RawR7
+open JSP000334
+
+def Two : ℚˣ := Units.mk0 2 (by norm_num)
+def Three : ℚˣ := Units.mk0 3 (by norm_num)
+def Group : Subgroup ℚˣ := Subgroup.closure ({-1,Two,Three} : Set ℚˣ)
+def Nondeg {m : ℕ} (x : Fin m → ℚ) : Prop :=
+  ∀ I : Finset (Fin m),I.Nonempty → I≠Finset.univ → ∑ i∈I,x i≠0
+def Relations (G : Subgroup ℚˣ) (m : ℕ) : Set (Fin (m+1) → ℚ) :=
+  {x | x 0=1 ∧ (∀ i,∃ u : G,(u : ℚˣ).val=x i) ∧ (∑ i,x i=0) ∧ Nondeg x}
+def Primitive (z : Fin 3 → ℤ) : Prop := ∃ c : Fin 3 → ℤ,∑ i,c i*z i=1
+def CoefficientFiber (a0 a1 a2 : ℚ) : Set (Fin 4 → ℚ) :=
+  {x | x∈Relations Group 3 ∧ a0*x 0+a1*x 1+a2*x 2=0}
+def ProperFiber (P : Submodule ℚ (Fin 3 → ℚ)) : Set (Fin 4 → ℚ) :=
+  {x | x∈Relations Group 3 ∧ ![1,x 1,x 2]∈P}
+def WeightedPairs (A B C : ℚ) : Set (Group × Group) :=
+  {p | A+B*((p.1 : ℚˣ) : ℚ)+C*((p.2 : ℚˣ) : ℚ)=0}
+theorem source_four_term_weighted_projection_finite : ∀ (S : Set (Fin 4 → ℚ))
+    (hs : S ⊆ Relations Group 3)
+    (A B C : ℚ) (hA : A≠0) (hB : B≠0) (hC : C≠0)
+    (i j : Fin 4) (recover : ℚ → ℚ → (Fin 4 → ℚ))
+    (heq : ∀ x∈S,A+B*x i+C*x j=0)
+    (hrec : ∀ x∈S,recover (x i) (x j)=x),
+ S.Finite :=
+  @JSP000334.four_term_weighted_projection_finite
+
+theorem source_four_term_coordinate_reconstruction : ∀ (x : Fin 4 → ℚ) (h0 : x 0=1)
+    (hs : x 0+x 1+x 2+x 3=0),
+ ![1,x 1,x 2,-1-x 1-x 2]=x :=
+  @JSP000334.four_term_coordinate_reconstruction
+
+theorem source_four_term_relation_facts : ∀ {x : Fin 4 → ℚ}
+    (hx : x ∈ Relations Group 3),
+
+    x 0=1 ∧ x 0+x 1+x 2+x 3=0 ∧
+      x 0+x 1≠0 ∧ x 0+x 2≠0 ∧ x 1+x 2≠0 ∧ ∀ i,x i≠0 :=
+  @JSP000334.four_term_relation_facts
+
+theorem source_four_term_original_mem : ∀ {x : Fin 4 → ℚ}
+    (hx : x ∈ Relations Group 3)
+    (P : Submodule ℚ (Fin 3 → ℚ)) (w : Fin 4 → ℤ) (s : Group)
+    (hscale : ∀ i,(w i : ℚ)=((s : ℚˣ) : ℚ)*x i)
+    (hw : (fun i : Fin 3 => (w i.castSucc : ℚ)) ∈ P),
+ ![1,x 1,x 2] ∈ P :=
+  @JSP000334.four_term_original_mem
+
+theorem source_four_term_proper_annihilator : ∀ (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤),
+
+    ∃ a0 a1 a2 : ℚ,(a0≠0 ∨ a1≠0 ∨ a2≠0) ∧
+      ∀ y∈P,a0*y 0+a1*y 1+a2*y 2=0 :=
+  @JSP000334.four_term_proper_annihilator
+
+theorem source_four_term_fiber_all_nonzero : ∀ (a0 a1 a2 : ℚ) (h0 : a0≠0) (h1 : a1≠0) (h2 : a2≠0),
+
+    (CoefficientFiber a0 a1 a2).Finite :=
+  @JSP000334.four_term_fiber_all_nonzero
+
+theorem source_four_term_fiber_fixed_first : ∀ (a0 a1 : ℚ) (h1 : a1≠0),
+
+    (CoefficientFiber a0 a1 0).Finite :=
+  @JSP000334.four_term_fiber_fixed_first
+
+theorem source_four_term_fiber_fixed_second : ∀ (a0 a2 : ℚ) (h2 : a2≠0),
+
+    (CoefficientFiber a0 0 a2).Finite :=
+  @JSP000334.four_term_fiber_fixed_second
+
+theorem source_four_term_fiber_ratio : ∀ (a1 a2 : ℚ) (h2 : a2≠0),
+
+    (CoefficientFiber 0 a1 a2).Finite :=
+  @JSP000334.four_term_fiber_ratio
+
+theorem source_four_term_coefficient_fiber_finite : ∀ (a0 a1 a2 : ℚ)
+    (ha : a0≠0 ∨ a1≠0 ∨ a2≠0),
+ (CoefficientFiber a0 a1 a2).Finite :=
+  @JSP000334.four_term_coefficient_fiber_finite
+
+theorem source_four_term_proper_fiber_finite : ∀ (P : Submodule ℚ (Fin 3 → ℚ)) (hP : P≠⊤),
+
+    (ProperFiber P).Finite :=
+  @JSP000334.four_term_proper_fiber_finite
+
+theorem source_fixed_four_term_finite :
+
+    (Relations Group 3).Finite :=
+  @JSP000334.fixed_four_term_finite
+
+theorem source_source_four_term_finite_cover3 :
+
+    ∃ F : Set (Submodule ℚ (Fin 3 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+      ∀ x ∈ Relations Group 3,
+        ∃ w : Fin 4 → ℤ, ∃ s : Group,
+          Primitive (fun i => w i.castSucc) ∧ (∀ i, w i ≠ 0) ∧
+          (∑ i, w i = 0) ∧ Nondeg (fun i => (w i : ℚ)) ∧
+          (∀ i, (w i : ℚ) = ((s : ℚˣ) : ℚ)*x i) ∧
+          (∀ i, x i = (w i : ℚ)/(w 0 : ℚ)) ∧ ∃ P ∈ F, (fun i : Fin 3 => (w i.castSucc : ℚ)) ∈ P :=
+  @JSP000334.source_four_term_finite_cover3
+
+theorem source_weighted_fixed_sunit_pair_finite : ∀ (A B C : ℚ)
+    (hA : A ≠ 0)
+    (hB : B ≠ 0)
+    (hC : C ≠ 0),
+
+    (WeightedPairs A B C).Finite :=
+  @JSP000334.weighted_fixed_sunit_pair_finite
+
+end RawR7
+#check RawR7.source_four_term_weighted_projection_finite
+#print axioms RawR7.source_four_term_weighted_projection_finite
+#check RawR7.source_four_term_coordinate_reconstruction
+#print axioms RawR7.source_four_term_coordinate_reconstruction
+#check RawR7.source_four_term_relation_facts
+#print axioms RawR7.source_four_term_relation_facts
+#check RawR7.source_four_term_original_mem
+#print axioms RawR7.source_four_term_original_mem
+#check RawR7.source_four_term_proper_annihilator
+#print axioms RawR7.source_four_term_proper_annihilator
+#check RawR7.source_four_term_fiber_all_nonzero
+#print axioms RawR7.source_four_term_fiber_all_nonzero
+#check RawR7.source_four_term_fiber_fixed_first
+#print axioms RawR7.source_four_term_fiber_fixed_first
+#check RawR7.source_four_term_fiber_fixed_second
+#print axioms RawR7.source_four_term_fiber_fixed_second
+#check RawR7.source_four_term_fiber_ratio
+#print axioms RawR7.source_four_term_fiber_ratio
+#check RawR7.source_four_term_coefficient_fiber_finite
+#print axioms RawR7.source_four_term_coefficient_fiber_finite
+#check RawR7.source_four_term_proper_fiber_finite
+#print axioms RawR7.source_four_term_proper_fiber_finite
+#check RawR7.source_fixed_four_term_finite
+#print axioms RawR7.source_fixed_four_term_finite
+#check RawR7.source_source_four_term_finite_cover3
+#print axioms RawR7.source_source_four_term_finite_cover3
+#check RawR7.source_weighted_fixed_sunit_pair_finite
+#print axioms RawR7.source_weighted_fixed_sunit_pair_finite

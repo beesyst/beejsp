@@ -1,0 +1,25 @@
+import SubspaceBridge.SourceExterior54Cofactor246
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace Cofactor246SourceChallenges
+open CompoundFeasibility.Exterior54_246
+
+theorem actual_cofactor_coordinates (x : Fin 4 → Fin 5 → ℤ) (i : Fin 5) :
+    wedge4246 x i = (Matrix.of (paddedFrame246 x)).adjugate i (Fin.last 4) := by
+  exact congrFun (wedge_cofactor246 x) i
+
+theorem actual_padded_zero (x : Fin 4 → Fin 5 → ℤ) :
+    paddedFrame246 x (Fin.last 4) = (0 : Fin 5 → ℤ) := by
+  rfl
+
+theorem actual_padded_four_rows (x : Fin 4 → Fin 5 → ℤ) (j : Fin 4) :
+    paddedFrame246 x j.castSucc = x j := by
+  simp only [paddedFrame246, Fin.snoc_castSucc]
+
+end Cofactor246SourceChallenges
+#check Cofactor246SourceChallenges.actual_cofactor_coordinates
+#print axioms Cofactor246SourceChallenges.actual_cofactor_coordinates
+#check Cofactor246SourceChallenges.actual_padded_zero
+#print axioms Cofactor246SourceChallenges.actual_padded_zero
+#check Cofactor246SourceChallenges.actual_padded_four_rows
+#print axioms Cofactor246SourceChallenges.actual_padded_four_rows

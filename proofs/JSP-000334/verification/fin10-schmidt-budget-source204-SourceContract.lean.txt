@@ -1,0 +1,28 @@
+import SubspaceBridge.SourceSchmidtBudgetBounds10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace M204SourceContract
+open CompoundFeasibility CompoundFeasibility.SourceSampling10
+open CompoundFeasibility.SourceSchmidtBudget10 CompoundFeasibility.SchmidtPolynomial10
+
+theorem original_source_prefix_contract10
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+    {c2 c3 : Fin 10 → ℝ} {V : Set ℝ} {v : V → Fin 10 → Fin 10 → ℤ}
+    {c : Fin 3 → Fin 10 → ℝ} {epsilon eta D E B rho : ℝ} {m : ℕ} {hm : 0 < m}
+    (he : 0 < eta) (hD : 1 ≤ D)
+    (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+    (G : MvPolynomial (Fin m) ℤ) (hGH : JSP000334.rothIntegerHeight G ≤ height10 S.data.P) :
+    ((∑ h, S.data.r h : ℕ) : ℝ) ≤ (m : ℝ)*(1+eta)*(S.data.r ⟨0,hm⟩ : ℝ) ∧
+      ((G.support.sup (fun d => (G.coeff d).natAbs) : ℕ) : ℝ) ≤
+        D^((m : ℝ)*(1+eta)*(S.data.r ⟨0,hm⟩ : ℝ)) ∧
+      ∀ h, B < (S.data.t h).val^5 := by
+  exact ⟨original_sample_degree_sum10 he S,original_sample_reduced_height10 he hD S G hGH,
+    original_sample_power_cutoff10 S B le_rfl⟩
+
+set_option pp.deepTerms true
+#check @original_source_prefix_contract10
+#print axioms original_source_prefix_contract10
+#check @CompoundFeasibility.SourceSchmidtGrowth10.original_sample_schmidt_growth10
+#check @CompoundFeasibility.SourceHeightEnvelope10.original_sample_height_envelope10
+#check @CompoundFeasibility.SourceSchmidtGrowth10.original_sample_schmidt_parameters10
+end M204SourceContract

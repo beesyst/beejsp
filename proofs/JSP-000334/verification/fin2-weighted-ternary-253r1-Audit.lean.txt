@@ -1,0 +1,61 @@
+import SubspaceBridge.WeightedTernaryProduct2
+import SubspaceBridge.AllPointFiniteCover3
+import SubspaceBridge.AuxiliaryProductFormula
+#check JSP000334.weightedRetainedMatrix2
+#print JSP000334.weightedRetainedMatrix2
+#print axioms JSP000334.weightedRetainedMatrix2
+#check JSP000334.weightedRetainedProduct2
+#print JSP000334.weightedRetainedProduct2
+#print axioms JSP000334.weightedRetainedProduct2
+#check JSP000334.weightedNormalizedProduct2
+#print JSP000334.weightedNormalizedProduct2
+#print axioms JSP000334.weightedNormalizedProduct2
+#check JSP000334.weighted_retained_det2
+#print JSP000334.weighted_retained_det2
+#print axioms JSP000334.weighted_retained_det2
+#check JSP000334.weighted_constant_pos2
+#print JSP000334.weighted_constant_pos2
+#print axioms JSP000334.weighted_constant_pos2
+#check JSP000334.weighted_full_product2
+#print JSP000334.weighted_full_product2
+#print axioms JSP000334.weighted_full_product2
+#check JSP000334.weighted_normalized_product2
+#print JSP000334.weighted_normalized_product2
+#print axioms JSP000334.weighted_normalized_product2
+#check JSP000334.weighted_eight_patterns2
+#print JSP000334.weighted_eight_patterns2
+#print axioms JSP000334.weighted_eight_patterns2
+#check JSP000334.weighted_large_height_scalar2
+#print JSP000334.weighted_large_height_scalar2
+#print axioms JSP000334.weighted_large_height_scalar2
+#check JSP000334.weighted_strict_product2
+#print JSP000334.weighted_strict_product2
+#print axioms JSP000334.weighted_strict_product2
+#check JSP000334.weighted_pattern_count2
+#print JSP000334.weighted_pattern_count2
+#print axioms JSP000334.weighted_pattern_count2
+#check JSP000334.roth_scalar_omega65_nonvanishing
+#print axioms JSP000334.roth_scalar_omega65_nonvanishing
+#check JSP000334.roth_auxiliary_integer_satz34
+#print axioms JSP000334.roth_auxiliary_integer_satz34
+#check JSP000334.sameIndex_source_family_contradiction3
+#print axioms JSP000334.sameIndex_source_family_contradiction3
+#check JSP000334.allpoint_source_family3
+#print axioms JSP000334.allpoint_source_family3
+#check JSP000334.integralPair_primitive
+#print axioms JSP000334.integralPair_primitive
+#check JSP000334.primitive_pair_height
+#print axioms JSP000334.primitive_pair_height
+
+open scoped BigOperators Matrix
+namespace R1Missing
+open JSP000334
+def Fin2WeightedCover : Prop :=
+  ∀ B C : ℚ, B ≠ 0 → C ≠ 0 →
+    ∃ F : Set (Submodule ℚ (Fin 2 → ℚ)), F.Finite ∧ (∀ P ∈ F, P ≠ ⊤) ∧
+      ∀ z : Fin 2 → ℤ, PrimitivePair z →
+        (weightedNormalizedProduct2 B C (z 0 : ℚ) (z 1 : ℚ) : ℝ) <
+          (archPairHeight z : ℝ)^(-(5 : ℝ)/2) →
+        ∃ P ∈ F, (fun i => (z i : ℚ)) ∈ P
+end R1Missing
+#print R1Missing.Fin2WeightedCover

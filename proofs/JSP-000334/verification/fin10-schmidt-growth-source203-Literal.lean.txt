@@ -1,0 +1,219 @@
+import SubspaceBridge.SourceSampleHeightEnvelope10
+import SubspaceBridge.SchmidtApplication10
+import SubspaceBridge.SourceOriginalAuxiliaryFamily10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M203Literal
+
+theorem schmidt_constant_range10 (alpha : ℝ) (ha : 0 < alpha) :
+    0 < min (1/2 : ℝ) (alpha/180) ∧ min (1/2 : ℝ) (alpha/180) ≤ 1 ∧
+      10*min (1/2 : ℝ) (alpha/180) ≤ alpha/9 := by
+  refine ⟨lt_min (by norm_num) (by positivity), (min_le_left _ _).trans (by norm_num), ?_⟩
+  have h := min_le_right (1/2 : ℝ) (alpha/180)
+  nlinarith
+
+theorem denominator_growth_numeric10 (alpha C_upper Q0 Q H0 H b0 b r0 r : ℝ)
+    (ha : 0 < alpha) (hQ0 : 1 < Q0) (hQ : 1 < Q)
+    (hr0 : 0 < r0) (hr : 0 < r) (habsorb : C_upper ≤ Q0)
+    (hu0 : H0 ≤ C_upper*Q0^9) (hbu0 : b0 ≤ H0) (hb0 : 0 < b0)
+    (hl : Q^alpha ≤ H) (hroot : H^(1/9 : ℝ) ≤ b)
+    (hH : 1 ≤ H) (hbalance : r0*Real.log Q0 ≤ r*Real.log Q) :
+    b0^(r0*min (1/2 : ℝ) (alpha/180)) ≤ b^r := by
+  obtain ⟨hC,hC1,hCmp⟩ := schmidt_constant_range10 alpha ha
+  have hQ0p : 0 < Q0 := zero_lt_one.trans hQ0
+  have hQp : 0 < Q := zero_lt_one.trans hQ
+  have hb0upper : b0 ≤ Q0^10 := by
+    calc
+      b0 ≤ C_upper*Q0^9 := hbu0.trans hu0
+      _ ≤ Q0*Q0^9 := mul_le_mul_of_nonneg_right habsorb (by positivity)
+      _ = Q0^10 := by ring
+  have hlower : Q^(alpha/9) ≤ b := by
+    calc
+      Q^(alpha/9) = (Q^alpha)^(1/9 : ℝ) := by rw [← Real.rpow_mul hQp.le]; congr 1; ring
+      _ ≤ H^(1/9 : ℝ) := Real.rpow_le_rpow (Real.rpow_nonneg hQp.le _) hl (by norm_num)
+      _ ≤ b := hroot
+  have hbp : 0 < b := (Real.rpow_pos_of_pos (zero_lt_one.trans_le hH) _).trans_le hroot
+  have huLog : Real.log b0 ≤ 10*Real.log Q0 := by
+    have hh := Real.log_le_log hb0 hb0upper
+    rw [Real.log_pow] at hh
+    exact hh
+  have hlLog : (alpha/9)*Real.log Q ≤ Real.log b := by
+    have hh := Real.log_le_log (Real.rpow_pos_of_pos hQp _) hlower
+    rw [Real.log_rpow hQp] at hh
+    exact hh
+  rw [Real.rpow_def_of_pos hb0, Real.rpow_def_of_pos hbp]
+  apply Real.exp_le_exp.mpr
+  calc
+    Real.log b0*(r0*min (1/2 : ℝ) (alpha/180)) ≤
+        (10*Real.log Q0)*(r0*min (1/2 : ℝ) (alpha/180)) :=
+      mul_le_mul_of_nonneg_right huLog (mul_pos hr0 hC).le
+    _ = (10*min (1/2 : ℝ) (alpha/180))*(r0*Real.log Q0) := by ring
+    _ ≤ (alpha/9)*(r0*Real.log Q0) :=
+      mul_le_mul_of_nonneg_right hCmp (mul_pos hr0 (Real.log_pos hQ0)).le
+    _ ≤ (alpha/9)*(r*Real.log Q) := mul_le_mul_of_nonneg_left hbalance (by positivity)
+    _ = ((alpha/9)*Real.log Q)*r := by ring
+    _ ≤ Real.log b*r := mul_le_mul_of_nonneg_right hlLog hr.le
+
+theorem schmidt_parameters10 (m : ℕ) (hm : 0 < m) (eta : ℝ) (he : 0 < eta) :
+    ∃ theta rho : ℝ, 0 < theta ∧ theta < 1/12 ∧ theta < (m : ℝ)*eta ∧
+      0 < rho ∧ rho ≤ 1/2 ∧ rho ≤ JSP000334.omega65 m theta := by
+  let theta := min (1/24 : ℝ) ((m : ℝ)*eta/2)
+  have hmR : (0 : ℝ) < m := by exact_mod_cast hm
+  have ht : 0 < theta := lt_min (by norm_num) (by positivity)
+  have htu : theta < 1/12 := (min_le_left _ _).trans_lt (by norm_num)
+  have hte : theta < (m : ℝ)*eta := by
+    have hh := min_le_right (1/24 : ℝ) ((m : ℝ)*eta/2)
+    dsimp [theta]
+    nlinarith [mul_pos hmR he]
+  have ho := JSP000334.omega65_pos m theta ht
+  exact ⟨theta,min (1/2 : ℝ) (JSP000334.omega65 m theta),ht,htu,hte,
+    lt_min (by norm_num) ho,min_le_left _ _,min_le_right _ _⟩
+
+end CompoundFeasibility.M203Literal
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M203Literal
+open SchmidtNormal10 SchmidtPolynomial10 SourceNormalHighIndex10 SchmidtCoordinate10 SchmidtScalar10
+open SchmidtRationalNormalization6 SchmidtApplication10
+
+theorem primitive_scalar_denominator_bounds10 {m : ℕ} (M : Fin m → Fin 10 → ℤ)
+    (hM : ∀ h, Ideal.span (Set.range (M h)) = ⊤) (r : Fin m → ℕ)
+    (P : MvPolynomial (SourceMultiblock10.Vars10 m) ℤ) (hP : homogeneous10 r P) (hn : P ≠ 0) :
+    ∃ (C : (h : Fin m) → NormalCoordinateChoice10 (M h)) (G : MvPolynomial (Fin m) ℤ),
+      G ≠ 0 ∧ JSP000334.rothIntegerHeight G ≤ height10 P ∧ (∀ h, G.degreeOf h ≤ r h) ∧
+      (∀ h, let N := (fun {m : ℕ} (M : Fin m → Fin 10 → ℤ) (e : Fin m → Equiv.Perm (Fin 10)) (h : Fin m) (k : Fin 10) => M h (e h k)) M (fun g => (C g).e) h
+        N 0 ≠ 0 ∧ Int.gcd (N 0) (N 1)^9 ≤ (N 0).natAbs^8 ∧
+        ((fun M : Fin 10 → ℤ => Finset.univ.sup (fun i => (M i).natAbs)) (M h) : ℝ)^(1/9 : ℝ) ≤ |((fun a b : ℤ => a/(Int.gcd a b : ℤ)) (N 0) (N 1) : ℝ)| ∧
+        |((fun a b : ℤ => a/(Int.gcd a b : ℤ)) (N 0) (N 1) : ℝ)| ≤ ((fun M : Fin 10 → ℤ => Finset.univ.sup (fun i => (M i).natAbs)) (M h) : ℝ)) ∧
+      (∀ c, P.map (Int.castRingHom ℝ) ∈ sourceNormalIdeal10 M r c →
+        G.map (Int.castRingHom ℝ) ∈ monicIdeal6 (binaryLift6 ((fun {m : ℕ} (M : Fin m → Fin 10 → ℤ) (e : Fin m → Equiv.Perm (Fin 10)) (h : Fin m) (k : Fin 10) => M h (e h k)) M (fun h => (C h).e))) r c) ∧
+      (∀ c, P.map (Int.castRingHom ℝ) ∈ sourceStrictNormalIdeal10 M r c →
+        G.map (Int.castRingHom ℝ) ∈ monicStrictIdeal6 (binaryLift6 ((fun {m : ℕ} (M : Fin m → Fin 10 → ℤ) (e : Fin m → Equiv.Perm (Fin 10)) (h : Fin m) (k : Fin 10) => M h (e h k)) M (fun h => (C h).e))) r c) := by
+  obtain ⟨C,G,hGn,hGH,hGdeg,hdata,hclosed,hstrict⟩ :=
+    primitive_scalar_reduction10 M hM r P hP hn
+  refine ⟨C,G,hGn,hGH,hGdeg,?_,hclosed,hstrict⟩
+  intro h
+  obtain ⟨hfirst,hgcd,hroot⟩ := hdata h
+  obtain ⟨_hc,_hprim,hheight,_hfirst,hatt,_hmax,_hgcd,_hinv⟩ := choice_normal_data10 M C h
+  have hha : ((fun M : Fin 10 → ℤ => Finset.univ.sup (fun i => (M i).natAbs)) (M h) : ℝ) =
+      |((fun {m : ℕ} (M : Fin m → Fin 10 → ℤ) (e : Fin m → Equiv.Perm (Fin 10)) (h : Fin m) (k : Fin 10) => M h (e h k)) M (fun g => (C g).e) h 0 : ℝ)| := by
+    change (SchmidtNormal10.normalHeight10 (M h) : ℝ) = _
+    rw [← hheight,hatt,Int.cast_natAbs,Int.cast_abs]
+    rfl
+  refine ⟨hfirst,hgcd,hroot,?_⟩
+  rw [hha]
+  exact (denominator_real_bounds10 _ _ hfirst hgcd).2
+
+end CompoundFeasibility.M203Literal
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M203Literal
+open SchmidtNormal10 OriginalDual10 SourceSampling10 SourceSelectedSet10 SourceHeightEnvelope10
+open SchmidtCoordinate10 SchmidtPolynomial10 SchmidtRationalNormalization6 SchmidtScalar10
+
+theorem original_sample_schmidt_growth10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2 : A2.det = 1) (h3 : A3.det = 1) (hL : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j))
+    (c2 c3 : Fin 10 → ℝ) (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (c : Fin 3 → Fin 10 → ℝ) (hc0 : ∀ i, |c 0 i| ≤ 1) (hb : (∑ tau, ∑ i, c tau i) = 0)
+    (hc : ∀ i, c 1 i = c2 i/5 ∧ c 2 i = c3 i/5)
+    (epsilon : ℝ) (he : 0 < epsilon) :
+    ∃ alpha C_upper T C_sch : ℝ,
+      0 < alpha ∧ 0 < C_upper ∧ 1 < T ∧
+      C_sch = min (1/2 : ℝ) (alpha/180) ∧ 0 < C_sch ∧ C_sch ≤ 1 ∧
+      ∀ (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+        (eta D E B rho : ℝ) (m : ℕ) (hm : 0 < m), T ≤ B →
+        ∀ (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+          (s : Fin m → MixedIndex10),
+          (∀ h, s h ∈ roundedSelector10 ((S.data.t h).val^5) (epsilon/2)
+            (fun i => ((S.data.t h).val^5)^(c 0 i)) (c 1) (c 2)) →
+          (∀ h, (L⁻¹.transpose *ᵥ integerReal (S.data.M h)) (s h 0) ≠ 0) →
+          (∀ h, ((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[2]))) (s h 1) ≠ 0) →
+          (∀ h, ((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+            (fun k => (S.data.M h k : ℚ_[3]))) (s h 2) ≠ 0) →
+          ∃ (C : (h : Fin m) → NormalCoordinateChoice10 (S.data.M h))
+            (G : MvPolynomial (Fin m) ℤ),
+            G ≠ 0 ∧ JSP000334.rothIntegerHeight G ≤ height10 S.data.P ∧
+            (∀ h, G.degreeOf h ≤ S.data.r h) ∧
+            G.map (Int.castRingHom ℝ) ∈ monicIdeal6
+              (binaryLift6 ((fun {m : ℕ} (M : Fin m → Fin 10 → ℤ) (e : Fin m → Equiv.Perm (Fin 10)) (h : Fin m) (k : Fin 10) => M h (e h k)) S.data.M (fun h => (C h).e))) S.data.r ((m : ℝ)*eta) ∧
+            ∀ h, let N := (fun {m : ℕ} (M : Fin m → Fin 10 → ℤ) (e : Fin m → Equiv.Perm (Fin 10)) (h : Fin m) (k : Fin 10) => M h (e h k)) S.data.M (fun g => (C g).e)
+              let b := fun g => (fun a b : ℤ => a/(Int.gcd a b : ℤ)) (N g 0) (N g 1)
+              N h 0 ≠ 0 ∧ Int.gcd (N h 0) (N h 1)^9 ≤ (N h 0).natAbs^8 ∧
+              b h ≠ 0 ∧ Int.gcd ((fun a b : ℤ => (-b)/(Int.gcd a b : ℤ)) (N h 0) (N h 1)) (b h) = 1 ∧
+              ((fun M : Fin 10 → ℤ => Finset.univ.sup (fun i => (M i).natAbs)) (S.data.M h) : ℝ)^(1/9 : ℝ) ≤ |(b h : ℝ)| ∧
+              |(b h : ℝ)| ≤ ((fun M : Fin 10 → ℤ => Finset.univ.sup (fun i => (M i).natAbs)) (S.data.M h) : ℝ) ∧
+              |(b ⟨0,hm⟩ : ℝ)|^((S.data.r ⟨0,hm⟩ : ℝ)*C_sch) ≤
+                |(b h : ℝ)|^(S.data.r h : ℝ) := by
+  obtain ⟨alpha,C_upper,T,ha,hC,hT,henvelope⟩ := original_sample_height_envelope10
+    A2 A3 L h2 h3 hL hAlg c2 c3 hc2 hc3 c hc0 hb hc epsilon he
+  obtain ⟨hCs,hCs1,_hcmp⟩ := schmidt_constant_range10 alpha ha
+  refine ⟨alpha,C_upper,max T C_upper,min (1/2 : ℝ) (alpha/180),ha,hC,
+    hT.trans_le (le_max_left _ _),rfl,hCs,hCs1,?_⟩
+  intro V v eta D E B rho m hm hB S s hs hn0 hn2 hn3
+  have hlarge (h : Fin m) : max T C_upper < (S.data.t h).val^5 := by
+    exact (hB.trans_lt (S.conditions.large h).1).trans_le
+      (le_self_pow₀ (S.conditions.large h).2.1.le (by norm_num))
+  have hheight (h : Fin m) := henvelope V v eta D E B rho m hm S h
+    ((le_max_left _ _).trans_lt (hlarge h)) (s h) (hs h) (hn0 h) (hn2 h) (hn3 h)
+  obtain ⟨C,G,hGn,hGH,hdeg,hden,hclosed,_hstrict⟩ := primitive_scalar_denominator_bounds10
+    S.data.M S.conditions.primitive S.data.r S.data.P
+    S.conditions.homogeneous S.conditions.polynomial_nonzero
+  refine ⟨C,G,hGn,hGH,hdeg,hclosed _ S.conditions.normal_ideal,?_⟩
+  intro h
+  let N := (fun {m : ℕ} (M : Fin m → Fin 10 → ℤ) (e : Fin m → Equiv.Perm (Fin 10)) (h : Fin m) (k : Fin 10) => M h (e h k)) S.data.M (fun g => (C g).e)
+  let b := fun g => (fun a b : ℤ => a/(Int.gcd a b : ℤ)) (N g 0) (N g 1)
+  obtain ⟨hfirst,hgcd,hl,hu⟩ := hden h
+  obtain ⟨_hg,_hdiv0,_hdiv1,_heq0,_heq1,hbn,hcop⟩ := integer_normalization6 _ _ hfirst
+  refine ⟨hfirst,hgcd,hbn,hcop,hl,hu,?_⟩
+  have hb0n := (integer_normalization6 (N ⟨0,hm⟩ 0) (N ⟨0,hm⟩ 1)
+    (hden ⟨0,hm⟩).1).2.2.2.2.2.1
+  have hb0R : (b ⟨0,hm⟩ : ℝ) ≠ 0 := by exact_mod_cast hb0n
+  exact denominator_growth_numeric10 alpha C_upper
+    ((S.data.t ⟨0,hm⟩).val^5) ((S.data.t h).val^5)
+    ((fun M : Fin 10 → ℤ => Finset.univ.sup (fun i => (M i).natAbs)) (S.data.M ⟨0,hm⟩)) ((fun M : Fin 10 → ℤ => Finset.univ.sup (fun i => (M i).natAbs)) (S.data.M h))
+    |(b ⟨0,hm⟩ : ℝ)| |(b h : ℝ)| (S.data.r ⟨0,hm⟩) (S.data.r h)
+    ha (S.conditions.large ⟨0,hm⟩).2.2.1 (S.conditions.large h).2.2.1
+    (by exact_mod_cast S.conditions.positive_degrees ⟨0,hm⟩)
+    (by exact_mod_cast S.conditions.positive_degrees h)
+    ((le_max_right _ _).trans (hlarge ⟨0,hm⟩).le)
+    (hheight ⟨0,hm⟩).2 (hden ⟨0,hm⟩).2.2.2 (abs_pos.mpr hb0R)
+    (hheight h).1 hl (nonzero_normal_height_one10 _ (S.conditions.normal_nonzero h))
+    (S.conditions.logarithmic_balance h).1
+
+end CompoundFeasibility.M203Literal
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M203Literal
+open SourceSampling10
+
+theorem original_sample_schmidt_parameters10
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (c2 c3 : Fin 10 → ℝ) (V : Set ℝ) (v : V → Fin 10 → Fin 10 → ℤ)
+    (c : Fin 3 → Fin 10 → ℝ) (epsilon eta D E : ℝ) (he : 0 < eta)
+    (m : ℕ) (hm : 0 < m)
+    (hfamily : ∀ rho : ℝ, 0 < rho → ∀ B : ℝ,
+      Nonempty (OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)) :
+    ∃ theta rho : ℝ, 0 < theta ∧ theta < 1/12 ∧ theta < (m : ℝ)*eta ∧
+      0 < rho ∧ rho ≤ 1/2 ∧ rho ≤ JSP000334.omega65 m theta ∧
+      (∀ B : ℝ, Nonempty
+        (OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)) ∧
+      ∀ (B : ℝ)
+        (S : OriginalAuxiliarySample10 A2 A3 L c2 c3 V v c epsilon eta D E B rho m hm)
+        (h : Fin m) (hh : h.val+1 < m),
+        (S.data.r ⟨h.val+1,hh⟩ : ℝ) ≤ JSP000334.omega65 m theta*(S.data.r h : ℝ) := by
+  obtain ⟨theta,rho,ht,htu,hte,hr,hrhalf,hrw⟩ := schmidt_parameters10 m hm eta he
+  refine ⟨theta,rho,ht,htu,hte,hr,hrhalf,hrw,hfamily rho hr,?_⟩
+  intro B S h hh
+  exact (S.conditions.degree_separation h hh).trans
+    (mul_le_mul_of_nonneg_right hrw (Nat.cast_nonneg _))
+
+end CompoundFeasibility.M203Literal
+#print axioms CompoundFeasibility.M203Literal.schmidt_constant_range10
+#print axioms CompoundFeasibility.M203Literal.denominator_growth_numeric10
+#print axioms CompoundFeasibility.M203Literal.schmidt_parameters10
+#print axioms CompoundFeasibility.M203Literal.primitive_scalar_denominator_bounds10
+#print axioms CompoundFeasibility.M203Literal.original_sample_schmidt_growth10
+#print axioms CompoundFeasibility.M203Literal.original_sample_schmidt_parameters10

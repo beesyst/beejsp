@@ -1,0 +1,38 @@
+import SubspaceBridge.SourceNativeUniversal240D
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility.Exterior52_237
+open CompoundFeasibility.CompoundNative240D
+namespace M240DSourceChallenge
+theorem exact_original_minor_map240D {R S : Type*} [CommRing R] [CommRing S]
+    (f : R →+* S) (A : Matrix (Fin 5) (Fin 5) R) (s t : Fin 10) :
+    f (A (lo237 s) (lo237 t) * A (hi237 s) (hi237 t) -
+      A (lo237 s) (hi237 t) * A (hi237 s) (lo237 t)) =
+    f (A (lo237 s) (lo237 t)) * f (A (hi237 s) (hi237 t)) -
+      f (A (lo237 s) (hi237 t)) * f (A (hi237 s) (lo237 t)) := by
+  have h := congrArg (fun M : Matrix (Fin 10) (Fin 10) S => M s t) (compound_mapMatrix240D f A)
+  simpa only [compound237,RingHom.mapMatrix_apply,Matrix.map_apply] using h.symm
+
+theorem exact_native_upper240D {R : Type*} [CommRing R]
+    (A : Matrix (Fin 5) (Fin 5) R) (hA : ∀ i j : Fin 5, j < i → A i j = 0) :
+    (compound237 A).det = A.det ^ (4 : ℕ) := by
+  exact compound_upper240D_det A (fun i j h => hA i j h)
+
+theorem exact_rat_evaluation240D (A : Matrix (Fin 5) (Fin 5) ℚ) :
+    (universalEval240D A).mapMatrix universalMatrix240D = A := by
+  exact universal_eval_matrix240D A
+
+theorem exact_real_evaluation240D (A : Matrix (Fin 5) (Fin 5) ℝ) :
+    (universalEval240D A).mapMatrix universalMatrix240D = A := by
+  exact universal_eval_matrix240D A
+
+theorem exact_fraction_induction240D :
+    compoundDet240DProperty ((algebraMap (MvPolynomial (Fin 5 × Fin 5) ℤ)
+      (FractionRing (MvPolynomial (Fin 5 × Fin 5) ℤ))).mapMatrix universalMatrix240D) := by
+  exact universal_fraction240D
+end M240DSourceChallenge
+#print axioms M240DSourceChallenge.exact_original_minor_map240D
+#print axioms M240DSourceChallenge.exact_native_upper240D
+#print axioms M240DSourceChallenge.exact_rat_evaluation240D
+#print axioms M240DSourceChallenge.exact_real_evaluation240D
+#print axioms M240DSourceChallenge.exact_fraction_induction240D

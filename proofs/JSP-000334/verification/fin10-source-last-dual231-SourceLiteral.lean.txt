@@ -1,0 +1,280 @@
+import SubspaceBridge.SourceSecondMinimum230
+import SubspaceBridge.SourceRelativeIndex6
+import SubspaceBridge.SourceFramePairing224
+import SubspaceBridge.SourceOriginalBounds215
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M231ScopedLiteral
+open OriginalDual10 SourceDualGeometry219 SourceRelativeIndex6
+
+theorem lattice_frame_det_dvd231 {n : ℕ} (G : AddSubgroup (Fin n → ℤ))
+    (c : Basis (Fin n) ℤ G) (w : Fin n → G) :
+    (G.index : ℤ) ∣ (Matrix.of (fun j => (w j : Fin n → ℤ))).det := by
+  let B : Matrix (Fin n) (Fin n) ℤ := fun i j => (c j : Fin n → ℤ) i
+  have hm : B * c.toMatrix w = (Matrix.of (fun j => (w j : Fin n → ℤ))).transpose := by
+    ext i j
+    have he := congrArg (fun x : G => (x : Fin n → ℤ) i) (c.sum_repr (w j))
+    simpa [B, Matrix.mul_apply, Basis.toMatrix_apply, Finset.sum_apply, mul_comm] using he
+  have hB : B.det.natAbs = G.index := by
+    rw [AddSubgroup.index_eq_natAbs_det (Pi.basisFun ℤ (Fin n)) G c,
+      integer_basis_det_eq_matrix_det]
+    rfl
+  rw [← hB, Int.natAbs_dvd]
+  have hd := congrArg Matrix.det hm
+  rw [Matrix.det_mul, Matrix.det_transpose] at hd
+  exact hd ▸ dvd_mul_right B.det (c.toMatrix w).det
+
+theorem last_row_det_pairing231 {n : ℕ} (u : Matrix (Fin (n+1)) (Fin (n+1)) ℤ)
+    (x : Fin (n+1) → ℤ) :
+    (u.updateRow (Fin.last n) x).det = ∑ i, x i * integerLastDual10 u i := by
+  have h := congrFun (Matrix.cramer_eq_adjugate_mulVec u.transpose x) (Fin.last n)
+  rw [Matrix.cramer_transpose_apply] at h
+  rw [← Matrix.adjugate_transpose] at h
+  simpa only [Matrix.mulVec, dotProduct,
+    Matrix.transpose_apply, integerLastDual10, mul_comm] using h
+
+theorem cofactor_pairing_dvd231 {n : ℕ} (G : AddSubgroup (Fin (n+1) → ℤ))
+    (c : Basis (Fin (n+1)) ℤ G) (u : Fin (n+1) → G) (x : G) :
+    (G.index : ℤ) ∣ ∑ i, (x : Fin (n+1) → ℤ) i *
+      integerLastDual10 (fun j => (u j : Fin (n+1) → ℤ)) i := by
+  let w : Fin (n+1) → G := Function.update u (Fin.last n) x
+  have he : Matrix.of (fun j => (w j : Fin (n+1) → ℤ)) =
+      (Matrix.of (fun j => (u j : Fin (n+1) → ℤ))).updateRow (Fin.last n) x := by
+    ext j i
+    by_cases hj : j = Fin.last n <;> simp [w, Matrix.updateRow, hj]
+  have hd := lattice_frame_det_dvd231 G c w
+  rw [he, last_row_det_pairing231] at hd
+  exact hd
+
+theorem cofactor_scaled_dual231 (G : AddSubgroup (Fin 10 → ℤ))
+    (c : Basis (Fin 10) ℤ G) (hG : G.index ≠ 0) (u : Fin 10 → G) :
+    (fun i => (integerLastDual10 (fun j => (u j : Fin 10 → ℤ)) i : ℚ)) ∈ scaledDual219 G := by
+  apply (scaledDual_pairing219 G hG _).mpr
+  intro x
+  obtain ⟨a, ha⟩ := cofactor_pairing_dvd231 G c u x
+  refine ⟨a, ?_⟩
+  change (∑ i, ((x : Fin 10 → ℤ) i : ℚ) *
+    (integerLastDual10 (fun j => (u j : Fin 10 → ℤ)) i : ℚ)) = _
+  exact_mod_cast ha
+
+open SourceSatz51Entry218
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem source_cofactor_dual231 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (fun i => (integerLastDual10 D.u i : ℚ)) ∈
+      scaledDual219 (originalSourceGroup10 A2 A3 q c2 c3) := by
+  obtain ⟨c⟩ := sourceLattice10_has_basis A2 A3
+    (fun i => Nat.ceil (JSP000334.qThreshold 2 q (c2 i)))
+    (fun i => Nat.ceil (JSP000334.qThreshold 3 q (c3 i)))
+  exact cofactor_scaled_dual231 (originalSourceGroup10 A2 A3 q c2 c3) c
+    (Nat.ne_of_gt (sourceLattice10_index_pos A2 A3 _ _)) (fun j => ⟨D.u j, D.member j⟩)
+
+end CompoundFeasibility.M231ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M231ScopedLiteral
+open OriginalDual10 SourceOriginalDual10 SourceSatz51Entry218 SourceRelativeIndex6
+
+theorem signed_cofactor231 {n : ℕ} (u : Fin (n+1) → Fin (n+1) → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (r : ℚ)
+    (hr : r = |((Matrix.det u : ℤ) : ℚ)|) :
+    (fun i => (integerLastDual10 u i : ℚ)) = r • lastDual10 (fun j i => (u j i : ℚ)) hu ∨
+    (fun i => (integerLastDual10 u i : ℚ)) = -(r • lastDual10 (fun j i => (u j i : ℚ)) hu) := by
+  rw [integerLastDual10_eq u hu, hr]
+  by_cases h : 0 ≤ ((Matrix.det u : ℤ) : ℚ)
+  · left
+    rw [abs_of_nonneg h]
+  · right
+    rw [abs_of_neg (lt_of_not_ge h), neg_smul, neg_neg]
+
+theorem frame_normalization_eq231 {n : ℕ} (G : AddSubgroup (Fin n → ℤ))
+    [IsZLattice ℝ (integerRealImage G)] (c : Basis (Fin n) ℤ G)
+    (u : Fin n → G) (hu : LinearIndependent ℤ u) (U : Matrix (Fin n) (Fin n) ℤ)
+    (hU : Matrix.of (fun j => (u j : Fin n → ℤ)) = U) :
+    frameRelativeIndex G u * G.index = U.det.natAbs ∧
+      |(U.det : ℝ)| = (frameRelativeIndex G u : ℝ) * ZLattice.covolume (integerRealImage G) := by
+  have h := And.intro (frameRelativeIndex_mul_index G c u hu) (frame_abs_det_covolume G c u hu)
+  exact Eq.mp (congrArg (fun V : Matrix (Fin n) (Fin n) ℤ =>
+    frameRelativeIndex G u * G.index = V.det.natAbs ∧
+      |(V.det : ℝ)| = (frameRelativeIndex G u : ℝ) * ZLattice.covolume (integerRealImage G)) hU) h
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+def sourceFrame231 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    Fin 10 → originalSourceGroup10 A2 A3 q c2 c3 := fun j => ⟨D.u j, D.member j⟩
+
+def sourceFrameIndex231 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) : ℕ :=
+  frameRelativeIndex (originalSourceGroup10 A2 A3 q c2 c3) (sourceFrame231 D)
+
+def sourceScaledLast231 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) : Fin 10 → ℚ :=
+  ((sourceFrameIndex231 D * (originalSourceGroup10 A2 A3 q c2 c3).index : ℕ) : ℚ) •
+    lastDual10 (fun j i => (D.u j i : ℚ)) (integer_frame_rational_independent10 D.u D.independent)
+
+theorem source_cofactor_nonzero231 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    integerLastDual10 D.u ≠ 0 := by
+  have hu := integer_frame_rational_independent10 D.u D.independent
+  exact integerLastDual10_nonzero D.u hu
+
+end CompoundFeasibility.M231ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M231ScopedLiteral
+open OriginalDual10 SourceSatz51Entry218 SourceOriginalVariable10 SourceFrame224
+
+theorem original_balance231 (q : ℝ) (hq : 1 < q) (A c2 c3 : Fin 10 → ℝ)
+    (hA : ∀ i, 0 < A i) (hb : (∏ i, A i*q^(c2 i)*q^(c3 i)) = 1) :
+    ∑ i, (normalizedWidth10 q (A i) + c2 i + c3 i) = 0 := by
+  apply (Real.rpow_right_inj (zero_lt_one.trans hq) (ne_of_gt hq)).mp
+  rw [Real.rpow_sum_of_pos (zero_lt_one.trans hq)]
+  simp_rw [Real.rpow_add (zero_lt_one.trans hq), normalized_width_exact10 q _ hq (hA _)]
+  simpa only [Real.rpow_zero] using hb
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem source_width_covolume231 (h2 : A2.det = 1) (h3 : A3.det = 1)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (∏ i, A i) ≤ ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) := by
+  have hf : sourceLocalDetFactor10 A2 A3 = 1 := by
+    simp only [sourceLocalDetFactor10, h2, h3, padicNorm.one, Rat.cast_one, one_mul]
+  have h := sourceLattice10_covolume_width_lower A2 A3 q hq
+    (fun i => normalizedWidth10 q (A i)) c2 c3 (original_balance231 q hq A c2 c3 D.positive D.balance)
+  simp_rw [hf, one_mul, normalized_width_exact10 q _ hq (D.positive _)] at h
+  exact h
+
+theorem source_first_nine_product231 (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (∏ j : Fin 9, sourceMinima10 A2 A3 L hL q hq
+      (fun i => normalizedWidth10 q (A i)) c2 c3 j.castSucc) ≤ q^(-9*delta) := by
+  calc
+    _ ≤ ∏ _j : Fin 9, q^(-delta) := Finset.prod_le_prod
+      (fun j _ => (source_first_nine_minima224 D j).1)
+      (fun j _ => (source_first_nine_minima224 D j).2.trans D.small.le)
+    _ = _ := by
+      simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
+      rw [← Real.rpow_natCast, ← Real.rpow_mul (zero_lt_one.trans hq).le]
+      congr 1
+      ring
+
+theorem source_real_cofactor231 (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (i : Fin 10) :
+    |(L⁻¹.transpose *ᵥ integerReal (integerLastDual10 D.u)) i| ≤
+      362880 * q^(-9*delta) *
+        (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) / A i) := by
+  have hpoint := fun (j : Fin 9) (k : Fin 10) => source_frame_coordinates224 D j.castSucc k
+  have hb := real_cofactor_fin10 L hLd D.u
+    (fun j : Fin 9 => sourceMinima10 A2 A3 L hL q hq
+      (fun k => normalizedWidth10 q (A k)) c2 c3 j.castSucc) A hpoint i
+  rw [Real.norm_eq_abs] at hb
+  have ho : (∏ k : Fin 9, A (i.succAbove k)) = (∏ k, A k) / A i := by
+    rw [Fin.prod_univ_succAbove A i]
+    field_simp [(D.positive i).ne']
+  calc
+    _ ≤ _ := hb
+    _ ≤ 362880 * q^(-9*delta) * (∏ k : Fin 9, A (i.succAbove k)) :=
+      mul_le_mul_of_nonneg_right
+        (mul_le_mul_of_nonneg_left (source_first_nine_product231 D) (by norm_num))
+        (Finset.prod_nonneg (fun k _ => (D.positive _).le))
+    _ = 362880 * q^(-9*delta) * ((∏ k, A k) / A i) := by rw [ho]
+    _ ≤ _ := mul_le_mul_of_nonneg_left
+      (div_le_div_of_nonneg_right (source_width_covolume231 h2 h3 D) (D.positive i).le)
+      (mul_nonneg (by norm_num) (Real.rpow_pos_of_pos (zero_lt_one.trans hq) _).le)
+
+end CompoundFeasibility.M231ScopedLiteral
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+open CompoundFeasibility CompoundFeasibility.OriginalDual10
+  CompoundFeasibility.M231ScopedLiteral CompoundFeasibility.SourceDualGeometry219
+  CompoundFeasibility.SourceSatz51Entry218
+namespace M231SourceLiteral
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+
+theorem original_pairing (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta)
+    (x : originalSourceGroup10 A2 A3 q c2 c3) :
+    ∃ a : ℤ, (∑ i, ((x : Fin 10 → ℤ) i : ℚ) * (integerLastDual10 D.u i : ℚ)) =
+      ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) * (a : ℚ) := by
+  exact (scaledDual_pairing219 _ (Nat.ne_of_gt (sourceLattice10_index_pos A2 A3 _ _)) _).mp
+    (source_cofactor_dual231 D) x
+
+theorem original_genuine_dual (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (fun i => (integerLastDual10 D.u i : ℚ)) ∈
+      (fun z : Fin 10 → ℚ => ((originalSourceGroup10 A2 A3 q c2 c3).index : ℚ) • z) ''
+        {z | ∀ x : originalSourceGroup10 A2 A3 q c2 c3, ∃ a : ℤ,
+          (∑ i, ((x : Fin 10 → ℤ) i : ℚ) * z i) = (a : ℚ)} := by
+  exact source_cofactor_dual231 D
+
+theorem original_real_bound (h2 : A2.det = 1) (h3 : A3.det = 1) (hLd : L.det = 1)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (i : Fin 10) :
+    |(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i| ≤
+      362880 * q^(-9*delta) *
+        (ZLattice.covolume (integerRealImage (originalSourceGroup10 A2 A3 q c2 c3)) / A i) := by
+  exact source_real_cofactor231 h2 h3 hLd D i
+
+theorem original_nonzero (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) :
+    (fun i => Matrix.adjugate (D.u : Matrix (Fin 10) (Fin 10) ℤ) i (Fin.last 9)) ≠ 0 := by
+  exact source_cofactor_nonzero231 D
+
+end M231SourceLiteral
+#check M231SourceLiteral.original_pairing
+#print M231SourceLiteral.original_pairing
+#print axioms M231SourceLiteral.original_pairing
+#check M231SourceLiteral.original_genuine_dual
+#print M231SourceLiteral.original_genuine_dual
+#print axioms M231SourceLiteral.original_genuine_dual
+#check M231SourceLiteral.original_real_bound
+#print M231SourceLiteral.original_real_bound
+#print axioms M231SourceLiteral.original_real_bound
+#check M231SourceLiteral.original_nonzero
+#print M231SourceLiteral.original_nonzero
+#print axioms M231SourceLiteral.original_nonzero
+#check CompoundFeasibility.M231ScopedLiteral.lattice_frame_det_dvd231
+#print CompoundFeasibility.M231ScopedLiteral.lattice_frame_det_dvd231
+#print axioms CompoundFeasibility.M231ScopedLiteral.lattice_frame_det_dvd231
+#check CompoundFeasibility.M231ScopedLiteral.last_row_det_pairing231
+#print CompoundFeasibility.M231ScopedLiteral.last_row_det_pairing231
+#print axioms CompoundFeasibility.M231ScopedLiteral.last_row_det_pairing231
+#check CompoundFeasibility.M231ScopedLiteral.cofactor_pairing_dvd231
+#print CompoundFeasibility.M231ScopedLiteral.cofactor_pairing_dvd231
+#print axioms CompoundFeasibility.M231ScopedLiteral.cofactor_pairing_dvd231
+#check CompoundFeasibility.M231ScopedLiteral.cofactor_scaled_dual231
+#print CompoundFeasibility.M231ScopedLiteral.cofactor_scaled_dual231
+#print axioms CompoundFeasibility.M231ScopedLiteral.cofactor_scaled_dual231
+#check CompoundFeasibility.M231ScopedLiteral.source_cofactor_dual231
+#print CompoundFeasibility.M231ScopedLiteral.source_cofactor_dual231
+#print axioms CompoundFeasibility.M231ScopedLiteral.source_cofactor_dual231
+#check CompoundFeasibility.M231ScopedLiteral.signed_cofactor231
+#print CompoundFeasibility.M231ScopedLiteral.signed_cofactor231
+#print axioms CompoundFeasibility.M231ScopedLiteral.signed_cofactor231
+#check CompoundFeasibility.M231ScopedLiteral.frame_normalization_eq231
+#print CompoundFeasibility.M231ScopedLiteral.frame_normalization_eq231
+#print axioms CompoundFeasibility.M231ScopedLiteral.frame_normalization_eq231
+#check CompoundFeasibility.M231ScopedLiteral.sourceFrame231
+#print CompoundFeasibility.M231ScopedLiteral.sourceFrame231
+#print axioms CompoundFeasibility.M231ScopedLiteral.sourceFrame231
+#check CompoundFeasibility.M231ScopedLiteral.sourceFrameIndex231
+#print CompoundFeasibility.M231ScopedLiteral.sourceFrameIndex231
+#print axioms CompoundFeasibility.M231ScopedLiteral.sourceFrameIndex231
+#check CompoundFeasibility.M231ScopedLiteral.sourceScaledLast231
+#print CompoundFeasibility.M231ScopedLiteral.sourceScaledLast231
+#print axioms CompoundFeasibility.M231ScopedLiteral.sourceScaledLast231
+#check CompoundFeasibility.M231ScopedLiteral.source_cofactor_nonzero231
+#print CompoundFeasibility.M231ScopedLiteral.source_cofactor_nonzero231
+#print axioms CompoundFeasibility.M231ScopedLiteral.source_cofactor_nonzero231
+#check CompoundFeasibility.M231ScopedLiteral.original_balance231
+#print CompoundFeasibility.M231ScopedLiteral.original_balance231
+#print axioms CompoundFeasibility.M231ScopedLiteral.original_balance231
+#check CompoundFeasibility.M231ScopedLiteral.source_width_covolume231
+#print CompoundFeasibility.M231ScopedLiteral.source_width_covolume231
+#print axioms CompoundFeasibility.M231ScopedLiteral.source_width_covolume231
+#check CompoundFeasibility.M231ScopedLiteral.source_first_nine_product231
+#print CompoundFeasibility.M231ScopedLiteral.source_first_nine_product231
+#print axioms CompoundFeasibility.M231ScopedLiteral.source_first_nine_product231
+#check CompoundFeasibility.M231ScopedLiteral.source_real_cofactor231
+#print CompoundFeasibility.M231ScopedLiteral.source_real_cofactor231
+#print axioms CompoundFeasibility.M231ScopedLiteral.source_real_cofactor231

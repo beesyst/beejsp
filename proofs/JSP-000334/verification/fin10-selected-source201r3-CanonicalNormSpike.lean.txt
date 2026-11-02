@@ -1,0 +1,32 @@
+import SubspaceBridge.SourceFiniteDualLower10
+import SubspaceBridge.SourceSelectedFactorBounds10
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.SourceSelectedUpper10
+open OriginalDual10 SourceSelectedSet10 SchmidtNormal10 SourceHeightEnvelope10
+
+theorem finite_dual_norm_canonical10 (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1)
+    (M : Fin 10 → ℤ) (i : Fin 10) :
+    ‖((A.map (algebraMap ℚ ℚ_[p]))⁻¹.transpose *ᵥ
+      (fun k => (M k : ℚ_[p]))) i‖ = ‖finiteValue10 p A.adjugate.transpose M i‖ := by
+  rw [finite_dual_from_adjugate10 p A hA M i]
+
+theorem original_p2_dual_norm10 (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1)
+    (M : Fin 10 → ℤ) (i : Fin 10) :
+    ‖((A.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ
+      (fun k => (M k : ℚ_[2]))) i‖ = ‖finiteValue10 2 A.adjugate.transpose M i‖ := by
+  apply finite_dual_norm_canonical10
+  assumption
+
+theorem original_p3_dual_norm10 (A : Matrix (Fin 10) (Fin 10) ℚ) (hA : A.det = 1)
+    (M : Fin 10 → ℤ) (i : Fin 10) :
+    ‖((A.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ
+      (fun k => (M k : ℚ_[3]))) i‖ = ‖finiteValue10 3 A.adjugate.transpose M i‖ := by
+  apply finite_dual_norm_canonical10
+  assumption
+
+#print axioms finite_dual_norm_canonical10
+#print axioms original_p2_dual_norm10
+#print axioms original_p3_dual_norm10
+end CompoundFeasibility.SourceSelectedUpper10

@@ -1,0 +1,80 @@
+import SubspaceBridge.SourceSatz51Entry218
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M218SourceContract
+open SourceSatz51Entry218 SourceOriginalVariable10 SourceOriginalDual10 OriginalDual10
+
+theorem zero_boundary218 (p : ℕ) (q : ℝ) : roundedExponent218 p q 0 = 0 := by
+  simp [roundedExponent218]
+
+theorem minus_one_boundary218 (p : ℕ) (hp : 1 < p) : roundedExponent218 p (p : ℝ) (-1) = -1 := by
+  have hpR : (1 : ℝ) < p := by exact_mod_cast hp
+  have hl := (Real.log_pos hpR).ne'
+  norm_num [roundedExponent218,neg_div,hl]
+
+theorem source_effective_set218 (q delta : ℝ) (A c2 c3 : Fin 10 → ℝ) :
+    sourceSet218 q delta A c2 c3 = Finset.univ.filter
+      (fun s : Fin 3 → Fin 10 => 1 ≤ A (s 0)*q^(c2 (s 1))*q^(c3 (s 2))*q^((delta/2)/2)) := by
+  rw [show (delta/2)/2 = delta/4 by ring]
+  dsimp only [sourceSet218]
+
+theorem reduced_gap218 (q delta lam : ℝ) (hq : 1 < q) (hd : 0 < delta)
+    (hsmall : lam < q^(-delta)) : lam < q^(-(delta/2)) := by
+  exact hsmall.trans_le (Real.rpow_le_rpow_of_exponent_le hq.le (by linarith))
+
+theorem same_frame_adapter218
+    {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ} {hL : IsUnit L}
+    {q : ℝ} {hq : 1 < q} {c2 c3 A : Fin 10 → ℝ} {delta : ℝ}
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (D : SourceData218 A2 A3 L hL q hq c2 c3 A delta) (hq6 : 6 < q)
+    (hslack : 6 ≤ q^(delta/4)) (S0 : Finset (Fin 3 → Fin 10))
+    (hS : sourceSet218 q delta A c2 c3 = S0) :
+    (toOriginalData218 h2 h3 D hq6 hslack S0 hS).u = D.u := by
+  rfl
+
+theorem raw_source_fixed_set_zero218
+    (A2 A3 : Matrix (Fin 10) (Fin 10) ℚ) (L : Matrix (Fin 10) (Fin 10) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c2 c3 : Fin 10 → ℝ)
+    (h2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0) (h3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ q ∈ Omega, 1 < q) (A : ℝ → Fin 10 → ℝ)
+    (hA : ∀ q ∈ Omega, ∀ i, 0 < A q i)
+    (hsizes : ∀ q ∈ Omega, ∀ i, A q i < q ∧ (A q i)⁻¹ < q)
+    (hbalance : ∀ q ∈ Omega, (∏ i, A q i*q^(c2 i)*q^(c3 i)) = 1)
+    (u : Omega → Fin 10 → Fin 10 → ℤ)
+    (hmember : ∀ q : Omega, ∀ j, u q j ∈ originalSourceGroup10 A2 A3 q.val c2 c3)
+    (hu : ∀ q : Omega, LinearIndependent ℝ (fun j => integerReal (u q j)))
+    (hatt : ∀ q : Omega, ∀ j,
+      coordinateGauge10 (originalCoordinates10 L hL q.val (hq q.val q.property)
+        (fun i => normalizedWidth10 q.val (A q.val i))) (integerReal (u q j)) =
+      sourceMinima10 A2 A3 L hL q.val (hq q.val q.property)
+        (fun i => normalizedWidth10 q.val (A q.val i)) c2 c3 j)
+    (hsmall : ∀ q : Omega, sourceMinima10 A2 A3 L hL q.val (hq q.val q.property)
+      (fun i => normalizedWidth10 q.val (A q.val i)) c2 c3 8 < q.val^(-delta)) :
+    ∃ S0 : Finset (Fin 3 → Fin 10), S0.Nonempty ∧ ∃ B : ℝ, 6 < B ∧
+      ∃ U : Set ℝ, U ⊆ Omega ∧ ¬ BddAbove U ∧
+        ∀ q : Omega, q.val ∈ U → B < q.val ∧
+          (Finset.univ.filter (fun s : Fin 3 → Fin 10 =>
+            1 ≤ A q.val (s 0)*q.val^(c2 (s 1))*q.val^(c3 (s 2))*q.val^(delta/4))) = S0 ∧
+          ∀ s ∈ S0, originalRationalDualProduct10 A2 A3 L (u q)
+            (integer_frame_rational_independent10 (u q) (hu q)) s = 0 := by
+  let D : ∀ q : Omega, SourceData218 A2 A3 L hL q.val (hq q.val q.property) c2 c3 (A q.val) delta :=
+    fun q => ⟨hA q.val q.property,hsizes q.val q.property,hbalance q.val q.property,
+      u q,hmember q,hu q,hatt q,hsmall q⟩
+  exact source_entry_fixed_set_vanishing218 A2 A3 L h2d h3d hLd hL hAlg c2 c3 h2 h3
+    delta hd Omega hO hq A D
+
+end CompoundFeasibility.M218SourceContract
+#print CompoundFeasibility.M218SourceContract.zero_boundary218
+#print axioms CompoundFeasibility.M218SourceContract.zero_boundary218
+#print CompoundFeasibility.M218SourceContract.minus_one_boundary218
+#print axioms CompoundFeasibility.M218SourceContract.minus_one_boundary218
+#print CompoundFeasibility.M218SourceContract.source_effective_set218
+#print axioms CompoundFeasibility.M218SourceContract.source_effective_set218
+#print CompoundFeasibility.M218SourceContract.reduced_gap218
+#print axioms CompoundFeasibility.M218SourceContract.reduced_gap218
+#print CompoundFeasibility.M218SourceContract.same_frame_adapter218
+#print axioms CompoundFeasibility.M218SourceContract.same_frame_adapter218
+#print CompoundFeasibility.M218SourceContract.raw_source_fixed_set_zero218
+#print axioms CompoundFeasibility.M218SourceContract.raw_source_fixed_set_zero218

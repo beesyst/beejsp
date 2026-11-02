@@ -1,0 +1,291 @@
+import SubspaceBridge.SourceCompoundGap53_242
+import SubspaceBridge.SourceRatioLine236
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.LiteralCompoundLine53_243
+
+def cubeDomain243 (U : Set ℝ) : Set ℝ := (fun Q : ℝ => Q^3) '' U
+
+theorem cubeDomain_unbounded243 (U : Set ℝ) (hU : ¬ BddAbove U)
+    (hq : ∀ Q ∈ U, 1 < Q) : ¬ BddAbove (cubeDomain243 U) := by
+  rintro ⟨b,hb⟩
+  obtain ⟨Q,hQU,hbQ⟩ := not_bddAbove_iff.mp hU b
+  have hpow : Q ≤ Q^3 := le_self_pow₀ (hq Q hQU).le (by decide)
+  exact (not_le_of_gt (hbQ.trans_le hpow)) (hb ⟨Q,hQU,rfl⟩)
+
+theorem cubeDomain_positive243 (U : Set ℝ) (hq : ∀ Q ∈ U, 1 < Q) :
+    ∀ p ∈ cubeDomain243 U, 1 < p := by
+  rintro p ⟨Q,hQU,rfl⟩
+  exact Exterior53_242.powered_gt_one3242 Q (hq Q hQU)
+
+theorem exists_cube_section243 (U : Set ℝ) :
+    ∃ lift : cubeDomain243 U → U, ∀ p, (lift p).val^3 = p.val := by
+  have hh (p : cubeDomain243 U) : ∃ q : U, q.val^3 = p.val := by
+    obtain ⟨Q,hQU,he⟩ := p.property
+    exact ⟨⟨Q,hQU⟩,he⟩
+  choose lift hlift using hh
+  exact ⟨lift,hlift⟩
+
+theorem cube_pullback_unbounded243 (U : Set ℝ) (hq : ∀ Q ∈ U, 1 < Q)
+    (lift : cubeDomain243 U → U) (hlift : ∀ p, (lift p).val^3 = p.val)
+    (V : Set ℝ) (hVP : V ⊆ cubeDomain243 U) (hV : ¬ BddAbove V) :
+    ¬ BddAbove {Q | ∃ p : cubeDomain243 U, p.val ∈ V ∧ (lift p).val = Q} := by
+  rintro ⟨b,hb⟩
+  apply hV
+  refine ⟨(max b 1)^3,?_⟩
+  intro P hPV
+  let p : cubeDomain243 U := ⟨P,hVP hPV⟩
+  have hbound : (lift p).val ≤ b := hb ⟨p,hPV,rfl⟩
+  have hpos : 0 ≤ (lift p).val := (zero_lt_one.trans (hq _ (lift p).property)).le
+  have hpow := pow_le_pow_left₀ hpos (hbound.trans (le_max_left b 1)) 3
+  rw [hlift p] at hpow
+  exact hpow
+
+end CompoundFeasibility.LiteralCompoundLine53_243
+
+namespace CompoundFeasibility.LiteralCompoundLine53_243
+open Exterior53_242
+
+theorem source_powered_gap243 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hL : IsUnit L) (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (Q : ℝ) (hQ : 1 < Q), T < Q →
+      sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 1 <
+        sourceMinima5 A2 A3 L hL Q hQ c0 c2 c3 2*Q^(-delta) →
+      ∀ (p : ℝ) (hp : 1 < p), Q^3 = p →
+        sourceMinima10 (compound3242 A2) (compound3242 A3) (compound3242 L) (compound_real_unit3242 L hL)
+          p hp (normalizedWeights3242 c0) (normalizedWeights3242 c2) (normalizedWeights3242 c3) 8 <
+        sourceMinima10 (compound3242 A2) (compound3242 A3) (compound3242 L) (compound_real_unit3242 L hL)
+          p hp (normalizedWeights3242 c0) (normalizedWeights3242 c2) (normalizedWeights3242 c3) 9*p^(-(delta/6)) := by
+  obtain ⟨_,_,_,_,_,_,_,hall⟩ := source_rank2_compound_gap3242 A2 A3 L h2d h3d hLd hL hAlg
+  obtain ⟨T,hT,_,hs⟩ := hall delta hd
+  refine ⟨T,hT,?_⟩
+  intro Q hQ hTQ hg p hp he
+  subst p
+  obtain ⟨_,_,_,_,_,_,_,_,_,_,hgap⟩ := hs Q hQ c0 c2 c3 hc0 hc2 hc3 hb hTQ hg
+  simpa only [neg_div] using hgap
+
+theorem exists_compound3_attaining_family243 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (c0 c2 c3 : Fin 5 → ℝ)
+    (P : Set ℝ) (hp : ∀ p ∈ P, 1 < p) :
+    ∃ w : ∀ p : P, Fin 10 → originalSourceGroup10 (compound3242 A2) (compound3242 A3) p.val
+      (normalizedWeights3242 c2) (normalizedWeights3242 c3),
+      (∀ p : P, LinearIndependent ℝ (fun j => integerReal (w p j : Fin 10 → ℤ))) ∧
+      ∀ (p : P) j, coordinateGauge10
+        (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL) p.val (hp p.val p.property)
+          (normalizedWeights3242 c0)) (integerReal (w p j : Fin 10 → ℤ)) =
+        sourceMinima10 (compound3242 A2) (compound3242 A3) (compound3242 L) (compound_real_unit3242 L hL)
+          p.val (hp p.val p.property) (normalizedWeights3242 c0) (normalizedWeights3242 c2) (normalizedWeights3242 c3) j := by
+  have he (p : P) := exists_sourceMinima10_attaining (compound3242 A2) (compound3242 A3)
+    (compound3242 L) (compound_real_unit3242 L hL) p.val (hp p.val p.property)
+    (normalizedWeights3242 c0) (normalizedWeights3242 c2) (normalizedWeights3242 c3)
+  choose w hw hpos hmono hatt hpoint using he
+  exact ⟨w,hw,hatt⟩
+
+end CompoundFeasibility.LiteralCompoundLine53_243
+
+namespace CompoundFeasibility.LiteralCompoundLine53_243
+open Exterior53_242 OriginalDual10 SourceOriginalDual10
+
+theorem source_compound3_fixed_line243
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q)
+    (hgap : ∀ (Q : ℝ) (hQO : Q ∈ Omega),
+      sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 1 <
+        sourceMinima5 A2 A3 L hL Q (hq Q hQO) c0 c2 c3 2*Q^(-delta))
+    :
+    ∃ T : ℝ, 1 < T ∧ ∃ b : Fin 10 → ℤ, b ≠ 0 ∧ ∃ Vprime : Set ℝ,
+      Vprime ⊆ cubeDomain243 {Q | Q ∈ Omega ∧ T < Q} ∧ ¬ BddAbove Vprime ∧
+      ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+        ∀ Q ∈ V, ∃ p : cubeDomain243 {Q | Q ∈ Omega ∧ T < Q},
+          p.val ∈ Vprime ∧ p.val = Q^3 ∧ ∃ hp : 1 < p.val,
+          ∃ w : Fin 10 → originalSourceGroup10 (compound3242 A2) (compound3242 A3) p.val
+            (normalizedWeights3242 c2) (normalizedWeights3242 c3),
+          ∃ hw : LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ)),
+            (∀ j, coordinateGauge10 (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL)
+              p.val hp (normalizedWeights3242 c0)) (integerReal (w j : Fin 10 → ℤ)) =
+              sourceMinima10 (compound3242 A2) (compound3242 A3) (compound3242 L) (compound_real_unit3242 L hL)
+                p.val hp (normalizedWeights3242 c0) (normalizedWeights3242 c2) (normalizedWeights3242 c3) j) ∧
+            Submodule.span ℚ {lastDual10 (fun j i => ((w j : Fin 10 → ℤ) i : ℚ))
+              (integer_frame_rational_independent10 _ hw)} = Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  obtain ⟨T,hT,hcut⟩ := source_powered_gap243 A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd
+  let U : Set ℝ := {Q | Q ∈ Omega ∧ T < Q}
+  have hU : ¬ BddAbove U := JSP000334.sourceDual_unbounded_tail3 Omega hO T
+  have hUO : U ⊆ Omega := fun _ h => h.1
+  have hqU : ∀ Q ∈ U, 1 < Q := fun Q h => hq Q h.1
+  let P := cubeDomain243 U
+  have hP : ¬ BddAbove P := cubeDomain_unbounded243 U hU hqU
+  have hp : ∀ p ∈ P, 1 < p := cubeDomain_positive243 U hqU
+  obtain ⟨lift,hlift⟩ := exists_cube_section243 U
+  obtain ⟨w,hw,hatt⟩ := exists_compound3_attaining_family243 A2 A3 L hL c0 c2 c3 P hp
+  have hg (p : P) :
+      sourceMinima10 (compound3242 A2) (compound3242 A3) (compound3242 L) (compound_real_unit3242 L hL)
+        p.val (hp p.val p.property) (normalizedWeights3242 c0) (normalizedWeights3242 c2) (normalizedWeights3242 c3) 8 <
+      sourceMinima10 (compound3242 A2) (compound3242 A3) (compound3242 L) (compound_real_unit3242 L hL)
+        p.val (hp p.val p.property) (normalizedWeights3242 c0) (normalizedWeights3242 c2) (normalizedWeights3242 c3) 9*
+          p.val^(-(delta/6)) :=
+    hcut (lift p).val (hqU _ (lift p).property) (lift p).property.2
+      (hgap _ (lift p).property.1) p.val (hp p.val p.property) (hlift p)
+  have hB2 := compound_rat_det_one3242 A2 h2d
+  have hB3 := compound_rat_det_one3242 A3 h3d
+  have hB0 := compound_real_det_one3242 L hLd
+  have hc0p := normalized_real_bound3242 c0 hc0
+  have hc2p := normalized_finite_bounds3242 c2 hc2
+  have hc3p := normalized_finite_bounds3242 c3 hc3
+  have hbp := normalized_balance3242 c0 c2 c3 hb
+  obtain ⟨b,hbn,Vprime,hVP,hVprime,hline⟩ := SourceRatioLine236.source_ratio_fixed_line236
+    (compound3242 A2) (compound3242 A3) (compound3242 L) hB2 hB3 hB0 (compound_real_unit3242 L hL)
+    (compound_algebraic3242 L hAlg) (normalizedWeights3242 c0) (normalizedWeights3242 c2)
+    (normalizedWeights3242 c3) hc0p hc2p hc3p hbp (delta/6) (by positivity) P hP hp w hw hatt hg
+  let V : Set ℝ := {Q | ∃ p : P, p.val ∈ Vprime ∧ (lift p).val = Q}
+  refine ⟨T,hT,b,hbn,Vprime,hVP,hVprime,V,?_,
+    cube_pullback_unbounded243 U hqU lift hlift Vprime hVP hVprime,?_⟩
+  · rintro Q ⟨p,hpV,rfl⟩
+    exact hUO (lift p).property
+  · intro Q hQV
+    obtain ⟨p,hpV,he⟩ := hQV
+    refine ⟨p,hpV,?_,hp p.val p.property,w p,hw p,hatt p,hline p hpV⟩
+    exact (hlift p).symm.trans (congrArg (fun x : ℝ => x^3) he)
+
+end CompoundFeasibility.LiteralCompoundLine53_243
+
+#print axioms CompoundFeasibility.LiteralCompoundLine53_243.cubeDomain243
+#print axioms CompoundFeasibility.LiteralCompoundLine53_243.cubeDomain_unbounded243
+#print axioms CompoundFeasibility.LiteralCompoundLine53_243.cubeDomain_positive243
+#print axioms CompoundFeasibility.LiteralCompoundLine53_243.exists_cube_section243
+#print axioms CompoundFeasibility.LiteralCompoundLine53_243.cube_pullback_unbounded243
+#print axioms CompoundFeasibility.LiteralCompoundLine53_243.source_powered_gap243
+#print axioms CompoundFeasibility.LiteralCompoundLine53_243.exists_compound3_attaining_family243
+#print axioms CompoundFeasibility.LiteralCompoundLine53_243.source_compound3_fixed_line243
+
+namespace CompoundFeasibility.LiteralSourceChallenge243
+open LiteralCompoundLine53_243 Exterior53_242 OriginalDual10 SourceOriginalDual10
+
+theorem actual_cube243 (U : Set ℝ) (hU : ¬ BddAbove U) (hq : ∀ Q ∈ U, 1<Q) :
+    ∃ lift : ((fun Q : ℝ => Q^3) '' U) → U,
+      (∀ p, (lift p).val^3=p.val) ∧
+      ¬ BddAbove ((fun Q : ℝ => Q^3) '' U) ∧
+      (∀ p ∈ ((fun Q : ℝ => Q^3) '' U), 1<p) ∧
+      ∀ (V : Set ℝ), V ⊆ ((fun Q : ℝ => Q^3) '' U) → ¬ BddAbove V →
+        ¬ BddAbove {Q | ∃ p : ((fun Q : ℝ => Q^3) '' U), p.val ∈ V ∧ (lift p).val=Q} := by
+  obtain ⟨lift,hlift⟩ := exists_cube_section243 U
+  exact ⟨lift,hlift,cubeDomain_unbounded243 U hU hq,cubeDomain_positive243 U hq,
+    fun V hVP hV => cube_pullback_unbounded243 U hq lift hlift V hVP hV⟩
+
+theorem actual_fields243 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2 : A2.det=1) (h3 : A3.det=1) (h0 : L.det=1)
+    (hL : IsUnit L) (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i|≤1) (hc2 : ∀ i, -1≤c2 i ∧ c2 i≤0)
+    (hc3 : ∀ i, -1≤c3 i ∧ c3 i≤0) (hb : (∑ i, (c0 i+c2 i+c3 i))=0) :
+    (compound3242 A2).det=1 ∧ (compound3242 A3).det=1 ∧ (compound3242 L).det=1 ∧
+    IsUnit (compound3242 L) ∧ (∀ s t, IsAlgebraic ℚ (compound3242 L s t)) ∧
+    (∀ s, |normalizedWeights3242 c0 s|≤1) ∧
+    (∀ s, -1≤normalizedWeights3242 c2 s ∧ normalizedWeights3242 c2 s≤0) ∧
+    (∀ s, -1≤normalizedWeights3242 c3 s ∧ normalizedWeights3242 c3 s≤0) ∧
+    (∑ s, (normalizedWeights3242 c0 s+normalizedWeights3242 c2 s+normalizedWeights3242 c3 s))=0 :=
+  ⟨compound_rat_det_one3242 A2 h2,compound_rat_det_one3242 A3 h3,compound_real_det_one3242 L h0,
+    compound_real_unit3242 L hL,compound_algebraic3242 L hAlg,normalized_real_bound3242 c0 hc0,
+    normalized_finite_bounds3242 c2 hc2,normalized_finite_bounds3242 c3 hc3,
+    normalized_balance3242 c0 c2 c3 hb⟩
+
+theorem actual_powered_gap243 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hL : IsUnit L) (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) :
+    ∃ T : ℝ, 1 < T ∧ ∀ (Q : ℝ) (hQ : 1 < Q), T < Q →
+      (fun j : Fin 5 => sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ u ∧
+        (∀ i, u i ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧
+        ∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) (u i) ≤ r}) 1 <
+        (fun j : Fin 5 => sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ u ∧
+        (∀ i, u i ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧
+        ∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) (u i) ≤ r}) 2*Q^(-delta) →
+      ∀ (p : ℝ) (hp : 1 < p), Q^3 = p →
+        (fun j : Fin 10 => sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 10 → ℝ), LinearIndependent ℝ u ∧
+        (∀ i, u i ∈ integerRealImage ((sourceLattice10 (compound3242 A2) (compound3242 A3)
+          (fun s => Nat.ceil (JSP000334.qThreshold 2 p ((c2 (lo242 s)+c2 (mid242 s)+c2 (hi242 s))/3)))
+          (fun s => Nat.ceil (JSP000334.qThreshold 3 p ((c3 (lo242 s)+c3 (mid242 s)+c3 (hi242 s))/3)))))) ∧
+        ∀ i, coordinateGauge10 (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL)
+          p hp (normalizedWeights3242 c0)) (u i) ≤ r}) 8 <
+        (fun j : Fin 10 => sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 10 → ℝ), LinearIndependent ℝ u ∧
+        (∀ i, u i ∈ integerRealImage ((sourceLattice10 (compound3242 A2) (compound3242 A3)
+          (fun s => Nat.ceil (JSP000334.qThreshold 2 p ((c2 (lo242 s)+c2 (mid242 s)+c2 (hi242 s))/3)))
+          (fun s => Nat.ceil (JSP000334.qThreshold 3 p ((c3 (lo242 s)+c3 (mid242 s)+c3 (hi242 s))/3)))))) ∧
+        ∀ i, coordinateGauge10 (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL)
+          p hp (normalizedWeights3242 c0)) (u i) ≤ r}) 9*p^(-(delta/6)) := by
+  simpa only [sourceMinima5,sourceMinima10,originalSourceGroup10,normalizedWeights3242,tripleWeights242] using
+    source_powered_gap243 A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd
+
+theorem actual_attaining_family243 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L) (c0 c2 c3 : Fin 5 → ℝ)
+    (P : Set ℝ) (hp : ∀ p ∈ P, 1 < p) :
+    ∃ w : ∀ p : P, Fin 10 → (sourceLattice10 (compound3242 A2) (compound3242 A3)
+          (fun s => Nat.ceil (JSP000334.qThreshold 2 p.val ((c2 (lo242 s)+c2 (mid242 s)+c2 (hi242 s))/3)))
+          (fun s => Nat.ceil (JSP000334.qThreshold 3 p.val ((c3 (lo242 s)+c3 (mid242 s)+c3 (hi242 s))/3)))),
+      (∀ p : P, LinearIndependent ℝ (fun j => integerReal (w p j : Fin 10 → ℤ))) ∧
+      ∀ (p : P) j, coordinateGauge10
+        (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL) p.val (hp p.val p.property)
+          (normalizedWeights3242 c0)) (integerReal (w p j : Fin 10 → ℤ)) =
+        (fun j : Fin 10 => sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 10 → ℝ), LinearIndependent ℝ u ∧
+        (∀ i, u i ∈ integerRealImage ((sourceLattice10 (compound3242 A2) (compound3242 A3)
+          (fun s => Nat.ceil (JSP000334.qThreshold 2 p.val ((c2 (lo242 s)+c2 (mid242 s)+c2 (hi242 s))/3)))
+          (fun s => Nat.ceil (JSP000334.qThreshold 3 p.val ((c3 (lo242 s)+c3 (mid242 s)+c3 (hi242 s))/3)))))) ∧
+        ∀ i, coordinateGauge10 (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL)
+          p.val (hp p.val p.property) (normalizedWeights3242 c0)) (u i) ≤ r}) j := by
+  simpa only [sourceMinima5,sourceMinima10,originalSourceGroup10,normalizedWeights3242,tripleWeights242] using
+    exists_compound3_attaining_family243 A2 A3 L hL c0 c2 c3 P hp
+
+theorem original_fixed_line243
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (hL : IsUnit L)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (delta : ℝ) (hd : 0 < delta) (Omega : Set ℝ) (hO : ¬ BddAbove Omega)
+    (hq : ∀ Q ∈ Omega, 1 < Q)
+    (hgap : ∀ (Q : ℝ) (hQO : Q ∈ Omega),
+      (fun j : Fin 5 => sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ u ∧
+        (∀ i, u i ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧
+        ∀ i, coordinateGauge5 (originalCoordinates5 L hL Q (hq Q hQO) c0) (u i) ≤ r}) 1 <
+        (fun j : Fin 5 => sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ u ∧
+        (∀ i, u i ∈ integerRealImage (originalSourceGroup5 A2 A3 Q c2 c3)) ∧
+        ∀ i, coordinateGauge5 (originalCoordinates5 L hL Q (hq Q hQO) c0) (u i) ≤ r}) 2*Q^(-delta))
+    :
+    ∃ T : ℝ, 1 < T ∧ ∃ b : Fin 10 → ℤ, b ≠ 0 ∧ ∃ Vprime : Set ℝ,
+      Vprime ⊆ cubeDomain243 {Q | Q ∈ Omega ∧ T < Q} ∧ ¬ BddAbove Vprime ∧
+      ∃ V : Set ℝ, V ⊆ Omega ∧ ¬ BddAbove V ∧
+        ∀ Q ∈ V, ∃ p : cubeDomain243 {Q | Q ∈ Omega ∧ T < Q},
+          p.val ∈ Vprime ∧ p.val = Q^3 ∧ ∃ hp : 1 < p.val,
+          ∃ w : Fin 10 → (sourceLattice10 (compound3242 A2) (compound3242 A3)
+          (fun s => Nat.ceil (JSP000334.qThreshold 2 p.val ((c2 (lo242 s)+c2 (mid242 s)+c2 (hi242 s))/3)))
+          (fun s => Nat.ceil (JSP000334.qThreshold 3 p.val ((c3 (lo242 s)+c3 (mid242 s)+c3 (hi242 s))/3)))),
+          ∃ hw : LinearIndependent ℝ (fun j => integerReal (w j : Fin 10 → ℤ)),
+            (∀ j, coordinateGauge10 (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL)
+              p.val hp (normalizedWeights3242 c0)) (integerReal (w j : Fin 10 → ℤ)) =
+              (fun j : Fin 10 => sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 10 → ℝ), LinearIndependent ℝ u ∧
+        (∀ i, u i ∈ integerRealImage ((sourceLattice10 (compound3242 A2) (compound3242 A3)
+          (fun s => Nat.ceil (JSP000334.qThreshold 2 p.val ((c2 (lo242 s)+c2 (mid242 s)+c2 (hi242 s))/3)))
+          (fun s => Nat.ceil (JSP000334.qThreshold 3 p.val ((c3 (lo242 s)+c3 (mid242 s)+c3 (hi242 s))/3)))))) ∧
+        ∀ i, coordinateGauge10 (originalCoordinates10 (compound3242 L) (compound_real_unit3242 L hL)
+          p.val hp (normalizedWeights3242 c0)) (u i) ≤ r}) j) ∧
+            Submodule.span ℚ {lastDual10 (fun j i => ((w j : Fin 10 → ℤ) i : ℚ))
+              (integer_frame_rational_independent10 _ hw)} = Submodule.span ℚ {fun i => (b i : ℚ)} := by
+  simpa only [sourceMinima5,sourceMinima10,originalSourceGroup10,normalizedWeights3242,tripleWeights242] using
+    source_compound3_fixed_line243 A2 A3 L h2d h3d hLd hL hAlg c0 c2 c3 hc0 hc2 hc3 hb delta hd Omega hO hq hgap
+
+end CompoundFeasibility.LiteralSourceChallenge243
+
+#print axioms CompoundFeasibility.LiteralSourceChallenge243.actual_cube243
+#print axioms CompoundFeasibility.LiteralSourceChallenge243.actual_fields243
+#print axioms CompoundFeasibility.LiteralSourceChallenge243.actual_powered_gap243
+#print axioms CompoundFeasibility.LiteralSourceChallenge243.actual_attaining_family243
+#print axioms CompoundFeasibility.LiteralSourceChallenge243.original_fixed_line243

@@ -1,0 +1,62 @@
+import SubspaceBridge.SourceExterior52Algebra238
+import Mathlib.LinearAlgebra.ExteriorPower.Pairing
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M240ELiteral
+open Exterior52_237 Exterior52_238
+
+variable {R : Type*} [CommRing R]
+
+def pairVector240E (s : Fin 10) : ⋀[R]^2 (Fin 5 → R) :=
+  exteriorPower.ιMulti R 2 ![Pi.single (lo237 s) 1,Pi.single (hi237 s) 1]
+
+def coordinate240E (s : Fin 10) : Module.Dual R (⋀[R]^2 (Fin 5 → R)) :=
+  exteriorPower.alternatingMapToDual R (Fin 5 → R) 2
+    ![LinearMap.proj (lo237 s),LinearMap.proj (hi237 s)]
+
+theorem exterior_minor240E (A : Matrix (Fin 5) (Fin 5) R) (s t : Fin 10) :
+    coordinate240E s ((exteriorPower.map 2 A.mulVecLin) (pairVector240E t)) = compound237 A s t := by
+  simp [coordinate240E,pairVector240E,exteriorPower.map_apply_ιMulti,
+    exteriorPower.alternatingMapToDual_apply_ιMulti,Matrix.det_fin_two,compound237,
+    Matrix.mulVec_single]
+  ring
+
+end CompoundFeasibility.M240ELiteral
+namespace CompoundFeasibility.M240ELiteral
+open Exterior52_237 Exterior52_238
+variable {R : Type*} [CommRing R]
+
+theorem coordinate_pair240E (s t : Fin 10) :
+    coordinate240E (R := R) s (pairVector240E t) = if s = t then 1 else 0 := by
+  have hm : (1 : Matrix (Fin 5) (Fin 5) R).mulVecLin = LinearMap.id := by
+    ext x i
+    simp
+  have h := exterior_minor240E (1 : Matrix (Fin 5) (Fin 5) R) s t
+  simpa only [hm,exteriorPower.map_id,LinearMap.id_apply,compound_one237,Matrix.one_apply] using h
+
+def coordinates240E : (⋀[R]^2 (Fin 5 → R)) →ₗ[R] (Fin 10 → R) :=
+  LinearMap.pi coordinate240E
+
+def fromCoordinates240E : (Fin 10 → R) →ₗ[R] (⋀[R]^2 (Fin 5 → R)) :=
+  (Pi.basisFun R (Fin 10)).constr R pairVector240E
+
+theorem coordinates_from240E (x : Fin 10 → R) :
+    coordinates240E (fromCoordinates240E x) = x := by
+  ext s
+  simp [coordinates240E,fromCoordinates240E,Basis.constr_apply,coordinate_pair240E]
+
+end CompoundFeasibility.M240ELiteral
+#check CompoundFeasibility.M240ELiteral.pairVector240E
+#print axioms CompoundFeasibility.M240ELiteral.pairVector240E
+#check CompoundFeasibility.M240ELiteral.coordinate240E
+#print axioms CompoundFeasibility.M240ELiteral.coordinate240E
+#check CompoundFeasibility.M240ELiteral.exterior_minor240E
+#print axioms CompoundFeasibility.M240ELiteral.exterior_minor240E
+#check CompoundFeasibility.M240ELiteral.coordinate_pair240E
+#print axioms CompoundFeasibility.M240ELiteral.coordinate_pair240E
+#check CompoundFeasibility.M240ELiteral.coordinates240E
+#print axioms CompoundFeasibility.M240ELiteral.coordinates240E
+#check CompoundFeasibility.M240ELiteral.fromCoordinates240E
+#print axioms CompoundFeasibility.M240ELiteral.fromCoordinates240E
+#check CompoundFeasibility.M240ELiteral.coordinates_from240E
+#print axioms CompoundFeasibility.M240ELiteral.coordinates_from240E

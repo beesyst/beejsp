@@ -1,0 +1,177 @@
+import SubspaceBridge.AllPointSourceExtraction4
+import SubspaceBridge.AllPointForms4
+import SubspaceBridge.AllPointPrimitive4
+import SubspaceBridge.AllPointProduct4
+import SubspaceBridge.AllPointActualValues4
+import SubspaceBridge.AllPointFixedWeights4
+import SubspaceBridge.AllPointWeights4
+import SubspaceBridge.AllPointFiniteGeometry4
+import SubspaceBridge.AllPointGeneralPosition4
+#check JSP000334.allpoint_rank_scalar4
+#print JSP000334.allpoint_rank_scalar4
+#print axioms JSP000334.allpoint_rank_scalar4
+#check JSP000334.allpoint_rational_flag4
+#print JSP000334.allpoint_rational_flag4
+#print axioms JSP000334.allpoint_rational_flag4
+#check JSP000334.allpoint_source_short_rational4
+#print JSP000334.allpoint_source_short_rational4
+#print axioms JSP000334.allpoint_source_short_rational4
+#check JSP000334.allpoint_fixed_source_family4
+#print JSP000334.allpoint_fixed_source_family4
+#print axioms JSP000334.allpoint_fixed_source_family4
+#check JSP000334.retainedIntegerMatrix4
+#print JSP000334.retainedIntegerMatrix4
+#print axioms JSP000334.retainedIntegerMatrix4
+#check JSP000334.retained_integer_matrix_det4
+#print JSP000334.retained_integer_matrix_det4
+#print axioms JSP000334.retained_integer_matrix_det4
+#check JSP000334.retained_integer_matrix_apply4
+#print JSP000334.retained_integer_matrix_apply4
+#print axioms JSP000334.retained_integer_matrix_apply4
+#check JSP000334.PrimitiveFour
+#print JSP000334.PrimitiveFour
+#print axioms JSP000334.PrimitiveFour
+#check JSP000334.primitive_four_integer_reduction
+#print JSP000334.primitive_four_integer_reduction
+#print axioms JSP000334.primitive_four_integer_reduction
+#check JSP000334.positive_smooth23_sunit4
+#print JSP000334.positive_smooth23_sunit4
+#print axioms JSP000334.positive_smooth23_sunit4
+#check JSP000334.exists_primitive_sunit_four
+#print JSP000334.exists_primitive_sunit_four
+#print axioms JSP000334.exists_primitive_sunit_four
+#check JSP000334.exists_primitive_five_term_relation
+#print JSP000334.exists_primitive_five_term_relation
+#print axioms JSP000334.exists_primitive_five_term_relation
+#check JSP000334.fourRetainedForm
+#print JSP000334.fourRetainedForm
+#print axioms JSP000334.fourRetainedForm
+#check JSP000334.localFourHeight
+#print JSP000334.localFourHeight
+#print axioms JSP000334.localFourHeight
+#check JSP000334.fourHeight
+#print JSP000334.fourHeight
+#print axioms JSP000334.fourHeight
+#check JSP000334.archFourHeight
+#print JSP000334.archFourHeight
+#print axioms JSP000334.archFourHeight
+#check JSP000334.fourRetainedProduct
+#print JSP000334.fourRetainedProduct
+#print axioms JSP000334.fourRetainedProduct
+#check JSP000334.four_local_coordinate_le
+#print JSP000334.four_local_coordinate_le
+#print axioms JSP000334.four_local_coordinate_le
+#check JSP000334.primitive_four_local_height
+#print JSP000334.primitive_four_local_height
+#print axioms JSP000334.primitive_four_local_height
+#check JSP000334.primitive_four_height
+#print JSP000334.primitive_four_height
+#print axioms JSP000334.primitive_four_height
+#check JSP000334.exists_four_maximal_coordinate
+#print JSP000334.exists_four_maximal_coordinate
+#print axioms JSP000334.exists_four_maximal_coordinate
+#check JSP000334.four_retained_product_height
+#print JSP000334.four_retained_product_height
+#print axioms JSP000334.four_retained_product_height
+#check JSP000334.retained_integer_cast4
+#print JSP000334.retained_integer_cast4
+#print axioms JSP000334.retained_integer_cast4
+#check JSP000334.five_term_integer_product4
+#print JSP000334.five_term_integer_product4
+#print axioms JSP000334.five_term_integer_product4
+#check JSP000334.allpoint_primitive_product4
+#print JSP000334.allpoint_primitive_product4
+#print axioms JSP000334.allpoint_primitive_product4
+#check JSP000334.allpoint_form_product4
+#print JSP000334.allpoint_form_product4
+#print axioms JSP000334.allpoint_form_product4
+#check JSP000334.allpoint_form_arch_bound4
+#print JSP000334.allpoint_form_arch_bound4
+#print axioms JSP000334.allpoint_form_arch_bound4
+#check JSP000334.sourceWeightConditions4
+#print JSP000334.sourceWeightConditions4
+#print axioms JSP000334.sourceWeightConditions4
+#check JSP000334.finiteWeightIndex4
+#print JSP000334.finiteWeightIndex4
+#print axioms JSP000334.finiteWeightIndex4
+#check JSP000334.finiteWeightRaw4
+#print JSP000334.finiteWeightRaw4
+#print axioms JSP000334.finiteWeightRaw4
+#check JSP000334.finiteWeightCandidate4
+#print JSP000334.finiteWeightCandidate4
+#print axioms JSP000334.finiteWeightCandidate4
+#check JSP000334.finiteWeightApprox4
+#print JSP000334.finiteWeightApprox4
+#print axioms JSP000334.finiteWeightApprox4
+#check JSP000334.finiteWeight_floor_bounds4
+#print JSP000334.finiteWeight_floor_bounds4
+#print axioms JSP000334.finiteWeight_floor_bounds4
+#check JSP000334.finiteWeight_ceil_bounds4
+#print JSP000334.finiteWeight_ceil_bounds4
+#print axioms JSP000334.finiteWeight_ceil_bounds4
+#check JSP000334.finiteWeightCandidate4_balance
+#print JSP000334.finiteWeightCandidate4_balance
+#print axioms JSP000334.finiteWeightCandidate4_balance
+#check JSP000334.finiteWeight_raw_errors4
+#print JSP000334.finiteWeight_raw_errors4
+#print axioms JSP000334.finiteWeight_raw_errors4
+#check JSP000334.finiteWeight_raw_sum4
+#print JSP000334.finiteWeight_raw_sum4
+#print axioms JSP000334.finiteWeight_raw_sum4
+#check JSP000334.finiteWeightApprox4_bounds
+#print JSP000334.finiteWeightApprox4_bounds
+#print axioms JSP000334.finiteWeightApprox4_bounds
+#check JSP000334.finiteWeightCandidates4
+#print JSP000334.finiteWeightCandidates4
+#print axioms JSP000334.finiteWeightCandidates4
+#check JSP000334.finiteWeightCandidates4_finite
+#print JSP000334.finiteWeightCandidates4_finite
+#print axioms JSP000334.finiteWeightCandidates4_finite
+#check JSP000334.finiteWeightIndex4_bounded
+#print JSP000334.finiteWeightIndex4_bounded
+#print axioms JSP000334.finiteWeightIndex4_bounded
+#check JSP000334.finiteWeightApprox4_mem
+#print JSP000334.finiteWeightApprox4_mem
+#print axioms JSP000334.finiteWeightApprox4_mem
+#check JSP000334.sourceLogWeights4
+#print JSP000334.sourceLogWeights4
+#print axioms JSP000334.sourceLogWeights4
+#check JSP000334.sourceLogWeights4_rpow
+#print JSP000334.sourceLogWeights4_rpow
+#print axioms JSP000334.sourceLogWeights4_rpow
+#check JSP000334.sourceLogWeights4_conditions
+#print JSP000334.sourceLogWeights4_conditions
+#print axioms JSP000334.sourceLogWeights4_conditions
+#check JSP000334.allpoint_balanced_values4
+#print JSP000334.allpoint_balanced_values4
+#print axioms JSP000334.allpoint_balanced_values4
+#check JSP000334.allpoint_balanced_weights4
+#print JSP000334.allpoint_balanced_weights4
+#print axioms JSP000334.allpoint_balanced_weights4
+#check JSP000334.allpoint_triple_proper4
+#print JSP000334.allpoint_triple_proper4
+#print axioms JSP000334.allpoint_triple_proper4
+#check JSP000334.allpoint_bounded_height_finite4
+#print JSP000334.allpoint_bounded_height_finite4
+#print axioms JSP000334.allpoint_bounded_height_finite4
+#check JSP000334.allpoint_no_finite_cover4
+#print JSP000334.allpoint_no_finite_cover4
+#print axioms JSP000334.allpoint_no_finite_cover4
+#check JSP000334.allpoint_avoid_finite4
+#print JSP000334.allpoint_avoid_finite4
+#print axioms JSP000334.allpoint_avoid_finite4
+#check JSP000334.allpoint_general_position_step4
+#print JSP000334.allpoint_general_position_step4
+#print axioms JSP000334.allpoint_general_position_step4
+#check JSP000334.allpoint_general_position_sequence4
+#print JSP000334.allpoint_general_position_sequence4
+#print axioms JSP000334.allpoint_general_position_sequence4
+#check JSP000334.allpoint_general_position_intersection4
+#print JSP000334.allpoint_general_position_intersection4
+#print axioms JSP000334.allpoint_general_position_intersection4
+#check CompoundFeasibility.OriginalAttainmentFlag4.source_selected_gap_attaining_flag4
+#print axioms CompoundFeasibility.OriginalAttainmentFlag4.source_selected_gap_attaining_flag4
+#check CompoundFeasibility.NonrothAttainmentFlag4.source_nonroth_attaining_fixed_flag4
+#print axioms CompoundFeasibility.NonrothAttainmentFlag4.source_nonroth_attaining_fixed_flag4
+#check CompoundFeasibility.NonrothAttainmentFlag4.source_original_restricted_prefix_eq4
+#print axioms CompoundFeasibility.NonrothAttainmentFlag4.source_original_restricted_prefix_eq4

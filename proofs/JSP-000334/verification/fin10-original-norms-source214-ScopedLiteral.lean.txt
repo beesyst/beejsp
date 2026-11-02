@@ -1,0 +1,273 @@
+import SubspaceBridge.SourceDualRows10
+import SubspaceBridge.SchlickeweiEquation4116
+import SubspaceBridge.SourceOriginalRationalDual10
+import SubspaceBridge.SourceOriginalNormalization213
+open CompoundFeasibility.SourceOriginalSatz212
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M214LiteralNorms
+open OriginalDual10 SourceOriginalDual10
+
+theorem signed_integer_norm214 (K : Type*) [NormedField K] (d : ℤ) :
+    ‖(d : K)‖ = ‖(d.natAbs : K)‖ :=
+  (SchlickeweiEquation4116.norm_natAbs_cast6 d).symm
+
+theorem cofactor_signed_linear214 {n : ℕ} (K : Type*) [NormedField K] [CharZero K]
+    (u : Fin (n+1) → Fin (n+1) → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ)))
+    (F : (Fin (n+1) → K) →ₗ[K] K) :
+    F (fun k => (integerLastDual10 u k : K)) =
+      ((Matrix.det u : ℤ) : K)*F (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : K)) := by
+  have hv : (fun k => (integerLastDual10 u k : K)) =
+      ((Matrix.det u : ℤ) : K) • (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : K)) :=
+    funext (cofactor_dual_cast10 u hu)
+  rw [hv,map_smul,smul_eq_mul]
+
+theorem cofactor_signed_matrix214 {n : ℕ} (K : Type*) [NormedField K] [CharZero K]
+    (B : Matrix (Fin (n+1)) (Fin (n+1)) K)
+    (u : Fin (n+1) → Fin (n+1) → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ))) (i : Fin (n+1)) :
+    (B⁻¹.transpose *ᵥ (fun k => (integerLastDual10 u k : K))) i =
+      ((Matrix.det u : ℤ) : K)*
+        (B⁻¹.transpose *ᵥ (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : K))) i := by
+  exact cofactor_signed_linear214 K u hu (rowLinear K _ (fun k => B⁻¹ k i))
+
+theorem cofactor_norm_linear214 {n : ℕ} (K : Type*) [NormedField K] [CharZero K]
+    (u : Fin (n+1) → Fin (n+1) → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ)))
+    (N : ℕ) (hN : N = (Matrix.det u).natAbs) (F : (Fin (n+1) → K) →ₗ[K] K) :
+    ‖F (fun k => (integerLastDual10 u k : K))‖ =
+      ‖F (fun k => (N : K)*(lastDual10 (fun j i => (u j i : ℚ)) hu k : K))‖ := by
+  have hs : F (fun k => (N : K)*(lastDual10 (fun j i => (u j i : ℚ)) hu k : K)) =
+      (N : K)*F (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : K)) := by
+    change F ((N : K) • (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : K))) = _
+    rw [map_smul,smul_eq_mul]
+  rw [cofactor_signed_linear214 K u hu F,hs,norm_mul,norm_mul,hN,
+    ← signed_integer_norm214 K (Matrix.det u)]
+
+theorem cofactor_norm_matrix214 {n : ℕ} (K : Type*) [NormedField K] [CharZero K]
+    (B : Matrix (Fin (n+1)) (Fin (n+1)) K)
+    (u : Fin (n+1) → Fin (n+1) → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ)))
+    (N : ℕ) (hN : N = (Matrix.det u).natAbs) (i : Fin (n+1)) :
+    ‖(B⁻¹.transpose *ᵥ (fun k => (integerLastDual10 u k : K))) i‖ =
+      ‖(B⁻¹.transpose *ᵥ
+        (fun k => (N : K)*(lastDual10 (fun j i => (u j i : ℚ)) hu k : K))) i‖ := by
+  exact cofactor_norm_linear214 K u hu N hN (rowLinear K _ (fun k => B⁻¹ k i))
+
+end CompoundFeasibility.M214LiteralNorms
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M214LiteralNorms
+open OriginalDual10 SourceOriginalDual10 SourceOriginalSatz212 SourceOriginalVariable10
+
+theorem real_row_norm214 (r : Fin 10 → ℝ) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ)))
+    (N : ℕ) (hN : N = (Matrix.of u : Matrix (Fin 10) (Fin 10) ℤ).det.natAbs) :
+    ‖rowLinear ℝ (Fin 10) r (fun k => (integerLastDual10 u k : ℝ))‖ =
+      ‖rowLinear ℝ (Fin 10) r
+        (fun k => (N : ℝ)*(lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ))‖ := by
+  have h := cofactor_signed_linear214 (n := 9) ℝ u hu (rowLinear ℝ (Fin 10) r)
+  have hs : rowLinear ℝ (Fin 10) r
+      (fun k => (N : ℝ)*(lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ)) =
+      (N : ℝ)*rowLinear ℝ (Fin 10) r
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℝ)) := by
+    change (rowLinear ℝ (Fin 10) r) ((N : ℝ) • _) = _
+    rw [map_smul,smul_eq_mul]
+  have hn : ‖((Matrix.det u : ℤ) : ℝ)‖ = ‖(N : ℝ)‖ := by
+    have hm : (Matrix.of u : Matrix (Fin 10) (Fin 10) ℤ) = u := by
+      ext i j
+      rfl
+    rw [hN,hm]
+    exact signed_integer_norm214 ℝ (Matrix.det u)
+  rw [h,hs,norm_mul,norm_mul,hn]
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+
+theorem original_real_integer_norm214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ =
+      ‖(L⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℝ)*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℝ))) i‖ := by
+  exact real_row_norm214 (fun k => L⁻¹ k i) D.u
+    (integer_frame_rational_independent10 D.u D.independent)
+    (originalIndex212 D * (originalLattice212 D).index) (original_index_det212 D)
+
+theorem original_real_norm214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ =
+      ‖(L⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D : ℝ)*originalCovolume212 D)*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℝ))) i‖ := by
+  have h := original_real_integer_norm214 D i
+  rw [original_integer_scale212 D] at h
+  exact h
+
+theorem original_real_sum_norm214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ =
+      ‖∑ k, (((originalIndex212 D : ℝ)*originalCovolume212 D)*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℝ))*L⁻¹.transpose i k‖ := by
+  rw [original_real_norm214 D i]
+  congr 1
+  simp only [Matrix.mulVec,dotProduct]
+  apply Finset.sum_congr rfl
+  intro k _
+  exact mul_comm _ _
+
+end CompoundFeasibility.M214LiteralNorms
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M214LiteralNorms
+open OriginalDual10 SourceOriginalDual10 SourceOriginalSatz212 SourceOriginalVariable10
+
+theorem p2_row_norm214 (r : Fin 10 → ℚ_[2]) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ)))
+    (N : ℕ) (hN : N = (Matrix.of u : Matrix (Fin 10) (Fin 10) ℤ).det.natAbs) :
+    ‖rowLinear ℚ_[2] (Fin 10) r (fun k => (integerLastDual10 u k : ℚ_[2]))‖ =
+      ‖rowLinear ℚ_[2] (Fin 10) r
+        (fun k => (N : ℚ_[2])*(lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2]))‖ := by
+  have h := cofactor_signed_linear214 (n := 9) ℚ_[2] u hu (rowLinear ℚ_[2] (Fin 10) r)
+  have hs : rowLinear ℚ_[2] (Fin 10) r
+      (fun k => (N : ℚ_[2])*(lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2])) =
+      (N : ℚ_[2])*rowLinear ℚ_[2] (Fin 10) r
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[2])) := by
+    change (rowLinear ℚ_[2] (Fin 10) r) ((N : ℚ_[2]) • _) = _
+    rw [map_smul,smul_eq_mul]
+  have hn : ‖((Matrix.det u : ℤ) : ℚ_[2])‖ = ‖(N : ℚ_[2])‖ := by
+    have hm : (Matrix.of u : Matrix (Fin 10) (Fin 10) ℤ) = u := by
+      ext i j
+      rfl
+    rw [hN,hm]
+    exact signed_integer_norm214 ℚ_[2] (Matrix.det u)
+  rw [h,hs,norm_mul,norm_mul,hn]
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+
+theorem original_p2_norm214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℚ_[2]))) i‖ =
+      ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))) i‖ := by
+  exact p2_row_norm214 (fun k => (A2.map (algebraMap ℚ ℚ_[2]))⁻¹ k i) D.u
+    (integer_frame_rational_independent10 D.u D.independent)
+    (originalIndex212 D * (originalLattice212 D).index) (original_index_det212 D)
+
+end CompoundFeasibility.M214LiteralNorms
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M214LiteralNorms
+open OriginalDual10 SourceOriginalDual10 SourceOriginalSatz212 SourceOriginalVariable10
+
+theorem p3_row_norm214 (r : Fin 10 → ℚ_[3]) (u : Fin 10 → Fin 10 → ℤ)
+    (hu : LinearIndependent ℚ (fun j i => (u j i : ℚ)))
+    (N : ℕ) (hN : N = (Matrix.of u : Matrix (Fin 10) (Fin 10) ℤ).det.natAbs) :
+    ‖rowLinear ℚ_[3] (Fin 10) r (fun k => (integerLastDual10 u k : ℚ_[3]))‖ =
+      ‖rowLinear ℚ_[3] (Fin 10) r
+        (fun k => (N : ℚ_[3])*(lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3]))‖ := by
+  have h := cofactor_signed_linear214 (n := 9) ℚ_[3] u hu (rowLinear ℚ_[3] (Fin 10) r)
+  have hs : rowLinear ℚ_[3] (Fin 10) r
+      (fun k => (N : ℚ_[3])*(lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3])) =
+      (N : ℚ_[3])*rowLinear ℚ_[3] (Fin 10) r
+        (fun k => (lastDual10 (fun j i => (u j i : ℚ)) hu k : ℚ_[3])) := by
+    change (rowLinear ℚ_[3] (Fin 10) r) ((N : ℚ_[3]) • _) = _
+    rw [map_smul,smul_eq_mul]
+  have hn : ‖((Matrix.det u : ℤ) : ℚ_[3])‖ = ‖(N : ℚ_[3])‖ := by
+    have hm : (Matrix.of u : Matrix (Fin 10) (Fin 10) ℤ) = u := by
+      ext i j
+      rfl
+    rw [hN,hm]
+    exact signed_integer_norm214 ℚ_[3] (Matrix.det u)
+  rw [h,hs,norm_mul,norm_mul,hn]
+
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+
+theorem original_p3_norm214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) (i : Fin 10) :
+    ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℚ_[3]))) i‖ =
+      ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))) i‖ := by
+  exact p3_row_norm214 (fun k => (A3.map (algebraMap ℚ ℚ_[3]))⁻¹ k i) D.u
+    (integer_frame_rational_independent10 D.u D.independent)
+    (originalIndex212 D * (originalLattice212 D).index) (original_index_det212 D)
+
+end CompoundFeasibility.M214LiteralNorms
+
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M214LiteralNorms
+open OriginalDual10 SourceOriginalDual10 SourceOriginalSatz212 SourceOriginalVariable10
+variable {A2 A3 : Matrix (Fin 10) (Fin 10) ℚ} {L : Matrix (Fin 10) (Fin 10) ℝ}
+  {hL : IsUnit L} {Q : ℝ} {hQ : 1 < Q} {delta : ℝ} {S0 : Finset SourceSelectedSet10.MixedIndex10}
+
+theorem original_norm_transport214 (D : OriginalData10 A2 A3 L hL Q hQ delta S0) :
+    0 < originalIndex212 D ∧ 0 < originalCovolume212 D ∧
+      originalIndex212 D * (originalLattice212 D).index = ((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det).natAbs ∧
+      |((Matrix.of D.u : Matrix (Fin 10) (Fin 10) ℤ).det : ℝ)| = (originalIndex212 D : ℝ)*originalCovolume212 D ∧
+      originalCovolume212 D = ((originalLattice212 D).index : ℝ) ∧
+      ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℝ) =
+        (originalIndex212 D : ℝ)*originalCovolume212 D ∧
+      ∀ i : Fin 10,
+      ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ =
+      ‖(L⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D : ℝ)*originalCovolume212 D)*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℝ))) i‖ ∧
+      ‖(L⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℝ))) i‖ =
+      ‖∑ k, (((originalIndex212 D : ℝ)*originalCovolume212 D)*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℝ))*L⁻¹.transpose i k‖ ∧
+      ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℚ_[2]))) i‖ =
+      ‖((A2.map (algebraMap ℚ ℚ_[2]))⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[2])*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[2]))) i‖ ∧
+      ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k => (integerLastDual10 D.u k : ℚ_[3]))) i‖ =
+      ‖((A3.map (algebraMap ℚ ℚ_[3]))⁻¹.transpose *ᵥ (fun k =>
+        ((originalIndex212 D * (originalLattice212 D).index : ℕ) : ℚ_[3])*
+          (lastDual10 (fun j i => (D.u j i : ℚ))
+            (integer_frame_rational_independent10 D.u D.independent) k : ℚ_[3]))) i‖ := by
+  obtain ⟨hJ,hd,hN,hdet,hidx,hscale⟩ := original_index_normalization212 D
+  refine ⟨hJ,hd,hN,hdet,hidx,hscale,?_⟩
+  intro i
+  exact ⟨original_real_norm214 D i,original_real_sum_norm214 D i,
+    original_p2_norm214 D i,original_p3_norm214 D i⟩
+
+end CompoundFeasibility.M214LiteralNorms
+
+#print axioms CompoundFeasibility.M214LiteralNorms.signed_integer_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.cofactor_signed_linear214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.cofactor_signed_matrix214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.cofactor_norm_linear214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.cofactor_norm_matrix214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.real_row_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.original_real_integer_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.original_real_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.original_real_sum_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.p2_row_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.original_p2_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.p3_row_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.original_p3_norm214
+
+#print axioms CompoundFeasibility.M214LiteralNorms.original_norm_transport214

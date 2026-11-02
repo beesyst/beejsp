@@ -1,0 +1,452 @@
+import SubspaceBridge.SourceCriterion5
+open scoped BigOperators Classical Matrix
+open MeasureTheory
+noncomputable section
+namespace SelectedSourceChallenge250
+open CompoundFeasibility
+open RestrictedSelectedIndex5
+open RestrictedWeightOrder5
+open RestrictedRows5
+open RestrictedGreedyRows5
+open SelectedRestriction5
+open RestrictedGreedyRanks5
+open RestrictedRelaxed5
+open RestrictedCovolumeOrder5
+open RestrictedRationalMembership5
+open RestrictedIntegerCoordinates5
+open RestrictedSelectedBasis5
+open RestrictedFiniteCoordinates5
+open RestrictedCoordinateCovolume5
+open SelectedBoxVolume5
+open RestrictedRealBody5
+open RestrictedFiniteBound5
+open RestrictedOpposite5
+open RestrictedSelectedTies5
+open OriginalVariableGap5
+open SourceCriterion5
+open OriginalFlagAssembly5
+open RestrictedGeometry5
+open RestrictedGrowth5 MinimaPower5
+def rawOriginalBody250 (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c₀ : Fin 5 → ℝ) : Set (Fin 5 → ℝ) :=
+  {x | ∀ s, |(L *ᵥ x) s| ≤ Q ^ c₀ s}
+
+def rawOriginalGroup250 (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) : AddSubgroup (Fin 5 → ℤ) :=
+  (⨅ i, (normBall 2 (Nat.ceil (JSP000334.qThreshold 2 Q (c₂ i)))).comap (row5 A₂ i)) ⊓
+  (⨅ i, (normBall 3 (Nat.ceil (JSP000334.qThreshold 3 Q (c₃ i)))).comap (row5 A₃ i))
+def rawExponent250 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h₂ : A₂.det = 1) (h₃ : A₃.det = 1) (hL : L.det = 1) (c₀ c₂ c₃ : Fin 5 → ℝ) : ℝ :=
+    (∑ k : Fin (Module.finrank ℚ P), c₀ (weightOrder5 c₀
+      (selectedIndex5 (realRestrictionCoordinates5 P hP L) c₀ (realRestrictionCoordinates5_span P hP L hL) k))) +
+    (∑ k : Fin (Module.finrank ℚ P), c₂ (weightOrder5 c₂
+      (selectedIndex5 (rationalRowCoordinates5 P A₂) c₂ (rationalRowCoordinates5_span P A₂ h₂) k))) +
+    (∑ k : Fin (Module.finrank ℚ P), c₃ (weightOrder5 c₃
+      (selectedIndex5 (rationalRowCoordinates5 P A₃) c₃ (rationalRowCoordinates5_span P A₃ h₃) k)))
+
+def rawBody250 {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c : Fin 5 → ℝ) (s : Fin d → Fin 5) :
+    Set (rationalRealSpan5 P) :=
+  {x | ∀ k, |(L *ᵥ (x : Fin 5 → ℝ)) (s k)| ≤ Q^(c (s k))}
+
+def rawLocal250 {d : ℕ} (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c : Fin 5 → ℝ) (s : Fin d → Fin 5) :
+    AddSubgroup (Fin 5 → ℤ) :=
+  ⨅ k, (normBall p (Nat.ceil (JSP000334.qThreshold p Q (c (s k))))).comap (row5 A (s k))
+
+def rawGroup250 {d : ℕ} (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) : AddSubgroup (Fin 5 → ℤ) :=
+  rawLocal250 2 A₂ Q c₂ s₂ ⊓ rawLocal250 3 A₃ Q c₃ s₃
+
+def rawLattice250 {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ)
+    (s₂ s₃ : Fin d → Fin 5) : Submodule ℤ (rationalRealSpan5 P) :=
+  (integerRealImage (rawGroup250 A₂ A₃ Q c₂ c₃ s₂ s₃)).comap
+    ((rationalRealSpan5 P).subtype.restrictScalars ℤ)
+
+def rawRestrictedBody250 (P : Submodule ℚ (Fin 5 → ℚ))
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (Q : ℝ) (c₀ : Fin 5 → ℝ) :
+    Set (rationalRealSpan5 P) :=
+  (fun x : rationalRealSpan5 P => (x : Fin 5 → ℝ)) ⁻¹' rawOriginalBody250 L Q c₀
+
+def rawRestrictedLattice250 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) :
+    Submodule ℤ (rationalRealSpan5 P) :=
+  (integerRealImage (rawOriginalGroup250 A₂ A₃ Q c₂ c₃)).comap
+    ((rationalRealSpan5 P).subtype.restrictScalars ℤ)
+
+def rawSolution250 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ)
+    (Q delta : ℝ) (x : Fin 5 → ℤ) : Prop :=
+  x ≠ 0 ∧ 1 < Q ∧ 0 < delta ∧
+    (∀ i, |(L *ᵥ integerReal x) i| ≤ Q^(c0 i-delta)) ∧
+    (∀ i, (padicNorm 2 ((A2 *ᵥ (fun j => (x j : ℚ))) i) : ℝ) ≤ Q^(c2 i)) ∧
+    (∀ i, (padicNorm 3 ((A3 *ᵥ (fun j => (x j : ℚ))) i) : ℝ) ≤ Q^(c3 i))
+
+def rawRoth250 (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (c0 c2 c3 : Fin 5 → ℝ) : Prop :=
+  ∀ delta : ℝ, 0 < delta → ∃ B : ℝ, ∀ Q : ℝ, B < Q →
+    ¬ ∃ x : Fin 5 → ℤ, rawSolution250 A2 A3 L c0 c2 c3 Q delta x
+
+def rawMinima250 (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c₀ c₂ c₃ : Fin 5 → ℝ) (j : Fin 5) : ℝ :=
+  sInf {r : ℝ | ∃ u : Fin (j.val+1) → (Fin 5 → ℝ), LinearIndependent ℝ u ∧
+    (∀ i, u i ∈ integerRealImage (rawOriginalGroup250 A₂ A₃ Q c₂ c₃)) ∧
+    ∀ i, coordinateGauge5 (originalCoordinates5 L hL Q hQ c₀) (u i) ≤ r}
+
+def rawQuantPoint250 (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (j : Fin 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : IsUnit L)
+    (Q : ℝ) (hQ : 1 < Q) (c₀ c₂ c₃ : Fin 5 → ℝ) (delta C5 : ℝ) : Prop :=
+    (∀ i : Fin 5, i.val < j.val+1 →
+      rawMinima250 A₂ A₃ L hL Q hQ c₀ c₂ c₃ i <
+        (tailProduct5 j (rawMinima250 A₂ A₃ L hL Q hQ c₀ c₂ c₃))^
+          (1/(5-((j.val+1 : ℕ) : ℝ))) * Q^(-delta)) ∧
+    prefixProduct5 j (rawMinima250 A₂ A₃ L hL Q hQ c₀ c₂ c₃) ≤
+      C5^(((j.val+1 : ℕ) : ℝ)/5) * Q^(-decayExponent5 j delta) ∧
+    (∏ i, restrictedMinima5 P A₂ A₃ L hL Q hQ c₀ c₂ c₃ i) =
+      prefixProduct5 j (rawMinima250 A₂ A₃ L hL Q hQ c₀ c₂ c₃) ∧
+    (∏ i, restrictedMinima5 P A₂ A₃ L hL Q hQ c₀ c₂ c₃ i) ≤
+      C5^(((j.val+1 : ℕ) : ℝ)/5) * Q^(-decayExponent5 j delta) ∧
+    Module.finrank ℝ (rationalRealSpan5 P) = j.val+1 ∧
+    Module.finrank ℤ (rawRestrictedLattice250 P A₂ A₃ Q c₂ c₃) = j.val+1 ∧
+    0 < (restrictedMeasure5 P).real (rawRestrictedBody250 P L Q c₀) ∧
+    (restrictedMeasure5 P) (rawRestrictedBody250 P L Q c₀) < ⊤ ∧
+    0 < ZLattice.covolume (rawRestrictedLattice250 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ∧
+    (2 : ℝ)^(j.val+1) / (Nat.factorial (j.val+1) : ℝ) ≤
+      (∏ i, restrictedMinima5 P A₂ A₃ L hL Q hQ c₀ c₂ c₃ i) *
+        (restrictedMeasure5 P).real (rawRestrictedBody250 P L Q c₀) /
+          ZLattice.covolume (rawRestrictedLattice250 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ∧
+    growthConstant5 j C5 * Q^(decayExponent5 j delta) ≤
+      (restrictedMeasure5 P).real (rawRestrictedBody250 P L Q c₀) /
+        ZLattice.covolume (rawRestrictedLattice250 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P)
+
+def rawOppositePoint250 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h₂ : A₂.det = 1) (h₃ : A₃.det = 1) (hL : L.det = 1)
+    (c₀ c₂ c₃ : Fin 5 → ℝ) (Q K : ℝ) : Prop :=
+  let s₀ := realSelection5 P hP L hL c₀
+  let s₂ := finiteSelection5 P A₂ h₂ c₂
+  let s₃ := finiteSelection5 P A₃ h₃ c₃
+  let G := rawLattice250 P A₂ A₃ Q c₂ c₃ s₂ s₃
+  let C := rawBody250 P L Q c₀ s₀
+  rawRestrictedBody250 P L Q c₀ ⊆ C ∧
+  rawRestrictedLattice250 P A₂ A₃ Q c₂ c₃ ≤ G ∧
+  IsCompact C ∧ Convex ℝ C ∧ (0 : rationalRealSpan5 P) ∈ interior C ∧
+  0 < (restrictedMeasure5 P).real C ∧ (restrictedMeasure5 P) C < ⊤ ∧
+  Module.finrank ℤ G = Module.finrank ℚ P ∧
+  0 < ZLattice.covolume G (restrictedMeasure5 P) ∧
+  ZLattice.covolume G (restrictedMeasure5 P) ≤
+    ZLattice.covolume (rawRestrictedLattice250 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ∧
+  (∀ z : Fin 5 → ℤ, z ∈ rawGroup250 A₂ A₃ Q c₂ c₃ s₂ s₃ ↔
+    (∀ k, (padicNorm 2 ((A₂ *ᵥ (fun i => (z i : ℚ))) (s₂ k)) : ℝ) ≤ Q^(c₂ (s₂ k))) ∧
+    (∀ k, (padicNorm 3 ((A₃ *ᵥ (fun i => (z i : ℚ))) (s₃ k)) : ℝ) ≤ Q^(c₃ (s₃ k)))) ∧
+  (restrictedMeasure5 P).real (rawRestrictedBody250 P L Q c₀) /
+    ZLattice.covolume (rawRestrictedLattice250 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ≤
+      (restrictedMeasure5 P).real C / ZLattice.covolume G (restrictedMeasure5 P) ∧
+  (restrictedMeasure5 P).real C / ZLattice.covolume G (restrictedMeasure5 P) ≤
+    K * Q^(rawExponent250 P hP A₂ A₃ L h₂ h₃ hL c₀ c₂ c₃) ∧
+  (restrictedMeasure5 P).real (rawRestrictedBody250 P L Q c₀) /
+    ZLattice.covolume (rawRestrictedLattice250 P A₂ A₃ Q c₂ c₃) (restrictedMeasure5 P) ≤
+      K * Q^(rawExponent250 P hP A₂ A₃ L h₂ h₃ hL c₀ c₂ c₃)
+
+def rawCriterion250
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1) (c0 c2 c3 : Fin 5 → ℝ) : Prop :=
+  ∀ P : Submodule ℚ (Fin 5 → ℚ), 1 ≤ Module.finrank ℚ P → ∀ hP : Module.finrank ℚ P ≤ 4,
+    rawExponent250 P hP A2 A3 L h2d h3d hLd c0 c2 c3 ≤ 0
+
+theorem raw_selectedLocalGroup5_rpow_spec {d : ℕ} (p : ℕ) [Fact p.Prime]
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (Q : ℝ) (hQ : 1 < Q) (c : Fin 5 → ℝ)
+    (hc : ∀ i, c i ≤ 0) (s : Fin d → Fin 5) (z : Fin 5 → ℤ) :
+    z ∈ selectedLocalGroup5 p A Q c s ↔
+      ∀ k, (padicNorm p ((A *ᵥ (fun i => (z i : ℚ))) (s k)) : ℝ) ≤ Q^(c (s k)) := by
+  exact @RestrictedOpposite5.selectedLocalGroup5_rpow_spec d p _ A Q hQ c hc s z
+
+theorem raw_finiteSelectedMatrix5_det_ne_zero (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (hA : A.det = 1) (c : Fin 5 → ℝ) :
+    (finiteSelectedMatrix5 P hP A hA c).det ≠ 0 := by
+  exact @RestrictedSelectedBasis5.finiteSelectedMatrix5_det_ne_zero P hP A hA c
+
+theorem raw_realSelectedMatrix5_det_ne_zero (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) :
+    (realSelectedMatrix5 P hP L hL c).det ≠ 0 := by
+  exact @RestrictedRealBody5.realSelectedMatrix5_det_ne_zero P hP L hL c
+
+theorem raw_relaxedLattice5_covolume_index {d : ℕ} (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (Q : ℝ) (c₂ c₃ : Fin 5 → ℝ) (s₂ s₃ : Fin d → Fin 5) :
+    ZLattice.covolume (rawLattice250 P A₂ A₃ Q c₂ c₃ s₂ s₃) (restrictedMeasure5 P) =
+      ((relaxedIntegerGroup5 P hP A₂ A₃ Q c₂ c₃ s₂ s₃).index : ℝ) *
+        ZLattice.covolume (baseLattice5 P) (restrictedMeasure5 P) := by
+  exact @RestrictedCoordinateCovolume5.relaxedLattice5_covolume_index d P hP A₂ A₃ Q c₂ c₃ s₂ s₃
+
+theorem raw_source_uniform_real_volume5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) :
+    ∃ K : ℝ, 0 < K ∧ ∀ (Q : ℝ), 1 < Q →
+      (restrictedMeasure5 P).real (rawBody250 P L Q c (realSelection5 P hP L hL c)) =
+      K * Q^(∑ k, c (realSelection5 P hP L hL c k)) := by
+  exact @RestrictedRealBody5.source_uniform_real_volume5 P hP L hL c
+
+theorem raw_source_finite_inverse_covolume5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (h₂ : A₂.det = 1) (h₃ : A₃.det = 1) (c₂ c₃ : Fin 5 → ℝ) :
+    ∃ K : ℝ, 0 < K ∧ ∀ (Q : ℝ), 1 < Q →
+      1 / ZLattice.covolume
+        (rawLattice250 P A₂ A₃ Q c₂ c₃ (finiteSelection5 P A₂ h₂ c₂) (finiteSelection5 P A₃ h₃ c₃))
+        (restrictedMeasure5 P) ≤
+      K * Q^((∑ k, c₂ (finiteSelection5 P A₂ h₂ c₂ k)) + (∑ k, c₃ (finiteSelection5 P A₃ h₃ c₃ k))) := by
+  exact @RestrictedFiniteBound5.source_finite_inverse_covolume5 P hP A₂ A₃ h₂ h₃ c₂ c₃
+
+theorem raw_source_restricted_opposite_uniform5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (hP : Module.finrank ℚ P ≤ 4) (A₂ A₃ : Matrix (Fin 5) (Fin 5) ℚ)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (h₂ : A₂.det = 1) (h₃ : A₃.det = 1) (hL : L.det = 1)
+    (c₀ c₂ c₃ : Fin 5 → ℝ) (hc₂ : ∀ i, c₂ i ≤ 0) (hc₃ : ∀ i, c₃ i ≤ 0) :
+    ∃ K : ℝ, 0 < K ∧ ∀ (Q : ℝ), 1 < Q → rawOppositePoint250 P hP A₂ A₃ L h₂ h₃ hL c₀ c₂ c₃ Q K := by
+  exact @RestrictedOpposite5.source_restricted_opposite_uniform5 P hP A₂ A₃ L h₂ h₃ hL c₀ c₂ c₃ hc₂ hc₃
+
+theorem raw_source_finite_greedy_indices5 (P : Submodule ℚ (Fin 5 → ℚ))
+    (A : Matrix (Fin 5) (Fin 5) ℚ) (hA : A.det = 1) (c : Fin 5 → ℝ) :
+    let M := RestrictedRows5.rationalRowCoordinates5 P A
+    let hf := RestrictedRows5.rationalRowCoordinates5_span P A hA
+    let E := selectedIndex5 M c hf
+    StrictMono E ∧ ∀ k : Fin (Module.finrank ℚ P),
+      Module.finrank ℚ (Submodule.span ℚ (RestrictedGreedyRows5.rowPrefix5 (sortedRows5 M c) ((E k).val+1))) = k.val+1 ∧
+      ∀ i : Fin 5, i < E k → Module.finrank ℚ (Submodule.span ℚ
+        (RestrictedGreedyRows5.rowPrefix5 (sortedRows5 M c) (i.val+1))) ≤ k.val := by
+  exact @RestrictedOpposite5.source_finite_greedy_indices5 P A hA c
+
+theorem raw_source_real_greedy_indices5 (P : Submodule ℚ (Fin 5 → ℚ)) (hP : Module.finrank ℚ P ≤ 4)
+    (L : Matrix (Fin 5) (Fin 5) ℝ) (hL : L.det = 1) (c : Fin 5 → ℝ) :
+    let M := realRestrictionCoordinates5 P hP L
+    let hf := realRestrictionCoordinates5_span P hP L hL
+    let E := selectedIndex5 M c hf
+    StrictMono E ∧ ∀ k : Fin (Module.finrank ℚ P),
+      Module.finrank ℝ (Submodule.span ℝ (RestrictedGreedyRows5.rowPrefix5 (sortedRows5 M c) ((E k).val+1))) = k.val+1 ∧
+      ∀ i : Fin 5, i < E k → Module.finrank ℝ (Submodule.span ℝ
+        (RestrictedGreedyRows5.rowPrefix5 (sortedRows5 M c) (i.val+1))) ≤ k.val := by
+  exact @RestrictedOpposite5.source_real_greedy_indices5 P hP L hL c
+
+theorem raw_selected_weight_le_iff_rank5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) (k : Fin d) (t : ℝ) :
+    c (weightOrder5 c (selectedIndex5 M c hfull k)) ≤ t ↔
+      k.val < Module.finrank K (Submodule.span K (weightedRowSet5 M c t)) := by
+  exact @RestrictedSelectedTies5.selected_weight_le_iff_rank5 K _ d M c hfull k t
+
+theorem raw_selected_weights_permutation5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) (sigma : Equiv.Perm (Fin 5))
+    (hfull' : Submodule.span K (Set.range (fun i => M (sigma i))) = ⊤) :
+    (fun k : Fin d => c (weightOrder5 c (selectedIndex5 M c hfull k))) =
+      (fun k : Fin d => (c ∘ sigma) (weightOrder5 (c ∘ sigma)
+        (selectedIndex5 (fun i => M (sigma i)) (c ∘ sigma) hfull' k))) := by
+  exact @RestrictedSelectedTies5.selected_weights_permutation5 K _ d M c hfull sigma hfull'
+
+theorem raw_selected_weight_sum_permutation5 {K : Type*} [Field K] {d : ℕ}
+    (M : Matrix (Fin 5) (Fin d) K) (c : Fin 5 → ℝ)
+    (hfull : Submodule.span K (Set.range M.row) = ⊤) (sigma : Equiv.Perm (Fin 5))
+    (hfull' : Submodule.span K (Set.range (fun i => M (sigma i))) = ⊤) :
+    (∑ k, c (weightOrder5 c (selectedIndex5 M c hfull k))) =
+      ∑ k, (c ∘ sigma) (weightOrder5 (c ∘ sigma)
+        (selectedIndex5 (fun i => M (sigma i)) (c ∘ sigma) hfull' k)) := by
+  exact @RestrictedSelectedTies5.selected_weight_sum_permutation5 K _ d M c hfull sigma hfull'
+
+theorem raw_source_nonroth_selected_opposite_growth5
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (hn : ¬ rawRoth250 A2 A3 L c0 c2 c3) :
+    ∃ hL : IsUnit L,
+    ∃ epsilon deltaGap c5 C5 B : ℝ, ∃ U V : Set ℝ, ∃ j : Fin 4,
+      0 < epsilon ∧ deltaGap = (epsilon/2)/5 ∧ 0 < deltaGap ∧
+      0 < c5 ∧ 0 < C5 ∧ 1 < B ∧
+      U = {Q : ℝ | ∃ x : Fin 5 → ℤ,
+        rawSolution250 A2 A3 L c0 c2 c3 Q epsilon x} ∧
+      ¬ BddAbove U ∧
+      (∀ Q ∈ U, ∃ hQ : 1 < Q, ∃ x : Fin 5 → ℤ,
+        rawSolution250 A2 A3 L c0 c2 c3 Q epsilon x ∧
+        x ∈ rawOriginalGroup250 A2 A3 Q c2 c3 ∧
+        coordinateGauge5 (originalCoordinates5 L hL Q hQ c0) (integerReal x) ≤ Q^(-epsilon) ∧
+        rawMinima250 A2 A3 L hL Q hQ c0 c2 c3 0 < Q^(-(epsilon/2))) ∧
+      (∀ (Q : ℝ) (hQ : 1 < Q),
+        c5 ≤ (∏ i : Fin 5, rawMinima250 A2 A3 L hL Q hQ c0 c2 c3 i) ∧
+        (∏ i : Fin 5, rawMinima250 A2 A3 L hL Q hQ c0 c2 c3 i) ≤ C5) ∧
+      V ⊆ U ∧ ¬ BddAbove V ∧ 1 ≤ j.val+1 ∧ j.val+1 ≤ 4 ∧
+      (∀ Q ∈ V, B < Q ∧ ∃ hQ : 1 < Q,
+        rawMinima250 A2 A3 L hL Q hQ c0 c2 c3 j.castSucc <
+          rawMinima250 A2 A3 L hL Q hQ c0 c2 c3 j.succ * Q^(-deltaGap)) ∧
+      ∃ hq : ∀ Q ∈ V, 1 < Q,
+      ∃ P : Submodule ℚ (Fin 5 → ℚ), Module.finrank ℚ P = j.val+1 ∧ P ≠ ⊥ ∧ P ≠ ⊤ ∧
+      ∃ hPbounds : 1 ≤ Module.finrank ℚ P ∧ Module.finrank ℚ P ≤ 4,
+      ∃ W : Set ℝ, ∃ hWV : W ⊆ V, ¬ BddAbove W ∧ W ⊆ U ∧
+        0 < MinimaPower5.decayExponent5 j deltaGap ∧ 0 < growthConstant5 j C5 ∧
+        ∃ K2 : ℝ, 0 < K2 ∧
+        MinimaPower5.decayExponent5 j deltaGap ≤ rawExponent250 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3 ∧
+        0 < rawExponent250 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3 ∧
+        ∀ (Q : ℝ) (hQW : Q ∈ W),
+          ∃ u : Fin 5 → rawOriginalGroup250 A2 A3 Q c2 c3,
+            LinearIndependent ℝ (fun i => integerReal (u i : Fin 5 → ℤ)) ∧
+            (∀ i, coordinateGauge5 (originalCoordinates5 L hL Q (hq Q (hWV hQW)) c0)
+              (integerReal (u i : Fin 5 → ℤ)) = rawMinima250 A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 i) ∧
+            P = originalFirstFlag5 j (fun i => (u i : Fin 5 → ℤ)) ∧
+            (∀ i : Fin (Module.finrank ℚ P),
+              integerReal (u (RestrictedGeometry5.ambientPrefixIndex5 P hPbounds.2 i) : Fin 5 → ℤ) ∈
+                RestrictedGeometry5.rationalRealSpan5 P) ∧
+            (∀ k, RestrictedGeometry5.restrictedMinima5 P A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 k =
+              rawMinima250 A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 (RestrictedGeometry5.ambientPrefixIndex5 P hPbounds.2 k)) ∧
+            rawQuantPoint250 P hPbounds.2 j A2 A3 L hL Q (hq Q (hWV hQW)) c0 c2 c3 deltaGap C5 ∧
+            rawOppositePoint250 P hPbounds.2 A2 A3 L h2d h3d hLd c0 c2 c3 Q K2 := by
+  exact @OriginalFlagAssembly5.source_nonroth_selected_opposite_growth5 A2 A3 L h2d h3d hLd hAlg c0 c2 c3 hc0 hc2 hc3 hb hn
+
+theorem raw_source_nonroth_positive_exponent5
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (hn : ¬ rawRoth250 A2 A3 L c0 c2 c3) :
+    ∃ P : Submodule ℚ (Fin 5 → ℚ), ∃ hP : 1 ≤ Module.finrank ℚ P ∧ Module.finrank ℚ P ≤ 4,
+      P ≠ ⊤ ∧ 0 < rawExponent250 P hP.2 A2 A3 L h2d h3d hLd c0 c2 c3 := by
+  exact @SourceCriterion5.source_nonroth_positive_exponent5 A2 A3 L h2d h3d hLd hAlg c0 c2 c3 hc0 hc2 hc3 hb hn
+
+theorem raw_source_fin5_criterion_implies_roth5
+    (A2 A3 : Matrix (Fin 5) (Fin 5) ℚ) (L : Matrix (Fin 5) (Fin 5) ℝ)
+    (h2d : A2.det = 1) (h3d : A3.det = 1) (hLd : L.det = 1)
+    (hAlg : ∀ i j, IsAlgebraic ℚ (L i j)) (c0 c2 c3 : Fin 5 → ℝ)
+    (hc0 : ∀ i, |c0 i| ≤ 1) (hc2 : ∀ i, -1 ≤ c2 i ∧ c2 i ≤ 0)
+    (hc3 : ∀ i, -1 ≤ c3 i ∧ c3 i ≤ 0) (hb : (∑ i, (c0 i+c2 i+c3 i)) = 0)
+    (hCriterion : rawCriterion250 A2 A3 L h2d h3d hLd c0 c2 c3) :
+    rawRoth250 A2 A3 L c0 c2 c3 := by
+  exact @SourceCriterion5.source_fin5_criterion_implies_roth5 A2 A3 L h2d h3d hLd hAlg c0 c2 c3 hc0 hc2 hc3 hb hCriterion
+
+end SelectedSourceChallenge250
+open scoped BigOperators Matrix
+noncomputable section
+namespace Rank4SourceChallenge250
+open CompoundFeasibility RestrictedSelectedIndex5
+
+theorem raw_rank4_selected_index250
+    (B2 B3 : Matrix (Fin 4) (Fin 4) ℚ) (G : AddSubgroup (Fin 4 → ℤ)) (b : Basis (Fin 4) ℤ G)
+    (Q : ℝ) (hQ : 1 < Q) (c2 c3 : Fin 4 → ℝ)
+    (hc2 : ∀ i, c2 i ≤ 0) (hc3 : ∀ i, c3 i ≤ 0)
+    (h2 : ∀ (x : G) i, (padicNorm 2 ((B2 *ᵥ (fun k => ((x : Fin 4 → ℤ) k : ℚ))) i) : ℝ) ≤ Q^(c2 i))
+    (h3 : ∀ (x : G) i, (padicNorm 3 ((B3 *ᵥ (fun k => ((x : Fin 4 → ℤ) k : ℚ))) i) : ℝ) ≤ Q^(c3 i)) :
+    (padicNorm 2 B2.det : ℝ) * (padicNorm 3 B3.det : ℝ) * Q^(-((∑ i,c2 i)+(∑ i,c3 i))) ≤ (G.index : ℝ) := by
+  let e2 := fun i => Nat.ceil (JSP000334.qThreshold 2 Q (c2 i))
+  let e3 := fun i => Nat.ceil (JSP000334.qThreshold 3 Q (c3 i))
+  have hlocal2 (x : G) (i : Fin 4) : padicNorm 2 ((B2 *ᵥ (fun k => ((x : Fin 4 → ℤ) k : ℚ))) i) ≤ (2 : ℚ)^(-(e2 i : ℤ)) := by
+    simpa only [zpow_neg,zpow_natCast] using (padic_rpow_ceil42 2 Q (c2 i) hQ (hc2 i) _).mp (h2 x i)
+  have hlocal3 (x : G) (i : Fin 4) : padicNorm 3 ((B3 *ᵥ (fun k => ((x : Fin 4 → ℤ) k : ℚ))) i) ≤ (3 : ℚ)^(-(e3 i : ℤ)) := by
+    simpa only [zpow_neg,zpow_natCast] using (padic_rpow_ceil42 3 Q (c3 i) hQ (hc3 i) _).mp (h3 x i)
+  have hi := selected_rational_index_lower5 4 B2 B3 G b e2 e3 hlocal2 hlocal3
+  have hp2 := selected_prime_powers_lower5 2 (by decide) Q hQ c2
+  have hp3 := selected_prime_powers_lower5 3 (by decide) Q hQ c3
+  have he : Q^(-((∑ i,c2 i)+(∑ i,c3 i))) = Q^(-(∑ i,c2 i))*Q^(-(∑ i,c3 i)) := by
+    rw [← Real.rpow_add (zero_lt_one.trans hQ)]
+    congr 1
+    ring
+  rw [he]
+  have hD2 : 0 ≤ (padicNorm 2 B2.det : ℝ) := by exact_mod_cast padicNorm.nonneg B2.det
+  have hD3 : 0 ≤ (padicNorm 3 B3.det : ℝ) := by exact_mod_cast padicNorm.nonneg B3.det
+  calc
+    _ ≤ ((padicNorm 2 B2.det : ℝ)*(padicNorm 3 B3.det : ℝ))*((2 : ℝ)^(∑ i,e2 i)*(3 : ℝ)^(∑ i,e3 i)) :=
+      mul_le_mul_of_nonneg_left (mul_le_mul hp2 hp3 (by positivity) (by positivity)) (mul_nonneg hD2 hD3)
+    _ ≤ _ := by convert hi using 1 <;> ring
+
+end Rank4SourceChallenge250
+#check Rank4SourceChallenge250.raw_rank4_selected_index250
+#print Rank4SourceChallenge250.raw_rank4_selected_index250
+#print axioms Rank4SourceChallenge250.raw_rank4_selected_index250
+#check SelectedSourceChallenge250.rawOriginalBody250
+#print SelectedSourceChallenge250.rawOriginalBody250
+#print axioms SelectedSourceChallenge250.rawOriginalBody250
+#check SelectedSourceChallenge250.rawOriginalGroup250
+#print SelectedSourceChallenge250.rawOriginalGroup250
+#print axioms SelectedSourceChallenge250.rawOriginalGroup250
+#check SelectedSourceChallenge250.rawExponent250
+#print SelectedSourceChallenge250.rawExponent250
+#print axioms SelectedSourceChallenge250.rawExponent250
+#check SelectedSourceChallenge250.rawBody250
+#print SelectedSourceChallenge250.rawBody250
+#print axioms SelectedSourceChallenge250.rawBody250
+#check SelectedSourceChallenge250.rawLocal250
+#print SelectedSourceChallenge250.rawLocal250
+#print axioms SelectedSourceChallenge250.rawLocal250
+#check SelectedSourceChallenge250.rawGroup250
+#print SelectedSourceChallenge250.rawGroup250
+#print axioms SelectedSourceChallenge250.rawGroup250
+#check SelectedSourceChallenge250.rawLattice250
+#print SelectedSourceChallenge250.rawLattice250
+#print axioms SelectedSourceChallenge250.rawLattice250
+#check SelectedSourceChallenge250.rawRestrictedBody250
+#print SelectedSourceChallenge250.rawRestrictedBody250
+#print axioms SelectedSourceChallenge250.rawRestrictedBody250
+#check SelectedSourceChallenge250.rawRestrictedLattice250
+#print SelectedSourceChallenge250.rawRestrictedLattice250
+#print axioms SelectedSourceChallenge250.rawRestrictedLattice250
+#check SelectedSourceChallenge250.rawSolution250
+#print SelectedSourceChallenge250.rawSolution250
+#print axioms SelectedSourceChallenge250.rawSolution250
+#check SelectedSourceChallenge250.rawRoth250
+#print SelectedSourceChallenge250.rawRoth250
+#print axioms SelectedSourceChallenge250.rawRoth250
+#check SelectedSourceChallenge250.rawMinima250
+#print SelectedSourceChallenge250.rawMinima250
+#print axioms SelectedSourceChallenge250.rawMinima250
+#check SelectedSourceChallenge250.rawQuantPoint250
+#print SelectedSourceChallenge250.rawQuantPoint250
+#print axioms SelectedSourceChallenge250.rawQuantPoint250
+#check SelectedSourceChallenge250.rawOppositePoint250
+#print SelectedSourceChallenge250.rawOppositePoint250
+#print axioms SelectedSourceChallenge250.rawOppositePoint250
+#check SelectedSourceChallenge250.rawCriterion250
+#print SelectedSourceChallenge250.rawCriterion250
+#print axioms SelectedSourceChallenge250.rawCriterion250
+#check SelectedSourceChallenge250.raw_selectedLocalGroup5_rpow_spec
+#print SelectedSourceChallenge250.raw_selectedLocalGroup5_rpow_spec
+#print axioms SelectedSourceChallenge250.raw_selectedLocalGroup5_rpow_spec
+#check SelectedSourceChallenge250.raw_finiteSelectedMatrix5_det_ne_zero
+#print SelectedSourceChallenge250.raw_finiteSelectedMatrix5_det_ne_zero
+#print axioms SelectedSourceChallenge250.raw_finiteSelectedMatrix5_det_ne_zero
+#check SelectedSourceChallenge250.raw_realSelectedMatrix5_det_ne_zero
+#print SelectedSourceChallenge250.raw_realSelectedMatrix5_det_ne_zero
+#print axioms SelectedSourceChallenge250.raw_realSelectedMatrix5_det_ne_zero
+#check SelectedSourceChallenge250.raw_relaxedLattice5_covolume_index
+#print SelectedSourceChallenge250.raw_relaxedLattice5_covolume_index
+#print axioms SelectedSourceChallenge250.raw_relaxedLattice5_covolume_index
+#check SelectedSourceChallenge250.raw_source_uniform_real_volume5
+#print SelectedSourceChallenge250.raw_source_uniform_real_volume5
+#print axioms SelectedSourceChallenge250.raw_source_uniform_real_volume5
+#check SelectedSourceChallenge250.raw_source_finite_inverse_covolume5
+#print SelectedSourceChallenge250.raw_source_finite_inverse_covolume5
+#print axioms SelectedSourceChallenge250.raw_source_finite_inverse_covolume5
+#check SelectedSourceChallenge250.raw_source_restricted_opposite_uniform5
+#print SelectedSourceChallenge250.raw_source_restricted_opposite_uniform5
+#print axioms SelectedSourceChallenge250.raw_source_restricted_opposite_uniform5
+#check SelectedSourceChallenge250.raw_source_finite_greedy_indices5
+#print SelectedSourceChallenge250.raw_source_finite_greedy_indices5
+#print axioms SelectedSourceChallenge250.raw_source_finite_greedy_indices5
+#check SelectedSourceChallenge250.raw_source_real_greedy_indices5
+#print SelectedSourceChallenge250.raw_source_real_greedy_indices5
+#print axioms SelectedSourceChallenge250.raw_source_real_greedy_indices5
+#check SelectedSourceChallenge250.raw_selected_weight_le_iff_rank5
+#print SelectedSourceChallenge250.raw_selected_weight_le_iff_rank5
+#print axioms SelectedSourceChallenge250.raw_selected_weight_le_iff_rank5
+#check SelectedSourceChallenge250.raw_selected_weights_permutation5
+#print SelectedSourceChallenge250.raw_selected_weights_permutation5
+#print axioms SelectedSourceChallenge250.raw_selected_weights_permutation5
+#check SelectedSourceChallenge250.raw_selected_weight_sum_permutation5
+#print SelectedSourceChallenge250.raw_selected_weight_sum_permutation5
+#print axioms SelectedSourceChallenge250.raw_selected_weight_sum_permutation5
+#check SelectedSourceChallenge250.raw_source_nonroth_selected_opposite_growth5
+#print SelectedSourceChallenge250.raw_source_nonroth_selected_opposite_growth5
+#print axioms SelectedSourceChallenge250.raw_source_nonroth_selected_opposite_growth5
+#check SelectedSourceChallenge250.raw_source_nonroth_positive_exponent5
+#print SelectedSourceChallenge250.raw_source_nonroth_positive_exponent5
+#print axioms SelectedSourceChallenge250.raw_source_nonroth_positive_exponent5
+#check SelectedSourceChallenge250.raw_source_fin5_criterion_implies_roth5
+#print SelectedSourceChallenge250.raw_source_fin5_criterion_implies_roth5
+#print axioms SelectedSourceChallenge250.raw_source_fin5_criterion_implies_roth5

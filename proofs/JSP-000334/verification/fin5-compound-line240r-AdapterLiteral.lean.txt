@@ -1,0 +1,29 @@
+import SubspaceBridge.SourceCompoundFields52_240
+open scoped BigOperators Classical Matrix
+noncomputable section
+namespace CompoundFeasibility.M240RAdapterLiteral
+open Exterior52_237 Exterior52_238
+
+theorem compound_identity_structure240R {K : Type*} [f : Field K]
+    (r : CommRing K)
+    (he : @EuclideanDomain.toCommRing K (@Field.toEuclideanDomain K f) = r)
+    (A : Matrix (Fin 5) (Fin 5) K) :
+    @Matrix.det (Fin 10) _ _ K r (@compound237 K r A) =
+      (@Matrix.det (Fin 5) _ _ K r A)^4 :=
+  Eq.mp (congrArg (fun cr : CommRing K =>
+    @Matrix.det (Fin 10) _ _ K cr (@compound237 K cr A) =
+      (@Matrix.det (Fin 5) _ _ K cr A)^4) he) (@compound_det238 K f A)
+
+theorem compound_identity_operations240R {K : Type*} [f : Field K]
+    (r : CommRing K)
+    (he : @EuclideanDomain.toCommRing K (@Field.toEuclideanDomain K f) = r)
+    (np : K → ℕ → K) (hp : (fun (x : K) (n : ℕ) => x^n) = np)
+    (A : Matrix (Fin 5) (Fin 5) K) :
+    @Matrix.det (Fin 10) _ _ K r (@compound237 K r A) = np (@Matrix.det (Fin 5) _ _ K r A) 4 :=
+  Eq.mp (congrArg (fun op : K → ℕ → K =>
+    @Matrix.det (Fin 10) _ _ K r (@compound237 K r A) = op (@Matrix.det (Fin 5) _ _ K r A) 4) hp)
+    (compound_identity_structure240R r he A)
+
+end CompoundFeasibility.M240RAdapterLiteral
+#print axioms CompoundFeasibility.M240RAdapterLiteral.compound_identity_structure240R
+#print axioms CompoundFeasibility.M240RAdapterLiteral.compound_identity_operations240R

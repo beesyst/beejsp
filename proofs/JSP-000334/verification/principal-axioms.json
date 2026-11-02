@@ -1,0 +1,18 @@
+{
+  "axioms": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+  ],
+  "constants": 58634,
+  "theorem": "JSP000334.newman_conjecture_complete",
+  "type": "JSP000334.NewmanConjecture",
+  "lean": "leanprover/lean4:v4.19.0",
+  "mathlib": "c44e0c8ee63ca166450922a373c7409c5d26b00b",
+  "local_source_modules": 608,
+  "source_closure_sha256": "05d08c6d3f0f5a50b57003ef3d985bc27cca279c6f1bac3fb789ad2bf4101a21",
+  "method": "verification/PortableClosure.lean traverses elaborated types and values without a namespace boundary; verify.sh regenerates the full graph and axiom summary.",
+  "source_state": "Uncommitted packaging verification; not committed-source reproduction or an independent external kernel checker.",
+  "isolated_constants": 58630,
+  "constant_count_scope": "Observed compiled-artifact graph counts, not a source invariant. The current and isolated runs differ only in four auxiliary proof declarations under two Mathlib theorems; identical pinned Mathlib source and identical first-party dependency edges. See README.md."
+}

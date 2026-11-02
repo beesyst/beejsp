@@ -11,4 +11,5 @@ proofs/*/.local-source/
 /storage/discovery/
 /dist/
 /build/
+.vscode/
 note.txt
