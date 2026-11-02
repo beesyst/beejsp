@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.8.1...beejsp-v0.9.0) (2026-11-02)
+
+
+### Features
+
+* **proofs:** complete JSP-000334 Lean formalization ([#26](https://github.com/beesyst/beejsp/issues/26)) ([e391232](https://github.com/beesyst/beejsp/commit/e391232dc28003d7d9d7a26d6a12f93c71f41304))
+
 ## [0.8.1](https://github.com/beesyst/beejsp/compare/beejsp-v0.8.0...beejsp-v0.8.1) (2026-10-13)
 
 
