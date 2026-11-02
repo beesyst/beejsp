@@ -9,12 +9,12 @@ A public repository for The Justin Sun Prize: recognizing mathematical breakthro
 | Topic | Source |
 | --- | --- |
 | Purpose, scope, and governance | [About](docs/about.md) |
-| New MathDB pilot: submission, claims and category public review | [MathDB process](docs/award-process-mathdb.md) · [49 pilot problems](problems/mathdb-pilot.md) |
+| New MathDB pilot: submission, claims and category public review | [MathDB process](docs/award-process-mathdb.md) · [50 pilot problems](problems/mathdb-pilot.md) |
 | Legacy submission, claims and public review | [Legacy award process](docs/award-process.md) |
 | Award assessment | [Grading](docs/grading.md) |
 | Recipients and attribution | [Attribution](docs/attribution.md) |
 | Formal verification and review | [Verification](docs/verification.md) |
-| Problem bank: 1,050 problems | [Problems](problems/README.md) |
+| Problem bank: 1,072 problems | [Problems](problems/README.md) |
 | Confirmed, publicly announced awards | [Awards](awards/README.md) |
 | Public candidates | [Candidates](candidates/README.md) |
 
@@ -22,10 +22,13 @@ Award entries are confirmed and publicly announced decisions; candidates are tra
 
 ## Participate
 
+[MathDB](https://mathdb.com/), our partner for this pilot, is a community platform
+for sharing mathematical knowledge, problems and research developments.
+
 **We recommend the [new MathDB process](docs/award-process-mathdb.md) for the
-[49 pilot problems](problems/mathdb-pilot.md).** Submit Solution, Lean or Exposition
+[50 pilot problems](problems/mathdb-pilot.md).** Submit Solution, Lean or Exposition
 materials through the confirmed MathDB link in the selected entry. After technical
-and reward-condition checks pass, the official agent creates or updates a claim
+and reward-condition checks pass, MathDB submits or updates the claim materials
 and notifies the contributor, copying the prize team. Contributors respond
 personally; no merged proof PR is required. Category public review, identity and
 payment conditions still apply. Activation and unresolved mappings are recorded
