@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        **Process selection:** this form retains the legacy rules. For a [MathDB pilot problem](https://github.com/TheJustinSunPrize/awards/blob/main/problems/mathdb-pilot.md), follow the [new process](https://github.com/TheJustinSunPrize/awards/blob/main/docs/award-process-mathdb.md): the official agent creates or updates the claim and the contributor responds personally. No merged proof PR is required for pilot claims. Migrating an existing claim needs a recorded team transition decision; do not create a duplicate.
+        **Process selection:** this form retains the legacy rules. For a [MathDB pilot problem](https://github.com/TheJustinSunPrize/awards/blob/main/problems/mathdb-pilot.md), follow the [new process](https://github.com/TheJustinSunPrize/awards/blob/main/docs/award-process-mathdb.md): MathDB submits or updates the materials through the MathDB claim form. No merged proof PR is required for pilot claims. Migrating an existing claim needs a recorded team transition decision; do not create a duplicate.
 
         **Link the merged PR in TheJustinSunPrize/awards that records your contribution. A solver already credited in the problem bank whose contribution was directly recorded by the project and has no applicant-submitted PR may leave this field blank for their mathematical-solution claim and reference the recorded contribution and attribution evidence below. A pending PR or a proof repository URL does not substitute for a required merged PR.**
 
