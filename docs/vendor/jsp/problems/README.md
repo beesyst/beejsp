@@ -459,7 +459,7 @@ The **No.** column runs consecutively from **JSP-000001** to **JSP-001072** in d
 | JSP-000304 | [How large a prime factor must the product of two consecutive positive integers have?](catalog-0301-0400.md#JSP-000304) | Open | No | No | Unavailable | Unavailable |
 | JSP-000305 | [Are there arbitrarily long runs of consecutive integers whose prime factors all lie below the specified bound?](catalog-0301-0400.md#JSP-000305) | Solved | Yes | Yes | Unclaimed | Claimed |
 | JSP-000306 | [What is the density of integers whose largest prime factor is smaller than that of the next integer?](catalog-0301-0400.md#JSP-000306) | Solved | Yes | Yes | Unclaimed | Unclaimed |
-| JSP-000307 | [Can three consecutive integers have strictly decreasing largest prime factors?](catalog-0301-0400.md#JSP-000307) | Solved | No | No | Unavailable | Unavailable |
+| JSP-000307 | [Are there infinitely many triples of consecutive integers with strictly decreasing largest prime factors?](catalog-0301-0400.md#JSP-000307) | Solved | No | No | Unavailable | Unavailable |
 | JSP-000308 | [Under the stated restrictions, are there only finitely many factorials equal to products of smaller factorials?](catalog-0301-0400.md#JSP-000308) | Open | No | No | Unavailable | Unavailable |
 | JSP-000309 | [How many factorials are needed to obtain a square product, and how is this minimum distributed?](catalog-0301-0400.md#JSP-000309) | Open | No | No | Unavailable | Unavailable |
 | JSP-000310 | [Can distinct prime divisors be assigned to the terms of every run of consecutive composite integers?](catalog-0301-0400.md#JSP-000310) | Open | No | No | Unavailable | Unavailable |
