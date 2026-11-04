@@ -42,6 +42,12 @@ The critical distinction is **statement fidelity versus kernel checking**: both 
 
 ## Discovery Dashboard
 
+[**Explore Interactive Dashboard**](https://beesyst.github.io/beejsp/)
+
+![BeeJSP Discovery Dashboard](docs/assets/discovery-dashboard.png)
+
+_Public read-only snapshot. Search, filter and explore the JSP problem catalog without installing BeeJSP. Data freshness is displayed in the dashboard._
+
 The project includes a local, standalone HTML dashboard for exploring the problem bank. It supports search, sorting, and filters for mathematical status, Lean status, area, awards, PRs, issues, and PR lifecycle; detail views link to the underlying evidence. All captured data has timestamps and may become stale.
 
 ### Quick start

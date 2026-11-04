@@ -17,6 +17,7 @@ from urllib.request import Request
 import pytest
 
 from beejsp import assessment as old
+from beejsp import dashboard
 from beejsp import discovery as new
 from beejsp.scanner import scan_problem_bank
 
@@ -397,14 +398,156 @@ def test_scoped_issue_capture(monkeypatch):
     assert not new.select(scanner(), capture)["competition_complete"]
 
 
-CANDIDATES = """| Problem ID | Solver review start (UTC) | Mathematical solver | Lean review start (UTC) | Lean formalizer |
-| --- | --- | --- | --- | --- |
-| [JSP-000161](../problems/example.md#JSP-000161) | 2026-10-01 | Solver | 2026-10-02 | Formalizer |
-"""
-AWARDS = """| Problem ID | Contribution type | Recipients | Public-review start (UTC) | Public-review end (UTC) |
-| --- | --- | --- | --- | --- |
-| JSP-000475 | Lean formalization | Formalizer | 2026-09-19 | 2026-10-03 |
-"""
+CANDIDATES = (Path(__file__).parent / "fixtures/candidate-register.md").read_text()
+AWARDS = (Path(__file__).parent / "fixtures/award-register.md").read_text()
+
+
+@pytest.mark.parametrize(
+    "content,category,count",
+    [(CANDIDATES, "candidate", 2), (AWARDS, "announced", 1)],
+)
+@pytest.mark.parametrize("outer", ["both", "neither", "left", "right"])
+@pytest.mark.parametrize("delimiter", ["---", ":---", "---:", ":---:"])
+def test_register_scope_and_markdown_formatting(
+    content, category, count, outer, delimiter
+):
+    expected = new.normalize_register(content, category, SHA, WHEN, "register.md")
+    lines = []
+    for line in content.splitlines():
+        if line.startswith("|"):
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+
+            if all(cell.strip(":-") == "" and cell.count("-") >= 3 for cell in cells):
+                cells = [delimiter] * len(cells)
+
+            line = "|".join(cells)
+            line = ("|" if outer in {"both", "left"} else "") + line
+            line += "|" if outer in {"both", "right"} else ""
+            line = "  " + line + "  "
+        lines.append(line)
+    modified = "\n".join(lines)
+    assert (
+        new.normalize_register(modified, category, SHA, WHEN, "register.md") == expected
+    )
+    assert len(expected) == count
+    legacy, pilot = content.split("### MathDB", 1)
+    pilot = "### MathDB" + pilot + "\n| invalid pilot data |\n"
+    assert (
+        new.normalize_register(pilot + legacy, category, SHA, WHEN, "register.md")
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    "content,category,heading",
+    [
+        (CANDIDATES, "candidate", "Candidate register"),
+        (AWARDS, "announced", "Award register"),
+    ],
+)
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "missing-heading",
+        "wrong-heading",
+        "missing-table",
+        "wrong-columns",
+        "missing-column",
+        "missing-separator",
+        "short-separator",
+        "bad-separator",
+        "missing-cell",
+        "extra-cell",
+        "invalid-id",
+        "conflicting-ids",
+        "invalid-date",
+        "missing-recipient",
+        "duplicate-section",
+        "duplicate-table",
+        "fenced-table",
+        "fenced-section",
+        "wrong-role",
+    ],
+)
+def test_required_register_layout_fails_closed(
+    content, category, heading, mutation, monkeypatch
+):
+    legacy, pilot = content.split("### MathDB", 1)
+    lines = legacy.splitlines()
+    header = next(i for i, line in enumerate(lines) if line.startswith("| Problem ID"))
+    if mutation == "missing-heading":
+        lines = [line for line in lines if line != f"## {heading}"]
+    elif mutation == "wrong-heading":
+        lines = [line.replace(heading, heading + " archive") for line in lines]
+    elif mutation == "missing-table":
+        lines = lines[:header]
+    elif mutation == "wrong-columns":
+        lines[header] = lines[header].replace("Problem ID", "Other ID")
+    elif mutation == "missing-column":
+        lines[header] = lines[header].rsplit("|", 2)[0] + "|"
+    elif mutation == "missing-separator":
+        del lines[header + 1]
+    elif mutation == "short-separator":
+        lines[header + 1] = "| --- | --- |"
+    elif mutation == "bad-separator":
+        lines[header + 1] = lines[header + 1].replace("---", "---bad", 1)
+    elif mutation == "missing-cell":
+        lines[header + 2] = lines[header + 2].rsplit("|", 2)[0] + "|"
+    elif mutation == "extra-cell":
+        lines[header + 2] += " extra |"
+    elif mutation == "invalid-id":
+        lines[header + 2] = lines[header + 2].replace("JSP-000", "JSP-0000")
+    elif mutation == "conflicting-ids":
+        lines[header + 2] = lines[header + 2].replace("| ", "| JSP-000001 ", 1)
+    elif mutation == "invalid-date":
+        lines[header + 2] = (
+            lines[header + 2]
+            .replace("2026-10-01", "2026-02-30")
+            .replace("2026-09-19", "2026-02-30")
+        )
+    elif mutation == "missing-recipient":
+        cells = lines[header + 2].strip("|").split("|")
+        cells[2] = " "
+        lines[header + 2] = "|" + "|".join(cells) + "|"
+    elif mutation == "duplicate-section":
+        lines += lines
+    elif mutation == "duplicate-table":
+        lines += [""] + lines[header : header + 3]
+    elif mutation == "fenced-table":
+        lines[header : header + 3] = ["```markdown", *lines[header : header + 3], "```"]
+    elif mutation == "fenced-section":
+        lines = ["~~~markdown", *lines, "~~~"]
+    else:
+        if category == "candidate":
+            lines[header] = lines[header].replace("Lean formalizer", "Other role")
+        else:
+            lines[header + 2] = lines[header + 2].replace(
+                "Lean formalization", "Other role"
+            )
+    malformed = "\n".join(lines) + "\n### MathDB" + pilot
+    with pytest.raises(old.AssessmentError):
+        new.normalize_register(malformed, category, SHA, WHEN, "register.md")
+
+    def payload(address):
+        if "/commits/" in address:
+            return {"sha": SHA}, ""
+        path = (
+            "candidates/README.md" if "/candidates/" in address else "awards/README.md"
+        )
+        document = CANDIDATES if path.startswith("candidates") else AWARDS
+        if (category == "candidate") == path.startswith("candidates"):
+            document = malformed
+        return {
+            "path": path,
+            "encoding": "base64",
+            "content": base64.b64encode(document.encode()).decode(),
+        }, ""
+
+    monkeypatch.setattr(old, "_github_payload", payload)
+    captured = new.capture_records()
+    assert captured["schema_version"] == 2
+    assert not captured["acquisition"]["complete"]
+    assert captured["acquisition"]["error"]
 
 
 def test_official_capture_pinned_registers_and_unknown_amounts(monkeypatch):
@@ -445,6 +588,58 @@ def test_official_capture_pinned_registers_and_unknown_amounts(monkeypatch):
     enriched["records"][0]["published_amount"] = 0
     with pytest.raises(old.AssessmentError):
         new.validate_awards(enriched)
+
+
+@pytest.mark.parametrize("directory", ["candidates", "awards"])
+@pytest.mark.parametrize("failure", ["heading", "columns", "row"])
+def test_register_refresh_preserves_valid_snapshot(
+    tmp_path, monkeypatch, directory, failure
+):
+    documents = {"candidates": CANDIDATES, "awards": AWARDS}
+
+    def payload(address):
+        if "/commits/" in address:
+            return {"sha": SHA}, ""
+        name = "candidates" if "/candidates/" in address else "awards"
+        return {
+            "path": f"{name}/README.md",
+            "encoding": "base64",
+            "content": base64.b64encode(documents[name].encode()).decode(),
+        }, ""
+
+    monkeypatch.setattr(old, "_github_payload", payload)
+    monkeypatch.setattr(old, "capture_github", lambda **_: competition())
+    monkeypatch.setattr(dashboard.scanner, "scan_problem_bank", lambda _: scanner())
+    html = dashboard.refresh(tmp_path)
+    snapshot, saved = dashboard.load_snapshot(tmp_path)
+    assert html == snapshot / "dashboard.html"
+    assert saved["awards"]["schema_version"] == 2
+    assert saved["awards"]["acquisition"]["complete"]
+    assert len(saved["awards"]["records"]) == 3
+    assert html.read_text() == dashboard.build_reports(saved)["dashboard.html"]
+    storage = tmp_path / "storage/discovery"
+    pointer = (storage / "current.json").read_bytes()
+    before = {p.name: p.read_bytes() for p in snapshot.iterdir()}
+    if failure == "heading":
+        documents[directory] = documents[directory].replace(" register", " archive")
+    elif failure == "columns":
+        documents[directory] = documents[directory].replace(
+            "Problem ID", "Unknown column"
+        )
+    else:
+        documents[directory] = documents[directory].replace("JSP-000", "JSP-0000")
+    with pytest.raises(
+        old.AssessmentError, match="incomplete official register acquisition"
+    ):
+        dashboard.refresh(tmp_path)
+    assert (storage / "current.json").read_bytes() == pointer
+    assert {p.name: p.read_bytes() for p in snapshot.iterdir()} == before
+    assert dashboard.load_snapshot(tmp_path)[1] == saved
+    assert (
+        json.loads((storage / "refresh-status.json").read_text())["state"] == "failed"
+    )
+    assert not list(storage.glob(".stage-*"))
+    assert not (storage / ".refresh-lock").exists()
 
 
 @pytest.mark.parametrize(
