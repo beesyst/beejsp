@@ -630,21 +630,61 @@ def normalize_register(
             "Public-review end (UTC)",
         ]
     )
+    heading = "Candidate register" if category == "candidate" else "Award register"
+    section = []
+    active = False
+    found = False
+    fence = None
+    for line in content.splitlines():
+        line = line.strip()
+        if fence is not None:
+            if re.fullmatch(rf"{re.escape(fence[0])}{{{len(fence)},}}\s*", line):
+                fence = None
+            continue
+        marker = re.match(r"(`{3,}|~{3,})", line)
+        if marker:
+            fence = marker[1]
+            continue
+        title = re.fullmatch(r"#{1,6}\s+(.+?)(?:\s+#+)?\s*", line)
+        if title:
+            active = title[1] == heading
+            if active:
+                if found:
+                    raise Error("duplicate official register heading")
+                found = True
+            continue
+        if active:
+            section.append(line)
     rows = []
     header = None
-    for line in content.splitlines():
-        if not line.startswith("|"):
+    separator = False
+    ended = False
+    for line in section:
+        if not line:
+            if header is not None:
+                if not separator:
+                    raise Error("official register separator missing")
+                ended = True
             continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if cells[0] == "Problem ID":
-            header = cells
-            if header != expected:
-                raise Error("unsupported official register columns")
+        if "|" not in line:
+            if header is not None and not ended:
+                raise Error("malformed official register row")
             continue
-        if cells[0].startswith("---"):
-            continue
+        cells = [c.strip() for c in line.removeprefix("|").removesuffix("|").split("|")]
+        if ended:
+            raise Error("multiple official register tables")
         if header is None:
-            raise Error("official register has data without a header")
+            if cells != expected:
+                raise Error("unsupported official register columns")
+            header = cells
+            continue
+        if not separator:
+            if len(cells) != len(header) or not all(
+                re.fullmatch(r":?-+:?", cell) for cell in cells
+            ):
+                raise Error("malformed official register separator")
+            separator = True
+            continue
         ids = legacy._JSP_ID_IN_TEXT.findall(cells[0])
         if len(cells) != len(header) or not ids or len(set(ids)) != 1:
             raise Error("malformed official register row")
@@ -691,7 +731,7 @@ def normalize_register(
                     "review_end": review_date(cells[4]),
                 }
             )
-    if header is None:
+    if header is None or not separator:
         raise Error("official register table missing")
     return rows
 
