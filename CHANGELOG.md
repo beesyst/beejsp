@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/beesyst/beejsp/compare/beejsp-v0.9.0...beejsp-v0.9.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* **discovery:** scope legacy register parsing to exact headings ([#29](https://github.com/beesyst/beejsp/issues/29)) ([ff231dd](https://github.com/beesyst/beejsp/commit/ff231dd2cbd9d887538550a37e4ae5bae159cd8c))
+
 ## [0.9.0](https://github.com/beesyst/beejsp/compare/beejsp-v0.8.1...beejsp-v0.9.0) (2026-11-02)
 
 
