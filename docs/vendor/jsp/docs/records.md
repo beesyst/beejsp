@@ -104,9 +104,14 @@ pending formulations and page-statement corrections remain in catalog metadata.
 independently of `Candidate` claim status.
 
 Public registration is derived separately for Solution, Lean and Exposition from
-the MathDB tables in `candidates/README.md` and `awards/README.md`. Use exactly those
-category labels and the recorded rule version in each row. After publishing or
-moving a category record, rebuild the index and pilot page in the same PR. This
+the shared registers in `candidates/README.md` and `awards/README.md`. Award rows
+use Mathematical solution, Lean formalization or Exposition as their contribution
+type; the first two map to Solution and Lean. Link recipients to their claim
+issues and keep the applicable rule version, fixed evidence, announcement,
+candidate history and team-confirmed payment status in those linked records.
+Preserve precise UTC review dates for new pilot records and date-only precision
+for historical records. After publishing or moving a category record, rebuild
+the index and pilot page in the same PR. This
 updates only that category; Exposition appears only on the pilot page. It does
 not infer committee approval, eligibility, claim-issue state or payment from
 mathematical status. Retained award records may have subsequent corrections
@@ -121,9 +126,11 @@ qualification, priority, identity, committee decisions, live agent integration o
 payment. Current upstream uses Markdown registers and has no old JSON award
 generator to modify; the pilot check supplements this structure.
 
-The [candidate](../candidates/README.md#mathdb-pilot-candidates) and
-[award](../awards/README.md#mathdb-pilot-awards) pilot tables stay in the existing
-README registers, with one category/claimant record and preserved public-review
-history. No hypothetical candidates, awarded recipients or payments are created
+Candidates use the shared [Candidate register](../candidates/README.md#candidate-register),
+with independent contribution columns and links to each category's claim.
+All awards use the same [Award register](../awards/README.md#award-register),
+with a separate row for each contribution type and linked recipient claims.
+Both registers preserve public-review history. No hypothetical
+candidates, awarded recipients or payments are created
 when preparing a cohort. The official agent follows [its contract](../agent-scope.md)
 and the [claim/update templates](templates/mathdb-claim-reward.md).
