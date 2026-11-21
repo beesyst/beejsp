@@ -87,8 +87,8 @@ including Exposition. Each category uses independent public-registration states:
 | Awarded | At least one announced award record exists for this category. Consult the registers for any other claimant's pending conditions, later corrections/revocation and payment; this is not proof of payment or current eligibility. |
 
 The pilot page and these index cells are generated from the category-specific
-[candidate](../candidates/README.md#mathdb-pilot-candidates) and
-[award](../awards/README.md#mathdb-pilot-awards) tables. A published Exposition
+[candidate](../candidates/README.md#candidate-register) and
+[award](../awards/README.md#award-register) tables. A published Exposition
 record changes only Exposition on the pilot page. Candidate publication may
 precede complete Lean verification; an award announcement requires that verification,
 the committee's selection and all applicable personal/team checks. Catalog flags
@@ -144,7 +144,7 @@ The **No.** column runs consecutively from **JSP-000001** to **JSP-001072** in d
 | JSP-000004 | [Hodge conjecture](catalog-0001-0100.md#JSP-000004) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000005 | [Existence and smoothness of the 3D Navier–Stokes equations](catalog-0001-0100.md#JSP-000005) | Solved | Yes | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000006 | [Yang–Mills existence and mass gap](catalog-0001-0100.md#JSP-000006) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
-| JSP-000007 | [Poincaré conjecture](catalog-0001-0100.md#JSP-000007) | Solved | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
+| JSP-000007 | [Poincaré conjecture](catalog-0001-0100.md#JSP-000007) | Solved | Yes | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  | Candidate |
 | JSP-000008 | [Goldbach conjecture (strong Goldbach)](catalog-0001-0100.md#JSP-000008) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000009 | [Twin prime conjecture](catalog-0001-0100.md#JSP-000009) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
 | JSP-000010 | [abc conjecture](catalog-0001-0100.md#JSP-000010) | Open | No | [See MathDB pilot](mathdb-pilot.md#pilot-register) |  |  |
@@ -252,7 +252,7 @@ The **No.** column runs consecutively from **JSP-000001** to **JSP-001072** in d
 | JSP-000107 | [Are there essentially different geometric configurations minimizing the number of distinct distances among planar points?](catalog-0101-0200.md#JSP-000107) | Open | No | No | Unavailable | Unavailable |
 | JSP-000108 | [If every point has many neighbors at one common distance from it, how large a count can be guaranteed at every point? Is it smaller than every fixed positive power of the number of points?](catalog-0101-0200.md#JSP-000108) | Solved | No | No | Unavailable | Unavailable |
 | JSP-000109 | [What is the maximum number of unit-distance pairs among the vertices of a convex polygon?](catalog-0101-0200.md#JSP-000109) | Open | No | No | Unavailable | Unavailable |
-| JSP-000110 | [Does every convex polygon have a vertex from which no distance to the other vertices repeats too often?](catalog-0101-0200.md#JSP-000110) | Solved | Yes | Yes | Unclaimed | Unclaimed |
+| JSP-000110 | [Does every convex polygon have a vertex from which no distance to the other vertices repeats too often?](catalog-0101-0200.md#JSP-000110) | Solved | Yes | Yes | Claimed | Claimed |
 | JSP-000111 | [How many distinct distances must a planar point set in general position determine?](catalog-0101-0200.md#JSP-000111) | Open | No | No | Unavailable | Unavailable |
 | JSP-000112 | [Must a minimum-diameter point set satisfying the prescribed distance constraints contain an equilateral triangle of side length one?](catalog-0101-0200.md#JSP-000112) | Open | No | No | Unavailable | Unavailable |
 | JSP-000113 | [How large must a planar point set's diameter be if its distinct distances have the prescribed separation?](catalog-0101-0200.md#JSP-000113) | Open | No | No | Unavailable | Unavailable |
@@ -864,7 +864,7 @@ The **No.** column runs consecutively from **JSP-000001** to **JSP-001072** in d
 | JSP-000694 | [How many subsets of a planar point set in general position are in convex position?](catalog-0601-0700.md#JSP-000694) | Open | No | No | Unavailable | Unavailable |
 | JSP-000695 | [How dense can an integer sequence be if no new term is a sum of consecutive earlier terms?](catalog-0601-0700.md#JSP-000695) | Open | No | No | Unavailable | Unavailable |
 | JSP-000696 | [How much can allowing very few repeated pairwise sums increase the maximum size over that of a Sidon set?](catalog-0601-0700.md#JSP-000696) | Open | No | No | Unavailable | Unavailable |
-| JSP-000697 | [How short a following interval supplies larger integers whose product with a given integer is a square?](catalog-0601-0700.md#JSP-000697) | Solved | Yes | Yes | Unclaimed | Unclaimed |
+| JSP-000697 | [How short a following interval supplies larger integers whose product with a given integer is a square?](catalog-0601-0700.md#JSP-000697) | Solved | Yes | Yes | Unclaimed | Claimed |
 | JSP-000698 | [Is every graph formed by vertex-disjoint triangles and a spanning Hamilton cycle three-colorable?](catalog-0601-0700.md#JSP-000698) | Solved | No | No | Unavailable | Unavailable |
 | JSP-000699 | [Under every two-coloring of the squares, is every sufficiently large integer a sum of distinct squares of one color?](catalog-0601-0700.md#JSP-000699) | Solved | No | No | Unavailable | Unavailable |
 | JSP-000700 | [If every finite part of a planar set contains a fixed proportion in general position, can the whole set be partitioned into finitely many general-position sets?](catalog-0601-0700.md#JSP-000700) | Solved | Yes | Yes | Unclaimed | Unclaimed |
